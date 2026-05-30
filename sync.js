@@ -5,6 +5,8 @@ import { spawn, execSync } from 'child_process';
 import readline from 'readline';
 import opening_hours from 'opening_hours';
 import { LRUCache } from 'lru-cache';
+import { parsePhoneNumber } from 'libphonenumber-js';
+import normalizeUrl from 'normalize-url';
 import eta from './src/eta.js';
 
 const CONFIG_FILE = 'config.json';
@@ -31,11 +33,6 @@ function areOpeningHoursEqual(v1, v2) {
     const oh2 = getOH(v2);
 
     if (oh1 === null && oh2 === null) {
-        // Both invalid or empty, we already checked v1 === v2,
-        // but they might be different invalid strings.
-        // User said: "Invalid should be ignored and treated as empty or null"
-        // and "If both OSM and the spider have the exact same string, but it's invalid for the library, should they be considered 'matching'? Yes"
-        // If they are different but both invalid, treated as null, so they match.
         return true;
     }
 
@@ -44,6 +41,53 @@ function areOpeningHoursEqual(v1, v2) {
     }
 
     return false;
+}
+
+function arePhonesEqual(v1, v2, country) {
+    if (v1 === v2) return true;
+    if (!v1 || !v2) return false;
+
+    let p1, p2;
+    try {
+        p1 = parsePhoneNumber(v1, country);
+    } catch {
+        p1 = null;
+    }
+    try {
+        p2 = parsePhoneNumber(v2, country);
+    } catch {
+        p2 = null;
+    }
+
+    if (p1 && p2) {
+        return p1.number === p2.number;
+    }
+
+    return false;
+}
+
+function areWebsitesEqual(v1, v2) {
+    if (v1 === v2) return true;
+    if (!v1 || !v2) return false;
+
+    try {
+        const n1 = normalizeUrl(v1);
+        const n2 = normalizeUrl(v2);
+        return n1 === n2;
+    } catch {
+        return v1 === v2;
+    }
+}
+
+function areTagsEqual(tag, v1, v2, country) {
+    if (tag === 'opening_hours') {
+        return areOpeningHoursEqual(v1, v2);
+    } else if (tag === 'phone') {
+        return arePhonesEqual(v1, v2, country);
+    } else if (tag === 'website') {
+        return areWebsitesEqual(v1, v2);
+    }
+    return v1 === v2;
 }
 const HISTORY_URL = 'https://data.alltheplaces.xyz/runs/history.json';
 const ATP_BASE_URL = 'https://alltheplaces-data.openaddresses.io/runs';
@@ -199,12 +243,24 @@ async function processSpider(spider, runIds, osmData) {
 
         const matchEntries = Array.from(matchesMap.values());
 
-        // We handle importable tags (currently just opening_hours)
+        // We handle importable tags
         for (const tag of spider.importableTags) {
+            const country = props['addr:country'];
             let status;
             let osmValue = 'N/A';
             let spiderValue = props[tag] || 'N/A';
             let osmId = null;
+
+            if (tag === 'phone' && props[tag]) {
+                try {
+                    const p = parsePhoneNumber(props[tag], country);
+                    if (!p || !p.isValid()) {
+                        continue;
+                    }
+                } catch {
+                    continue;
+                }
+            }
 
             if (matchEntries.length > 1) {
                 status = 'duplicate ref';
@@ -218,20 +274,20 @@ async function processSpider(spider, runIds, osmData) {
                 const h2 = spiderMaps[1].get(matchingValue)?.[tag];
                 const h1 = spiderMaps[0].get(matchingValue)?.[tag];
 
-                const stableOld = h1 !== undefined && areOpeningHoursEqual(h1, h2);
-                const stableNew = h3 !== undefined && areOpeningHoursEqual(h3, h4);
+                const stableOld = h1 !== undefined && areTagsEqual(tag, h1, h2, country);
+                const stableNew = h3 !== undefined && areTagsEqual(tag, h3, h4, country);
 
                 if (!h4) {
-                    status = 'no spider hours';
+                    status = 'no spider tag';
                 } else if (!osm.tags[tag]) {
-                    status = 'no OSM hours';
-                } else if (areOpeningHoursEqual(osm.tags[tag], h4)) {
+                    status = 'no OSM tag';
+                } else if (areTagsEqual(tag, osm.tags[tag], h4, country)) {
                     status = 'matching';
                 } else if (
                     stableOld &&
                     stableNew &&
-                    areOpeningHoursEqual(osm.tags[tag], h1) &&
-                    !areOpeningHoursEqual(osm.tags[tag], h4)
+                    areTagsEqual(tag, osm.tags[tag], h1, country) &&
+                    !areTagsEqual(tag, osm.tags[tag], h4, country)
                 ) {
                     status = 'update OSM';
                 } else {
