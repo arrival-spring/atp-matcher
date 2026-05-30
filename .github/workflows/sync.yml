@@ -29,8 +29,13 @@ jobs:
       - name: Run synchronization script
         run: node sync.js
 
+      - name: Build CSS
+        run: npm run build:css
+
       - name: Upload reports
         uses: actions/upload-artifact@v4
         with:
           name: atp-osm-reports
-          path: "*_report.txt"
+          path: |
+            *_report.txt
+            output/

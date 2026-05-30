@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "tailwindcss -i src/input.css -o output/style.css"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,11 @@
   },
   "homepage": "https://github.com/arrival-spring/atp-matcher#readme",
   "dependencies": {
+    "@tailwindcss/cli": "^4.3.0",
     "axios": "^1.16.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.5.0",
+    "tailwindcss": "^4.3.0"
   }
 }
