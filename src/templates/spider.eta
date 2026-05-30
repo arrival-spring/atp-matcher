@@ -1,0 +1,87 @@
+<% layout("./layout") %>
+
+<nav class="mb-8">
+    <a href="index.html" class="text-blue-400 hover:underline">← Back to Index</a>
+</nav>
+<header class="mb-12">
+    <h1 class="text-4xl font-extrabold mb-2"><%= it.name %></h1>
+    <p class="text-gray-400">Last updated: <%= it.lastSync %></p>
+</header>
+
+<% Object.keys(it.grouped).sort().forEach(function(status) { %>
+    <% const rows = it.grouped[status]; %>
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold mb-4 capitalize text-gray-200"><%= status %> (<%= rows.length %>)</h2>
+        <div class="overflow-x-auto bg-gray-900 rounded-lg shadow">
+            <table class="min-w-full table-auto data-table" data-status="<%= status %>">
+                <thead class="bg-gray-800 text-gray-400 text-left">
+                    <tr>
+                        <th class="px-4 py-2">Ref</th>
+                        <th class="px-4 py-2">Tag</th>
+                        <th class="px-4 py-2">OSM Value</th>
+                        <th class="px-4 py-2">Spider Value</th>
+                        <th class="px-4 py-2">OSM Link</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-300">
+                    <% rows.forEach(function(r) { %>
+                        <tr class="border-b border-gray-700 hover:bg-gray-800">
+                            <td class="px-4 py-2"><%= r.ref %></td>
+                            <td class="px-4 py-2"><%= r.tag %></td>
+                            <td class="px-4 py-2 font-mono text-sm"><%= r.osmValue %></td>
+                            <td class="px-4 py-2 font-mono text-sm"><%= r.spiderValue %></td>
+                            <td class="px-4 py-2">
+                                <% if (r.osmId) { %>
+                                    <% const typeMap = { 'n': 'node', 'w': 'way', 'r': 'relation' }; %>
+                                    <% const typeChar = r.osmId.toString()[0]; %>
+                                    <% const id = r.osmId.toString().substring(1); %>
+                                    <% if (typeMap[typeChar]) { %>
+                                        <a href="https://www.openstreetmap.org/<%= typeMap[typeChar] %>/<%= id %>" target="_blank" class="text-blue-400 hover:underline"><%= r.osmId %></a>
+                                    <% } else { %>
+                                        N/A
+                                    <% } %>
+                                <% } else { %>
+                                    N/A
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-4 flex justify-between items-center pagination-controls" data-status="<%= status %>">
+            <button class="prev-btn bg-gray-700 px-3 py-1 rounded disabled:opacity-50">Previous</button>
+            <span class="page-info">Page 1 of 1</span>
+            <button class="next-btn bg-gray-700 px-3 py-1 rounded disabled:opacity-50">Next</button>
+        </div>
+    </div>
+<% }) %>
+
+<script>
+    const PAGE_SIZE = 50;
+    document.querySelectorAll('.data-table').forEach(table => {
+        const status = table.dataset.status;
+        const rows = Array.from(table.querySelectorAll('tbody tr'));
+        const controls = document.querySelector(`.pagination-controls[data-status="${status}"]`);
+        const pageInfo = controls.querySelector('.page-info');
+        const prevBtn = controls.querySelector('.prev-btn');
+        const nextBtn = controls.querySelector('.next-btn');
+
+        let currentPage = 1;
+        const totalPages = Math.ceil(rows.length / PAGE_SIZE);
+
+        function update() {
+            rows.forEach((row, i) => {
+                row.style.display = (i >= (currentPage-1)*PAGE_SIZE && i < currentPage*PAGE_SIZE) ? '' : 'none';
+            });
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        prevBtn.onclick = () => { if(currentPage > 1) { currentPage--; update(); } };
+        nextBtn.onclick = () => { if(currentPage < totalPages) { currentPage++; update(); } };
+
+        update();
+    });
+</script>

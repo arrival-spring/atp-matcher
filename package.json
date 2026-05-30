@@ -20,14 +20,14 @@
   },
   "homepage": "https://github.com/arrival-spring/atp-matcher#readme",
   "dependencies": {
-    "@tailwindcss/cli": "^4.3.0",
-    "axios": "^1.16.1"
-  },
-  "devDependencies": {
-    "autoprefixer": "^10.5.0",
-    "tailwindcss": "^4.3.0"
     "axios": "^1.16.1",
+    "eta": "^3.5.0",
     "lru-cache": "^11.5.1",
     "opening_hours": "^3.12.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.0",
+    "autoprefixer": "^10.5.0",
+    "tailwindcss": "^4.3.0"
   }
 }

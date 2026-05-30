@@ -1,0 +1,38 @@
+<% layout("./layout") %>
+
+<header class="mb-12">
+    <h1 class="text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400">
+        ATP-OSM Sync
+    </h1>
+    <p class="text-xl text-gray-400">Data synchronization between All The Places and OpenStreetMap</p>
+</header>
+
+<div class="bg-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-800">
+    <table class="min-w-full">
+        <thead class="bg-gray-800 text-gray-400 text-left uppercase text-sm tracking-wider">
+            <tr>
+                <th class="px-6 py-4">Spider Name</th>
+                <th class="px-6 py-4">Issues / Total</th>
+                <th class="px-6 py-4">Last Sync</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-800">
+            <% it.allSpiderResults.forEach(function(spider) { %>
+                <tr class="border-b border-gray-700 hover:bg-gray-800">
+                    <td class="px-6 py-4">
+                        <a href="<%= spider.name %>.html" class="text-blue-400 hover:underline font-bold text-lg"><%= spider.name %></a>
+                    </td>
+                    <td class="px-6 py-4">
+                        <% const issuesCount = spider.results.filter(r => r.status !== 'matching').length; %>
+                        <% const totalCount = spider.results.length; %>
+                        <span class="<%= issuesCount > 0 ? 'text-red-400' : 'text-green-400' %> font-semibold">
+                            <%= issuesCount %>
+                        </span>
+                        <span class="text-gray-500"> / <%= totalCount %></span>
+                    </td>
+                    <td class="px-6 py-4 text-gray-400"><%= it.lastSync %></td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</div>
