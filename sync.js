@@ -3,8 +3,47 @@ const fs = require('fs');
 const path = require('path');
 const { spawn, execSync } = require('child_process');
 const readline = require('readline');
+const opening_hours = require('opening_hours');
+const { LRUCache } = require('lru-cache');
 
 const CONFIG_FILE = 'config.json';
+
+const ohCache = new LRUCache({ max: 1000 });
+
+function getOH(value) {
+    if (!value) return null;
+    if (ohCache.has(value)) return ohCache.get(value);
+
+    try {
+        const oh = new opening_hours(value);
+        ohCache.set(value, oh);
+        return oh;
+    } catch (e) {
+        ohCache.set(value, null);
+        return null;
+    }
+}
+
+function areOpeningHoursEqual(v1, v2) {
+    if (v1 === v2) return true;
+    const oh1 = getOH(v1);
+    const oh2 = getOH(v2);
+
+    if (oh1 === null && oh2 === null) {
+        // Both invalid or empty, we already checked v1 === v2,
+        // but they might be different invalid strings.
+        // User said: "Invalid should be ignored and treated as empty or null"
+        // and "If both OSM and the spider have the exact same string, but it's invalid for the library, should they be considered 'matching'? Yes"
+        // If they are different but both invalid, treated as null, so they match.
+        return true;
+    }
+
+    if (oh1 && oh2) {
+        return oh1.isEqualTo(oh2)[0];
+    }
+
+    return false;
+}
 const HISTORY_URL = 'https://data.alltheplaces.xyz/runs/history.json';
 const ATP_BASE_URL = 'https://alltheplaces-data.openaddresses.io/runs';
 
@@ -178,16 +217,16 @@ async function processSpider(spider, runIds, osmData) {
                 const h2 = spiderMaps[1].get(matchingValue)?.[tag];
                 const h1 = spiderMaps[0].get(matchingValue)?.[tag];
 
-                const stableOld = (h1 !== undefined && h1 === h2);
-                const stableNew = (h3 !== undefined && h3 === h4);
+                const stableOld = (h1 !== undefined && areOpeningHoursEqual(h1, h2));
+                const stableNew = (h3 !== undefined && areOpeningHoursEqual(h3, h4));
 
                 if (!h4) {
                     status = 'no spider hours';
                 } else if (!osm.tags[tag]) {
                     status = 'no OSM hours';
-                } else if (osm.tags[tag] === h4) {
+                } else if (areOpeningHoursEqual(osm.tags[tag], h4)) {
                     status = 'matching';
-                } else if (stableOld && stableNew && osm.tags[tag] === h1 && osm.tags[tag] !== h4) {
+                } else if (stableOld && stableNew && areOpeningHoursEqual(osm.tags[tag], h1) && !areOpeningHoursEqual(osm.tags[tag], h4)) {
                     status = 'update OSM';
                 } else {
                     status = 'mismatch';

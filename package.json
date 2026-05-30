@@ -26,5 +26,8 @@
   "devDependencies": {
     "autoprefixer": "^10.5.0",
     "tailwindcss": "^4.3.0"
+    "axios": "^1.16.1",
+    "lru-cache": "^11.5.1",
+    "opening_hours": "^3.12.0"
   }
 }
