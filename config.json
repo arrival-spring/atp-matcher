@@ -1,0 +1,10 @@
+{
+  "osmExtractUrl": "https://download.geofabrik.de/africa/south-africa-latest.osm.pbf",
+  "spiders": [
+    {
+      "name": "kfc_za",
+      "matchingKey": "ref",
+      "importableTags": ["opening_hours"]
+    }
+  ]
+}
