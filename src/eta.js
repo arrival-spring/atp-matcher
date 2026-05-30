@@ -1,9 +1,13 @@
-const { Eta } = require('eta');
-const path = require('path');
+import { Eta } from 'eta';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const eta = new Eta({
     views: path.join(__dirname, 'templates'),
-    cache: true
+    cache: true,
 });
 
-module.exports = eta;
+export default eta;

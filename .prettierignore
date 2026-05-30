@@ -1,0 +1,4 @@
+node_modules
+output
+*.osm.pbf
+*_report.txt
