@@ -1,10 +1,20 @@
 {
-    "osmExtractUrl": "https://download.geofabrik.de/africa/south-africa-latest.osm.pbf",
-    "spiders": [
-        {
-            "name": "kfc_za",
-            "matchingKey": "ref",
-            "importableTags": ["opening_hours"]
-        }
-    ]
+  "osmExtractUrl": "https://download.geofabrik.de/africa/south-africa-latest.osm.pbf",
+  "spiders": [
+    {
+      "name": "kfc_za",
+      "matchingKey": "ref",
+      "importableTags": ["opening_hours", "website"]
+    },
+    {
+      "name": "astron_energy_za",
+      "matchingKey": "ref",
+      "importableTags": ["opening_hours"]
+    },
+    {
+      "name": "wimpy_za",
+      "matchingKey": "website",
+      "importableTags": ["opening_hours"]
+    }
+  ]
 }
