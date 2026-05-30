@@ -1,0 +1,36 @@
+name: ATP-OSM Sync
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Run every Sunday at midnight
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Osmium Tool
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y osmium-tool
+
+      - name: Run synchronization script
+        run: node sync.js
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: atp-osm-reports
+          path: "*_report.txt"
