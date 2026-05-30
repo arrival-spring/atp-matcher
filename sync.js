@@ -1,11 +1,11 @@
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
-const { spawn, execSync } = require('child_process');
-const readline = require('readline');
-const opening_hours = require('opening_hours');
-const { LRUCache } = require('lru-cache');
-const eta = require('./src/eta');
+import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
+import { spawn, execSync } from 'child_process';
+import readline from 'readline';
+import opening_hours from 'opening_hours';
+import { LRUCache } from 'lru-cache';
+import eta from './src/eta.js';
 
 const CONFIG_FILE = 'config.json';
 
@@ -19,7 +19,7 @@ function getOH(value) {
         const oh = new opening_hours(value);
         ohCache.set(value, oh);
         return oh;
-    } catch (e) {
+    } catch {
         ohCache.set(value, null);
         return null;
     }
@@ -62,7 +62,7 @@ async function downloadOSM(url, dest) {
     const response = await axios({
         url,
         method: 'GET',
-        responseType: 'stream'
+        responseType: 'stream',
     });
     response.data.pipe(writer);
     return new Promise((resolve, reject) => {
@@ -78,9 +78,9 @@ async function getOsmData(osmFile) {
         // Broad filter for elements having a brand tag.
         // We will refine in-process to meet the "brand AND brand:wikidata AND (ref OR website)" requirement.
         execSync(`osmium tags-filter ${osmFile} nwr/brand -o ${filteredPbf} --overwrite`);
-    } catch (e) {
+    } catch (error) {
         console.error('Osmium tags-filter failed. Make sure osmium-tool is installed.');
-        throw e;
+        throw error;
     }
 
     const osmData = new Map();
@@ -89,7 +89,7 @@ async function getOsmData(osmFile) {
     const osmiumExport = spawn('osmium', ['export', filteredPbf, '-f', 'geojsonseq', '--overwrite']);
     const rl = readline.createInterface({
         input: osmiumExport.stdout,
-        terminal: false
+        terminal: false,
     });
 
     for await (const line of rl) {
@@ -97,7 +97,7 @@ async function getOsmData(osmFile) {
         let feature;
         try {
             feature = JSON.parse(line);
-        } catch (e) {
+        } catch {
             continue;
         }
         const props = feature.properties;
@@ -111,7 +111,7 @@ async function getOsmData(osmFile) {
         if (brand && wikidata && (ref || website)) {
             const entry = {
                 id: feature.id,
-                tags: props
+                tags: props,
             };
 
             // Index by ref
@@ -201,7 +201,7 @@ async function processSpider(spider, runIds, osmData) {
 
         // We handle importable tags (currently just opening_hours)
         for (const tag of spider.importableTags) {
-            let status = '';
+            let status;
             let osmValue = 'N/A';
             let spiderValue = props[tag] || 'N/A';
             let osmId = null;
@@ -218,8 +218,8 @@ async function processSpider(spider, runIds, osmData) {
                 const h2 = spiderMaps[1].get(matchingValue)?.[tag];
                 const h1 = spiderMaps[0].get(matchingValue)?.[tag];
 
-                const stableOld = (h1 !== undefined && areOpeningHoursEqual(h1, h2));
-                const stableNew = (h3 !== undefined && areOpeningHoursEqual(h3, h4));
+                const stableOld = h1 !== undefined && areOpeningHoursEqual(h1, h2);
+                const stableNew = h3 !== undefined && areOpeningHoursEqual(h3, h4);
 
                 if (!h4) {
                     status = 'no spider hours';
@@ -227,7 +227,12 @@ async function processSpider(spider, runIds, osmData) {
                     status = 'no OSM hours';
                 } else if (areOpeningHoursEqual(osm.tags[tag], h4)) {
                     status = 'matching';
-                } else if (stableOld && stableNew && areOpeningHoursEqual(osm.tags[tag], h1) && !areOpeningHoursEqual(osm.tags[tag], h4)) {
+                } else if (
+                    stableOld &&
+                    stableNew &&
+                    areOpeningHoursEqual(osm.tags[tag], h1) &&
+                    !areOpeningHoursEqual(osm.tags[tag], h4)
+                ) {
                     status = 'update OSM';
                 } else {
                     status = 'mismatch';
@@ -236,14 +241,16 @@ async function processSpider(spider, runIds, osmData) {
                 status = 'not in OSM';
             }
 
-            stream.write(`Ref: ${matchingValue}, Tag: ${tag}, Status: ${status}, OSM: ${osmValue}, Spider: ${spiderValue}\n`);
+            stream.write(
+                `Ref: ${matchingValue}, Tag: ${tag}, Status: ${status}, OSM: ${osmValue}, Spider: ${spiderValue}\n`
+            );
             results.push({
                 ref: matchingValue,
                 tag,
                 status,
                 osmValue,
                 spiderValue,
-                osmId
+                osmId,
             });
         }
     }
@@ -273,7 +280,7 @@ function generateWebpage(allSpiderResults) {
             title: spider.name,
             name: spider.name,
             lastSync,
-            grouped
+            grouped,
         });
         fs.writeFileSync(path.join(outputDir, `${spider.name}.html`), spiderHtml);
     });
@@ -282,7 +289,7 @@ function generateWebpage(allSpiderResults) {
     const indexHtml = eta.render('./index', {
         title: 'Dashboard',
         allSpiderResults,
-        lastSync
+        lastSync,
     });
     fs.writeFileSync(path.join(outputDir, 'index.html'), indexHtml);
 }
@@ -307,7 +314,7 @@ async function run() {
         if (results) {
             allSpiderResults.push({
                 name: spider.name,
-                results: results
+                results: results,
             });
         }
     }
