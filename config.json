@@ -4,6 +4,11 @@
     {
       "name": "kfc_za",
       "matchingKey": "ref",
+      "importableTags": ["opening_hours", "website"]
+    },
+    {
+      "name": "astron_energy_za",
+      "matchingKey": "ref",
       "importableTags": ["opening_hours"]
     }
   ]
