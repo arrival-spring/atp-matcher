@@ -30,6 +30,24 @@
       "matchingKey": "website",
       "importableTags": ["opening_hours", "phone"],
       "source_uri": ["fishaways.co.za"]
+    },
+    {
+      "name": "bash",
+      "matchingKey": "website",
+      "importableTags": ["opening_hours", "phone"],
+      "source_uri": ["bash.com"]
+    },
+    {
+      "name": "sasol_za",
+      "matchingKey": "ref",
+      "importableTags": ["opening_hours", "phone", "website"],
+      "source_uri": ["sasol.com"]
+    },
+    {
+      "name": "pick_n_pay",
+      "matchingKey": "ref",
+      "importableTags": ["opening_hours", "phone"],
+      "source_uri": ["pnp.co.za"]
     }
   ]
 }
