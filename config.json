@@ -4,17 +4,22 @@
     {
       "name": "kfc_za",
       "matchingKey": "ref",
-      "importableTags": ["opening_hours", "website"]
+      "importableTags": ["opening_hours", "website", "phone"]
     },
     {
       "name": "astron_energy_za",
       "matchingKey": "ref",
-      "importableTags": ["opening_hours"]
+      "importableTags": ["opening_hours", "phone"]
     },
     {
       "name": "wimpy_za",
       "matchingKey": "website",
-      "importableTags": ["opening_hours"]
+      "importableTags": ["opening_hours", "phone"]
+    },
+    {
+      "name": "debonairs_pizza",
+      "matchingKey": "website",
+      "importableTags": ["opening_hours", "phone"]
     }
   ]
 }
