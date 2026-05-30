@@ -5,3 +5,4 @@ yarn-error.log*
 .env
 *.osm.pbf
 *_report.txt
+output/
