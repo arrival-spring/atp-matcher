@@ -6,18 +6,21 @@
 
 <header class="mb-12">
     <h1 class="text-4xl font-extrabold mb-2"><%= it.name %></h1>
-    <p class="text-gray-400">Last updated: <%= it.lastSync %></p>
+    <div class="text-gray-400 text-sm space-y-1">
+        <p><strong>ATP Data:</strong> <%= it.atpDate %></p>
+        <p><strong>OSM Data:</strong> <%= it.osmDate %></p>
+    </div>
 </header>
 
 <!-- Tag Tabs -->
 <div class="mb-8 border-b border-gray-700">
     <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="tag-tabs" role="tablist">
         <li class="mr-2" role="presentation">
-            <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors" id="summary-tab" data-tab="summary" type="button" role="tab">Summary</button>
+            <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer" id="summary-tab" data-tab="summary" type="button" role="tab">Summary</button>
         </li>
         <% it.importableTags.forEach(function(tag) { %>
             <li class="mr-2" role="presentation">
-                <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors capitalize" id="<%= tag %>-tab" data-tab="<%= tag %>" type="button" role="tab"><%= tag.replace('_', ' ') %></button>
+                <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors capitalize cursor-pointer" id="<%= tag %>-tab" data-tab="<%= tag %>" type="button" role="tab"><%= tag.replace('_', ' ') %></button>
             </li>
         <% }) %>
     </ul>
@@ -41,7 +44,7 @@
                                }
                            });
                            const sortedStatuses = Object.keys(stats).sort((a, b) => {
-                               const priorities = ['disallowed source uri', 'duplicate ref', 'mismatch', 'update OSM', 'not in OSM', 'no OSM tag', 'no spider tag', 'matching'];
+                               const priorities = ['disallowed source uri', 'duplicate ref', 'mismatch', 'update OSM', 'not mapped', 'no OSM tag', 'matching'];
                                return priorities.indexOf(a) - priorities.indexOf(b);
                            });
                         %>
@@ -71,12 +74,12 @@
                        const t = r.tags.find(tt => tt.tag === tag);
                        if (t) tagStatuses.add(t.status);
                    });
-                   const allPossibleStatuses = ['disallowed source uri', 'duplicate ref', 'mismatch', 'update OSM', 'not in OSM', 'no OSM tag', 'no spider tag', 'matching'];
+                   const allPossibleStatuses = ['disallowed source uri', 'duplicate ref', 'mismatch', 'update OSM', 'not mapped', 'no OSM tag', 'matching'];
                 %>
                 <% allPossibleStatuses.forEach(function(status) { %>
                     <% const count = it.results.filter(r => r.tags.find(tt => tt.tag === tag && tt.status === status)).length; %>
                     <button
-                        class="px-4 py-2 rounded-full text-sm font-medium border transition-colors <%= count > 0 ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-800 text-gray-600 cursor-not-allowed' %>"
+                        class="px-4 py-2 rounded-full text-sm font-medium border transition-colors <%= count > 0 ? 'border-gray-600 text-gray-300 hover:bg-gray-700 cursor-pointer' : 'border-gray-800 text-gray-600 cursor-not-allowed' %>"
                         data-status="<%= status %>"
                         <%= count === 0 ? 'disabled' : '' %>
                     >
@@ -90,13 +93,7 @@
             <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6">
                 <table class="min-w-full table-auto" id="<%= tag %>-table">
                     <thead class="bg-gray-800 text-gray-400 text-left">
-                        <tr>
-                            <th class="px-4 py-3">Ref</th>
-                            <th class="px-4 py-3">OSM Value</th>
-                            <th class="px-4 py-3">Spider Value</th>
-                            <th class="px-4 py-3">Status</th>
-                            <th class="px-4 py-3 text-right">OSM Link</th>
-                        </tr>
+                        <!-- Headers injected by JS -->
                     </thead>
                     <tbody class="text-gray-300 divide-y divide-gray-800">
                         <!-- Rows injected by JS -->
@@ -106,195 +103,15 @@
 
             <!-- Pagination -->
             <div class="flex justify-between items-center bg-gray-800 p-4 rounded-lg" id="<%= tag %>-pagination">
-                <button class="prev-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors">Previous</button>
+                <button class="prev-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer">Previous</button>
                 <span class="page-info text-gray-400 font-medium">Page 1 of 1</span>
-                <button class="next-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors">Next</button>
+                <button class="next-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer">Next</button>
             </div>
         </div>
     <% }) %>
 </div>
 
-<script>
-    const results = <%~ JSON.stringify(it.results) %>;
-    const PAGE_SIZE = 50;
-    let currentState = {
-        tag: 'summary',
-        status: null,
-        page: 1
-    };
-
-    function updateUrl() {
-        const url = new URL(window.location);
-        url.searchParams.set('tag', currentState.tag);
-        if (currentState.status) {
-            url.searchParams.set('status', currentState.status);
-        } else {
-            url.searchParams.delete('status');
-        }
-        if (currentState.page > 1) {
-            url.searchParams.set('page', currentState.page);
-        } else {
-            url.searchParams.delete('page');
-        }
-        window.history.pushState({}, '', url);
-    }
-
-    function loadStateFromUrl() {
-        const params = new URLSearchParams(window.location.search);
-        currentState.tag = params.get('tag') || 'summary';
-        currentState.status = params.get('status');
-        currentState.page = parseInt(params.get('page')) || 1;
-    }
-
-    function escapeHtml(unsafe) {
-        return (unsafe || "")
-            .toString()
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    function render() {
-        // Update Tabs
-        document.querySelectorAll('#tag-tabs button').forEach(btn => {
-            if (btn.dataset.tab === currentState.tag) {
-                btn.classList.add('text-blue-500', 'border-blue-500');
-                btn.classList.remove('border-transparent');
-            } else {
-                btn.classList.remove('text-blue-500', 'border-blue-500');
-                btn.classList.add('border-transparent');
-            }
-        });
-
-        // Update Content visibility
-        document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
-            panel.classList.toggle('hidden', panel.id !== `${currentState.tag}-content`);
-        });
-
-        if (currentState.tag === 'summary') return;
-
-        // Update Status Filters
-        const filterContainer = document.getElementById(`${currentState.tag}-status-filters`);
-        filterContainer.querySelectorAll('button').forEach(btn => {
-            if (btn.dataset.status === currentState.status) {
-                btn.classList.add('bg-blue-600', 'border-blue-500', 'text-white');
-                btn.classList.remove('text-gray-300', 'hover:bg-gray-700');
-            } else {
-                btn.classList.remove('bg-blue-600', 'border-blue-500', 'text-white');
-                if (!btn.disabled) {
-                    btn.classList.add('text-gray-300', 'hover:bg-gray-700');
-                }
-            }
-        });
-
-        // Filter and Paginate Data
-        const tagResults = results.map(r => {
-            const tagData = r.tags.find(t => t.tag === currentState.tag);
-            return tagData ? { ...r, tagStatus: tagData.status, osmValue: tagData.osmValue, spiderValue: tagData.spiderValue } : null;
-        }).filter(r => r !== null);
-
-        let filtered = tagResults;
-        if (currentState.status) {
-            filtered = tagResults.filter(r => r.tagStatus === currentState.status);
-        }
-
-        const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
-        if (currentState.page > totalPages) currentState.page = totalPages;
-
-        const start = (currentState.page - 1) * PAGE_SIZE;
-        const pageData = filtered.slice(start, start + PAGE_SIZE);
-
-        // Render Table
-        const tbody = document.querySelector(`#${currentState.tag}-content tbody`);
-        tbody.innerHTML = pageData.map(r => `
-            <tr class="hover:bg-gray-800 transition-colors">
-                <td class="px-4 py-3 font-medium">${escapeHtml(r.ref)}</td>
-                <td class="px-4 py-3"><code class="text-sm break-all">${escapeHtml(r.osmValue)}</code></td>
-                <td class="px-4 py-3"><code class="text-sm break-all">${escapeHtml(r.spiderValue)}</code></td>
-                <td class="px-4 py-3">
-                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-gray-800 border border-gray-700 text-gray-300">
-                        ${escapeHtml(r.tagStatus)}
-                    </span>
-                </td>
-                <td class="px-4 py-3 text-right">
-                    ${renderOsmLink(r.osmId)}
-                </td>
-            </tr>
-        `).join('');
-
-        // Update Pagination
-        const pagination = document.getElementById(`${currentState.tag}-pagination`);
-        pagination.querySelector('.page-info').textContent = `Page ${currentState.page} of ${totalPages}`;
-        pagination.querySelector('.prev-btn').disabled = currentState.page === 1;
-        pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || filtered.length === 0;
-    }
-
-    function renderOsmLink(osmId) {
-        if (!osmId) return '<span class="text-gray-600">N/A</span>';
-        const typeMap = { 'n': 'node', 'w': 'way', 'r': 'relation' };
-        const typeChar = osmId.toString()[0];
-        const id = osmId.toString().substring(1);
-        if (!typeMap[typeChar]) return '<span class="text-gray-600">N/A</span>';
-
-        return `
-            <a href="https://www.openstreetmap.org/${typeMap[typeChar]}/${id}" target="_blank" class="inline-flex items-center text-blue-400 hover:underline">
-                <span>${osmId}</span>
-                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-            </a>
-        `;
-    }
-
-    // Event Listeners
-    document.getElementById('tag-tabs').addEventListener('click', e => {
-        const btn = e.target.closest('button');
-        if (!btn) return;
-        currentState.tag = btn.dataset.tab;
-        currentState.status = null;
-        currentState.page = 1;
-        updateUrl();
-        render();
-    });
-
-    document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
-        const tag = panel.id.replace('-content', '');
-        if (tag === 'summary') return;
-
-        // Status filter listeners
-        panel.querySelector(`#${tag}-status-filters`).addEventListener('click', e => {
-            const btn = e.target.closest('button');
-            if (!btn || btn.disabled) return;
-
-            const newStatus = btn.dataset.status;
-            currentState.status = (currentState.status === newStatus) ? null : newStatus;
-            currentState.page = 1;
-            updateUrl();
-            render();
-        });
-
-        // Pagination listeners
-        const pagination = panel.querySelector(`#${tag}-pagination`);
-        pagination.querySelector('.prev-btn').onclick = () => {
-            if (currentState.page > 1) {
-                currentState.page--;
-                updateUrl();
-                render();
-            }
-        };
-        pagination.querySelector('.next-btn').onclick = () => {
-            currentState.page++;
-            updateUrl();
-            render();
-        };
-    });
-
-    window.onpopstate = () => {
-        loadStateFromUrl();
-        render();
-    };
-
-    // Initial load
-    loadStateFromUrl();
-    render();
+<script type="module">
+    import { initSpiderDashboard } from './spider.js';
+    initSpiderDashboard(<%~ JSON.stringify(it.results) %>, <%~ JSON.stringify(it.importableTags) %>);
 </script>

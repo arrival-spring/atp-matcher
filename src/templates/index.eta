@@ -13,14 +13,14 @@
             <tr>
                 <th class="px-6 py-4">Spider Name</th>
                 <th class="px-6 py-4">Issues / Total</th>
-                <th class="px-6 py-4">Last Sync</th>
+                <th class="px-6 py-4">Mapped / Total</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-800">
             <% it.allSpiderResults.forEach(function(spider) { %>
-                <tr class="border-b border-gray-700 hover:bg-gray-800">
+                <tr class="border-b border-gray-700 hover:bg-gray-800 cursor-pointer" onclick="window.location='<%= spider.name %>.html'">
                     <td class="px-6 py-4">
-                        <a href="<%= spider.name %>.html" class="text-blue-400 hover:underline font-bold text-lg"><%= spider.name %></a>
+                        <a href="<%= spider.name %>.html" class="text-blue-400 hover:underline font-bold text-lg" onclick="event.stopPropagation()"><%= spider.name %></a>
                     </td>
                     <td class="px-6 py-4">
                         <% const issuesCount = spider.results.filter(r => r.status !== 'matching').length; %>
@@ -30,7 +30,13 @@
                         </span>
                         <span class="text-gray-500"> / <%= totalCount %></span>
                     </td>
-                    <td class="px-6 py-4 text-gray-400"><%= it.lastSync %></td>
+                    <td class="px-6 py-4">
+                        <% const mappedCount = spider.results.filter(r => r.isMapped).length; %>
+                        <span class="text-gray-200 font-semibold">
+                            <%= mappedCount %>
+                        </span>
+                        <span class="text-gray-500"> / <%= totalCount %></span>
+                    </td>
                 </tr>
             <% }) %>
         </tbody>

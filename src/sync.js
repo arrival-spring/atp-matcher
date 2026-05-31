@@ -97,13 +97,13 @@ export const STATUS_PRIORITY = [
     'duplicate ref',
     'mismatch',
     'update OSM',
-    'not in OSM',
+    'not mapped',
     'no OSM tag',
-    'no spider tag',
     'matching',
 ];
 
 export function getOverallStatus(statuses) {
+    if (statuses.length === 0) return 'matching';
     for (const p of STATUS_PRIORITY) {
         if (statuses.includes(p)) return p;
     }
@@ -113,15 +113,16 @@ export function getOverallStatus(statuses) {
 const HISTORY_URL = 'https://data.alltheplaces.xyz/runs/history.json';
 const ATP_BASE_URL = 'https://alltheplaces-data.openaddresses.io/runs';
 
-async function getRunIds() {
+async function getRuns() {
     console.log('Fetching ATP run history...');
     const response = await axios.get(HISTORY_URL);
     // history.json is an array of run objects, oldest first.
     // We want the last four elements.
-    return response.data.slice(-4).map(run => run.run_id);
+    return response.data.slice(-4);
 }
 
-async function loadAllAtpData(config, runIds) {
+async function loadAllAtpData(config, runs) {
+    const runIds = runs.map(r => r.run_id);
     const spidersData = new Map();
     const atpLookup = new Map();
 
@@ -301,7 +302,7 @@ async function streamOsmData(url, atpLookup, allMatches) {
     });
 }
 
-async function processSpiderResults(spiderData, spiderMatches) {
+async function processSpiderResults(spiderData, spiderMatches, runs) {
     const { latestRun, spiderMaps, config: spider } = spiderData;
     console.log(`Processing spider results: ${spider.name}`);
 
@@ -324,8 +325,8 @@ async function processSpiderResults(spiderData, spiderMatches) {
                 itemTags.push({
                     tag,
                     status: 'disallowed source uri',
-                    osmValue: 'N/A',
-                    spiderValue: props[tag] || 'N/A',
+                    osmValue: null,
+                    spiderValue: props[tag] || null,
                 });
             }
         } else {
@@ -335,38 +336,34 @@ async function processSpiderResults(spiderData, spiderMatches) {
             for (const tag of spider.importableTags) {
                 const country = props['addr:country'];
                 let status;
-                let osmValue = 'N/A';
-                let spiderValue = props[tag] || 'N/A';
+                let osmValue = null;
+                let spiderValue = props[tag] || null;
 
-                if (tag === 'phone' && props[tag]) {
-                    try {
-                        const p = parsePhoneNumber(props[tag], country);
-                        if (!p || !p.isValid()) {
-                            continue;
-                        }
-                    } catch {
-                        continue;
-                    }
+                if (!spiderValue) {
+                    continue;
                 }
+
+                const history = runs.map((run, idx) => ({
+                    date: run.run_id.substring(0, 10),
+                    value: spiderMaps[idx].get(matchingValue)?.[tag] || null,
+                }));
 
                 if (matchEntries.length > 1) {
                     status = 'duplicate ref';
                 } else if (matchEntries.length === 1) {
                     const osm = matchEntries[0];
                     osmId = osm.id;
-                    osmValue = osm.tags[tag] || 'N/A';
+                    osmValue = osm.tags[tag] || null;
 
-                    const h4 = props[tag];
-                    const h3 = spiderMaps[2].get(matchingValue)?.[tag];
-                    const h2 = spiderMaps[1].get(matchingValue)?.[tag];
-                    const h1 = spiderMaps[0].get(matchingValue)?.[tag];
+                    const h4 = spiderValue;
+                    const h3 = history[2].value;
+                    const h2 = history[1].value;
+                    const h1 = history[0].value;
 
-                    const stableOld = h1 !== undefined && areTagsEqual(tag, h1, h2, country);
-                    const stableNew = h3 !== undefined && areTagsEqual(tag, h3, h4, country);
+                    const stableOld = h1 !== null && areTagsEqual(tag, h1, h2, country);
+                    const stableNew = h3 !== null && areTagsEqual(tag, h3, h4, country);
 
-                    if (!h4) {
-                        status = 'no spider tag';
-                    } else if (!osm.tags[tag]) {
+                    if (!osm.tags[tag]) {
                         status = 'no OSM tag';
                     } else if (areTagsEqual(tag, osm.tags[tag], h4, country)) {
                         status = 'matching';
@@ -381,7 +378,7 @@ async function processSpiderResults(spiderData, spiderMatches) {
                         status = 'mismatch';
                     }
                 } else {
-                    status = 'not in OSM';
+                    status = 'not mapped';
                 }
 
                 itemTags.push({
@@ -389,6 +386,7 @@ async function processSpiderResults(spiderData, spiderMatches) {
                     status,
                     osmValue,
                     spiderValue,
+                    history,
                 });
             }
             itemStatus = getOverallStatus(itemTags.map(t => t.status));
@@ -400,6 +398,7 @@ async function processSpiderResults(spiderData, spiderMatches) {
             status: itemStatus,
             tags: itemTags,
             osmId,
+            isMapped: (spiderMatches.get(matchingValue) || []).length > 0,
         });
     }
 
@@ -408,13 +407,11 @@ async function processSpiderResults(spiderData, spiderMatches) {
     return results;
 }
 
-function generateWebpage(allSpiderResults) {
+function generateWebpage(allSpiderResults, atpDate, osmDate) {
     const outputDir = 'output';
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir);
     }
-
-    const lastSync = new Date().toLocaleString();
 
     // Generate Spider Pages
     allSpiderResults.forEach(spider => {
@@ -422,7 +419,8 @@ function generateWebpage(allSpiderResults) {
             title: spider.name,
             name: spider.name,
             importableTags: spider.importableTags,
-            lastSync,
+            atpDate,
+            osmDate,
             results: spider.results,
         });
         fs.writeFileSync(path.join(outputDir, `${spider.name}.html`), spiderHtml);
@@ -432,9 +430,13 @@ function generateWebpage(allSpiderResults) {
     const indexHtml = eta.render('./index', {
         title: 'Dashboard',
         allSpiderResults,
-        lastSync,
+        atpDate,
+        osmDate,
     });
     fs.writeFileSync(path.join(outputDir, 'index.html'), indexHtml);
+
+    // Copy spider.js
+    fs.copyFileSync(path.join('src', 'templates', 'spider.js'), path.join(outputDir, 'spider.js'));
 }
 
 async function run() {
@@ -443,10 +445,21 @@ async function run() {
         return;
     }
     const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
-    const runIds = await getRunIds();
-    console.log(`Using runs: ${runIds.join(', ')}`);
+    const runs = await getRuns();
+    console.log(`Using runs: ${runs.map(r => r.run_id).join(', ')}`);
 
-    const { spidersData, atpLookup } = await loadAllAtpData(config, runIds);
+    const atpDate = runs[runs.length - 1].start_time;
+
+    let osmDate;
+    try {
+        const head = await axios.head(config.osmExtractUrl);
+        osmDate = head.headers['last-modified'] ? new Date(head.headers['last-modified']).toISOString() : null;
+    } catch (e) {
+        console.error('Failed to get OSM date', e.message);
+        osmDate = new Date().toISOString();
+    }
+
+    const { spidersData, atpLookup } = await loadAllAtpData(config, runs);
 
     const allMatches = new Map();
     for (const spiderName of spidersData.keys()) {
@@ -457,7 +470,7 @@ async function run() {
 
     const allSpiderResults = [];
     for (const [spiderName, data] of spidersData) {
-        const results = await processSpiderResults(data, allMatches.get(spiderName));
+        const results = await processSpiderResults(data, allMatches.get(spiderName), runs);
         if (results) {
             allSpiderResults.push({
                 name: spiderName,
@@ -467,7 +480,7 @@ async function run() {
         }
     }
 
-    generateWebpage(allSpiderResults);
+    generateWebpage(allSpiderResults, atpDate, osmDate);
 }
 
 if (process.argv[1] === import.meta.filename || process.argv[1]?.endsWith('sync.js')) {

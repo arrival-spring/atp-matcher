@@ -77,7 +77,7 @@ describe('Tag Comparison Logic', () => {
     describe('getOverallStatus', () => {
         test('should return highest priority status', () => {
             expect(getOverallStatus(['matching', 'mismatch', 'no OSM tag'])).toBe('mismatch');
-            expect(getOverallStatus(['matching', 'update OSM', 'no spider tag'])).toBe('update OSM');
+            expect(getOverallStatus(['matching', 'update OSM', 'not mapped'])).toBe('update OSM');
             expect(getOverallStatus(['disallowed source uri', 'mismatch'])).toBe('disallowed source uri');
         });
 
