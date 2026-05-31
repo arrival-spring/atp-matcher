@@ -7,14 +7,14 @@ import opening_hours from 'opening_hours';
 import { LRUCache } from 'lru-cache';
 import { parsePhoneNumber } from 'libphonenumber-js';
 import normalizeUrl from 'normalize-url';
-import eta from './src/eta.js';
-import { isAllowedSourceUri } from './src/utils.js';
+import eta from './eta.js';
+import { isAllowedSourceUri } from './utils.js';
 
 const CONFIG_FILE = 'config.json';
 
 const ohCache = new LRUCache({ max: 1000 });
 
-function getOH(value) {
+export function getOH(value) {
     if (!value) return null;
     if (ohCache.has(value)) return ohCache.get(value);
 
@@ -28,7 +28,7 @@ function getOH(value) {
     }
 }
 
-function areOpeningHoursEqual(v1, v2) {
+export function areOpeningHoursEqual(v1, v2) {
     if (v1 === v2) return true;
     const oh1 = getOH(v1);
     const oh2 = getOH(v2);
@@ -44,7 +44,7 @@ function areOpeningHoursEqual(v1, v2) {
     return false;
 }
 
-function arePhonesEqual(v1, v2, country) {
+export function arePhonesEqual(v1, v2, country) {
     if (v1 === v2) return true;
     if (!v1 || !v2) return false;
 
@@ -67,20 +67,21 @@ function arePhonesEqual(v1, v2, country) {
     return false;
 }
 
-function areWebsitesEqual(v1, v2) {
+export function areWebsitesEqual(v1, v2) {
     if (v1 === v2) return true;
     if (!v1 || !v2) return false;
 
     try {
-        const n1 = normalizeUrl(v1);
-        const n2 = normalizeUrl(v2);
+        const options = { forceHttps: true };
+        const n1 = normalizeUrl(v1, options);
+        const n2 = normalizeUrl(v2, options);
         return n1 === n2;
     } catch {
         return v1 === v2;
     }
 }
 
-function areTagsEqual(tag, v1, v2, country) {
+export function areTagsEqual(tag, v1, v2, country) {
     if (tag === 'opening_hours') {
         return areOpeningHoursEqual(v1, v2);
     } else if (tag === 'phone') {
@@ -91,7 +92,7 @@ function areTagsEqual(tag, v1, v2, country) {
     return v1 === v2;
 }
 
-const STATUS_PRIORITY = [
+export const STATUS_PRIORITY = [
     'disallowed source uri',
     'duplicate ref',
     'mismatch',
@@ -102,7 +103,7 @@ const STATUS_PRIORITY = [
     'matching',
 ];
 
-function getOverallStatus(statuses) {
+export function getOverallStatus(statuses) {
     for (const p of STATUS_PRIORITY) {
         if (statuses.includes(p)) return p;
     }
@@ -469,7 +470,9 @@ async function run() {
     generateWebpage(allSpiderResults);
 }
 
-run().catch(err => {
-    console.error(err);
-    process.exit(1);
-});
+if (process.argv[1] === import.meta.filename || process.argv[1]?.endsWith('sync.js')) {
+    run().catch(err => {
+        console.error(err);
+        process.exit(1);
+    });
+}
