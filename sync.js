@@ -141,7 +141,7 @@ async function getOsmData(osmFile) {
     try {
         // Broad filter for elements having a brand tag.
         // We will refine in-process to meet the "brand AND brand:wikidata AND (ref OR website)" requirement.
-        execSync(`osmium tags-filter ${osmFile} nwr/brand -o ${filteredPbf} --overwrite`);
+        execSync(`osmium tags-filter ${osmFile} nwr/brand -o ${filteredPbf} --overwrite --omit-referenced`);
     } catch (error) {
         console.error('Osmium tags-filter failed. Make sure osmium-tool is installed.');
         throw error;
