@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { execSync } from 'child_process';
 import axios from 'axios';
-import { isAllowedSourceUri, getRootDomain } from './utils.js';
+import { isAllowedSourceUri } from './utils.js';
 
 const CONFIG_FILE = 'config.json';
 
@@ -17,7 +17,7 @@ async function validate() {
     if (!isSorted) {
         console.log('Spiders are not in alphabetical order. Reordering...');
         config.spiders = sortedSpiders;
-        fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2) + '\n');
+        fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 4) + '\n');
         // We'll let the GitHub Action handle the commit and push.
     }
 
@@ -87,7 +87,13 @@ async function validate() {
 
             const sourceUri = props['@source_uri'];
             if (sourceUri) {
-                const domain = getRootDomain(sourceUri);
+                let domain = 'invalid';
+                try {
+                    const url = new URL(sourceUri);
+                    domain = url.hostname;
+                } catch {
+                    // keep as invalid
+                }
                 if (!domainStats[domain]) {
                     domainStats[domain] = { count: 0, allowed: isAllowedSourceUri(sourceUri, spider.source_uri) };
                 }
