@@ -2,6 +2,7 @@ import fs from 'fs';
 import { execSync } from 'child_process';
 import axios from 'axios';
 import { getDomain } from 'tldts';
+import * as prettier from 'prettier';
 import { isAllowedSourceUri } from './utils.js';
 
 const CONFIG_FILE = 'config.json';
@@ -11,6 +12,16 @@ async function validate() {
     const config = JSON.parse(configContent);
     const spiders = config.spiders;
 
+    // Integrity Check: website cannot be both an importable tag and the matching key
+    for (const spider of spiders) {
+        if (spider.matchingKey === 'website' && spider.importableTags.includes('website')) {
+            const msg = `Error: Spider "${spider.name}" has "website" as both matchingKey and importableTag. This is not allowed.`;
+            console.error(msg);
+            outputComment(`❌ ${msg}`);
+            process.exit(1);
+        }
+    }
+
     // 1. Check alphabetical order
     const sortedSpiders = [...spiders].sort((a, b) => a.name.localeCompare(b.name));
     const isSorted = JSON.stringify(spiders) === JSON.stringify(sortedSpiders);
@@ -19,7 +30,12 @@ async function validate() {
     if (!isSorted) {
         console.log('Spiders are not in alphabetical order. Reordering...');
         config.spiders = sortedSpiders;
-        fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 4) + '\n');
+        const prettierConfig = await prettier.resolveConfig(CONFIG_FILE);
+        const formatted = await prettier.format(JSON.stringify(config), {
+            ...prettierConfig,
+            filepath: CONFIG_FILE,
+        });
+        fs.writeFileSync(CONFIG_FILE, formatted);
         reordered = true;
     }
 
@@ -85,7 +101,7 @@ async function validate() {
         const totalFeatures = data.features.length;
         const tagStats = {};
         spider.importableTags.forEach(tag => {
-            tagStats[tag] = 0;
+            tagStats[tag] = { count: 0, unique: new Set() };
         });
 
         const domainStats = {};
@@ -94,7 +110,8 @@ async function validate() {
             const props = f.properties;
             spider.importableTags.forEach(tag => {
                 if (props[tag]) {
-                    tagStats[tag]++;
+                    tagStats[tag].count++;
+                    tagStats[tag].unique.add(props[tag]);
                 }
             });
 
@@ -119,9 +136,12 @@ async function validate() {
 
         comment += `#### Importable Tags\n`;
         spider.importableTags.forEach(tag => {
-            const count = tagStats[tag];
+            const count = tagStats[tag].count;
+            const uniqueCount = tagStats[tag].unique.size;
+            const missingCount = totalFeatures - count;
             const percent = totalFeatures > 0 ? ((count / totalFeatures) * 100).toFixed(1) : 0;
-            comment += `- \`${tag}\`: ${count} (${percent}%)\n`;
+            const uniquePercent = count > 0 ? ((uniqueCount / count) * 100).toFixed(1) : 0;
+            comment += `- \`${tag}\`: ${count} (${percent}%) | Unique: ${uniqueCount}/${count} (${uniquePercent}%) | Missing: ${missingCount}\n`;
         });
         comment += `\n`;
 

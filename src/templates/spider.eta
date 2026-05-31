@@ -6,9 +6,15 @@
 
 <header class="mb-12">
     <h1 class="text-4xl font-extrabold mb-2"><%= it.name %></h1>
-    <div class="text-gray-400 text-sm space-y-1">
-        <p><strong>ATP Data:</strong> <%= it.atpDate %></p>
-        <p><strong>OSM Data:</strong> <%= it.osmDate %></p>
+    <div class="text-gray-400 text-sm flex gap-4">
+        <a href="https://data.alltheplaces.xyz/runs/latest/output/<%= it.name %>.geojson" target="_blank" class="text-blue-400 hover:underline inline-flex items-center">
+            GeoJSON
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        </a>
+        <a href="https://github.com/alltheplaces/alltheplaces/tree/master/locations/spiders/<%= it.name %>.py" target="_blank" class="text-blue-400 hover:underline inline-flex items-center">
+            Spider Source
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        </a>
     </div>
 </header>
 
@@ -17,6 +23,9 @@
     <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="tag-tabs" role="tablist">
         <li class="mr-2" role="presentation">
             <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer" id="summary-tab" data-tab="summary" type="button" role="tab">Summary</button>
+        </li>
+        <li class="mr-2" role="presentation">
+            <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer" id="unmapped-tab" data-tab="unmapped" type="button" role="tab">Not Mapped</button>
         </li>
         <% it.importableTags.forEach(function(tag) { %>
             <li class="mr-2" role="presentation">
@@ -31,8 +40,14 @@
     <!-- Summary Section -->
     <div class="hidden space-y-8" id="summary-content" role="tabpanel">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('unmapped-tab').click()">
+                <h3 class="text-xl font-bold mb-4 text-gray-100">Not Mapped</h3>
+                <div class="text-3xl font-mono text-gray-200">
+                    <%= it.results.filter(r => !r.isMapped).length %>
+                </div>
+            </div>
             <% it.importableTags.forEach(function(tag) { %>
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('<%= tag %>-tab').click()">
                     <h3 class="text-xl font-bold mb-4 capitalize text-gray-100"><%= tag.replace('_', ' ') %></h3>
                     <div class="space-y-2">
                         <%
@@ -49,6 +64,7 @@
                            });
                         %>
                         <% sortedStatuses.forEach(function(status) { %>
+                            <% if (status === 'not mapped') return; %>
                             <div class="flex justify-between items-center text-sm">
                                 <span class="text-gray-400 capitalize"><%= status %></span>
                                 <span class="font-mono text-gray-200"><%= stats[status] %></span>
@@ -63,6 +79,30 @@
         </div>
     </div>
 
+    <!-- Unmapped Section -->
+    <div class="hidden" id="unmapped-content" role="tabpanel">
+        <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6">
+            <table class="min-w-full table-auto" id="unmapped-table">
+                <thead class="bg-gray-800 text-gray-400 text-left">
+                    <tr>
+                        <th class="px-4 py-3">Ref</th>
+                        <th class="px-4 py-3">Tags</th>
+                        <th class="px-4 py-3">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-300 divide-y divide-gray-800">
+                    <!-- Rows injected by JS -->
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination -->
+        <div class="flex justify-between items-center bg-gray-800 p-4 rounded-lg" id="unmapped-pagination">
+            <button class="prev-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer">Previous</button>
+            <span class="page-info text-gray-400 font-medium">Page 1 of 1</span>
+            <button class="next-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer">Next</button>
+        </div>
+    </div>
+
     <!-- Tag Specific Section Template -->
     <% it.importableTags.forEach(function(tag) { %>
         <div class="hidden" id="<%= tag %>-content" role="tabpanel">
@@ -74,10 +114,11 @@
                        const t = r.tags.find(tt => tt.tag === tag);
                        if (t) tagStatuses.add(t.status);
                    });
-                   const allPossibleStatuses = ['disallowed source uri', 'duplicate ref', 'mismatch', 'update OSM', 'not mapped', 'no OSM tag', 'matching'];
+                   const allPossibleStatuses = ['disallowed source uri', 'duplicate ref', 'mismatch', 'update OSM', 'no OSM tag', 'matching'];
                 %>
                 <% allPossibleStatuses.forEach(function(status) { %>
                     <% const count = it.results.filter(r => r.tags.find(tt => tt.tag === tag && tt.status === status)).length; %>
+                    <% if (count === 0 && status === 'disallowed source uri') { return; } %>
                     <button
                         class="px-4 py-2 rounded-full text-sm font-medium border transition-colors <%= count > 0 ? 'border-gray-600 text-gray-300 hover:bg-gray-700 cursor-pointer' : 'border-gray-800 text-gray-600 cursor-not-allowed' %>"
                         data-status="<%= status %>"

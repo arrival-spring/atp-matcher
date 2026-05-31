@@ -40,16 +40,20 @@ export function initSpiderDashboard(results, importableTags) {
         return values.every(v => v === values[0]);
     }
 
-    function renderSpiderValue(spiderValue, history) {
+    function renderSpiderValue(spiderValue, history, tag) {
         if (!spiderValue) return '';
 
-        if (isStable(history)) {
+        const nonNullValues = history ? history.filter(h => h.value !== null) : [];
+        const isStableValue =
+            nonNullValues.length <= 1 || nonNullValues.every(v => v.value === spiderValue); // Simplified equality for UI
+
+        if (isStableValue) {
             return `
                 <div class="flex items-center gap-2">
-                    <code class="text-sm break-all">${escapeHtml(spiderValue)}</code>
-                    <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="stable value">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                     </svg>
+                    <code class="text-sm break-all">${escapeHtml(spiderValue)}</code>
                 </div>
             `;
         } else {
@@ -88,6 +92,11 @@ export function initSpiderDashboard(results, importableTags) {
 
         if (currentState.tag === 'summary') return;
 
+        if (currentState.tag === 'unmapped') {
+            renderUnmapped();
+            return;
+        }
+
         // Update Status Filters
         const filterContainer = document.getElementById(`${currentState.tag}-status-filters`);
         filterContainer.querySelectorAll('button').forEach(btn => {
@@ -123,8 +132,7 @@ export function initSpiderDashboard(results, importableTags) {
         const table = document.getElementById(`${currentState.tag}-table`);
         const thead = table.querySelector('thead');
 
-        const showOsmColumns = currentState.status !== 'not mapped' && currentState.status !== 'no OSM tag';
-        const showOsmLink = currentState.status !== 'not mapped';
+        const showOsmColumns = currentState.status !== 'no OSM tag';
 
         thead.innerHTML = `
             <tr>
@@ -132,27 +140,32 @@ export function initSpiderDashboard(results, importableTags) {
                 <th class="px-4 py-3">Spider Value</th>
                 ${showOsmColumns ? '<th class="px-4 py-3">OSM Value</th>' : ''}
                 <th class="px-4 py-3">Status</th>
-                ${showOsmLink ? '<th class="px-4 py-3 text-right">OSM Link</th>' : ''}
+                <th class="px-4 py-3 text-right">OSM</th>
             </tr>
         `;
 
         const tbody = table.querySelector('tbody');
-        tbody.innerHTML = pageData.map(r => `
+        tbody.innerHTML = pageData.map(r => {
+            const suggestedFixes = {};
+            if (r.tagStatus === 'mismatch' || r.tagStatus === 'no OSM tag' || r.tagStatus === 'update OSM') {
+                suggestedFixes[currentState.tag] = r.spiderValue;
+            }
+            return `
             <tr class="hover:bg-gray-800 transition-colors">
                 <td class="px-4 py-3 font-medium max-w-xs break-all">${escapeHtml(r.ref)}</td>
-                <td class="px-4 py-3">${renderSpiderValue(r.spiderValue, r.history)}</td>
+                <td class="px-4 py-3">${renderSpiderValue(r.spiderValue, r.history, currentState.tag)}</td>
                 ${showOsmColumns ? `<td class="px-4 py-3"><code class="text-sm break-all">${escapeHtml(r.osmValue)}</code></td>` : ''}
                 <td class="px-4 py-3">
                     <span class="px-2 py-1 rounded-full text-xs font-semibold bg-gray-800 border border-gray-700 text-gray-300 capitalize">
                         ${escapeHtml(r.tagStatus)}
                     </span>
                 </td>
-                ${showOsmLink ? `
                 <td class="px-4 py-3 text-right">
-                    ${renderOsmLink(r.osmId)}
-                </td>` : ''}
+                    ${renderOsmColumn(r.osmId, suggestedFixes)}
+                </td>
             </tr>
-        `).join('');
+        `;
+        }).join('');
 
         // Update Pagination
         const pagination = document.getElementById(`${currentState.tag}-pagination`);
@@ -161,18 +174,62 @@ export function initSpiderDashboard(results, importableTags) {
         pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || filtered.length === 0;
     }
 
-    function renderOsmLink(osmId) {
+    function renderUnmapped() {
+        const unmapped = results.filter(r => !r.isMapped);
+        const totalPages = Math.ceil(unmapped.length / PAGE_SIZE) || 1;
+        if (currentState.page > totalPages) currentState.page = totalPages;
+
+        const start = (currentState.page - 1) * PAGE_SIZE;
+        const pageData = unmapped.slice(start, start + PAGE_SIZE);
+
+        const tbody = document.querySelector('#unmapped-table tbody');
+        tbody.innerHTML = pageData.map(r => `
+            <tr class="hover:bg-gray-800 transition-colors">
+                <td class="px-4 py-3 font-medium max-w-xs break-all">${escapeHtml(r.ref)}</td>
+                <td class="px-4 py-3 text-xs font-mono whitespace-pre-wrap">${Object.entries(r.allAtpTags || {}).map(([k, v]) => `${escapeHtml(k)}=${escapeHtml(v)}`).join('\n')}</td>
+                <td class="px-4 py-3 font-medium text-red-400 capitalize">${escapeHtml(r.status)}</td>
+            </tr>
+        `).join('');
+
+        const pagination = document.getElementById('unmapped-pagination');
+        pagination.querySelector('.page-info').textContent = `Page ${currentState.page} of ${totalPages}`;
+        pagination.querySelector('.prev-btn').disabled = currentState.page === 1;
+        pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || unmapped.length === 0;
+    }
+
+    function renderOsmColumn(osmId, suggestedFixes = {}) {
         if (!osmId) return '';
         const typeMap = { 'n': 'node', 'w': 'way', 'r': 'relation' };
         const typeChar = osmId.toString()[0];
+        const osmType = typeMap[typeChar];
         const id = osmId.toString().substring(1);
-        if (!typeMap[typeChar]) return '';
+        if (!osmType) return '';
 
+        const josmFixBaseUrl = 'http://127.0.0.1:8111/load_object';
+        const josmEditUrl = `${josmFixBaseUrl}?objects=${osmType[0]}${id}&relation_members=true`;
+
+        const encodedTags = Object.entries(suggestedFixes).map(([key, value]) => {
+            const encodedKey = encodeURIComponent(key);
+            const encodedValue = value ? encodeURIComponent(value) : '';
+            return `${encodedKey}=${encodedValue}`;
+        });
+
+        const addtagsValue = encodedTags.join(encodeURIComponent('|'));
+        const josmUpdateUrl = `${josmEditUrl}&addtags=${addtagsValue}`;
+
+        const hasFixes = Object.keys(suggestedFixes).length > 0;
         return `
-            <a href="https://www.openstreetmap.org/${typeMap[typeChar]}/${id}" target="_blank" class="inline-flex items-center text-blue-400 hover:underline">
-                <span>${osmId}</span>
-                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-            </a>
+            <div class="flex flex-col items-end gap-1">
+                <a href="https://www.openstreetmap.org/${osmType}/${id}" target="_blank" class="inline-flex items-center text-blue-400 hover:underline">
+                    <span>${osmId}</span>
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
+                <div class="text-xs text-gray-500">
+                    JOSM:
+                    <a href="javascript:void(0)" onclick="fetch('${josmEditUrl}')" class="text-blue-400 hover:underline">edit</a>
+                    ${hasFixes ? `<a href="javascript:void(0)" onclick="fetch('${josmUpdateUrl}')" class="text-blue-400 hover:underline ml-1">update</a>` : ''}
+                </div>
+            </div>
         `;
     }
 
@@ -217,6 +274,21 @@ export function initSpiderDashboard(results, importableTags) {
             updateUrl();
             render();
         };
+    });
+
+    // Unmapped pagination
+    const unmappedPagination = document.getElementById('unmapped-pagination');
+    unmappedPagination.querySelector('.prev-btn').onclick = () => {
+        if (currentState.page > 1) {
+            currentState.page--;
+            updateUrl();
+            render();
+        }
+    };
+    unmappedPagination.querySelector('.next-btn').onclick = () => {
+        currentState.page++;
+        updateUrl();
+        render();
     });
 
     window.onpopstate = () => {
