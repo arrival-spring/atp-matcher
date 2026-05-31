@@ -205,16 +205,9 @@ function parseOplTags(tagsStr) {
             const encodedVal = part.substring(eqIdx + 1);
 
             const decode = str => {
-                // OPL format uses %HH encoding for comma (2c), equal (3d), and chars < 32 or > 126.
-                // Space is often encoded as %20.
-                return str.replace(/%([0-9A-Fa-f]{2})/g, (match, hex) => {
-                    const code = parseInt(hex, 16);
-                    // Decode safe ASCII characters: space (20), comma (2c), equal (3d), colon (3a), semicolon (3b), etc.
-                    // We avoid decoding anything that could break the OPL structure or that we are unsure about.
-                    if (code >= 32 && code <= 126) {
-                        return String.fromCharCode(code);
-                    }
-                    return match;
+                // OPL format uses %HEX% encoding for characters.
+                return str.replace(/%([0-9A-Fa-f]+)%/g, (match, hex) => {
+                    return String.fromCodePoint(parseInt(hex, 16));
                 });
             };
 
