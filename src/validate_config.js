@@ -15,11 +15,12 @@ async function validate() {
     const sortedSpiders = [...spiders].sort((a, b) => a.name.localeCompare(b.name));
     const isSorted = JSON.stringify(spiders) === JSON.stringify(sortedSpiders);
 
+    let reordered = false;
     if (!isSorted) {
         console.log('Spiders are not in alphabetical order. Reordering...');
         config.spiders = sortedSpiders;
         fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 4) + '\n');
-        // We'll let the GitHub Action handle the commit and push.
+        reordered = true;
     }
 
     // 2. Identify added/modified spiders
@@ -47,12 +48,21 @@ async function validate() {
 
     if (addedOrModified.length === 0) {
         console.log('No spiders added or modified.');
+        if (reordered) {
+            outputComment('> ℹ️ **Spiders were not in alphabetical order.** I have reordered them and committed the change.');
+        }
         return;
     }
 
     if (addedOrModified.length > 1) {
+        let errorMsg = '';
+        if (reordered) {
+            errorMsg +=
+                '> ℹ️ **Spiders were not in alphabetical order.** I have reordered them and committed the change.\n\n';
+        }
         const names = addedOrModified.map(a => a.spider.name).join(', ');
-        outputComment(`Error: Only one spider should be added or modified per PR. Found: ${names}`);
+        errorMsg += `Error: Only one spider should be added or modified per PR. Found: ${names}`;
+        outputComment(errorMsg);
         process.exit(1);
     }
 
@@ -96,7 +106,13 @@ async function validate() {
             }
         });
 
-        let comment = `### Spider Validation: ${spiderName} (${type})\n\n`;
+        let comment = '';
+        if (reordered) {
+            comment +=
+                '> ℹ️ **Spiders were not in alphabetical order.** I have reordered them and committed the change.\n\n';
+        }
+
+        comment += `### Spider Validation: ${spiderName} (${type})\n\n`;
         comment += `**Total features:** ${totalFeatures}\n\n`;
 
         comment += `#### Importable Tags\n`;
