@@ -289,7 +289,7 @@ export function initSpiderDashboard(results, importableTags) {
         currentState.page++;
         updateUrl();
         render();
-    });
+    };
 
     window.onpopstate = () => {
         loadStateFromUrl();
