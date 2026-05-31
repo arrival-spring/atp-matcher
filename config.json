@@ -4,93 +4,50 @@
         {
             "name": "kfc_za",
             "matchingKey": "ref",
-            "importableTags": [
-                "opening_hours",
-                "website",
-                "phone"
-            ],
-            "source_uri": [
-                "yum.com"
-            ]
+            "importableTags": ["opening_hours", "website", "phone"],
+            "source_uri": ["yum.com"]
         },
         {
             "name": "astron_energy_za",
             "matchingKey": "ref",
-            "importableTags": [
-                "opening_hours",
-                "phone"
-            ],
-            "source_uri": [
-                "astronenergy.co.za"
-            ]
+            "importableTags": ["opening_hours", "phone"],
+            "source_uri": ["astronenergy.co.za"]
         },
         {
             "name": "wimpy_za",
             "matchingKey": "website",
-            "importableTags": [
-                "opening_hours",
-                "phone"
-            ],
-            "source_uri": [
-                "wimpy.co.za"
-            ]
+            "importableTags": ["opening_hours", "phone"],
+            "source_uri": ["wimpy.co.za"]
         },
         {
             "name": "debonairs_pizza",
             "matchingKey": "website",
-            "importableTags": [
-                "opening_hours",
-                "phone"
-            ],
-            "source_uri": [
-                "debonairspizza.africa",
-                "debonairspizza.co.za"
-            ]
+            "importableTags": ["opening_hours", "phone"],
+            "source_uri": ["debonairspizza.africa", "debonairspizza.co.za"]
         },
         {
             "name": "fishaways_za",
             "matchingKey": "website",
-            "importableTags": [
-                "opening_hours",
-                "phone"
-            ],
-            "source_uri": [
-                "fishaways.co.za"
-            ]
+            "importableTags": ["opening_hours", "phone"],
+            "source_uri": ["fishaways.co.za"]
         },
         {
             "name": "bash",
             "matchingKey": "website",
-            "importableTags": [
-                "opening_hours",
-                "phone"
-            ],
-            "source_uri": [
-                "bash.com"
-            ]
+            "importableTags": ["opening_hours", "phone"],
+            "source_uri": ["bash.com"]
         },
         {
             "name": "sasol_za",
             "matchingKey": "ref",
-            "importableTags": [
-                "opening_hours",
-                "phone",
-                "website"
-            ],
-            "source_uri": [
-                "sasol.com"
-            ]
+            "importableTags": ["opening_hours", "phone", "website"],
+            "source_uri": ["sasol.com"]
         },
         {
             "name": "pick_n_pay",
             "matchingKey": "ref",
-            "importableTags": [
-                "opening_hours",
-                "phone"
-            ],
-            "source_uri": [
-                "pnp.co.za"
-            ]
+            "importableTags": ["opening_hours", "phone"],
+            "source_uri": ["pnp.co.za"]
         }
     ]
 }
