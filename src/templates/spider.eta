@@ -3,105 +3,298 @@
 <nav class="mb-8">
     <a href="index.html" class="text-blue-400 hover:underline">← Back to Index</a>
 </nav>
+
 <header class="mb-12">
     <h1 class="text-4xl font-extrabold mb-2"><%= it.name %></h1>
     <p class="text-gray-400">Last updated: <%= it.lastSync %></p>
 </header>
 
-<% Object.keys(it.grouped).sort().forEach(function(status) { %>
-    <% const rows = it.grouped[status]; %>
-    <div class="mb-12">
-        <h2 class="text-2xl font-bold mb-4 capitalize text-gray-200"><%= status %> (<%= rows.length %>)</h2>
-        <div class="overflow-x-auto bg-gray-900 rounded-lg shadow">
-            <table class="min-w-full table-auto data-table" data-status="<%= status %>">
-                <thead class="bg-gray-800 text-gray-400 text-left">
-                    <tr>
-                        <th class="px-4 py-2">Ref</th>
-                        <th class="px-4 py-2">Tags & Status</th>
-                        <th class="px-4 py-2 text-right">OSM Link</th>
-                    </tr>
-                </thead>
-                <tbody class="text-gray-300">
-                    <% rows.forEach(function(r) { %>
-                        <tr class="border-b border-gray-700 hover:bg-gray-800 align-top">
-                            <td class="px-4 py-2 font-medium"><%= r.ref %></td>
-                            <td class="px-4 py-2">
-                                <div class="space-y-4">
-                                    <% r.tags.forEach(function(t) { %>
-                                        <div class="bg-gray-800/50 p-3 rounded border border-gray-700">
-                                            <div class="flex items-center justify-between mb-2">
-                                                <span class="text-sm font-bold uppercase tracking-wider text-gray-400"><%= t.tag %></span>
-                                                <span class="text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300 border border-gray-600"><%= t.status %></span>
-                                            </div>
-                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <span class="block text-[10px] uppercase text-gray-500 mb-1">OSM</span>
-                                                    <code class="text-sm break-all"><%= t.osmValue %></code>
-                                                </div>
-                                                <div>
-                                                    <span class="block text-[10px] uppercase text-gray-500 mb-1">Spider</span>
-                                                    <code class="text-sm break-all"><%= t.spiderValue %></code>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <% }) %>
-                                </div>
-                            </td>
-                            <td class="px-4 py-2 text-right">
-                                <% if (r.osmId) { %>
-                                    <% const typeMap = { 'n': 'node', 'w': 'way', 'r': 'relation' }; %>
-                                    <% const typeChar = r.osmId.toString()[0]; %>
-                                    <% const id = r.osmId.toString().substring(1); %>
-                                    <% if (typeMap[typeChar]) { %>
-                                        <a href="https://www.openstreetmap.org/<%= typeMap[typeChar] %>/<%= id %>" target="_blank" class="inline-flex items-center text-blue-400 hover:underline">
-                                            <span><%= r.osmId %></span>
-                                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                        </a>
-                                    <% } else { %>
-                                        <span class="text-gray-600">N/A</span>
-                                    <% } %>
-                                <% } else { %>
-                                    <span class="text-gray-600">N/A</span>
-                                <% } %>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        </div>
-        <div class="mt-4 flex justify-between items-center pagination-controls" data-status="<%= status %>">
-            <button class="prev-btn bg-gray-700 px-3 py-1 rounded disabled:opacity-50">Previous</button>
-            <span class="page-info">Page 1 of 1</span>
-            <button class="next-btn bg-gray-700 px-3 py-1 rounded disabled:opacity-50">Next</button>
+<!-- Tag Tabs -->
+<div class="mb-8 border-b border-gray-700">
+    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="tag-tabs" role="tablist">
+        <li class="mr-2" role="presentation">
+            <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors" id="summary-tab" data-tab="summary" type="button" role="tab">Summary</button>
+        </li>
+        <% it.importableTags.forEach(function(tag) { %>
+            <li class="mr-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors capitalize" id="<%= tag %>-tab" data-tab="<%= tag %>" type="button" role="tab"><%= tag.replace('_', ' ') %></button>
+            </li>
+        <% }) %>
+    </ul>
+</div>
+
+<!-- Tab Content -->
+<div id="tab-content">
+    <!-- Summary Section -->
+    <div class="hidden space-y-8" id="summary-content" role="tabpanel">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <% it.importableTags.forEach(function(tag) { %>
+                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h3 class="text-xl font-bold mb-4 capitalize text-gray-100"><%= tag.replace('_', ' ') %></h3>
+                    <div class="space-y-2">
+                        <%
+                           const stats = {};
+                           it.results.forEach(r => {
+                               const t = r.tags.find(tt => tt.tag === tag);
+                               if (t) {
+                                   stats[t.status] = (stats[t.status] || 0) + 1;
+                               }
+                           });
+                           const sortedStatuses = Object.keys(stats).sort((a, b) => {
+                               const priorities = ['disallowed source uri', 'duplicate ref', 'mismatch', 'update OSM', 'not in OSM', 'no OSM tag', 'no spider tag', 'matching'];
+                               return priorities.indexOf(a) - priorities.indexOf(b);
+                           });
+                        %>
+                        <% sortedStatuses.forEach(function(status) { %>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-400 capitalize"><%= status %></span>
+                                <span class="font-mono text-gray-200"><%= stats[status] %></span>
+                            </div>
+                        <% }) %>
+                        <% if (Object.keys(stats).length === 0) { %>
+                            <p class="text-gray-500 italic">No data available</p>
+                        <% } %>
+                    </div>
+                </div>
+            <% }) %>
         </div>
     </div>
-<% }) %>
+
+    <!-- Tag Specific Section Template -->
+    <% it.importableTags.forEach(function(tag) { %>
+        <div class="hidden" id="<%= tag %>-content" role="tabpanel">
+            <!-- Status Filters -->
+            <div class="flex flex-wrap gap-2 mb-6" id="<%= tag %>-status-filters">
+                <%
+                   const tagStatuses = new Set();
+                   it.results.forEach(r => {
+                       const t = r.tags.find(tt => tt.tag === tag);
+                       if (t) tagStatuses.add(t.status);
+                   });
+                   const allPossibleStatuses = ['disallowed source uri', 'duplicate ref', 'mismatch', 'update OSM', 'not in OSM', 'no OSM tag', 'no spider tag', 'matching'];
+                %>
+                <% allPossibleStatuses.forEach(function(status) { %>
+                    <% const count = it.results.filter(r => r.tags.find(tt => tt.tag === tag && tt.status === status)).length; %>
+                    <button
+                        class="px-4 py-2 rounded-full text-sm font-medium border transition-colors <%= count > 0 ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-800 text-gray-600 cursor-not-allowed' %>"
+                        data-status="<%= status %>"
+                        <%= count === 0 ? 'disabled' : '' %>
+                    >
+                        <span class="capitalize"><%= status %></span>
+                        <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-900 text-xs"><%= count %></span>
+                    </button>
+                <% }) %>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6">
+                <table class="min-w-full table-auto" id="<%= tag %>-table">
+                    <thead class="bg-gray-800 text-gray-400 text-left">
+                        <tr>
+                            <th class="px-4 py-3">Ref</th>
+                            <th class="px-4 py-3">OSM Value</th>
+                            <th class="px-4 py-3">Spider Value</th>
+                            <th class="px-4 py-3">Status</th>
+                            <th class="px-4 py-3 text-right">OSM Link</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-300 divide-y divide-gray-800">
+                        <!-- Rows injected by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-between items-center bg-gray-800 p-4 rounded-lg" id="<%= tag %>-pagination">
+                <button class="prev-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors">Previous</button>
+                <span class="page-info text-gray-400 font-medium">Page 1 of 1</span>
+                <button class="next-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors">Next</button>
+            </div>
+        </div>
+    <% }) %>
+</div>
 
 <script>
+    const results = <%~ JSON.stringify(it.results) %>;
     const PAGE_SIZE = 50;
-    document.querySelectorAll('.data-table').forEach(table => {
-        const status = table.dataset.status;
-        const rows = Array.from(table.querySelectorAll('tbody tr'));
-        const controls = document.querySelector(`.pagination-controls[data-status="${status}"]`);
-        const pageInfo = controls.querySelector('.page-info');
-        const prevBtn = controls.querySelector('.prev-btn');
-        const nextBtn = controls.querySelector('.next-btn');
+    let currentState = {
+        tag: 'summary',
+        status: null,
+        page: 1
+    };
 
-        let currentPage = 1;
-        const totalPages = Math.ceil(rows.length / PAGE_SIZE);
+    function updateUrl() {
+        const url = new URL(window.location);
+        url.searchParams.set('tag', currentState.tag);
+        if (currentState.status) {
+            url.searchParams.set('status', currentState.status);
+        } else {
+            url.searchParams.delete('status');
+        }
+        if (currentState.page > 1) {
+            url.searchParams.set('page', currentState.page);
+        } else {
+            url.searchParams.delete('page');
+        }
+        window.history.pushState({}, '', url);
+    }
 
-        function update() {
-            rows.forEach((row, i) => {
-                row.style.display = (i >= (currentPage-1)*PAGE_SIZE && i < currentPage*PAGE_SIZE) ? '' : 'none';
-            });
-            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+    function loadStateFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        currentState.tag = params.get('tag') || 'summary';
+        currentState.status = params.get('status');
+        currentState.page = parseInt(params.get('page')) || 1;
+    }
+
+    function escapeHtml(unsafe) {
+        return (unsafe || "")
+            .toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function render() {
+        // Update Tabs
+        document.querySelectorAll('#tag-tabs button').forEach(btn => {
+            if (btn.dataset.tab === currentState.tag) {
+                btn.classList.add('text-blue-500', 'border-blue-500');
+                btn.classList.remove('border-transparent');
+            } else {
+                btn.classList.remove('text-blue-500', 'border-blue-500');
+                btn.classList.add('border-transparent');
+            }
+        });
+
+        // Update Content visibility
+        document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
+            panel.classList.toggle('hidden', panel.id !== `${currentState.tag}-content`);
+        });
+
+        if (currentState.tag === 'summary') return;
+
+        // Update Status Filters
+        const filterContainer = document.getElementById(`${currentState.tag}-status-filters`);
+        filterContainer.querySelectorAll('button').forEach(btn => {
+            if (btn.dataset.status === currentState.status) {
+                btn.classList.add('bg-blue-600', 'border-blue-500', 'text-white');
+                btn.classList.remove('text-gray-300', 'hover:bg-gray-700');
+            } else {
+                btn.classList.remove('bg-blue-600', 'border-blue-500', 'text-white');
+                if (!btn.disabled) {
+                    btn.classList.add('text-gray-300', 'hover:bg-gray-700');
+                }
+            }
+        });
+
+        // Filter and Paginate Data
+        const tagResults = results.map(r => {
+            const tagData = r.tags.find(t => t.tag === currentState.tag);
+            return tagData ? { ...r, tagStatus: tagData.status, osmValue: tagData.osmValue, spiderValue: tagData.spiderValue } : null;
+        }).filter(r => r !== null);
+
+        let filtered = tagResults;
+        if (currentState.status) {
+            filtered = tagResults.filter(r => r.tagStatus === currentState.status);
         }
 
-        prevBtn.onclick = () => { if(currentPage > 1) { currentPage--; update(); } };
-        nextBtn.onclick = () => { if(currentPage < totalPages) { currentPage++; update(); } };
+        const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
+        if (currentState.page > totalPages) currentState.page = totalPages;
 
-        update();
+        const start = (currentState.page - 1) * PAGE_SIZE;
+        const pageData = filtered.slice(start, start + PAGE_SIZE);
+
+        // Render Table
+        const tbody = document.querySelector(`#${currentState.tag}-content tbody`);
+        tbody.innerHTML = pageData.map(r => `
+            <tr class="hover:bg-gray-800 transition-colors">
+                <td class="px-4 py-3 font-medium">${escapeHtml(r.ref)}</td>
+                <td class="px-4 py-3"><code class="text-sm break-all">${escapeHtml(r.osmValue)}</code></td>
+                <td class="px-4 py-3"><code class="text-sm break-all">${escapeHtml(r.spiderValue)}</code></td>
+                <td class="px-4 py-3">
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-gray-800 border border-gray-700 text-gray-300">
+                        ${escapeHtml(r.tagStatus)}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-right">
+                    ${renderOsmLink(r.osmId)}
+                </td>
+            </tr>
+        `).join('');
+
+        // Update Pagination
+        const pagination = document.getElementById(`${currentState.tag}-pagination`);
+        pagination.querySelector('.page-info').textContent = `Page ${currentState.page} of ${totalPages}`;
+        pagination.querySelector('.prev-btn').disabled = currentState.page === 1;
+        pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || filtered.length === 0;
+    }
+
+    function renderOsmLink(osmId) {
+        if (!osmId) return '<span class="text-gray-600">N/A</span>';
+        const typeMap = { 'n': 'node', 'w': 'way', 'r': 'relation' };
+        const typeChar = osmId.toString()[0];
+        const id = osmId.toString().substring(1);
+        if (!typeMap[typeChar]) return '<span class="text-gray-600">N/A</span>';
+
+        return `
+            <a href="https://www.openstreetmap.org/${typeMap[typeChar]}/${id}" target="_blank" class="inline-flex items-center text-blue-400 hover:underline">
+                <span>${osmId}</span>
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            </a>
+        `;
+    }
+
+    // Event Listeners
+    document.getElementById('tag-tabs').addEventListener('click', e => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        currentState.tag = btn.dataset.tab;
+        currentState.status = null;
+        currentState.page = 1;
+        updateUrl();
+        render();
     });
+
+    document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
+        const tag = panel.id.replace('-content', '');
+        if (tag === 'summary') return;
+
+        // Status filter listeners
+        panel.querySelector(`#${tag}-status-filters`).addEventListener('click', e => {
+            const btn = e.target.closest('button');
+            if (!btn || btn.disabled) return;
+
+            const newStatus = btn.dataset.status;
+            currentState.status = (currentState.status === newStatus) ? null : newStatus;
+            currentState.page = 1;
+            updateUrl();
+            render();
+        });
+
+        // Pagination listeners
+        const pagination = panel.querySelector(`#${tag}-pagination`);
+        pagination.querySelector('.prev-btn').onclick = () => {
+            if (currentState.page > 1) {
+                currentState.page--;
+                updateUrl();
+                render();
+            }
+        };
+        pagination.querySelector('.next-btn').onclick = () => {
+            currentState.page++;
+            updateUrl();
+            render();
+        };
+    });
+
+    window.onpopstate = () => {
+        loadStateFromUrl();
+        render();
+    };
+
+    // Initial load
+    loadStateFromUrl();
+    render();
 </script>

@@ -49,7 +49,9 @@ async function validate() {
     if (addedOrModified.length === 0) {
         console.log('No spiders added or modified.');
         if (reordered) {
-            outputComment('> ℹ️ **Spiders were not in alphabetical order.** I have reordered them and committed the change.');
+            outputComment(
+                '> ℹ️ **Spiders were not in alphabetical order.** I have reordered them and committed the change.'
+            );
         }
         return;
     }
