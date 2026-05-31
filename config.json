@@ -21,8 +21,7 @@
             "name": "bash",
             "matchingKey": "website",
             "importableTags": [
-                "opening_hours",
-                "phone"
+                "opening_hours"
             ],
             "source_uri": [
                 "bash.com"
