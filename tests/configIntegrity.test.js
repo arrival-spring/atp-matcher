@@ -67,4 +67,12 @@ describe('Config Integrity Check', () => {
         const uniqueNames = new Set(names);
         expect(uniqueNames.size).toBe(names.length);
     });
+
+    test('website cannot be both an importable tag and the matching key', () => {
+        config.spiders.forEach(spider => {
+            if (spider.matchingKey === 'website') {
+                expect(spider.importableTags).not.toContain('website');
+            }
+        });
+    });
 });

@@ -88,6 +88,15 @@ export function areTagsEqual(tag, v1, v2, country) {
         return arePhonesEqual(v1, v2, country);
     } else if (tag === 'website') {
         return areWebsitesEqual(v1, v2);
+    } else if (tag.startsWith('fuel:')) {
+        const normalizeFuel = v => {
+            if (v === null || v === undefined) return null;
+            const s = v.toString().toLowerCase().trim();
+            if (s === 'yes' || s === 'true' || s === '1') return 'yes';
+            if (s === 'no' || s === 'false' || s === '0') return 'no';
+            return s;
+        };
+        return normalizeFuel(v1) === normalizeFuel(v2);
     }
     return v1 === v2;
 }
@@ -337,7 +346,7 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                 const country = props['addr:country'];
                 let status;
                 let osmValue = null;
-                let spiderValue = props[tag] || null;
+                const spiderValue = props[tag] || null;
 
                 if (!spiderValue) {
                     continue;
@@ -348,6 +357,10 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                     value: spiderMaps[idx].get(matchingValue)?.[tag] || null,
                 }));
 
+                const nonNullValues = history.map(h => h.value).filter(v => v !== null);
+                const isStable =
+                    nonNullValues.length <= 1 || nonNullValues.every(v => areTagsEqual(tag, v, spiderValue, country));
+
                 if (matchEntries.length > 1) {
                     status = 'duplicate ref';
                 } else if (matchEntries.length === 1) {
@@ -355,27 +368,39 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                     osmId = osm.id;
                     osmValue = osm.tags[tag] || null;
 
-                    const h4 = spiderValue;
-                    const h3 = history[2].value;
-                    const h2 = history[1].value;
-                    const h1 = history[0].value;
-
-                    const stableOld = h1 !== null && areTagsEqual(tag, h1, h2, country);
-                    const stableNew = h3 !== null && areTagsEqual(tag, h3, h4, country);
-
                     if (!osm.tags[tag]) {
                         status = 'no OSM tag';
-                    } else if (areTagsEqual(tag, osm.tags[tag], h4, country)) {
+                    } else if (areTagsEqual(tag, osm.tags[tag], spiderValue, country)) {
                         status = 'matching';
-                    } else if (
-                        stableOld &&
-                        stableNew &&
-                        areTagsEqual(tag, osm.tags[tag], h1, country) &&
-                        !areTagsEqual(tag, osm.tags[tag], h4, country)
-                    ) {
-                        status = 'update OSM';
                     } else {
-                        status = 'mismatch';
+                        // Check for update OSM
+                        let canUpdate = false;
+                        if (nonNullValues.length === 4) {
+                            const [v1, v2, v3, v4] = nonNullValues;
+                            if (
+                                areTagsEqual(tag, v1, v2, country) &&
+                                areTagsEqual(tag, v3, v4, country) &&
+                                areTagsEqual(tag, osm.tags[tag], v1, country) &&
+                                !areTagsEqual(tag, osm.tags[tag], v4, country)
+                            ) {
+                                canUpdate = true;
+                            }
+                        } else if (nonNullValues.length === 3) {
+                            const [v1, v2, v3] = nonNullValues;
+                            if (
+                                areTagsEqual(tag, v2, v3, country) &&
+                                areTagsEqual(tag, osm.tags[tag], v1, country) &&
+                                !areTagsEqual(tag, osm.tags[tag], v3, country)
+                            ) {
+                                canUpdate = true;
+                            }
+                        }
+
+                        if (canUpdate) {
+                            status = 'update OSM';
+                        } else {
+                            status = 'mismatch';
+                        }
                     }
                 } else {
                     status = 'not mapped';
@@ -387,6 +412,7 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                     osmValue,
                     spiderValue,
                     history,
+                    isStable,
                 });
             }
             itemStatus = getOverallStatus(itemTags.map(t => t.status));
@@ -399,6 +425,7 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
             tags: itemTags,
             osmId,
             isMapped: (spiderMatches.get(matchingValue) || []).length > 0,
+            allAtpTags: props,
         });
     }
 
