@@ -1,7 +1,7 @@
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
-import { spawn, execSync } from 'child_process';
+import { spawn } from 'child_process';
 import readline from 'readline';
 import opening_hours from 'opening_hours';
 import { LRUCache } from 'lru-cache';
@@ -120,115 +120,196 @@ async function getRunIds() {
     return response.data.slice(-4).map(run => run.run_id);
 }
 
-async function downloadOSM(url, dest) {
-    console.log(`Downloading OSM extract from ${url}...`);
-    const writer = fs.createWriteStream(dest);
+async function loadAllAtpData(config, runIds) {
+    const spidersData = new Map();
+    const atpLookup = new Map();
+
+    for (const spider of config.spiders) {
+        console.log(`Loading ATP data for spider: ${spider.name}`);
+        const spiderRuns = [];
+        for (const runId of runIds) {
+            const url = `${ATP_BASE_URL}/${runId}/output/${spider.name}.geojson`;
+            try {
+                const response = await axios.get(url);
+                spiderRuns.push(response.data);
+            } catch (error) {
+                console.error(`Error downloading ${url}: ${error.message}`);
+                spiderRuns.push(null);
+            }
+        }
+
+        if (spiderRuns.some(run => run === null)) {
+            console.error(`Skipping ${spider.name} due to missing run data.`);
+            continue;
+        }
+
+        const latestRun = spiderRuns[3];
+        const spiderMaps = spiderRuns.map(run => {
+            const map = new Map();
+            run.features.forEach(f => {
+                const val = f.properties[spider.matchingKey];
+                if (val) {
+                    map.set(val, f.properties);
+                }
+            });
+            return map;
+        });
+
+        spidersData.set(spider.name, {
+            latestRun,
+            spiderMaps,
+            config: spider,
+        });
+
+        // Build lookup
+        latestRun.features.forEach(f => {
+            const props = f.properties;
+            const brand = props.brand;
+            const wikidata = props['brand:wikidata'];
+            const ref = props.ref;
+            const website = props.website;
+            const matchingValue = props[spider.matchingKey];
+
+            if (brand && wikidata && matchingValue) {
+                if (ref) {
+                    const key = `ref|${brand}|${wikidata}|${ref}`;
+                    if (!atpLookup.has(key)) atpLookup.set(key, []);
+                    atpLookup.get(key).push({ spiderName: spider.name, matchingValue });
+                }
+                if (website) {
+                    const key = `web|${brand}|${wikidata}|${website}`;
+                    if (!atpLookup.has(key)) atpLookup.set(key, []);
+                    atpLookup.get(key).push({ spiderName: spider.name, matchingValue });
+                }
+            }
+        });
+    }
+    return { spidersData, atpLookup };
+}
+
+function parseOplTags(tagsStr) {
+    const tags = {};
+    if (!tagsStr || tagsStr === 'T') return tags;
+
+    // OPL tags are comma-separated: Tkey1=val1,key2=val2
+    // Keys and values are percent-encoded.
+    // OPL uses %HH encoding but also uses % for spaces in some cases or literally.
+    // Actually, osmium OPL documentation says it uses %HH encoding for:
+    // comma, equal sign, and all characters < 32 or > 126. Space is 32.
+    // My previous test showed "Port%20%Elizabeth" which is weird.
+    const parts = tagsStr.substring(1).split(',');
+    for (const part of parts) {
+        const eqIdx = part.indexOf('=');
+        if (eqIdx !== -1) {
+            const encodedKey = part.substring(0, eqIdx);
+            const encodedVal = part.substring(eqIdx + 1);
+
+            const decode = str => {
+                // OPL format uses %HH encoding for comma (2c), equal (3d), and chars < 32 or > 126.
+                // Space is often encoded as %20.
+                return str.replace(/%([0-9A-Fa-f]{2})/g, (match, hex) => {
+                    const code = parseInt(hex, 16);
+                    // Decode safe ASCII characters: space (20), comma (2c), equal (3d), colon (3a), semicolon (3b), etc.
+                    // We avoid decoding anything that could break the OPL structure or that we are unsure about.
+                    if (code >= 32 && code <= 126) {
+                        return String.fromCharCode(code);
+                    }
+                    return match;
+                });
+            };
+
+            tags[decode(encodedKey)] = decode(encodedVal);
+        }
+    }
+    return tags;
+}
+
+async function streamOsmData(url, atpLookup, allMatches) {
+    console.log(`Streaming OSM data from ${url}...`);
+
     const response = await axios({
         url,
         method: 'GET',
         responseType: 'stream',
     });
-    response.data.pipe(writer);
-    return new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-    });
-}
 
-async function getOsmData(osmFile) {
-    console.log('Filtering and exporting OSM data...');
-    const filteredPbf = 'filtered.osm.pbf';
-    try {
-        // Broad filter for elements having a brand tag.
-        // We will refine in-process to meet the "brand AND brand:wikidata AND (ref OR website)" requirement.
-        execSync(`osmium tags-filter ${osmFile} nwr/brand -o ${filteredPbf} --overwrite --omit-referenced`);
-    } catch (error) {
-        console.error('Osmium tags-filter failed. Make sure osmium-tool is installed.');
-        throw error;
-    }
+    const tagsFilter = spawn('osmium', [
+        'tags-filter',
+        '-',
+        'nwr/brand',
+        'nwr/brand:wikidata',
+        '--input-format=pbf',
+        '--output-format=opl',
+        '--omit-referenced',
+    ]);
 
-    const osmData = new Map();
+    tagsFilter.stderr.on('data', data => console.error(`[tags-filter] ${data}`));
 
-    // Export to GeoJSONSeq for streaming processing
-    const osmiumExport = spawn('osmium', ['export', filteredPbf, '-f', 'geojsonseq', '--overwrite']);
+    response.data.pipe(tagsFilter.stdin);
+
     const rl = readline.createInterface({
-        input: osmiumExport.stdout,
+        input: tagsFilter.stdout,
         terminal: false,
     });
 
     for await (const line of rl) {
         if (!line.trim()) continue;
-        let feature;
-        try {
-            feature = JSON.parse(line);
-        } catch {
-            continue;
-        }
-        const props = feature.properties;
 
+        // OPL format: [node|way|relation]ID [vVersion] [dV] [cChangeset] [tTimestamp] [iUid] [uUser] [Ttags] [xLon yLat]|[Nnodes]|[Mmembers]
+        const parts = line.split(' ');
+        const id = parts[0];
+        const tagsPart = parts.find(p => p.startsWith('T'));
+
+        if (!tagsPart) continue;
+
+        const props = parseOplTags(tagsPart);
         const brand = props.brand;
         const wikidata = props['brand:wikidata'];
         const ref = props.ref;
         const website = props.website;
 
-        // Requirement: brand AND brand:wikidata AND (ref OR website)
-        if (brand && wikidata && (ref || website)) {
-            const entry = {
-                id: feature.id,
-                tags: props,
-            };
+        const entry = {
+            id: id,
+            tags: props,
+        };
 
-            // Index by ref
-            if (ref) {
-                const key = `ref|${brand}|${wikidata}|${ref}`;
-                if (!osmData.has(key)) osmData.set(key, []);
-                osmData.get(key).push(entry);
-            }
-            // Index by website
-            if (website) {
-                const key = `web|${brand}|${wikidata}|${website}`;
-                if (!osmData.has(key)) osmData.set(key, []);
-                osmData.get(key).push(entry);
+        const keys = [];
+        if (ref) keys.push(`ref|${brand}|${wikidata}|${ref}`);
+        if (website) keys.push(`web|${brand}|${wikidata}|${website}`);
+
+        const matchedAtpFeatures = new Set();
+
+        for (const key of keys) {
+            if (atpLookup.has(key)) {
+                for (const match of atpLookup.get(key)) {
+                    const matchId = `${match.spiderName}|${match.matchingValue}`;
+                    if (!matchedAtpFeatures.has(matchId)) {
+                        matchedAtpFeatures.add(matchId);
+
+                        const spiderMatches = allMatches.get(match.spiderName);
+                        if (!spiderMatches.has(match.matchingValue)) {
+                            spiderMatches.set(match.matchingValue, []);
+                        }
+                        spiderMatches.get(match.matchingValue).push(entry);
+                        console.log(`[MATCH] OSM:${id} matches ${match.spiderName} (${match.matchingValue})`);
+                    }
+                }
             }
         }
     }
 
-    if (fs.existsSync(filteredPbf)) fs.unlinkSync(filteredPbf);
-    return osmData;
+    return new Promise((resolve, reject) => {
+        tagsFilter.on('close', code => {
+            if (code === 0) resolve();
+            else reject(new Error(`osmium tags-filter exited with code ${code}`));
+        });
+        tagsFilter.on('error', reject);
+    });
 }
 
-async function processSpider(spider, runIds, osmData) {
-    console.log(`Processing spider: ${spider.name}`);
-    const spiderRuns = [];
-
-    for (const runId of runIds) {
-        const url = `${ATP_BASE_URL}/${runId}/output/${spider.name}.geojson`;
-        console.log(`Downloading spider data for run ${runId}...`);
-        try {
-            const response = await axios.get(url);
-            spiderRuns.push(response.data);
-        } catch (error) {
-            console.error(`Error downloading ${url}: ${error.message}`);
-            spiderRuns.push(null);
-        }
-    }
-
-    if (spiderRuns.some(run => run === null)) {
-        console.error(`Skipping ${spider.name} due to missing run data.`);
-        return null;
-    }
-
-    const latestRun = spiderRuns[3];
-    const spiderMaps = spiderRuns.map(run => {
-        const map = new Map();
-        run.features.forEach(f => {
-            const val = f.properties[spider.matchingKey];
-            if (val) {
-                map.set(val, f.properties);
-            }
-        });
-        return map;
-    });
+async function processSpiderResults(spiderData, spiderMatches) {
+    const { latestRun, spiderMaps, config: spider } = spiderData;
+    console.log(`Processing spider results: ${spider.name}`);
 
     const reportFile = `${spider.name}_report.txt`;
     const stream = fs.createWriteStream(reportFile);
@@ -254,29 +335,7 @@ async function processSpider(spider, runIds, osmData) {
                 });
             }
         } else {
-            const brand = props.brand;
-            const wikidata = props['brand:wikidata'];
-            const ref = props.ref;
-            const website = props.website;
-
-            // Match in OSM
-            const matchesMap = new Map();
-            if (brand && wikidata) {
-                if (ref) {
-                    const keyRef = `ref|${brand}|${wikidata}|${ref}`;
-                    if (osmData.has(keyRef)) {
-                        osmData.get(keyRef).forEach(m => matchesMap.set(m.id, m));
-                    }
-                }
-                if (website) {
-                    const keyWeb = `web|${brand}|${wikidata}|${website}`;
-                    if (osmData.has(keyWeb)) {
-                        osmData.get(keyWeb).forEach(m => matchesMap.set(m.id, m));
-                    }
-                }
-            }
-
-            const matchEntries = Array.from(matchesMap.values());
+            const matchEntries = spiderMatches.get(matchingValue) || [];
 
             // We handle importable tags
             for (const tag of spider.importableTags) {
@@ -398,25 +457,27 @@ async function run() {
     const runIds = await getRunIds();
     console.log(`Using runs: ${runIds.join(', ')}`);
 
-    const osmFile = 'extract.osm.pbf';
+    const { spidersData, atpLookup } = await loadAllAtpData(config, runIds);
 
-    await downloadOSM(config.osmExtractUrl, osmFile);
-    const osmData = await getOsmData(osmFile);
+    const allMatches = new Map();
+    for (const spiderName of spidersData.keys()) {
+        allMatches.set(spiderName, new Map());
+    }
+
+    await streamOsmData(config.osmExtractUrl, atpLookup, allMatches);
 
     const allSpiderResults = [];
-    for (const spider of config.spiders) {
-        const results = await processSpider(spider, runIds, osmData);
+    for (const [spiderName, data] of spidersData) {
+        const results = await processSpiderResults(data, allMatches.get(spiderName));
         if (results) {
             allSpiderResults.push({
-                name: spider.name,
+                name: spiderName,
                 results: results,
             });
         }
     }
 
     generateWebpage(allSpiderResults);
-
-    if (fs.existsSync(osmFile)) fs.unlinkSync(osmFile);
 }
 
 run().catch(err => {
