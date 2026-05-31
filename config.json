@@ -3,7 +3,11 @@
     "allowedImportableTags": [
         "opening_hours",
         "website",
-        "phone"
+        "phone",
+        "fuel:octane_93",
+        "fuel:octane_95",
+        "fuel:lpg",
+        "fuel:diesel"
     ],
     "spiders": [
         {
@@ -79,7 +83,11 @@
             "importableTags": [
                 "opening_hours",
                 "phone",
-                "website"
+                "website",
+                "fuel:octane_93",
+        "fuel:octane_95",
+        "fuel:lpg",
+        "fuel:diesel"
             ],
             "source_uri": [
                 "sasol.com"
