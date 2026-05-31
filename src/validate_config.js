@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { execSync } from 'child_process';
 import axios from 'axios';
+import { getDomain } from 'tldts';
 import { isAllowedSourceUri } from './utils.js';
 
 const CONFIG_FILE = 'config.json';
@@ -52,7 +53,7 @@ async function validate() {
     if (addedOrModified.length > 1) {
         const names = addedOrModified.map(a => a.spider.name).join(', ');
         outputComment(`Error: Only one spider should be added or modified per PR. Found: ${names}`);
-        process.exit(0); // Exit gracefully so the workflow can continue to post the comment
+        process.exit(1);
     }
 
     const { type, spider } = addedOrModified[0];
@@ -66,7 +67,7 @@ async function validate() {
 
         if (!data || !data.features) {
             outputComment(`Error: Invalid GeoJSON data for spider ${spiderName}.`);
-            return;
+            process.exit(1);
         }
 
         const totalFeatures = data.features.length;
@@ -87,13 +88,7 @@ async function validate() {
 
             const sourceUri = props['@source_uri'];
             if (sourceUri) {
-                let domain = 'invalid';
-                try {
-                    const url = new URL(sourceUri);
-                    domain = url.hostname;
-                } catch {
-                    // keep as invalid
-                }
+                const domain = getDomain(sourceUri) || 'invalid';
                 if (!domainStats[domain]) {
                     domainStats[domain] = { count: 0, allowed: isAllowedSourceUri(sourceUri, spider.source_uri) };
                 }
@@ -123,12 +118,14 @@ async function validate() {
         }
 
         outputComment(comment);
+        process.exit(0);
     } catch (error) {
         if (error.response && error.response.status === 404) {
             outputComment(`Error: Spider \`${spiderName}\` not found in the latest ATP run.`);
         } else {
             outputComment(`Error fetching spider data for \`${spiderName}\`: ${error.message}`);
         }
+        process.exit(1);
     }
 }
 

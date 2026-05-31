@@ -9,4 +9,4 @@
 - `test_tag`: 0 (0.0%)
 
 #### Source URIs
-- `orderserv-kfc-eu-olo-api.yum.com`: 1227 (✅ Allowed)
+- `yum.com`: 1227 (✅ Allowed)
