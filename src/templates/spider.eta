@@ -17,31 +17,51 @@
                 <thead class="bg-gray-800 text-gray-400 text-left">
                     <tr>
                         <th class="px-4 py-2">Ref</th>
-                        <th class="px-4 py-2">Tag</th>
-                        <th class="px-4 py-2">OSM Value</th>
-                        <th class="px-4 py-2">Spider Value</th>
-                        <th class="px-4 py-2">OSM Link</th>
+                        <th class="px-4 py-2">Tags & Status</th>
+                        <th class="px-4 py-2 text-right">OSM Link</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-300">
                     <% rows.forEach(function(r) { %>
-                        <tr class="border-b border-gray-700 hover:bg-gray-800">
-                            <td class="px-4 py-2"><%= r.ref %></td>
-                            <td class="px-4 py-2"><%= r.tag %></td>
-                            <td class="px-4 py-2 font-mono text-sm"><%= r.osmValue %></td>
-                            <td class="px-4 py-2 font-mono text-sm"><%= r.spiderValue %></td>
+                        <tr class="border-b border-gray-700 hover:bg-gray-800 align-top">
+                            <td class="px-4 py-2 font-medium"><%= r.ref %></td>
                             <td class="px-4 py-2">
+                                <div class="space-y-4">
+                                    <% r.tags.forEach(function(t) { %>
+                                        <div class="bg-gray-800/50 p-3 rounded border border-gray-700">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span class="text-sm font-bold uppercase tracking-wider text-gray-400"><%= t.tag %></span>
+                                                <span class="text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300 border border-gray-600"><%= t.status %></span>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <span class="block text-[10px] uppercase text-gray-500 mb-1">OSM</span>
+                                                    <code class="text-sm break-all"><%= t.osmValue %></code>
+                                                </div>
+                                                <div>
+                                                    <span class="block text-[10px] uppercase text-gray-500 mb-1">Spider</span>
+                                                    <code class="text-sm break-all"><%= t.spiderValue %></code>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }) %>
+                                </div>
+                            </td>
+                            <td class="px-4 py-2 text-right">
                                 <% if (r.osmId) { %>
                                     <% const typeMap = { 'n': 'node', 'w': 'way', 'r': 'relation' }; %>
                                     <% const typeChar = r.osmId.toString()[0]; %>
                                     <% const id = r.osmId.toString().substring(1); %>
                                     <% if (typeMap[typeChar]) { %>
-                                        <a href="https://www.openstreetmap.org/<%= typeMap[typeChar] %>/<%= id %>" target="_blank" class="text-blue-400 hover:underline"><%= r.osmId %></a>
+                                        <a href="https://www.openstreetmap.org/<%= typeMap[typeChar] %>/<%= id %>" target="_blank" class="inline-flex items-center text-blue-400 hover:underline">
+                                            <span><%= r.osmId %></span>
+                                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                        </a>
                                     <% } else { %>
-                                        N/A
+                                        <span class="text-gray-600">N/A</span>
                                     <% } %>
                                 <% } else { %>
-                                    N/A
+                                    <span class="text-gray-600">N/A</span>
                                 <% } %>
                             </td>
                         </tr>

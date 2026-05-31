@@ -89,6 +89,38 @@ function areTagsEqual(tag, v1, v2, country) {
     }
     return v1 === v2;
 }
+
+const STATUS_PRIORITY = [
+    'disallowed source uri',
+    'duplicate ref',
+    'mismatch',
+    'update OSM',
+    'not in OSM',
+    'no OSM tag',
+    'no spider tag',
+    'matching',
+];
+
+function getOverallStatus(statuses) {
+    for (const p of STATUS_PRIORITY) {
+        if (statuses.includes(p)) return p;
+    }
+    return 'matching';
+}
+
+function isAllowedSourceUri(sourceUri, allowedList) {
+    if (!sourceUri || !allowedList || !Array.isArray(allowedList)) return false;
+    try {
+        const url = new URL(sourceUri);
+        const hostname = url.hostname.toLowerCase();
+        return allowedList.some(
+            allowed => hostname === allowed.toLowerCase() || hostname.endsWith('.' + allowed.toLowerCase())
+        );
+    } catch {
+        return false;
+    }
+}
+
 const HISTORY_URL = 'https://data.alltheplaces.xyz/runs/history.json';
 const ATP_BASE_URL = 'https://alltheplaces-data.openaddresses.io/runs';
 
@@ -219,96 +251,115 @@ async function processSpider(spider, runIds, osmData) {
         const matchingValue = props[spider.matchingKey];
         if (!matchingValue) continue;
 
-        const brand = props.brand;
-        const wikidata = props['brand:wikidata'];
-        const ref = props.ref;
-        const website = props.website;
+        let itemStatus;
+        const itemTags = [];
+        let osmId = null;
 
-        // Match in OSM
-        const matchesMap = new Map();
-        if (brand && wikidata) {
-            if (ref) {
-                const keyRef = `ref|${brand}|${wikidata}|${ref}`;
-                if (osmData.has(keyRef)) {
-                    osmData.get(keyRef).forEach(m => matchesMap.set(m.id, m));
+        if (!isAllowedSourceUri(props['@source_uri'], spider.source_uri)) {
+            itemStatus = 'disallowed source uri';
+            for (const tag of spider.importableTags) {
+                itemTags.push({
+                    tag,
+                    status: 'disallowed source uri',
+                    osmValue: 'N/A',
+                    spiderValue: props[tag] || 'N/A',
+                });
+            }
+        } else {
+            const brand = props.brand;
+            const wikidata = props['brand:wikidata'];
+            const ref = props.ref;
+            const website = props.website;
+
+            // Match in OSM
+            const matchesMap = new Map();
+            if (brand && wikidata) {
+                if (ref) {
+                    const keyRef = `ref|${brand}|${wikidata}|${ref}`;
+                    if (osmData.has(keyRef)) {
+                        osmData.get(keyRef).forEach(m => matchesMap.set(m.id, m));
+                    }
+                }
+                if (website) {
+                    const keyWeb = `web|${brand}|${wikidata}|${website}`;
+                    if (osmData.has(keyWeb)) {
+                        osmData.get(keyWeb).forEach(m => matchesMap.set(m.id, m));
+                    }
                 }
             }
-            if (website) {
-                const keyWeb = `web|${brand}|${wikidata}|${website}`;
-                if (osmData.has(keyWeb)) {
-                    osmData.get(keyWeb).forEach(m => matchesMap.set(m.id, m));
-                }
-            }
-        }
 
-        const matchEntries = Array.from(matchesMap.values());
+            const matchEntries = Array.from(matchesMap.values());
 
-        // We handle importable tags
-        for (const tag of spider.importableTags) {
-            const country = props['addr:country'];
-            let status;
-            let osmValue = 'N/A';
-            let spiderValue = props[tag] || 'N/A';
-            let osmId = null;
+            // We handle importable tags
+            for (const tag of spider.importableTags) {
+                const country = props['addr:country'];
+                let status;
+                let osmValue = 'N/A';
+                let spiderValue = props[tag] || 'N/A';
 
-            if (tag === 'phone' && props[tag]) {
-                try {
-                    const p = parsePhoneNumber(props[tag], country);
-                    if (!p || !p.isValid()) {
+                if (tag === 'phone' && props[tag]) {
+                    try {
+                        const p = parsePhoneNumber(props[tag], country);
+                        if (!p || !p.isValid()) {
+                            continue;
+                        }
+                    } catch {
                         continue;
                     }
-                } catch {
-                    continue;
                 }
-            }
 
-            if (matchEntries.length > 1) {
-                status = 'duplicate ref';
-            } else if (matchEntries.length === 1) {
-                const osm = matchEntries[0];
-                osmId = osm.id;
-                osmValue = osm.tags[tag] || 'N/A';
+                if (matchEntries.length > 1) {
+                    status = 'duplicate ref';
+                } else if (matchEntries.length === 1) {
+                    const osm = matchEntries[0];
+                    osmId = osm.id;
+                    osmValue = osm.tags[tag] || 'N/A';
 
-                const h4 = props[tag];
-                const h3 = spiderMaps[2].get(matchingValue)?.[tag];
-                const h2 = spiderMaps[1].get(matchingValue)?.[tag];
-                const h1 = spiderMaps[0].get(matchingValue)?.[tag];
+                    const h4 = props[tag];
+                    const h3 = spiderMaps[2].get(matchingValue)?.[tag];
+                    const h2 = spiderMaps[1].get(matchingValue)?.[tag];
+                    const h1 = spiderMaps[0].get(matchingValue)?.[tag];
 
-                const stableOld = h1 !== undefined && areTagsEqual(tag, h1, h2, country);
-                const stableNew = h3 !== undefined && areTagsEqual(tag, h3, h4, country);
+                    const stableOld = h1 !== undefined && areTagsEqual(tag, h1, h2, country);
+                    const stableNew = h3 !== undefined && areTagsEqual(tag, h3, h4, country);
 
-                if (!h4) {
-                    status = 'no spider tag';
-                } else if (!osm.tags[tag]) {
-                    status = 'no OSM tag';
-                } else if (areTagsEqual(tag, osm.tags[tag], h4, country)) {
-                    status = 'matching';
-                } else if (
-                    stableOld &&
-                    stableNew &&
-                    areTagsEqual(tag, osm.tags[tag], h1, country) &&
-                    !areTagsEqual(tag, osm.tags[tag], h4, country)
-                ) {
-                    status = 'update OSM';
+                    if (!h4) {
+                        status = 'no spider tag';
+                    } else if (!osm.tags[tag]) {
+                        status = 'no OSM tag';
+                    } else if (areTagsEqual(tag, osm.tags[tag], h4, country)) {
+                        status = 'matching';
+                    } else if (
+                        stableOld &&
+                        stableNew &&
+                        areTagsEqual(tag, osm.tags[tag], h1, country) &&
+                        !areTagsEqual(tag, osm.tags[tag], h4, country)
+                    ) {
+                        status = 'update OSM';
+                    } else {
+                        status = 'mismatch';
+                    }
                 } else {
-                    status = 'mismatch';
+                    status = 'not in OSM';
                 }
-            } else {
-                status = 'not in OSM';
-            }
 
-            stream.write(
-                `Ref: ${matchingValue}, Tag: ${tag}, Status: ${status}, OSM: ${osmValue}, Spider: ${spiderValue}\n`
-            );
-            results.push({
-                ref: matchingValue,
-                tag,
-                status,
-                osmValue,
-                spiderValue,
-                osmId,
-            });
+                itemTags.push({
+                    tag,
+                    status,
+                    osmValue,
+                    spiderValue,
+                });
+            }
+            itemStatus = getOverallStatus(itemTags.map(t => t.status));
         }
+
+        stream.write(`Ref: ${matchingValue}, Status: ${itemStatus}\n`);
+        results.push({
+            ref: matchingValue,
+            status: itemStatus,
+            tags: itemTags,
+            osmId,
+        });
     }
 
     stream.end();
