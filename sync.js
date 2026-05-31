@@ -424,17 +424,12 @@ function generateWebpage(allSpiderResults) {
 
     // Generate Spider Pages
     allSpiderResults.forEach(spider => {
-        const grouped = {};
-        spider.results.forEach(r => {
-            if (!grouped[r.status]) grouped[r.status] = [];
-            grouped[r.status].push(r);
-        });
-
         const spiderHtml = eta.render('./spider', {
             title: spider.name,
             name: spider.name,
+            importableTags: spider.importableTags,
             lastSync,
-            grouped,
+            results: spider.results,
         });
         fs.writeFileSync(path.join(outputDir, `${spider.name}.html`), spiderHtml);
     });
@@ -472,6 +467,7 @@ async function run() {
         if (results) {
             allSpiderResults.push({
                 name: spiderName,
+                importableTags: data.config.importableTags,
                 results: results,
             });
         }
