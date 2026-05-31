@@ -6,3 +6,4 @@ yarn-error.log*
 *.osm.pbf
 *_report.txt
 output/
+pr_comment.md

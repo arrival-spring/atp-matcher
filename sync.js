@@ -8,6 +8,7 @@ import { LRUCache } from 'lru-cache';
 import { parsePhoneNumber } from 'libphonenumber-js';
 import normalizeUrl from 'normalize-url';
 import eta from './src/eta.js';
+import { isAllowedSourceUri } from './src/utils.js';
 
 const CONFIG_FILE = 'config.json';
 
@@ -106,19 +107,6 @@ function getOverallStatus(statuses) {
         if (statuses.includes(p)) return p;
     }
     return 'matching';
-}
-
-function isAllowedSourceUri(sourceUri, allowedList) {
-    if (!sourceUri || !allowedList || !Array.isArray(allowedList)) return false;
-    try {
-        const url = new URL(sourceUri);
-        const hostname = url.hostname.toLowerCase();
-        return allowedList.some(
-            allowed => hostname === allowed.toLowerCase() || hostname.endsWith('.' + allowed.toLowerCase())
-        );
-    } catch {
-        return false;
-    }
 }
 
 const HISTORY_URL = 'https://data.alltheplaces.xyz/runs/history.json';
