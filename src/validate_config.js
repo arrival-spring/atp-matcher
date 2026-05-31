@@ -6,11 +6,13 @@ import * as prettier from 'prettier';
 import { isAllowedSourceUri } from './utils.js';
 
 const CONFIG_FILE = 'config.json';
+const SPIDERS_FILE = 'spiders.json';
 
 async function validate() {
     const configContent = fs.readFileSync(CONFIG_FILE, 'utf8');
     const config = JSON.parse(configContent);
-    const spiders = config.spiders;
+    const spidersContent = fs.readFileSync(SPIDERS_FILE, 'utf8');
+    const spiders = JSON.parse(spidersContent);
 
     // Integrity Check: website cannot be both an importable tag and the matching key
     for (const spider of spiders) {
@@ -29,27 +31,26 @@ async function validate() {
     let reordered = false;
     if (!isSorted) {
         console.log('Spiders are not in alphabetical order. Reordering...');
-        config.spiders = sortedSpiders;
-        const prettierConfig = await prettier.resolveConfig(CONFIG_FILE);
-        const formatted = await prettier.format(JSON.stringify(config), {
+        const prettierConfig = await prettier.resolveConfig(SPIDERS_FILE);
+        const formatted = await prettier.format(JSON.stringify(sortedSpiders), {
             ...prettierConfig,
-            filepath: CONFIG_FILE,
+            filepath: SPIDERS_FILE,
         });
-        fs.writeFileSync(CONFIG_FILE, formatted);
+        fs.writeFileSync(SPIDERS_FILE, formatted);
         reordered = true;
     }
 
     // 2. Identify added/modified spiders
-    let baseConfig;
+    let baseSpiders;
     try {
-        const baseConfigContent = execSync('git show origin/main:config.json', { encoding: 'utf8' });
-        baseConfig = JSON.parse(baseConfigContent);
+        const baseSpidersContent = execSync('git show origin/main:spiders.json', { encoding: 'utf8' });
+        baseSpiders = JSON.parse(baseSpidersContent);
     } catch {
-        console.error('Could not fetch config.json from main branch. Assuming all spiders are new.');
-        baseConfig = { spiders: [] };
+        console.error('Could not fetch spiders.json from main branch. Assuming all spiders are new.');
+        baseSpiders = [];
     }
 
-    const baseSpidersMap = new Map(baseConfig.spiders.map(s => [s.name, s]));
+    const baseSpidersMap = new Map(baseSpiders.map(s => [s.name, s]));
 
     const addedOrModified = [];
 

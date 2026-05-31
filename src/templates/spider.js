@@ -40,6 +40,14 @@ export function initSpiderDashboard(results, importableTags) {
         return values.every(v => v === values[0]);
     }
 
+    function renderTagValue(value, tag) {
+        const escaped = escapeHtml(value);
+        if (tag === 'website' && value) {
+            return `<a href="${escaped}" target="_blank" class="text-blue-400 hover:underline break-all">${escaped}</a>`;
+        }
+        return `<code class="text-sm break-all">${escaped}</code>`;
+    }
+
     function renderSpiderValue(spiderValue, history, tag) {
         if (!spiderValue) return '';
 
@@ -53,18 +61,18 @@ export function initSpiderDashboard(results, importableTags) {
                     <svg class="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="stable value">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    <code class="text-sm break-all">${escapeHtml(spiderValue)}</code>
+                    ${renderTagValue(spiderValue, tag)}
                 </div>
             `;
         } else {
             const historyHtml = history.filter(h => h.value).map(h => `
                 <div class="text-xs text-gray-400">
-                    <span class="font-mono">${h.date}</span>: <code class="text-gray-300">${escapeHtml(h.value)}</code>
+                    <span class="font-mono">${h.date}</span>: <span class="text-gray-300">${renderTagValue(h.value, tag)}</span>
                 </div>
             `).join('');
             return `
                 <div class="space-y-1">
-                    <code class="text-sm break-all font-bold text-white">${escapeHtml(spiderValue)}</code>
+                    <div class="font-bold text-white">${renderTagValue(spiderValue, tag)}</div>
                     <div class="pl-2 border-l border-gray-700">
                         ${historyHtml}
                     </div>
@@ -99,6 +107,8 @@ export function initSpiderDashboard(results, importableTags) {
 
         // Update Status Filters
         const filterContainer = document.getElementById(`${currentState.tag}-status-filters`);
+        if (!filterContainer) return;
+
         filterContainer.querySelectorAll('button').forEach(btn => {
             if (btn.dataset.status === currentState.status) {
                 btn.classList.add('bg-blue-600', 'border-blue-500', 'text-white');
@@ -130,6 +140,8 @@ export function initSpiderDashboard(results, importableTags) {
 
         // Update Table Headers and Content
         const table = document.getElementById(`${currentState.tag}-table`);
+        if (!table) return;
+
         const thead = table.querySelector('thead');
 
         const showOsmColumns = currentState.status !== 'no OSM tag';
@@ -150,11 +162,17 @@ export function initSpiderDashboard(results, importableTags) {
             if (r.tagStatus === 'mismatch' || r.tagStatus === 'no OSM tag' || r.tagStatus === 'update OSM') {
                 suggestedFixes[currentState.tag] = r.spiderValue;
             }
+
+            let refDisplay = escapeHtml(r.ref);
+            if (r.matchingKey === 'website' && r.ref) {
+                refDisplay = `<a href="${refDisplay}" target="_blank" class="text-blue-400 hover:underline break-all">${refDisplay}</a>`;
+            }
+
             return `
             <tr class="hover:bg-gray-800 transition-colors">
-                <td class="px-4 py-3 font-medium max-w-xs break-all">${escapeHtml(r.ref)}</td>
+                <td class="px-4 py-3 font-medium max-w-xs break-all">${refDisplay}</td>
                 <td class="px-4 py-3">${renderSpiderValue(r.spiderValue, r.history, currentState.tag)}</td>
-                ${showOsmColumns ? `<td class="px-4 py-3"><code class="text-sm break-all">${escapeHtml(r.osmValue)}</code></td>` : ''}
+                ${showOsmColumns ? `<td class="px-4 py-3">${renderTagValue(r.osmValue, currentState.tag)}</td>` : ''}
                 <td class="px-4 py-3">
                     <span class="px-2 py-1 rounded-full text-xs font-semibold bg-gray-800 border border-gray-700 text-gray-300 capitalize">
                         ${escapeHtml(r.tagStatus)}
@@ -169,6 +187,8 @@ export function initSpiderDashboard(results, importableTags) {
 
         // Update Pagination
         const pagination = document.getElementById(`${currentState.tag}-pagination`);
+        if (!pagination) return;
+
         pagination.querySelector('.page-info').textContent = `Page ${currentState.page} of ${totalPages}`;
         pagination.querySelector('.prev-btn').disabled = currentState.page === 1;
         pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || filtered.length === 0;
@@ -195,6 +215,13 @@ export function initSpiderDashboard(results, importableTags) {
         pagination.querySelector('.page-info').textContent = `Page ${currentState.page} of ${totalPages}`;
         pagination.querySelector('.prev-btn').disabled = currentState.page === 1;
         pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || unmapped.length === 0;
+    }
+
+    window.handleJosmLink = function(url) {
+        fetch(url, { mode: 'no-cors' }).catch(() => {
+            document.getElementById('josm-modal').classList.remove('hidden');
+            document.getElementById('modal-backdrop').classList.remove('hidden');
+        });
     }
 
     function renderOsmColumn(osmId, suggestedFixes = {}) {
@@ -226,8 +253,8 @@ export function initSpiderDashboard(results, importableTags) {
                 </a>
                 <div class="text-xs text-gray-500">
                     JOSM:
-                    <a href="javascript:void(0)" onclick="fetch('${josmEditUrl}')" class="text-blue-400 hover:underline">edit</a>
-                    ${hasFixes ? `<a href="javascript:void(0)" onclick="fetch('${josmUpdateUrl}')" class="text-blue-400 hover:underline ml-1">update</a>` : ''}
+                    <a href="javascript:void(0)" onclick="handleJosmLink('${josmEditUrl}')" class="text-blue-400 hover:underline">edit</a>
+                    ${hasFixes ? `<a href="javascript:void(0)" onclick="handleJosmLink('${josmUpdateUrl}')" class="text-blue-400 hover:underline ml-1">update</a>` : ''}
                 </div>
             </div>
         `;
@@ -249,7 +276,7 @@ export function initSpiderDashboard(results, importableTags) {
         if (!panel) return;
 
         // Status filter listeners
-        panel.querySelector(`#${tag}-status-filters`).addEventListener('click', e => {
+        panel.querySelector(`[id="${tag}-status-filters"]`).addEventListener('click', e => {
             const btn = e.target.closest('button');
             if (!btn || btn.disabled) return;
 
@@ -261,7 +288,7 @@ export function initSpiderDashboard(results, importableTags) {
         });
 
         // Pagination listeners
-        const pagination = panel.querySelector(`#${tag}-pagination`);
+        const pagination = panel.querySelector(`[id="${tag}-pagination"]`);
         pagination.querySelector('.prev-btn').onclick = () => {
             if (currentState.page > 1) {
                 currentState.page--;
