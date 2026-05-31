@@ -355,10 +355,19 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                 });
             }
         } else {
+            const allPossibleTags = new Set([...spider.importableTags]);
             const matchEntries = spiderMatches.get(matchingValue) || [];
+            if (matchEntries.length === 1) {
+                const osm = matchEntries[0];
+                for (const tag of Object.keys(osm.tags)) {
+                    if (spider.importableTags.includes(tag) || tag.startsWith('fuel:')) {
+                        allPossibleTags.add(tag);
+                    }
+                }
+            }
 
             // We handle importable tags
-            for (const tag of spider.importableTags) {
+            for (const tag of allPossibleTags) {
                 const country = props['addr:country'];
                 let status;
                 let osmValue = null;
@@ -379,7 +388,7 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                     };
                 });
 
-                if (!spiderValue) {
+                if (!spiderValue && matchEntries.length === 0) {
                     continue;
                 }
 
@@ -393,42 +402,41 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                     const osm = matchEntries[0];
                     osmId = osm.id;
                     osmValue = osm.tags[tag] || null;
-                    if (tag === 'phone' && osmValue) {
-                        osmValue = formatPhone(osmValue, country);
-                    }
 
                     if (!osmValue) {
                         status = 'no OSM tag';
-                    } else if (areTagsEqual(tag, osmValue, spiderValue, country)) {
-                        status = 'matching';
                     } else {
-                        // Check for update OSM
-                        let canUpdate = false;
-                        if (nonNullValues.length === 4) {
-                            const [v1, v2, v3, v4] = nonNullValues;
-                            if (
-                                areTagsEqual(tag, v1, v2, country) &&
-                                areTagsEqual(tag, v3, v4, country) &&
-                            areTagsEqual(tag, osmValue, v1, country) &&
-                            !areTagsEqual(tag, osmValue, v4, country)
-                            ) {
-                                canUpdate = true;
-                            }
-                        } else if (nonNullValues.length === 3) {
-                            const [v1, v2, v3] = nonNullValues;
-                            if (
-                                areTagsEqual(tag, v2, v3, country) &&
-                            areTagsEqual(tag, osmValue, v1, country) &&
-                            !areTagsEqual(tag, osmValue, v3, country)
-                            ) {
-                                canUpdate = true;
-                            }
-                        }
-
-                        if (canUpdate) {
-                            status = 'update OSM';
+                        if (areTagsEqual(tag, osmValue, spiderValue, country)) {
+                            status = 'matching';
                         } else {
-                            status = 'mismatch';
+                            // Check for update OSM
+                            let canUpdate = false;
+                            if (nonNullValues.length === 4) {
+                                const [v1, v2, v3, v4] = nonNullValues;
+                                if (
+                                    areTagsEqual(tag, v1, v2, country) &&
+                                    areTagsEqual(tag, v3, v4, country) &&
+                                    areTagsEqual(tag, osmValue, v1, country) &&
+                                    !areTagsEqual(tag, osmValue, v4, country)
+                                ) {
+                                    canUpdate = true;
+                                }
+                            } else if (nonNullValues.length === 3) {
+                                const [v1, v2, v3] = nonNullValues;
+                                if (
+                                    areTagsEqual(tag, v2, v3, country) &&
+                                    areTagsEqual(tag, osmValue, v1, country) &&
+                                    !areTagsEqual(tag, osmValue, v3, country)
+                                ) {
+                                    canUpdate = true;
+                                }
+                            }
+
+                            if (canUpdate) {
+                                status = 'update OSM';
+                            } else {
+                                status = 'mismatch';
+                            }
                         }
                     }
                 } else {
