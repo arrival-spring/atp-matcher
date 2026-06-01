@@ -32,10 +32,9 @@ jobs:
             - name: Build CSS
               run: npm run build:css
 
-            - name: Upload reports
+            - name: Upload dashboard
               uses: actions/upload-artifact@v7
               with:
-                  name: atp-osm-reports
+                  name: atp-osm-dashboard
                   path: |
-                      *_report.txt
                       output/

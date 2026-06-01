@@ -178,10 +178,7 @@ export function initSpiderDashboard(results, importableTags) {
                     suggestedFixes[currentState.tag] = r.spiderValue;
                 }
 
-                let refDisplay = escapeHtml(r.ref);
-                if (r.matchingKey === 'website' && r.ref) {
-                    refDisplay = `<a href="${refDisplay}" target="_blank" class="text-blue-400 hover:underline break-all">${refDisplay}</a>`;
-                }
+                const refDisplay = escapeHtml(r.ref);
 
                 return `
             <tr class="hover:bg-gray-800 transition-colors">
