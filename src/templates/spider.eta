@@ -37,13 +37,14 @@
 
 <!-- Tab Content -->
 <div id="tab-content">
+    <% const isUniquelyMatched = r => r.matchCount === 1 && r.status !== 'disallowed source uri'; %>
     <!-- Summary Section -->
     <div class="hidden space-y-8" id="summary-content" role="tabpanel">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('unmapped-tab').click()">
                 <h3 class="text-xl font-bold mb-4 text-gray-100">Not Mapped</h3>
                 <div class="text-3xl font-mono text-gray-200">
-                    <%= it.results.filter(r => !r.isMapped).length %>
+                    <%= it.results.filter(r => !isUniquelyMatched(r)).length %>
                 </div>
             </div>
             <% it.importableTags.forEach(function(tag) { %>
@@ -52,7 +53,7 @@
                     <div class="space-y-2">
                         <%
                            const stats = {};
-                           it.results.forEach(r => {
+                           it.results.filter(isUniquelyMatched).forEach(r => {
                                const t = r.tags.find(tt => tt.tag === tag);
                                if (t) {
                                    stats[t.status] = (stats[t.status] || 0) + 1;
@@ -110,14 +111,14 @@
             <div class="flex flex-wrap gap-2 mb-6" id="<%= tag %>-status-filters">
                 <%
                    const tagStatuses = new Set();
-                   it.results.forEach(r => {
+                   it.results.filter(isUniquelyMatched).forEach(r => {
                        const t = r.tags.find(tt => tt.tag === tag);
                        if (t) tagStatuses.add(t.status);
                    });
                    const allPossibleStatuses = ['disallowed source uri', 'duplicate ref', 'mismatch', 'update OSM', 'no OSM tag', 'matching'];
                 %>
                 <% allPossibleStatuses.forEach(function(status) { %>
-                    <% const count = it.results.filter(r => r.tags.find(tt => tt.tag === tag && tt.status === status)).length; %>
+                    <% const count = it.results.filter(r => isUniquelyMatched(r) && r.tags.find(tt => tt.tag === tag && tt.status === status)).length; %>
                     <% if (count === 0 && status === 'disallowed source uri') { return; } %>
                     <button
                         class="px-4 py-2 rounded-full text-sm font-medium border transition-colors <%= count > 0 ? 'border-gray-600 text-gray-300 hover:bg-gray-700 cursor-pointer' : 'border-gray-800 text-gray-600 cursor-not-allowed' %>"

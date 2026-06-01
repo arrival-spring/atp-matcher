@@ -86,6 +86,8 @@ export function initSpiderDashboard(results, importableTags) {
     }
 
     function render() {
+        const isUniquelyMatched = r => r.matchCount === 1 && r.status !== 'disallowed source uri';
+
         // Update Tabs
         document.querySelectorAll('#tag-tabs button').forEach(btn => {
             if (btn.dataset.tab === currentState.tag) {
@@ -127,6 +129,7 @@ export function initSpiderDashboard(results, importableTags) {
 
         // Filter and Paginate Data
         const tagResults = results
+            .filter(isUniquelyMatched)
             .map(r => {
                 const tagData = r.tags.find(t => t.tag === currentState.tag);
                 return tagData
@@ -208,7 +211,8 @@ export function initSpiderDashboard(results, importableTags) {
     }
 
     function renderUnmapped() {
-        const unmapped = results.filter(r => !r.isMapped);
+        const isUniquelyMatched = r => r.matchCount === 1 && r.status !== 'disallowed source uri';
+        const unmapped = results.filter(r => !isUniquelyMatched(r));
         const totalPages = Math.ceil(unmapped.length / PAGE_SIZE) || 1;
         if (currentState.page > totalPages) currentState.page = totalPages;
 

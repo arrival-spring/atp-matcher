@@ -275,7 +275,16 @@ async function streamOsmData(url, spiders, atpLookup, allMatches) {
         }
     }
 
-    const filterArgs = ['tags-filter', '-', 'nwr/brand', 'nwr/brand:wikidata', 'nwr/website'];
+    const filterArgs = [
+        'tags-filter',
+        '-',
+        'nwr/brand',
+        'nwr/brand:wikidata',
+        'nwr/website',
+        'nwr/contact:website',
+        'nwr/phone',
+        'nwr/contact:phone',
+    ];
     for (const key of refKeys) {
         filterArgs.push(`nwr/${key}`);
     }
@@ -309,7 +318,7 @@ async function streamOsmData(url, spiders, atpLookup, allMatches) {
         const props = parseOplTags(tagsPart);
         const brand = props.brand;
         const wikidata = props['brand:wikidata'];
-        const website = props.website;
+        const website = props.website || props['contact:website'];
 
         const entry = {
             id: id,
@@ -422,6 +431,10 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                     spiderValue = formatPhone(spiderValue, country);
                 }
 
+                if (!spiderValue) {
+                    continue;
+                }
+
                 const history = runs.map((run, idx) => {
                     let val = spiderMaps[idx].get(matchingValue)?.[tag] || null;
                     if (tag === 'phone' && val) {
@@ -433,10 +446,6 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                     };
                 });
 
-                if (!spiderValue && matchEntries.length === 0) {
-                    continue;
-                }
-
                 const nonNullValues = history.map(h => h.value).filter(v => v !== null);
                 const isStable =
                     nonNullValues.length <= 1 || nonNullValues.every(v => areTagsEqual(tag, v, spiderValue, country));
@@ -446,7 +455,14 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                 } else if (matchEntries.length === 1) {
                     const osm = matchEntries[0];
                     osmId = osm.id;
-                    const osmTagValue = osm.tags[tag] || null;
+                    let osmTagValue = osm.tags[tag] || null;
+                    if (!osmTagValue) {
+                        if (tag === 'phone') {
+                            osmTagValue = osm.tags['contact:phone'] || null;
+                        } else if (tag === 'website') {
+                            osmTagValue = osm.tags['contact:website'] || null;
+                        }
+                    }
                     osmValue = osmTagValue;
 
                     if (!osmTagValue) {
@@ -514,6 +530,7 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
             tags: itemTags,
             osmId,
             isMapped: (spiderMatches.get(matchingValue) || []).length > 0,
+            matchCount: (spiderMatches.get(matchingValue) || []).length,
             allAtpTags: filteredAtpTags,
         });
     }
