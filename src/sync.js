@@ -218,12 +218,6 @@ function parseOplTags(tagsStr) {
     const tags = {};
     if (!tagsStr || tagsStr === 'T') return tags;
 
-    // OPL tags are comma-separated: Tkey1=val1,key2=val2
-    // Keys and values are percent-encoded.
-    // OPL uses %HH encoding but also uses % for spaces in some cases or literally.
-    // Actually, osmium OPL documentation says it uses %HH encoding for:
-    // comma, equal sign, and all characters < 32 or > 126. Space is 32.
-    // My previous test showed "Port%20%Elizabeth" which is weird.
     const parts = tagsStr.substring(1).split(',');
     for (const part of parts) {
         const eqIdx = part.indexOf('=');
@@ -233,7 +227,7 @@ function parseOplTags(tagsStr) {
 
             const decode = str => {
                 // OPL format uses %HEX% encoding for characters.
-                return str.replace(/%([0-9A-Fa-f]+)%/g, (match, hex) => {
+                return str.replace(/%([0-9A-Fa-f]{1,6})%/g, (match, hex) => {
                     return String.fromCodePoint(parseInt(hex, 16));
                 });
             };
