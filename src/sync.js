@@ -133,6 +133,7 @@ export function areTagsEqual(tag, osmValue, atpValue, country) {
 }
 
 export const STATUS_PRIORITY = [
+    'not a brand spider',
     'disallowed source uri',
     'duplicate ref',
     'mismatch',
@@ -186,6 +187,13 @@ async function loadAllAtpData(spiders, runs) {
         }
 
         const latestRun = spiderRuns[3];
+        const lineage = latestRun?.dataset_attributes?.['spider:lineage'];
+        const isBrandSpider = lineage === 'S_ATP_BRANDS';
+
+        if (latestRun && latestRun.features) {
+            latestRun.features = latestRun.features.filter(f => !('end_date' in f.properties));
+        }
+
         const spiderMaps = spiderRuns.map(run => {
             const map = new Map();
             if (run && run.features) {
@@ -203,10 +211,12 @@ async function loadAllAtpData(spiders, runs) {
             latestRun,
             spiderMaps,
             config: spider,
+            lineage,
+            isBrandSpider,
         });
 
         // Build lookup
-        if (latestRun && latestRun.features) {
+        if (isBrandSpider && latestRun && latestRun.features) {
             latestRun.features.forEach(f => {
                 const props = f.properties;
                 const brand = props.brand;
@@ -384,7 +394,7 @@ async function streamOsmData(url, spiders, atpLookup, allMatches) {
 }
 
 async function processSpiderResults(spiderData, spiderMatches, runs) {
-    const { latestRun, spiderMaps, config: spider } = spiderData;
+    const { latestRun, spiderMaps, config: spider, lineage, isBrandSpider } = spiderData;
     console.log(`Processing spider results: ${spider.name}`);
 
     const results = [];
@@ -398,7 +408,17 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
         const itemTags = [];
         let osmId = null;
 
-        if (!isAllowedSourceUri(props['@source_uri'], spider.source_uri)) {
+        if (!isBrandSpider) {
+            itemStatus = 'not a brand spider';
+            for (const tag of spider.importableTags) {
+                itemTags.push({
+                    tag,
+                    status: 'not a brand spider',
+                    osmValue: null,
+                    spiderValue: props[tag] || null,
+                });
+            }
+        } else if (!isAllowedSourceUri(props['@source_uri'], spider.source_uri)) {
             itemStatus = 'disallowed source uri';
             for (const tag of spider.importableTags) {
                 itemTags.push({
@@ -553,6 +573,8 @@ function generateWebpage(allSpiderResults, atpDate, osmDate) {
             atpDate,
             osmDate,
             results: spider.results,
+            isBrandSpider: spider.isBrandSpider,
+            lineage: spider.lineage,
         });
         fs.writeFileSync(path.join(outputDir, `${spider.name}.html`), spiderHtml);
     });
@@ -613,6 +635,8 @@ async function run() {
                 name: spiderName,
                 importableTags: data.config.importableTags,
                 results: results,
+                isBrandSpider: data.isBrandSpider,
+                lineage: data.lineage,
             });
         }
     }

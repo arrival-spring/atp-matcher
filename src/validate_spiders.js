@@ -95,6 +95,9 @@ async function validate() {
             process.exit(1);
         }
 
+        // Filter out features with end_date
+        data.features = data.features.filter(f => !('end_date' in f.properties));
+
         const totalFeatures = data.features.length;
         const tagStats = {};
         spider.importableTags.forEach(tag => {
@@ -129,16 +132,39 @@ async function validate() {
         }
 
         comment += `### Spider Validation: ${spiderName} (${type})\n\n`;
+
+        const errors = [];
+        // 3. Check allowed tags
+        const disallowedTags = spider.importableTags.filter(tag => !config.allowedImportableTags.includes(tag));
+        if (disallowedTags.length > 0) {
+            errors.push(`Error: The following tags are not in the allowed list: ${disallowedTags.map(t => `\`${t}\``).join(', ')}`);
+        }
+
+        // 4. Check lineage
+        const lineage = data.dataset_attributes?.['spider:lineage'];
+        if (lineage !== 'S_ATP_BRANDS') {
+            errors.push(`Error: This is not a brand spider. Lineage: \`${lineage || 'not found'}\``);
+        }
+
+        if (errors.length > 0) {
+            comment += `#### ❌ Validation Failed\n`;
+            errors.forEach(e => {
+                comment += `- ${e}\n`;
+            });
+            comment += `\n`;
+        }
+
         comment += `**Total features:** ${totalFeatures}\n\n`;
 
         comment += `#### Importable Tags\n`;
         spider.importableTags.forEach(tag => {
+            const isAllowed = config.allowedImportableTags.includes(tag);
             const count = tagStats[tag].count;
             const uniqueCount = tagStats[tag].unique.size;
             const missingCount = totalFeatures - count;
             const percent = totalFeatures > 0 ? ((count / totalFeatures) * 100).toFixed(1) : 0;
             const uniquePercent = count > 0 ? ((uniqueCount / count) * 100).toFixed(1) : 0;
-            comment += `- \`${tag}\`: ${count} (${percent}%) | Unique: ${uniqueCount}/${count} (${uniquePercent}%) | Missing: ${missingCount}\n`;
+            comment += `- \`${tag}\`: ${count} (${percent}%) | Unique: ${uniqueCount}/${count} (${uniquePercent}%) | Missing: ${missingCount}${isAllowed ? '' : ' ❌ **(Disallowed Tag)**'}\n`;
         });
         comment += `\n`;
 
@@ -153,6 +179,9 @@ async function validate() {
         }
 
         outputComment(comment);
+        if (errors.length > 0) {
+            process.exit(1);
+        }
         process.exit(0);
     } catch (error) {
         if (error.response && error.response.status === 404) {
