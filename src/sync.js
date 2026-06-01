@@ -11,6 +11,7 @@ import eta from './eta.js';
 import { isAllowedSourceUri } from './utils.js';
 
 const CONFIG_FILE = 'config.json';
+const SPIDERS_FILE = 'spiders.json';
 
 const ohCache = new LRUCache({ max: 1000 });
 
@@ -51,11 +52,13 @@ export function arePhonesEqual(v1, v2, country) {
     let p1, p2;
     try {
         p1 = parsePhoneNumber(v1, country);
+        if (!p1.isValid()) p1 = null;
     } catch {
         p1 = null;
     }
     try {
         p2 = parsePhoneNumber(v2, country);
+        if (!p2.isValid()) p2 = null;
     } catch {
         p2 = null;
     }
@@ -65,6 +68,19 @@ export function arePhonesEqual(v1, v2, country) {
     }
 
     return false;
+}
+
+export function formatPhone(value, country) {
+    if (!value) return null;
+    try {
+        const p = parsePhoneNumber(value, country);
+        if (p.isValid()) {
+            return p.formatInternational();
+        }
+    } catch {
+        // ignore
+    }
+    return null;
 }
 
 export function areWebsitesEqual(v1, v2) {
@@ -130,12 +146,12 @@ async function getRuns() {
     return response.data.slice(-4);
 }
 
-async function loadAllAtpData(config, runs) {
+async function loadAllAtpData(spiders, runs) {
     const runIds = runs.map(r => r.run_id);
     const spidersData = new Map();
     const atpLookup = new Map();
 
-    for (const spider of config.spiders) {
+    for (const spider of spiders) {
         console.log(`Loading ATP data for spider: ${spider.name}`);
         const spiderRuns = [];
         for (const runId of runIds) {
@@ -339,23 +355,42 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                 });
             }
         } else {
+            const allPossibleTags = new Set([...spider.importableTags]);
             const matchEntries = spiderMatches.get(matchingValue) || [];
+            if (matchEntries.length === 1) {
+                const osm = matchEntries[0];
+                for (const tag of Object.keys(osm.tags)) {
+                    if (spider.importableTags.includes(tag) || tag.startsWith('fuel:')) {
+                        allPossibleTags.add(tag);
+                    }
+                }
+            }
 
             // We handle importable tags
-            for (const tag of spider.importableTags) {
+            for (const tag of allPossibleTags) {
                 const country = props['addr:country'];
                 let status;
                 let osmValue = null;
-                const spiderValue = props[tag] || null;
+                let spiderValue = props[tag] || null;
 
-                if (!spiderValue) {
-                    continue;
+                if (tag === 'phone') {
+                    spiderValue = formatPhone(spiderValue, country);
                 }
 
-                const history = runs.map((run, idx) => ({
-                    date: run.run_id.substring(0, 10),
-                    value: spiderMaps[idx].get(matchingValue)?.[tag] || null,
-                }));
+                const history = runs.map((run, idx) => {
+                    let val = spiderMaps[idx].get(matchingValue)?.[tag] || null;
+                    if (tag === 'phone' && val) {
+                        val = formatPhone(val, country);
+                    }
+                    return {
+                        date: run.run_id.substring(0, 10),
+                        value: val,
+                    };
+                });
+
+                if (!spiderValue && matchEntries.length === 0) {
+                    continue;
+                }
 
                 const nonNullValues = history.map(h => h.value).filter(v => v !== null);
                 const isStable =
@@ -368,38 +403,40 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                     osmId = osm.id;
                     osmValue = osm.tags[tag] || null;
 
-                    if (!osm.tags[tag]) {
+                    if (!osmValue) {
                         status = 'no OSM tag';
-                    } else if (areTagsEqual(tag, osm.tags[tag], spiderValue, country)) {
-                        status = 'matching';
                     } else {
-                        // Check for update OSM
-                        let canUpdate = false;
-                        if (nonNullValues.length === 4) {
-                            const [v1, v2, v3, v4] = nonNullValues;
-                            if (
-                                areTagsEqual(tag, v1, v2, country) &&
-                                areTagsEqual(tag, v3, v4, country) &&
-                                areTagsEqual(tag, osm.tags[tag], v1, country) &&
-                                !areTagsEqual(tag, osm.tags[tag], v4, country)
-                            ) {
-                                canUpdate = true;
-                            }
-                        } else if (nonNullValues.length === 3) {
-                            const [v1, v2, v3] = nonNullValues;
-                            if (
-                                areTagsEqual(tag, v2, v3, country) &&
-                                areTagsEqual(tag, osm.tags[tag], v1, country) &&
-                                !areTagsEqual(tag, osm.tags[tag], v3, country)
-                            ) {
-                                canUpdate = true;
-                            }
-                        }
-
-                        if (canUpdate) {
-                            status = 'update OSM';
+                        if (areTagsEqual(tag, osmValue, spiderValue, country)) {
+                            status = 'matching';
                         } else {
-                            status = 'mismatch';
+                            // Check for update OSM
+                            let canUpdate = false;
+                            if (nonNullValues.length === 4) {
+                                const [v1, v2, v3, v4] = nonNullValues;
+                                if (
+                                    areTagsEqual(tag, v1, v2, country) &&
+                                    areTagsEqual(tag, v3, v4, country) &&
+                                    areTagsEqual(tag, osmValue, v1, country) &&
+                                    !areTagsEqual(tag, osmValue, v4, country)
+                                ) {
+                                    canUpdate = true;
+                                }
+                            } else if (nonNullValues.length === 3) {
+                                const [v1, v2, v3] = nonNullValues;
+                                if (
+                                    areTagsEqual(tag, v2, v3, country) &&
+                                    areTagsEqual(tag, osmValue, v1, country) &&
+                                    !areTagsEqual(tag, osmValue, v3, country)
+                                ) {
+                                    canUpdate = true;
+                                }
+                            }
+
+                            if (canUpdate) {
+                                status = 'update OSM';
+                            } else {
+                                status = 'mismatch';
+                            }
                         }
                     }
                 } else {
@@ -421,6 +458,7 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
         stream.write(`Ref: ${matchingValue}, Status: ${itemStatus}\n`);
         results.push({
             ref: matchingValue,
+            matchingKey: spider.matchingKey,
             status: itemStatus,
             tags: itemTags,
             osmId,
@@ -471,7 +509,12 @@ async function run() {
         console.error('Config file not found.');
         return;
     }
+    if (!fs.existsSync(SPIDERS_FILE)) {
+        console.error('Spiders file not found.');
+        return;
+    }
     const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+    const spiders = JSON.parse(fs.readFileSync(SPIDERS_FILE, 'utf8'));
     const runs = await getRuns();
     console.log(`Using runs: ${runs.map(r => r.run_id).join(', ')}`);
 
@@ -486,7 +529,7 @@ async function run() {
         osmDate = new Date().toISOString();
     }
 
-    const { spidersData, atpLookup } = await loadAllAtpData(config, runs);
+    const { spidersData, atpLookup } = await loadAllAtpData(spiders, runs);
 
     const allMatches = new Map();
     for (const spiderName of spidersData.keys()) {
