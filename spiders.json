@@ -92,16 +92,5 @@
         "source_uri": [
             "wimpy.co.za"
         ]
-    },
-    {
-        "name": "spar_bw_mz_na_sz_za",
-        "matchingKey": "website",
-        "importableTags": [
-            "opening_hours",
-            "phone"
-        ],
-        "source_uri": [
-            "spar.co.za"
-        ]
     }
 ]
