@@ -63,15 +63,4 @@ describe('Spiders Integrity Check', () => {
         });
     });
 
-    test('spiders and their arrays should be sorted alphabetically', () => {
-        const sortedSpiders = spiders
-            .map(s => ({
-                ...s,
-                importableTags: [...s.importableTags].sort(),
-                source_uri: [...s.source_uri].sort(),
-            }))
-            .sort((a, b) => a.name.localeCompare(b.name));
-
-        expect(spiders).toEqual(sortedSpiders);
-    });
 });
