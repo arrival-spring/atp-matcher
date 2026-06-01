@@ -31,6 +31,12 @@
         "source_uri": ["yum.com"]
     },
     {
+        "name": "ok_foods",
+        "matchingKey": "ref",
+        "importableTags": ["opening_hours", "phone", "website"],
+        "source_uri": ["okfoods.co.za"]
+    },
+    {
         "name": "pick_n_pay",
         "matchingKey": "ref",
         "importableTags": ["opening_hours", "phone"],
