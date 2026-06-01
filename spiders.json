@@ -1,100 +1,28 @@
 [
     {
         "name": "astron_energy_za",
-        "importableTags": [
-            "opening_hours",
-            "phone", "atm", "toilets", "car_wash"
-        ],
-        "source_uri": [
-            "astronenergy.co.za"
-        ]
+        "importableTags": ["atm", "car_wash", "opening_hours", "phone", "toilets"],
+        "source_uri": ["astronenergy.co.za"]
     },
-    {
-        "name": "bash",
-        "importableTags": [
-            "opening_hours",
-            "website"
-        ],
-        "source_uri": [
-            "bash.com"
-        ]
-    },
-    {
-        "name": "clicks",
-        "importableTags": [
-            "opening_hours",
-            "phone",
-            "website"
-        ],
-        "source_uri": [
-            "clicks.co.za"
-        ]
-    },
+    { "name": "bash", "importableTags": ["opening_hours", "website"], "source_uri": ["bash.com"] },
+    { "name": "clicks", "importableTags": ["opening_hours", "phone", "website"], "source_uri": ["clicks.co.za"] },
     {
         "name": "debonairs_pizza",
-        "importableTags": [
-            "opening_hours",
-            "phone",
-            "website"
-        ],
-        "source_uri": [
-            "debonairspizza.africa",
-            "debonairspizza.co.za"
-        ]
+        "importableTags": ["opening_hours", "phone", "website"],
+        "source_uri": ["debonairspizza.africa", "debonairspizza.co.za"]
     },
     {
         "name": "fishaways_za",
-        "importableTags": [
-            "opening_hours",
-            "phone",
-            "website"
-        ],
-        "source_uri": [
-            "fishaways.co.za"
-        ]
+        "importableTags": ["opening_hours", "phone", "website"],
+        "source_uri": ["fishaways.co.za"]
     },
-    {
-        "name": "kfc_za",
-        "importableTags": [
-            "opening_hours",
-            "phone",
-            "website"
-        ],
-        "source_uri": [
-            "yum.com"
-        ]
-    },
-    {
-        "name": "ok_foods",
-        "importableTags": [
-            "opening_hours",
-            "phone",
-            "website"
-        ],
-        "source_uri": [
-            "okfoods.co.za"
-        ]
-    },
-    {
-        "name": "pick_n_pay",
-        "importableTags": [
-            "opening_hours",
-            "phone"
-        ],
-        "source_uri": [
-            "pnp.co.za"
-        ]
-    },
+    { "name": "kfc_za", "importableTags": ["opening_hours", "phone", "website"], "source_uri": ["yum.com"] },
+    { "name": "ok_foods", "importableTags": ["opening_hours", "phone", "website"], "source_uri": ["okfoods.co.za"] },
+    { "name": "pick_n_pay", "importableTags": ["opening_hours", "phone"], "source_uri": ["pnp.co.za"] },
     {
         "name": "russells_za",
-        "importableTags": [
-            "opening_hours",
-            "phone",
-            "website"
-        ],
-        "source_uri": [
-            "russells.co.za"
-        ]
+        "importableTags": ["opening_hours", "phone", "website"],
+        "source_uri": ["russells.co.za"]
     },
     {
         "name": "sasol_za",
@@ -107,30 +35,12 @@
             "phone",
             "website"
         ],
-        "source_uri": [
-            "sasol.com"
-        ]
+        "source_uri": ["sasol.com"]
     },
     {
         "name": "spar_bw_mz_na_sz_za",
-        "importableTags": [
-            "opening_hours",
-            "phone",
-            "website"
-        ],
-        "source_uri": [
-            "spar.co.za"
-        ]
+        "importableTags": ["opening_hours", "phone", "website"],
+        "source_uri": ["spar.co.za"]
     },
-    {
-        "name": "wimpy_za",
-        "importableTags": [
-            "opening_hours",
-            "phone",
-            "website"
-        ],
-        "source_uri": [
-            "wimpy.co.za"
-        ]
-    }
+    { "name": "wimpy_za", "importableTags": ["opening_hours", "phone", "website"], "source_uri": ["wimpy.co.za"] }
 ]
