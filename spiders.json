@@ -4,7 +4,6 @@
         "importableTags": ["atm", "car_wash", "opening_hours", "phone", "toilets"],
         "source_uri": ["astronenergy.co.za"]
     },
-    { "name": "footgear_za", "importableTags": ["opening_hours", "website", "phone"], "source_uri": ["footgear.co.za"] },
     { "name": "bash", "importableTags": ["opening_hours", "website"], "source_uri": ["bash.com"] },
     { "name": "clicks", "importableTags": ["opening_hours", "phone", "website"], "source_uri": ["clicks.co.za"] },
     {
@@ -16,6 +15,11 @@
         "name": "fishaways_za",
         "importableTags": ["opening_hours", "phone", "website"],
         "source_uri": ["fishaways.co.za"]
+    },
+    {
+        "name": "footgear_za",
+        "importableTags": ["opening_hours", "phone", "website"],
+        "source_uri": ["footgear.co.za"]
     },
     { "name": "kfc_za", "importableTags": ["opening_hours", "phone", "website"], "source_uri": ["yum.com"] },
     { "name": "ok_foods", "importableTags": ["opening_hours", "phone", "website"], "source_uri": ["okfoods.co.za"] },
