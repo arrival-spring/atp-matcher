@@ -7,6 +7,12 @@
     },
     { "name": "bash", "matchingKey": "website", "importableTags": ["opening_hours"], "source_uri": ["bash.com"] },
     {
+        "name": "clicks",
+        "matchingKey": "website",
+        "importableTags": ["opening_hours", "phone"],
+        "source_uri": ["clicks.co.za"]
+    },
+    {
         "name": "debonairs_pizza",
         "matchingKey": "website",
         "importableTags": ["opening_hours", "phone"],
