@@ -18,9 +18,11 @@ export function initDashboard(allSpiderResults) {
 
         const tbody = document.getElementById('dashboard-tbody');
         tbody.innerHTML = pageData.map(spider => {
-            const issuesCount = spider.results.filter(r => r.status !== 'matching').length;
+            const isMapped = r => r.matchCount >= 1 && r.status !== 'disallowed source uri';
+            const mappedResults = spider.results.filter(isMapped);
+            const issuesCount = mappedResults.filter(r => r.status !== 'matching').length;
             const totalCount = spider.results.length;
-            const mappedCount = spider.results.filter(r => r.isMapped).length;
+            const mappedCount = mappedResults.length;
             const name = spider.name.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
             return `
@@ -32,7 +34,7 @@ export function initDashboard(allSpiderResults) {
                         <span class="${issuesCount > 0 ? 'text-red-400' : 'text-green-400'} font-semibold">
                             ${issuesCount}
                         </span>
-                        <span class="text-gray-500"> / ${totalCount}</span>
+                        <span class="text-gray-500"> / ${mappedCount}</span>
                     </td>
                     <td class="px-6 py-4">
                         <span class="text-gray-200 font-semibold">
