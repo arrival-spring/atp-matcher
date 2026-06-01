@@ -14,6 +14,7 @@ const CONFIG_FILE = 'config.json';
 const SPIDERS_FILE = 'spiders.json';
 
 const ohCache = new LRUCache({ max: 1000 });
+const ohCompareCache = new LRUCache({ max: 5000 });
 
 export function getOH(value) {
     if (!value) return null;
@@ -31,43 +32,56 @@ export function getOH(value) {
 
 export function areOpeningHoursEqual(v1, v2) {
     if (v1 === v2) return true;
+
+    const cacheKey = `${v1}|${v2}`;
+    if (ohCompareCache.has(cacheKey)) return ohCompareCache.get(cacheKey);
+
     const oh1 = getOH(v1);
     const oh2 = getOH(v2);
 
+    let result = false;
     if (oh1 === null && oh2 === null) {
-        return true;
+        result = true;
+    } else if (oh1 && oh2) {
+        result = oh1.isEqualTo(oh2)[0];
     }
 
-    if (oh1 && oh2) {
-        return oh1.isEqualTo(oh2)[0];
-    }
-
-    return false;
+    ohCompareCache.set(cacheKey, result);
+    return result;
 }
 
-export function arePhonesEqual(v1, v2, country) {
-    if (v1 === v2) return true;
-    if (!v1 || !v2) return false;
+export function arePhonesEqual(osmValue, atpValue, country) {
+    if (osmValue === atpValue) return true;
+    if (!atpValue) return true; // If ATP has no value, any OSM value is fine (though in this context atpValue is expected if called)
 
-    let p1, p2;
-    try {
-        p1 = parsePhoneNumber(v1, country);
-        if (!p1.isValid()) p1 = null;
-    } catch {
-        p1 = null;
-    }
-    try {
-        p2 = parsePhoneNumber(v2, country);
-        if (!p2.isValid()) p2 = null;
-    } catch {
-        p2 = null;
-    }
+    const splitValues = val => (val ? val.split(';').map(v => v.trim()) : []);
 
-    if (p1 && p2) {
-        return p1.number === p2.number;
-    }
+    const atpList = splitValues(atpValue)
+        .map(v => {
+            try {
+                const p = parsePhoneNumber(v, country);
+                return p.isValid() ? p.number : null;
+            } catch {
+                return null;
+            }
+        })
+        .filter(v => v !== null);
 
-    return false;
+    if (atpList.length === 0) return true; // Discard invalid ATP values, if none left, treat as match
+
+    const osmList = splitValues(osmValue)
+        .map(v => {
+            try {
+                const p = parsePhoneNumber(v, country);
+                return p.isValid() ? p.number : null;
+            } catch {
+                return null;
+            }
+        })
+        .filter(v => v !== null);
+
+    // All ATP values must be in OSM
+    return atpList.every(v => osmList.includes(v));
 }
 
 export function formatPhone(value, country) {
@@ -97,13 +111,13 @@ export function areWebsitesEqual(v1, v2) {
     }
 }
 
-export function areTagsEqual(tag, v1, v2, country) {
+export function areTagsEqual(tag, osmValue, atpValue, country) {
     if (tag === 'opening_hours') {
-        return areOpeningHoursEqual(v1, v2);
+        return areOpeningHoursEqual(osmValue, atpValue);
     } else if (tag === 'phone') {
-        return arePhonesEqual(v1, v2, country);
+        return arePhonesEqual(osmValue, atpValue, country);
     } else if (tag === 'website') {
-        return areWebsitesEqual(v1, v2);
+        return areWebsitesEqual(osmValue, atpValue);
     } else if (tag.startsWith('fuel:')) {
         const normalizeFuel = v => {
             if (v === null || v === undefined) return null;
@@ -112,9 +126,9 @@ export function areTagsEqual(tag, v1, v2, country) {
             if (s === 'no' || s === 'false' || s === '0') return 'no';
             return s;
         };
-        return normalizeFuel(v1) === normalizeFuel(v2);
+        return normalizeFuel(osmValue) === normalizeFuel(atpValue);
     }
-    return v1 === v2;
+    return osmValue === atpValue;
 }
 
 export const STATUS_PRIORITY = [
@@ -173,12 +187,14 @@ async function loadAllAtpData(spiders, runs) {
         const latestRun = spiderRuns[3];
         const spiderMaps = spiderRuns.map(run => {
             const map = new Map();
-            run.features.forEach(f => {
-                const val = f.properties[spider.matchingKey];
-                if (val) {
-                    map.set(val, f.properties);
-                }
-            });
+            if (run && run.features) {
+                run.features.forEach(f => {
+                    const val = f.properties[spider.matchingKey];
+                    if (val) {
+                        map.set(val, f.properties);
+                    }
+                });
+            }
             return map;
         });
 
@@ -189,8 +205,9 @@ async function loadAllAtpData(spiders, runs) {
         });
 
         // Build lookup
-        latestRun.features.forEach(f => {
-            const props = f.properties;
+        if (latestRun && latestRun.features) {
+            latestRun.features.forEach(f => {
+                const props = f.properties;
             const brand = props.brand;
             const wikidata = props['brand:wikidata'];
             const ref = props.ref;
@@ -206,10 +223,11 @@ async function loadAllAtpData(spiders, runs) {
                 if (website) {
                     const key = `web|${brand}|${wikidata}|${website}`;
                     if (!atpLookup.has(key)) atpLookup.set(key, []);
-                    atpLookup.get(key).push({ spiderName: spider.name, matchingValue });
+                        atpLookup.get(key).push({ spiderName: spider.name, matchingValue });
+                    }
                 }
-            }
-        });
+            });
+        }
     }
     return { spidersData, atpLookup };
 }
@@ -395,12 +413,13 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                 } else if (matchEntries.length === 1) {
                     const osm = matchEntries[0];
                     osmId = osm.id;
-                    osmValue = osm.tags[tag] || null;
+                    const osmTagValue = osm.tags[tag] || null;
+                    osmValue = osmTagValue;
 
-                    if (!osmValue) {
+                    if (!osmTagValue) {
                         status = 'no OSM tag';
                     } else {
-                        if (areTagsEqual(tag, osmValue, spiderValue, country)) {
+                        if (areTagsEqual(tag, osmTagValue, spiderValue, country)) {
                             status = 'matching';
                         } else {
                             // Check for update OSM
@@ -410,8 +429,8 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                                 if (
                                     areTagsEqual(tag, v1, v2, country) &&
                                     areTagsEqual(tag, v3, v4, country) &&
-                                    areTagsEqual(tag, osmValue, v1, country) &&
-                                    !areTagsEqual(tag, osmValue, v4, country)
+                                    areTagsEqual(tag, osmTagValue, v1, country) &&
+                                    !areTagsEqual(tag, osmTagValue, v4, country)
                                 ) {
                                     canUpdate = true;
                                 }
@@ -419,8 +438,8 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                                 const [v1, v2, v3] = nonNullValues;
                                 if (
                                     areTagsEqual(tag, v2, v3, country) &&
-                                    areTagsEqual(tag, osmValue, v1, country) &&
-                                    !areTagsEqual(tag, osmValue, v3, country)
+                                    areTagsEqual(tag, osmTagValue, v1, country) &&
+                                    !areTagsEqual(tag, osmTagValue, v3, country)
                                 ) {
                                     canUpdate = true;
                                 }
@@ -494,8 +513,9 @@ function generateWebpage(allSpiderResults, atpDate, osmDate) {
     });
     fs.writeFileSync(path.join(outputDir, 'index.html'), indexHtml);
 
-    // Copy spider.js
+    // Copy JS files
     fs.copyFileSync(path.join('src', 'templates', 'spider.js'), path.join(outputDir, 'spider.js'));
+    fs.copyFileSync(path.join('src', 'templates', 'index.js'), path.join(outputDir, 'index.js'));
 }
 
 async function run() {
