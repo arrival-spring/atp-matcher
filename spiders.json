@@ -3,7 +3,7 @@
         "name": "astron_energy_za",
         "importableTags": [
             "opening_hours",
-            "phone"
+            "phone", "atm", "toilets", "car_wash"
         ],
         "source_uri": [
             "astronenergy.co.za"
