@@ -86,7 +86,7 @@ export function initSpiderDashboard(results, importableTags) {
     }
 
     function render() {
-        const isUniquelyMatched = r => r.matchCount === 1 && r.status !== 'disallowed source uri';
+        const isUniquelyMatched = r => r.matchCount === 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status);
         const hasDuplicates = results.some(r => r.matchCount > 1);
 
         // Update Tabs
@@ -217,10 +217,10 @@ export function initSpiderDashboard(results, importableTags) {
     }
 
     function renderUnmapped() {
-        const isUniquelyMatched = r => r.matchCount === 1 && r.status !== 'disallowed source uri';
+        const isUniquelyMatched = r => r.matchCount === 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status);
         const isDuplicate = r => r.matchCount > 1;
         const unmapped = results.filter(
-            r => r.status === 'disallowed source uri' || (!isUniquelyMatched(r) && !isDuplicate(r))
+            r => ['disallowed source uri', 'not a brand spider'].includes(r.status) || (!isUniquelyMatched(r) && !isDuplicate(r))
         );
         const totalPages = Math.ceil(unmapped.length / PAGE_SIZE) || 1;
         if (currentState.page > totalPages) currentState.page = totalPages;
@@ -250,7 +250,7 @@ export function initSpiderDashboard(results, importableTags) {
     }
 
     function renderDuplicates() {
-        const duplicates = results.filter(r => r.matchCount > 1 && r.status !== 'disallowed source uri');
+        const duplicates = results.filter(r => r.matchCount > 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status));
         const totalPages = Math.ceil(duplicates.length / PAGE_SIZE) || 1;
         if (currentState.page > totalPages) currentState.page = totalPages;
 
