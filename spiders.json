@@ -1,5 +1,10 @@
 [
     {
+        "name": "russels_za",
+        "matchingKey": "ref",
+        "importableTags": ["opening_hours", "phone", "website"],
+        "source_uri": ["russels.co.za"]
+    },{
         "name": "astron_energy_za",
         "matchingKey": "ref",
         "importableTags": ["opening_hours", "phone"],
