@@ -87,6 +87,7 @@ export function initSpiderDashboard(results, importableTags) {
 
     function render() {
         const isUniquelyMatched = r => r.matchCount === 1 && r.status !== 'disallowed source uri';
+        const hasDuplicates = results.some(r => r.matchCount > 1);
 
         // Update Tabs
         document.querySelectorAll('#tag-tabs button').forEach(btn => {
@@ -108,6 +109,11 @@ export function initSpiderDashboard(results, importableTags) {
 
         if (currentState.tag === 'unmapped') {
             renderUnmapped();
+            return;
+        }
+
+        if (currentState.tag === 'duplicate-refs') {
+            renderDuplicates();
             return;
         }
 
@@ -212,7 +218,10 @@ export function initSpiderDashboard(results, importableTags) {
 
     function renderUnmapped() {
         const isUniquelyMatched = r => r.matchCount === 1 && r.status !== 'disallowed source uri';
-        const unmapped = results.filter(r => !isUniquelyMatched(r));
+        const isDuplicate = r => r.matchCount > 1;
+        const unmapped = results.filter(
+            r => r.status === 'disallowed source uri' || (!isUniquelyMatched(r) && !isDuplicate(r))
+        );
         const totalPages = Math.ceil(unmapped.length / PAGE_SIZE) || 1;
         if (currentState.page > totalPages) currentState.page = totalPages;
 
@@ -238,6 +247,35 @@ export function initSpiderDashboard(results, importableTags) {
         pagination.querySelector('.page-info').textContent = `Page ${currentState.page} of ${totalPages}`;
         pagination.querySelector('.prev-btn').disabled = currentState.page === 1;
         pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || unmapped.length === 0;
+    }
+
+    function renderDuplicates() {
+        const duplicates = results.filter(r => r.matchCount > 1 && r.status !== 'disallowed source uri');
+        const totalPages = Math.ceil(duplicates.length / PAGE_SIZE) || 1;
+        if (currentState.page > totalPages) currentState.page = totalPages;
+
+        const start = (currentState.page - 1) * PAGE_SIZE;
+        const pageData = duplicates.slice(start, start + PAGE_SIZE);
+
+        const tbody = document.querySelector('#duplicate-refs-table tbody');
+        tbody.innerHTML = pageData
+            .map(
+                r => `
+            <tr class="hover:bg-gray-800 transition-colors">
+                <td class="px-4 py-3 font-medium max-w-xs break-all">${escapeHtml(r.ref)}</td>
+                <td class="px-4 py-3 text-xs font-mono whitespace-pre-wrap">${Object.entries(r.allAtpTags || {})
+                    .map(([k, v]) => `${escapeHtml(k)}=${escapeHtml(v)}`)
+                    .join('\n')}</td>
+                <td class="px-4 py-3 font-medium text-red-400 capitalize">${escapeHtml(r.status)} (${r.matchCount} matches)</td>
+            </tr>
+        `
+            )
+            .join('');
+
+        const pagination = document.getElementById('duplicate-refs-pagination');
+        pagination.querySelector('.page-info').textContent = `Page ${currentState.page} of ${totalPages}`;
+        pagination.querySelector('.prev-btn').disabled = currentState.page === 1;
+        pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || duplicates.length === 0;
     }
 
     window.handleJosmLink = function (url) {
@@ -340,6 +378,23 @@ export function initSpiderDashboard(results, importableTags) {
         updateUrl();
         render();
     };
+
+    // Duplicate Refs pagination
+    const duplicatesPagination = document.getElementById('duplicate-refs-pagination');
+    if (duplicatesPagination) {
+        duplicatesPagination.querySelector('.prev-btn').onclick = () => {
+            if (currentState.page > 1) {
+                currentState.page--;
+                updateUrl();
+                render();
+            }
+        };
+        duplicatesPagination.querySelector('.next-btn').onclick = () => {
+            currentState.page++;
+            updateUrl();
+            render();
+        };
+    }
 
     window.onpopstate = () => {
         loadStateFromUrl();

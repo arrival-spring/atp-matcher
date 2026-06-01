@@ -27,6 +27,11 @@
         <li class="mr-2" role="presentation">
             <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer" id="unmapped-tab" data-tab="unmapped" type="button" role="tab">Not Mapped</button>
         </li>
+        <% if (it.results.some(r => r.matchCount > 1 && r.status !== 'disallowed source uri')) { %>
+            <li class="mr-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer" id="duplicate-refs-tab" data-tab="duplicate-refs" type="button" role="tab">Duplicate Refs</button>
+            </li>
+        <% } %>
         <% it.importableTags.forEach(function(tag) { %>
             <li class="mr-2" role="presentation">
                 <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors capitalize cursor-pointer" id="<%= tag %>-tab" data-tab="<%= tag %>" type="button" role="tab"><%= tag.replace('_', ' ') %></button>
@@ -44,9 +49,17 @@
             <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('unmapped-tab').click()">
                 <h3 class="text-xl font-bold mb-4 text-gray-100">Not Mapped</h3>
                 <div class="text-3xl font-mono text-gray-200">
-                    <%= it.results.filter(r => !isUniquelyMatched(r)).length %>
+                    <%= it.results.filter(r => r.status === 'disallowed source uri' || (!isUniquelyMatched(r) && r.matchCount <= 1)).length %>
                 </div>
             </div>
+            <% if (it.results.some(r => r.matchCount > 1 && r.status !== 'disallowed source uri')) { %>
+                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('duplicate-refs-tab').click()">
+                    <h3 class="text-xl font-bold mb-4 text-gray-100">Duplicate Refs</h3>
+                    <div class="text-3xl font-mono text-gray-200">
+                        <%= it.results.filter(r => r.matchCount > 1 && r.status !== 'disallowed source uri').length %>
+                    </div>
+                </div>
+            <% } %>
             <% it.importableTags.forEach(function(tag) { %>
                 <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('<%= tag %>-tab').click()">
                     <h3 class="text-xl font-bold mb-4 capitalize text-gray-100"><%= tag.replace('_', ' ') %></h3>
@@ -98,6 +111,30 @@
         </div>
         <!-- Pagination -->
         <div class="flex justify-between items-center bg-gray-800 p-4 rounded-lg" id="unmapped-pagination">
+            <button class="prev-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer">Previous</button>
+            <span class="page-info text-gray-400 font-medium">Page 1 of 1</span>
+            <button class="next-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer">Next</button>
+        </div>
+    </div>
+
+    <!-- Duplicate Refs Section -->
+    <div class="hidden" id="duplicate-refs-content" role="tabpanel">
+        <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6">
+            <table class="min-w-full table-auto" id="duplicate-refs-table">
+                <thead class="bg-gray-800 text-gray-400 text-left">
+                    <tr>
+                        <th class="px-4 py-3">Ref</th>
+                        <th class="px-4 py-3">Tags</th>
+                        <th class="px-4 py-3">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-300 divide-y divide-gray-800">
+                    <!-- Rows injected by JS -->
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination -->
+        <div class="flex justify-between items-center bg-gray-800 p-4 rounded-lg" id="duplicate-refs-pagination">
             <button class="prev-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer">Previous</button>
             <span class="page-info text-gray-400 font-medium">Page 1 of 1</span>
             <button class="next-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer">Next</button>

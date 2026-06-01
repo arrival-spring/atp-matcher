@@ -18,8 +18,8 @@ export function initDashboard(allSpiderResults) {
 
         const tbody = document.getElementById('dashboard-tbody');
         tbody.innerHTML = pageData.map(spider => {
-            const isUniquelyMatched = r => r.matchCount === 1 && r.status !== 'disallowed source uri';
-            const mappedResults = spider.results.filter(isUniquelyMatched);
+            const isMapped = r => r.matchCount >= 1 && r.status !== 'disallowed source uri';
+            const mappedResults = spider.results.filter(isMapped);
             const issuesCount = mappedResults.filter(r => r.status !== 'matching').length;
             const totalCount = spider.results.length;
             const mappedCount = mappedResults.length;
