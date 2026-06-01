@@ -3,7 +3,7 @@ name: PR Validation
 on:
     pull_request_target:
         paths:
-            - 'config.json'
+            - 'spiders.json'
 
 jobs:
     validate:
