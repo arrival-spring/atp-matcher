@@ -1,5 +1,10 @@
 [
     {
+        "name": "ok_foods",
+        "matchingKey": "ref",
+        "importableTags": ["opening_hours", "phone", "website"],
+        "source_uri": ["okfoods.co.za"]
+    },{
         "name": "astron_energy_za",
         "matchingKey": "ref",
         "importableTags": ["opening_hours", "phone"],
