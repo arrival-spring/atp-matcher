@@ -1,16 +1,16 @@
 [
     {
-        "name": "russels_za",
-        "matchingKey": "ref",
-        "importableTags": ["opening_hours", "phone", "website"],
-        "source_uri": ["russels.co.za"]
-    },{
         "name": "astron_energy_za",
         "matchingKey": "ref",
         "importableTags": ["opening_hours", "phone"],
         "source_uri": ["astronenergy.co.za"]
     },
-    { "name": "bash", "matchingKey": "website", "importableTags": ["opening_hours"], "source_uri": ["bash.com"] },
+    {
+        "name": "bash",
+        "matchingKey": "website",
+        "importableTags": ["opening_hours"],
+        "source_uri": ["bash.com"]
+    },
     {
         "name": "clicks",
         "matchingKey": "website",
@@ -32,7 +32,7 @@
     {
         "name": "kfc_za",
         "matchingKey": "ref",
-        "importableTags": ["opening_hours", "website", "phone"],
+        "importableTags": ["opening_hours", "phone", "website"],
         "source_uri": ["yum.com"]
     },
     {
@@ -48,16 +48,22 @@
         "source_uri": ["pnp.co.za"]
     },
     {
+        "name": "russels_za",
+        "matchingKey": "ref",
+        "importableTags": ["opening_hours", "phone", "website"],
+        "source_uri": ["russels.co.za"]
+    },
+    {
         "name": "sasol_za",
         "matchingKey": "ref",
         "importableTags": [
-            "opening_hours",
-            "phone",
-            "website",
+            "fuel:diesel",
+            "fuel:lpg",
             "fuel:octane_93",
             "fuel:octane_95",
-            "fuel:lpg",
-            "fuel:diesel"
+            "opening_hours",
+            "phone",
+            "website"
         ],
         "source_uri": ["sasol.com"]
     },

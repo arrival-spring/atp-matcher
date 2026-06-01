@@ -25,7 +25,13 @@ async function validate() {
     }
 
     // 1. Check alphabetical order
-    const sortedSpiders = [...spiders].sort((a, b) => a.name.localeCompare(b.name));
+    const sortedSpiders = spiders
+        .map(s => ({
+            ...s,
+            importableTags: [...s.importableTags].sort(),
+            source_uri: [...s.source_uri].sort(),
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
     const isSorted = JSON.stringify(spiders) === JSON.stringify(sortedSpiders);
 
     let reordered = false;

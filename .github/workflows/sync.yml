@@ -2,7 +2,7 @@ name: ATP-OSM Sync
 
 on:
     schedule:
-        - cron: '0 0 * * 0' # Run every Sunday at midnight
+        - cron: '0 0 * * 3' # Run every Wednesday at midnight
     workflow_dispatch: # Allow manual trigger
 
 jobs:

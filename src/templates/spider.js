@@ -1,9 +1,9 @@
 export function initSpiderDashboard(results, importableTags) {
-    const PAGE_SIZE = 50;
+    const PAGE_SIZE = 25;
     let currentState = {
         tag: 'summary',
         status: null,
-        page: 1
+        page: 1,
     };
 
     function updateUrl() {
@@ -21,14 +21,14 @@ export function initSpiderDashboard(results, importableTags) {
     }
 
     function escapeHtml(unsafe) {
-        if (unsafe === null || unsafe === undefined) return "";
+        if (unsafe === null || unsafe === undefined) return '';
         return unsafe
             .toString()
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 
     function isStable(history) {
@@ -52,8 +52,7 @@ export function initSpiderDashboard(results, importableTags) {
         if (!spiderValue) return '';
 
         const nonNullValues = history ? history.filter(h => h.value !== null) : [];
-        const isStableValue =
-            nonNullValues.length <= 1 || nonNullValues.every(v => v.value === spiderValue); // Simplified equality for UI
+        const isStableValue = nonNullValues.length <= 1 || nonNullValues.every(v => v.value === spiderValue); // Simplified equality for UI
 
         if (isStableValue) {
             return `
@@ -65,11 +64,16 @@ export function initSpiderDashboard(results, importableTags) {
                 </div>
             `;
         } else {
-            const historyHtml = history.filter(h => h.value).map(h => `
+            const historyHtml = history
+                .filter(h => h.value)
+                .map(
+                    h => `
                 <div class="text-xs text-gray-400">
                     <span class="font-mono">${h.date}</span>: <span class="text-gray-300">${renderTagValue(h.value, tag)}</span>
                 </div>
-            `).join('');
+            `
+                )
+                .join('');
             return `
                 <div class="space-y-1">
                     <div class="font-bold text-white">${renderTagValue(spiderValue, tag)}</div>
@@ -122,10 +126,20 @@ export function initSpiderDashboard(results, importableTags) {
         });
 
         // Filter and Paginate Data
-        const tagResults = results.map(r => {
-            const tagData = r.tags.find(t => t.tag === currentState.tag);
-            return tagData ? { ...r, tagStatus: tagData.status, osmValue: tagData.osmValue, spiderValue: tagData.spiderValue, history: tagData.history } : null;
-        }).filter(r => r !== null);
+        const tagResults = results
+            .map(r => {
+                const tagData = r.tags.find(t => t.tag === currentState.tag);
+                return tagData
+                    ? {
+                          ...r,
+                          tagStatus: tagData.status,
+                          osmValue: tagData.osmValue,
+                          spiderValue: tagData.spiderValue,
+                          history: tagData.history,
+                      }
+                    : null;
+            })
+            .filter(r => r !== null);
 
         let filtered = tagResults;
         if (currentState.status) {
@@ -157,18 +171,19 @@ export function initSpiderDashboard(results, importableTags) {
         `;
 
         const tbody = table.querySelector('tbody');
-        tbody.innerHTML = pageData.map(r => {
-            const suggestedFixes = {};
-            if (r.tagStatus === 'mismatch' || r.tagStatus === 'no OSM tag' || r.tagStatus === 'update OSM') {
-                suggestedFixes[currentState.tag] = r.spiderValue;
-            }
+        tbody.innerHTML = pageData
+            .map(r => {
+                const suggestedFixes = {};
+                if (r.tagStatus === 'mismatch' || r.tagStatus === 'no OSM tag' || r.tagStatus === 'update OSM') {
+                    suggestedFixes[currentState.tag] = r.spiderValue;
+                }
 
-            let refDisplay = escapeHtml(r.ref);
-            if (r.matchingKey === 'website' && r.ref) {
-                refDisplay = `<a href="${refDisplay}" target="_blank" class="text-blue-400 hover:underline break-all">${refDisplay}</a>`;
-            }
+                let refDisplay = escapeHtml(r.ref);
+                if (r.matchingKey === 'website' && r.ref) {
+                    refDisplay = `<a href="${refDisplay}" target="_blank" class="text-blue-400 hover:underline break-all">${refDisplay}</a>`;
+                }
 
-            return `
+                return `
             <tr class="hover:bg-gray-800 transition-colors">
                 <td class="px-4 py-3 font-medium max-w-xs break-all">${refDisplay}</td>
                 <td class="px-4 py-3">${renderSpiderValue(r.spiderValue, r.history, currentState.tag)}</td>
@@ -183,7 +198,8 @@ export function initSpiderDashboard(results, importableTags) {
                 </td>
             </tr>
         `;
-        }).join('');
+            })
+            .join('');
 
         // Update Pagination
         const pagination = document.getElementById(`${currentState.tag}-pagination`);
@@ -203,13 +219,19 @@ export function initSpiderDashboard(results, importableTags) {
         const pageData = unmapped.slice(start, start + PAGE_SIZE);
 
         const tbody = document.querySelector('#unmapped-table tbody');
-        tbody.innerHTML = pageData.map(r => `
+        tbody.innerHTML = pageData
+            .map(
+                r => `
             <tr class="hover:bg-gray-800 transition-colors">
                 <td class="px-4 py-3 font-medium max-w-xs break-all">${escapeHtml(r.ref)}</td>
-                <td class="px-4 py-3 text-xs font-mono whitespace-pre-wrap">${Object.entries(r.allAtpTags || {}).map(([k, v]) => `${escapeHtml(k)}=${escapeHtml(v)}`).join('\n')}</td>
+                <td class="px-4 py-3 text-xs font-mono whitespace-pre-wrap">${Object.entries(r.allAtpTags || {})
+                    .map(([k, v]) => `${escapeHtml(k)}=${escapeHtml(v)}`)
+                    .join('\n')}</td>
                 <td class="px-4 py-3 font-medium text-red-400 capitalize">${escapeHtml(r.status)}</td>
             </tr>
-        `).join('');
+        `
+            )
+            .join('');
 
         const pagination = document.getElementById('unmapped-pagination');
         pagination.querySelector('.page-info').textContent = `Page ${currentState.page} of ${totalPages}`;
@@ -217,16 +239,16 @@ export function initSpiderDashboard(results, importableTags) {
         pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || unmapped.length === 0;
     }
 
-    window.handleJosmLink = function(url) {
+    window.handleJosmLink = function (url) {
         fetch(url, { mode: 'no-cors' }).catch(() => {
             document.getElementById('josm-modal').classList.remove('hidden');
             document.getElementById('modal-backdrop').classList.remove('hidden');
         });
-    }
+    };
 
     function renderOsmColumn(osmId, suggestedFixes = {}) {
         if (!osmId) return '';
-        const typeMap = { 'n': 'node', 'w': 'way', 'r': 'relation' };
+        const typeMap = { n: 'node', w: 'way', r: 'relation' };
         const typeChar = osmId.toString()[0];
         const osmType = typeMap[typeChar];
         const id = osmId.toString().substring(1);
@@ -281,7 +303,7 @@ export function initSpiderDashboard(results, importableTags) {
             if (!btn || btn.disabled) return;
 
             const newStatus = btn.dataset.status;
-            currentState.status = (currentState.status === newStatus) ? null : newStatus;
+            currentState.status = currentState.status === newStatus ? null : newStatus;
             currentState.page = 1;
             updateUrl();
             render();

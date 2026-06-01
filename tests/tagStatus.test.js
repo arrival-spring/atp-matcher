@@ -37,12 +37,29 @@ describe('Tag Comparison Logic', () => {
             expect(arePhonesEqual('+27111234567', '+27117654321', 'ZA')).toBe(false);
         });
 
-        test('should return false if one is invalid', () => {
-            expect(arePhonesEqual('+27111234567', 'invalid', 'ZA')).toBe(false);
+        test('should return true if ATP value is invalid (discarded)', () => {
+            expect(arePhonesEqual('+27111234567', 'invalid', 'ZA')).toBe(true); // invalid ATP is discarded, returns true
         });
 
         test('should return true if both are identical even if invalid', () => {
             expect(arePhonesEqual('invalid', 'invalid', 'ZA')).toBe(true);
+        });
+
+        test('should handle multiple values with semicolon', () => {
+            expect(arePhonesEqual('+27111234567; +27117654321', '+27111234567', 'ZA')).toBe(true);
+            expect(arePhonesEqual('+27111234567', '+27111234567; +27117654321', 'ZA')).toBe(false);
+            expect(arePhonesEqual('+27111234567; +27117654321', '+27117654321; +27111234567', 'ZA')).toBe(true);
+            expect(arePhonesEqual('+27111234567; +27117654321; +27110000000', '+27111234567; +27117654321', 'ZA')).toBe(
+                true
+            );
+        });
+
+        test('should ignore invalid OSM values in semicolon list', () => {
+            expect(arePhonesEqual('+27111234567; invalid', '+27111234567', 'ZA')).toBe(true);
+        });
+
+        test('should discard invalid ATP values in semicolon list', () => {
+            expect(arePhonesEqual('+27111234567', '+27111234567; invalid', 'ZA')).toBe(true);
         });
     });
 
