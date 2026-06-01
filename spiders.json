@@ -47,5 +47,10 @@
         "importableTags": ["opening_hours", "phone", "website"],
         "source_uri": ["spar.co.za"]
     },
+    {
+        "name": "virgin_active_bw_na_za",
+        "importableTags": ["opening_hours", "phone", "website"],
+        "source_uri": ["virginactive.co.za"]
+    },
     { "name": "wimpy_za", "importableTags": ["opening_hours", "phone", "website"], "source_uri": ["wimpy.co.za"] }
 ]
