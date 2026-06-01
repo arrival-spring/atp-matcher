@@ -3,7 +3,7 @@ name: PR Validation
 on:
     pull_request_target:
         paths:
-            - 'config.json'
+            - 'spiders.json'
 
 jobs:
     validate:
@@ -28,7 +28,7 @@ jobs:
               run: npm ci
 
             - name: Run validation script
-              run: node src/validate_config.js
+              run: node src/validate_spiders.js
               env:
                   GITHUB_REPOSITORY: ${{ github.repository }}
 
