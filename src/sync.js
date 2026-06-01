@@ -97,18 +97,19 @@ export function formatPhone(value, country) {
     return null;
 }
 
+export function normalizeWebsite(url) {
+    if (!url) return null;
+    try {
+        return normalizeUrl(url, { forceHttps: true });
+    } catch {
+        return url;
+    }
+}
+
 export function areWebsitesEqual(v1, v2) {
     if (v1 === v2) return true;
     if (!v1 || !v2) return false;
-
-    try {
-        const options = { forceHttps: true };
-        const n1 = normalizeUrl(v1, options);
-        const n2 = normalizeUrl(v2, options);
-        return n1 === n2;
-    } catch {
-        return v1 === v2;
-    }
+    return normalizeWebsite(v1) === normalizeWebsite(v2);
 }
 
 export function areTagsEqual(tag, osmValue, atpValue, country) {
@@ -189,7 +190,7 @@ async function loadAllAtpData(spiders, runs) {
             const map = new Map();
             if (run && run.features) {
                 run.features.forEach(f => {
-                    const val = f.properties[spider.matchingKey];
+                    const val = f.properties.ref;
                     if (val) {
                         map.set(val, f.properties);
                     }
@@ -208,22 +209,24 @@ async function loadAllAtpData(spiders, runs) {
         if (latestRun && latestRun.features) {
             latestRun.features.forEach(f => {
                 const props = f.properties;
-            const brand = props.brand;
-            const wikidata = props['brand:wikidata'];
-            const ref = props.ref;
-            const website = props.website;
-            const matchingValue = props[spider.matchingKey];
+                const brand = props.brand;
+                const wikidata = props['brand:wikidata'];
+                const atpRef = props.ref;
+                const website = props.website;
 
-            if (brand && wikidata && matchingValue) {
-                if (ref) {
-                    const key = `ref|${brand}|${wikidata}|${ref}`;
+                if (brand && wikidata && atpRef) {
+                    // Match by ref (using the spider's custom ref_key if provided)
+                    const refKeyName = spider.ref_key || 'ref';
+                    const key = `ref|${brand}|${wikidata}|${refKeyName}|${atpRef}`;
                     if (!atpLookup.has(key)) atpLookup.set(key, []);
-                    atpLookup.get(key).push({ spiderName: spider.name, matchingValue });
-                }
-                if (website) {
-                    const key = `web|${brand}|${wikidata}|${website}`;
-                    if (!atpLookup.has(key)) atpLookup.set(key, []);
-                        atpLookup.get(key).push({ spiderName: spider.name, matchingValue });
+                    atpLookup.get(key).push({ spiderName: spider.name, atpRef });
+
+                    // Match by website
+                    if (website) {
+                        const normalizedWeb = normalizeWebsite(website);
+                        const key = `web|${brand}|${wikidata}|${normalizedWeb}`;
+                        if (!atpLookup.has(key)) atpLookup.set(key, []);
+                        atpLookup.get(key).push({ spiderName: spider.name, atpRef });
                     }
                 }
             });
@@ -256,7 +259,7 @@ function parseOplTags(tagsStr) {
     return tags;
 }
 
-async function streamOsmData(url, atpLookup, allMatches) {
+async function streamOsmData(url, spiders, atpLookup, allMatches) {
     console.log(`Streaming OSM data from ${url}...`);
 
     const response = await axios({
@@ -265,11 +268,20 @@ async function streamOsmData(url, atpLookup, allMatches) {
         responseType: 'stream',
     });
 
+    const refKeys = new Set(['ref']);
+    for (const spider of spiders) {
+        if (spider.ref_key) {
+            refKeys.add(spider.ref_key);
+        }
+    }
+
+    const filterArgs = ['tags-filter', '-', 'nwr/brand', 'nwr/brand:wikidata', 'nwr/website'];
+    for (const key of refKeys) {
+        filterArgs.push(`nwr/${key}`);
+    }
+
     const tagsFilter = spawn('osmium', [
-        'tags-filter',
-        '-',
-        'nwr/brand',
-        'nwr/brand:wikidata',
+        ...filterArgs,
         '--input-format=pbf',
         '--output-format=opl',
         '--omit-referenced',
@@ -297,7 +309,6 @@ async function streamOsmData(url, atpLookup, allMatches) {
         const props = parseOplTags(tagsPart);
         const brand = props.brand;
         const wikidata = props['brand:wikidata'];
-        const ref = props.ref;
         const website = props.website;
 
         const entry = {
@@ -305,25 +316,49 @@ async function streamOsmData(url, atpLookup, allMatches) {
             tags: props,
         };
 
-        const keys = [];
-        if (ref) keys.push(`ref|${brand}|${wikidata}|${ref}`);
-        if (website) keys.push(`web|${brand}|${wikidata}|${website}`);
-
         const matchedAtpFeatures = new Set();
 
-        for (const key of keys) {
+        // 1. Try matching by website
+        if (website) {
+            const normalizedWeb = normalizeWebsite(website);
+            const key = `web|${brand}|${wikidata}|${normalizedWeb}`;
             if (atpLookup.has(key)) {
                 for (const match of atpLookup.get(key)) {
-                    const matchId = `${match.spiderName}|${match.matchingValue}`;
+                    const matchId = `${match.spiderName}|${match.atpRef}`;
                     if (!matchedAtpFeatures.has(matchId)) {
                         matchedAtpFeatures.add(matchId);
-
                         const spiderMatches = allMatches.get(match.spiderName);
-                        if (!spiderMatches.has(match.matchingValue)) {
-                            spiderMatches.set(match.matchingValue, []);
+                        if (!spiderMatches.has(match.atpRef)) {
+                            spiderMatches.set(match.atpRef, []);
                         }
-                        spiderMatches.get(match.matchingValue).push(entry);
-                        console.log(`[MATCH] OSM:${id} matches ${match.spiderName} (${match.matchingValue})`);
+                        spiderMatches.get(match.atpRef).push(entry);
+                        console.log(`[MATCH web] OSM:${id} matches ${match.spiderName} (${match.atpRef})`);
+                    }
+                }
+            }
+        }
+
+        // 2. Try matching by ref/ref_key
+        for (const spider of spiders) {
+            const refKeyName = spider.ref_key || 'ref';
+            const osmRefValue = props[refKeyName];
+            if (osmRefValue) {
+                const key = `ref|${brand}|${wikidata}|${refKeyName}|${osmRefValue}`;
+                if (atpLookup.has(key)) {
+                    for (const match of atpLookup.get(key)) {
+                        // Ensure we are matching the correct spider
+                        if (match.spiderName !== spider.name) continue;
+
+                        const matchId = `${match.spiderName}|${match.atpRef}`;
+                        if (!matchedAtpFeatures.has(matchId)) {
+                            matchedAtpFeatures.add(matchId);
+                            const spiderMatches = allMatches.get(match.spiderName);
+                            if (!spiderMatches.has(match.atpRef)) {
+                                spiderMatches.set(match.atpRef, []);
+                            }
+                            spiderMatches.get(match.atpRef).push(entry);
+                            console.log(`[MATCH ref] OSM:${id} matches ${match.spiderName} (${match.atpRef})`);
+                        }
                     }
                 }
             }
@@ -343,13 +378,11 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
     const { latestRun, spiderMaps, config: spider } = spiderData;
     console.log(`Processing spider results: ${spider.name}`);
 
-    const reportFile = `${spider.name}_report.txt`;
-    const stream = fs.createWriteStream(reportFile);
     const results = [];
 
     for (const feature of latestRun.features) {
         const props = feature.properties;
-        const matchingValue = props[spider.matchingKey];
+        const matchingValue = props.ref;
         if (!matchingValue) continue;
 
         let itemStatus;
@@ -468,20 +501,23 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
             itemStatus = getOverallStatus(itemTags.map(t => t.status));
         }
 
-        stream.write(`Ref: ${matchingValue}, Status: ${itemStatus}\n`);
+        const filteredAtpTags = {};
+        for (const [k, v] of Object.entries(props)) {
+            if (!k.startsWith('@') && k !== 'nsi_id') {
+                filteredAtpTags[k] = v;
+            }
+        }
+
         results.push({
             ref: matchingValue,
-            matchingKey: spider.matchingKey,
             status: itemStatus,
             tags: itemTags,
             osmId,
             isMapped: (spiderMatches.get(matchingValue) || []).length > 0,
-            allAtpTags: props,
+            allAtpTags: filteredAtpTags,
         });
     }
 
-    stream.end();
-    console.log(`Report for ${spider.name} saved to ${reportFile}`);
     return results;
 }
 
@@ -550,7 +586,7 @@ async function run() {
         allMatches.set(spiderName, new Map());
     }
 
-    await streamOsmData(config.osmExtractUrl, atpLookup, allMatches);
+    await streamOsmData(config.osmExtractUrl, spiders, atpLookup, allMatches);
 
     const allSpiderResults = [];
     for (const [spiderName, data] of spidersData) {

@@ -14,16 +14,6 @@ async function validate() {
     const spidersContent = fs.readFileSync(SPIDERS_FILE, 'utf8');
     const spiders = JSON.parse(spidersContent);
 
-    // Integrity Check: website cannot be both an importable tag and the matching key
-    for (const spider of spiders) {
-        if (spider.matchingKey === 'website' && spider.importableTags.includes('website')) {
-            const msg = `Error: Spider "${spider.name}" has "website" as both matchingKey and importableTag. This is not allowed.`;
-            console.error(msg);
-            outputComment(`❌ ${msg}`);
-            process.exit(1);
-        }
-    }
-
     // 1. Check alphabetical order
     const sortedSpiders = spiders
         .map(s => ({

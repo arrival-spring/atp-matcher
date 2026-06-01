@@ -23,13 +23,11 @@ describe('Spiders Integrity Check', () => {
             expect(typeof spider.name).toBe('string');
             expect(spider.name.length).toBeGreaterThan(0);
 
-            // Check matchingKey
-            expect(typeof spider.matchingKey).toBe('string');
-            const isValidMatchingKey =
-                spider.matchingKey === 'website' ||
-                spider.matchingKey === 'ref' ||
-                spider.matchingKey.startsWith('ref:');
-            expect(isValidMatchingKey).toBe(true);
+            // Check ref_key
+            if (spider.ref_key) {
+                expect(typeof spider.ref_key).toBe('string');
+                expect(spider.ref_key.startsWith('ref:')).toBe(true);
+            }
 
             // Check importableTags
             expect(Array.isArray(spider.importableTags)).toBe(true);
@@ -55,12 +53,5 @@ describe('Spiders Integrity Check', () => {
         expect(uniqueNames.size).toBe(names.length);
     });
 
-    test('website cannot be both an importable tag and the matching key', () => {
-        spiders.forEach(spider => {
-            if (spider.matchingKey === 'website') {
-                expect(spider.importableTags).not.toContain('website');
-            }
-        });
-    });
 
 });
