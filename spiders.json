@@ -48,10 +48,10 @@
         "source_uri": ["pnp.co.za"]
     },
     {
-        "name": "russels_za",
+        "name": "russells_za",
         "matchingKey": "ref",
         "importableTags": ["opening_hours", "phone", "website"],
-        "source_uri": ["russels.co.za"]
+        "source_uri": ["russells.co.za"]
     },
     {
         "name": "sasol_za",
