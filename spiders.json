@@ -4,6 +4,7 @@
         "importableTags": ["atm", "car_wash", "opening_hours", "phone", "toilets"],
         "source_uri": ["astronenergy.co.za"]
     },
+    { "name": "footgear_za", "importableTags": ["opening_hours", "website", "phone"], "source_uri": ["footgear.co.za"] },
     { "name": "bash", "importableTags": ["opening_hours", "website"], "source_uri": ["bash.com"] },
     { "name": "clicks", "importableTags": ["opening_hours", "phone", "website"], "source_uri": ["clicks.co.za"] },
     {
