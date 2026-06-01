@@ -19,6 +19,12 @@
         "source_uri": ["fishaways.co.za"]
     },
     {
+        "name": "clicks",
+        "matchingKey": "website",
+        "importableTags": ["opening_hours", "phone"],
+        "source_uri": ["clicks.co.za"]
+    },
+    {
         "name": "kfc_za",
         "matchingKey": "ref",
         "importableTags": ["opening_hours", "website", "phone"],
