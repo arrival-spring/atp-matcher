@@ -42,11 +42,11 @@ jobs:
                     echo "exists=false" >> $GITHUB_OUTPUT
                   fi
 
-            - name: Check for changes in config.json
+            - name: Check for changes in spiders.json
               if: always()
               id: git-check
               run: |
-                  if [ -n "$(git status --porcelain config.json)" ]; then
+                  if [ -n "$(git status --porcelain spiders.json)" ]; then
                     echo "changed=true" >> $GITHUB_OUTPUT
                   else
                     echo "changed=false" >> $GITHUB_OUTPUT
@@ -57,13 +57,13 @@ jobs:
               run: |
                   git config --global user.name 'github-actions[bot]'
                   git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-                  git add config.json
-                  git commit -m "Auto-sort spiders in config.json"
+                  git add spiders.json
+                  git commit -m "Auto-sort spiders.json"
                   git push origin HEAD:${{ github.event.pull_request.head.ref }}
 
             - name: Post PR comment
               if: always() && steps.comment-check.outputs.exists == 'true'
-              uses: thollander/actions-comment-pull-request@v3
+              uses: step-security/actions-comment-pull-request@v3
               with:
                   file-path: pr_comment.md
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
