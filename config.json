@@ -7,6 +7,9 @@
         "fuel:octane_93",
         "fuel:octane_95",
         "fuel:lpg",
-        "fuel:diesel"
+        "fuel:diesel",
+        "atm",
+        "toilets",
+        "car_wash"
     ]
 }
