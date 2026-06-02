@@ -44,6 +44,17 @@ describe('Spiders Integrity Check', () => {
                 const domain = getDomain(uri);
                 expect(domain).not.toBeNull();
             });
+
+            // Check categories
+            if (spider.categories) {
+                expect(Array.isArray(spider.categories)).toBe(true);
+                spider.categories.forEach(cat => {
+                    expect(typeof cat).toBe('object');
+                    expect(cat).not.toBeNull();
+                    expect(Array.isArray(cat)).toBe(false);
+                    expect(Object.keys(cat).length).toBe(1);
+                });
+            }
         });
     });
 

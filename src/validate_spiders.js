@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 import axios from 'axios';
 import { getDomain } from 'tldts';
 import * as prettier from 'prettier';
-import { isAllowedSourceUri } from './utils.js';
+import { isAllowedSourceUri, matchesCategories } from './utils.js';
 
 const CONFIG_FILE = 'config.json';
 const SPIDERS_FILE = 'spiders.json';
@@ -102,8 +102,12 @@ async function validate() {
             process.exit(1);
         }
 
-        // Filter out features with end_date
-        data.features = data.features.filter(f => !('end_date' in f.properties));
+        // Filter out features with end_date or not matching categories
+        data.features = data.features.filter(f => {
+            if ('end_date' in f.properties) return false;
+            if (!matchesCategories(f.properties, spider.categories)) return false;
+            return true;
+        });
 
         const totalFeatures = data.features.length;
         const tagStats = {};
@@ -147,7 +151,22 @@ async function validate() {
             errors.push(`Error: The following tags are not in the allowed list: ${disallowedTags.map(t => `\`${t}\``).join(', ')}`);
         }
 
-        // 4. Check lineage
+        // 4. Check categories structure
+        if (spider.categories) {
+            if (!Array.isArray(spider.categories)) {
+                errors.push('Error: `categories` must be an array.');
+            } else {
+                spider.categories.forEach((cat, idx) => {
+                    if (typeof cat !== 'object' || cat === null || Array.isArray(cat)) {
+                        errors.push(`Error: \`categories[${idx}]\` must be a dictionary.`);
+                    } else if (Object.keys(cat).length !== 1) {
+                        errors.push(`Error: \`categories[${idx}]\` must have exactly one key-value pair.`);
+                    }
+                });
+            }
+        }
+
+        // 5. Check lineage
         const lineage = data.dataset_attributes?.['spider:lineage'];
         if (lineage !== 'S_ATP_BRANDS') {
             errors.push(`Error: This is not a brand spider. Lineage: \`${lineage || 'not found'}\``);
