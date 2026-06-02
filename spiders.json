@@ -5,6 +5,11 @@
         "source_uri": ["astronenergy.co.za"]
     },
     {
+        "name": "standard_bank_za",
+        "importableTags": ["opening_hours"],
+        "source_uri": ["standardbank.co.za"]
+    },
+    {
         "name": "bargain_books_za",
         "importableTags": ["email", "opening_hours", "phone"],
         "source_uri": ["bargainbooks.co.za"]
