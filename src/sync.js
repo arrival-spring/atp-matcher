@@ -16,34 +16,48 @@ const SPIDERS_FILE = 'spiders.json';
 const ohCache = new LRUCache({ max: 1000 });
 const ohCompareCache = new LRUCache({ max: 5000 });
 
-export function getOH(value) {
+export function getOH(value, country) {
     if (!value) return null;
-    if (ohCache.has(value)) return ohCache.get(value);
+    const cacheKey = country ? `${value}|${country}` : value;
+    if (ohCache.has(cacheKey)) return ohCache.get(cacheKey);
 
     try {
-        const oh = new opening_hours(value);
-        ohCache.set(value, oh);
+        const options = country ? { address: { country_code: country.toLowerCase() } } : undefined;
+        const oh = new opening_hours(value, options);
+        ohCache.set(cacheKey, oh);
         return oh;
     } catch {
-        ohCache.set(value, null);
+        ohCache.set(cacheKey, null);
         return null;
     }
 }
 
-export function areOpeningHoursEqual(v1, v2) {
+export function areOpeningHoursEqual(v1, v2, country) {
     if (v1 === v2) return true;
 
-    const cacheKey = `${v1}|${v2}`;
+    const cacheKey = `${v1}|${v2}|${country}`;
     if (ohCompareCache.has(cacheKey)) return ohCompareCache.get(cacheKey);
 
-    const oh1 = getOH(v1);
-    const oh2 = getOH(v2);
+    const oh1 = getOH(v1, country);
+    const oh2 = getOH(v2, country);
 
     let result = false;
     if (oh1 === null && oh2 === null) {
         result = true;
     } else if (oh1 && oh2) {
         result = oh1.isEqualTo(oh2)[0];
+    }
+
+    if (!result && v1 && v2 && v1.includes('PH') && !v2.includes('PH')) {
+        let transformedV1 = v1;
+        transformedV1 = transformedV1.replace(/,\s?PH/g, '');
+        transformedV1 = transformedV1.replace(/^PH,\s?/, '');
+        transformedV1 = transformedV1.replace(/;\s?PH[^;]+$/, '');
+
+        const oh1Transformed = getOH(transformedV1, country);
+        if (oh1Transformed && oh2) {
+            result = oh1Transformed.isEqualTo(oh2)[0];
+        }
     }
 
     ohCompareCache.set(cacheKey, result);
@@ -114,7 +128,7 @@ export function areWebsitesEqual(v1, v2) {
 
 export function areTagsEqual(tag, osmValue, atpValue, country) {
     if (tag === 'opening_hours') {
-        return areOpeningHoursEqual(osmValue, atpValue);
+        return areOpeningHoursEqual(osmValue, atpValue, country);
     } else if (tag === 'phone') {
         return arePhonesEqual(osmValue, atpValue, country);
     } else if (tag === 'website') {

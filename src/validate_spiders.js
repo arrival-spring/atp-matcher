@@ -48,6 +48,13 @@ async function validate() {
 
     const baseSpidersMap = new Map(baseSpiders.map(s => [s.name, s]));
 
+    const spiderNames = spiders.map(s => s.name);
+    const duplicates = spiderNames.filter((name, index) => spiderNames.indexOf(name) !== index);
+    if (duplicates.length > 0) {
+        outputComment(`Error: Duplicate spider names found in spiders.json: ${[...new Set(duplicates)].join(', ')}`);
+        process.exit(1);
+    }
+
     const addedOrModified = [];
 
     for (const spider of spiders) {

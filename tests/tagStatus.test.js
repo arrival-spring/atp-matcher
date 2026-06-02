@@ -22,6 +22,26 @@ describe('Tag Comparison Logic', () => {
             expect(areOpeningHoursEqual('Mo-Fr 08:00-17:00', 'Mo-Fr 08:00-18:00')).toBe(false);
             expect(areOpeningHoursEqual('Mo-Fr 08:00-17:00', 'invalid')).toBe(false);
         });
+
+        test('should handle Public Holidays (PH) in OSM but not ATP', () => {
+            // Case 1: PH off combined with other day
+            expect(areOpeningHoursEqual('Mo-Fr 08:00-17:00; Sa 08:00-13:00; Su,PH off', 'Mo-Fr 08:00-17:00; Sa 08:00-13:00')).toBe(true);
+
+            // Case 2: PH at start
+            expect(areOpeningHoursEqual('PH,Mo-Su 00:00-24:00', 'Mo-Su 00:00-24:00')).toBe(true);
+
+            // Case 3: PH as a dedicated rule at the end
+            expect(areOpeningHoursEqual('Mo-Fr 08:00-18:00; Sa-Su 08:00-13:00; PH 09:00-12:00', 'Mo-Fr 08:00-18:00; Sa-Su 08:00-13:00')).toBe(true);
+
+            // Case 4: PH off as a separate rule
+            expect(areOpeningHoursEqual('Mo-Fr 08:00-17:00; PH off', 'Mo-Fr 08:00-17:00')).toBe(true);
+        });
+
+        test('should not apply PH transformations if ATP also contains PH', () => {
+            // If both have PH, they must match semantically as they are
+            expect(areOpeningHoursEqual('Mo-Fr 08:00-17:00; PH 08:00-12:00', 'Mo-Fr 08:00-17:00; PH 09:00-13:00', 'de')).toBe(false);
+            expect(areOpeningHoursEqual('Mo-Fr 08:00-17:00; PH 08:00-12:00', 'Mo-Fr 08:00-17:00; PH 08:00-12:00', 'de')).toBe(true);
+        });
     });
 
     describe('arePhonesEqual', () => {
