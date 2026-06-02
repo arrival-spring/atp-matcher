@@ -5,6 +5,11 @@
         "source_uri": ["astronenergy.co.za"]
     },
     {
+        "name": "seattle_coffee_company",
+        "importableTags": ["opening_hours", "website"],
+        "source_uri": ["seattlecoffeecompany.co.za"]
+    },
+    {
         "name": "bargain_books_za",
         "importableTags": ["email", "opening_hours", "phone"],
         "source_uri": ["bargainbooks.co.za"]
