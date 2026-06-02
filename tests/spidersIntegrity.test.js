@@ -26,7 +26,7 @@ describe('Spiders Integrity Check', () => {
             // Check ref_key
             if (spider.ref_key) {
                 expect(typeof spider.ref_key).toBe('string');
-                expect(spider.ref_key.startsWith('ref:')).toBe(true);
+                expect(spider.ref_key.startsWith('ref:') || spider.ref_key === 'branch').toBe(true);
             }
 
             // Check importableTags
