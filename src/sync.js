@@ -241,7 +241,8 @@ async function loadAllAtpData(spiders, runs) {
                 if (brand && wikidata && atpRef) {
                     // Match by ref (using the spider's custom ref_key if provided)
                     const refKeyName = spider.ref_key || 'ref';
-                    const key = `ref|${brand}|${wikidata}|${refKeyName}|${atpRef}`;
+                    const matchingRef = refKeyName === 'branch' ? atpRef.toLowerCase() : atpRef;
+                    const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}`;
                     if (!atpLookup.has(key)) atpLookup.set(key, []);
                     atpLookup.get(key).push({ spiderName: spider.name, atpRef });
 
@@ -376,7 +377,8 @@ async function streamOsmData(url, spiders, atpLookup, allMatches) {
             const refKeyName = spider.ref_key || 'ref';
             const osmRefValue = props[refKeyName];
             if (osmRefValue) {
-                const key = `ref|${brand}|${wikidata}|${refKeyName}|${osmRefValue}`;
+                const matchingRef = refKeyName === 'branch' ? osmRefValue.toLowerCase() : osmRefValue;
+                const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}`;
                 if (atpLookup.has(key)) {
                     for (const match of atpLookup.get(key)) {
                         // Ensure we are matching the correct spider
