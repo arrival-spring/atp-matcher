@@ -35,6 +35,10 @@
         "source_uri": ["russells.co.za"]
     },
     {
+        "name": "rocomamas",
+        "importableTags": ["opening_hours", "phone", "website", "email"],
+        "source_uri": ["rocomamas.com"]
+    },{
         "name": "sasol_za",
         "importableTags": [
             "fuel:diesel",
