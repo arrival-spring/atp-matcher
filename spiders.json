@@ -30,6 +30,11 @@
     { "name": "ok_foods", "importableTags": ["opening_hours", "phone", "website"], "source_uri": ["okfoods.co.za"] },
     { "name": "pick_n_pay", "importableTags": ["opening_hours", "phone"], "source_uri": ["pnp.co.za"] },
     {
+        "name": "rocomamas",
+        "importableTags": ["email", "opening_hours", "phone", "website"],
+        "source_uri": ["rocomamas.com"]
+    },
+    {
         "name": "russells_za",
         "importableTags": ["opening_hours", "phone", "website"],
         "source_uri": ["russells.co.za"]
