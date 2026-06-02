@@ -12,6 +12,10 @@
         "source_uri": ["debonairspizza.africa", "debonairspizza.co.za"]
     },
     {
+        "name": "bargain_books_za",
+        "importableTags": ["opening_hours", "phone", "email"],
+        "source_uri": ["bargainbooks.co.za"]
+    },{
         "name": "fishaways_za",
         "importableTags": ["opening_hours", "phone", "website"],
         "source_uri": ["fishaways.co.za"]
