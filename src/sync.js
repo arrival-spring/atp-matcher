@@ -8,7 +8,7 @@ import { LRUCache } from 'lru-cache';
 import { parsePhoneNumber } from 'libphonenumber-js';
 import normalizeUrl from 'normalize-url';
 import eta from './eta.js';
-import { isAllowedSourceUri } from './utils.js';
+import { isAllowedSourceUri, matchesCategories } from './utils.js';
 
 const CONFIG_FILE = 'config.json';
 const SPIDERS_FILE = 'spiders.json';
@@ -205,7 +205,11 @@ async function loadAllAtpData(spiders, runs) {
         const isBrandSpider = lineage === 'S_ATP_BRANDS';
 
         if (latestRun && latestRun.features) {
-            latestRun.features = latestRun.features.filter(f => !('end_date' in f.properties));
+            latestRun.features = latestRun.features.filter(f => {
+                if ('end_date' in f.properties) return false;
+                if (!matchesCategories(f.properties, spider.categories)) return false;
+                return true;
+            });
         }
 
         const spiderMaps = spiderRuns.map(run => {

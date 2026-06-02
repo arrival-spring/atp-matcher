@@ -12,3 +12,13 @@ export function isAllowedSourceUri(sourceUri, allowedList) {
         return false;
     }
 }
+
+export function matchesCategories(featureProps, categories) {
+    if (!categories || !Array.isArray(categories) || categories.length === 0) return true;
+
+    return categories.some(category => {
+        return Object.entries(category).every(([key, value]) => {
+            return featureProps[key] === value;
+        });
+    });
+}

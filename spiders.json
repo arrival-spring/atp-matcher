@@ -68,7 +68,12 @@
         "importableTags": ["opening_hours", "phone", "website"],
         "source_uri": ["spar.co.za"]
     },
-    { "name": "standard_bank_za", "importableTags": ["opening_hours"], "source_uri": ["standardbank.co.za"] },
+    {
+        "name": "standard_bank_za",
+        "importableTags": ["opening_hours"],
+        "source_uri": ["standardbank.co.za"],
+        "categories": [{ "amenity": "bank" }]
+    },
     {
         "name": "virgin_active_bw_na_za",
         "importableTags": ["opening_hours", "phone", "website"],
