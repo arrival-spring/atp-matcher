@@ -35,6 +35,9 @@ describe('Tag Comparison Logic', () => {
 
             // Case 4: PH off as a separate rule
             expect(areOpeningHoursEqual('Mo-Fr 08:00-17:00; PH off', 'Mo-Fr 08:00-17:00')).toBe(true);
+
+            // Verify that explicit 'off' in OSM matches implicit 'off' in ATP
+            expect(areOpeningHoursEqual('Mo-Fr 09:00-17:00; Sa,Su off', 'Mo-Fr 09:00-17:00')).toBe(true);
         });
 
         test('should not apply PH transformations if ATP also contains PH', () => {
