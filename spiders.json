@@ -5,6 +5,12 @@
         "source_uri": ["astronenergy.co.za"]
     },
     {
+        "name": "exclusive_books_bw_na_za",
+        "importableTags": ["email", "phone"],
+        "source_uri": ["exclusivebooks.co.za"],
+        "ref_key": "branch"
+    },
+    {
         "name": "bargain_books_za",
         "importableTags": ["email", "opening_hours", "phone"],
         "source_uri": ["bargainbooks.co.za"]
