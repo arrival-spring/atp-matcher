@@ -34,7 +34,7 @@
         <% } %>
         <% it.importableTags.forEach(function(tag) { %>
             <li class="mr-2" role="presentation">
-                <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors capitalize cursor-pointer" id="<%= tag %>-tab" data-tab="<%= tag %>" type="button" role="tab"><%= tag.replace('_', ' ') %></button>
+            <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer" id="<%= tag %>-tab" data-tab="<%= tag %>" type="button" role="tab"><%= tag %></button>
             </li>
         <% }) %>
     </ul>
@@ -62,7 +62,7 @@
             <% } %>
             <% it.importableTags.forEach(function(tag) { %>
                 <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('<%= tag %>-tab').click()">
-                    <h3 class="text-xl font-bold mb-4 capitalize text-gray-100"><%= tag.replace('_', ' ') %></h3>
+                    <h3 class="text-xl font-bold mb-4 text-gray-100"><%= tag %></h3>
                     <div class="space-y-2">
                         <%
                            const stats = {};
@@ -101,9 +101,9 @@
                 <p class="text-sm">Lineage: <%= it.lineage || 'not found' %></p>
             </div>
         <% } %>
-        <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6">
+        <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6 max-h-[80vh]">
             <table class="min-w-full table-auto" id="unmapped-table">
-                <thead class="bg-gray-800 text-gray-400 text-left">
+                <thead class="bg-gray-800 text-gray-400 text-left sticky top-0 z-10 shadow-sm">
                     <tr>
                         <th class="px-4 py-3">Ref</th>
                         <th class="px-4 py-3">Tags</th>
@@ -125,9 +125,9 @@
 
     <!-- Duplicate Refs Section -->
     <div class="hidden" id="duplicate-refs-content" role="tabpanel">
-        <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6">
+        <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6 max-h-[80vh]">
             <table class="min-w-full table-auto" id="duplicate-refs-table">
-                <thead class="bg-gray-800 text-gray-400 text-left">
+                <thead class="bg-gray-800 text-gray-400 text-left sticky top-0 z-10 shadow-sm">
                     <tr>
                         <th class="px-4 py-3">Ref</th>
                         <th class="px-4 py-3">Tags</th>
@@ -175,9 +175,9 @@
             </div>
 
             <!-- Table -->
-            <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6">
+            <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6 max-h-[80vh]">
                 <table class="min-w-full table-auto" id="<%= tag %>-table">
-                    <thead class="bg-gray-800 text-gray-400 text-left">
+                    <thead class="bg-gray-800 text-gray-400 text-left sticky top-0 z-10 shadow-sm">
                         <!-- Headers injected by JS -->
                     </thead>
                     <tbody class="text-gray-300 divide-y divide-gray-800">
@@ -198,5 +198,5 @@
 
 <script type="module">
     import { initSpiderDashboard } from './spider.js';
-    initSpiderDashboard(<%~ JSON.stringify(it.results) %>, <%~ JSON.stringify(it.importableTags) %>);
+    initSpiderDashboard(<%~ JSON.stringify(it.results) %>, <%~ JSON.stringify(it.importableTags) %>, <%~ JSON.stringify(it.atpDate) %>);
 </script>

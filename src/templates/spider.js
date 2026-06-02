@@ -1,4 +1,4 @@
-export function initSpiderDashboard(results, importableTags) {
+export function initSpiderDashboard(results, importableTags, atpDate) {
     const PAGE_SIZE = 25;
     let currentState = {
         tag: 'summary',
@@ -85,7 +85,33 @@ export function initSpiderDashboard(results, importableTags) {
         }
     }
 
+    function getVisitedLinks() {
+        const storageKey = 'visited_links';
+        const data = localStorage.getItem(storageKey);
+        if (!data) return { atpDate: atpDate, links: [] };
+
+        try {
+            const parsed = JSON.parse(data);
+            if (parsed.atpDate !== atpDate) {
+                return { atpDate: atpDate, links: [] };
+            }
+            return parsed;
+        } catch {
+            return { atpDate: atpDate, links: [] };
+        }
+    }
+
+    function markLinkVisited(url) {
+        const visited = getVisitedLinks();
+        if (!visited.links.includes(url)) {
+            visited.links.push(url);
+            localStorage.setItem('visited_links', JSON.stringify(visited));
+        }
+    }
+
     function render() {
+        const visited = getVisitedLinks();
+        const visitedSet = new Set(visited.links);
         const isUniquelyMatched = r => r.matchCount === 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status);
         const hasDuplicates = results.some(r => r.matchCount > 1);
 
@@ -200,7 +226,7 @@ export function initSpiderDashboard(results, importableTags) {
                     </span>
                 </td>
                 <td class="px-4 py-3 text-right">
-                    ${renderOsmColumn(r.osmId, suggestedFixes)}
+                    ${renderOsmColumn(r.osmId, suggestedFixes, visitedSet)}
                 </td>
             </tr>
         `;
@@ -279,13 +305,15 @@ export function initSpiderDashboard(results, importableTags) {
     }
 
     window.handleJosmLink = function (url) {
+        markLinkVisited(url);
+        render();
         fetch(url, { mode: 'no-cors' }).catch(() => {
             document.getElementById('josm-modal').classList.remove('hidden');
             document.getElementById('modal-backdrop').classList.remove('hidden');
         });
     };
 
-    function renderOsmColumn(osmId, suggestedFixes = {}) {
+    function renderOsmColumn(osmId, suggestedFixes = {}, visitedSet = new Set()) {
         if (!osmId) return '';
         const typeMap = { n: 'node', w: 'way', r: 'relation' };
         const typeChar = osmId.toString()[0];
@@ -293,8 +321,12 @@ export function initSpiderDashboard(results, importableTags) {
         const id = osmId.toString().substring(1);
         if (!osmType) return '';
 
+        const osmUrl = `https://www.openstreetmap.org/${osmType}/${id}`;
+        const isOsmVisited = visitedSet.has(osmUrl);
+
         const josmFixBaseUrl = 'http://127.0.0.1:8111/load_object';
         const josmEditUrl = `${josmFixBaseUrl}?objects=${osmType[0]}${id}&relation_members=true`;
+        const isJosmEditVisited = visitedSet.has(josmEditUrl);
 
         const encodedTags = Object.entries(suggestedFixes).map(([key, value]) => {
             const encodedKey = encodeURIComponent(key);
@@ -304,24 +336,41 @@ export function initSpiderDashboard(results, importableTags) {
 
         const addtagsValue = encodedTags.join(encodeURIComponent('|'));
         const josmUpdateUrl = `${josmEditUrl}&addtags=${addtagsValue}`;
+        const isJosmUpdateVisited = visitedSet.has(josmUpdateUrl);
 
         const hasFixes = Object.keys(suggestedFixes).length > 0;
         return `
             <div class="flex flex-col items-end gap-1">
-                <a href="https://www.openstreetmap.org/${osmType}/${id}" target="_blank" class="inline-flex items-center text-blue-400 hover:underline">
+                <a href="${osmUrl}" target="_blank" data-link-type="osm" class="inline-flex items-center ${isOsmVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline">
                     <span>${osmId}</span>
                     <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                 </a>
                 <div class="text-xs text-gray-500">
                     JOSM:
-                    <a href="javascript:void(0)" onclick="handleJosmLink('${josmEditUrl}')" class="text-blue-400 hover:underline">edit</a>
-                    ${hasFixes ? `<a href="javascript:void(0)" onclick="handleJosmLink('${josmUpdateUrl}')" class="text-blue-400 hover:underline ml-1">update</a>` : ''}
+                    <a href="javascript:void(0)" onclick="handleJosmLink('${josmEditUrl}')" class="${isJosmEditVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline">edit</a>
+                    ${hasFixes ? `<a href="javascript:void(0)" onclick="handleJosmLink('${josmUpdateUrl}')" class="${isJosmUpdateVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline ml-1">update</a>` : ''}
                 </div>
             </div>
         `;
     }
 
     // Event Listeners
+    document.addEventListener('click', e => {
+        const link = e.target.closest('a[data-link-type="osm"]');
+        if (link) {
+            markLinkVisited(link.href);
+            render();
+        }
+    });
+
+    document.addEventListener('auxclick', e => {
+        const link = e.target.closest('a[data-link-type="osm"]');
+        if (link && e.button === 1) {
+            markLinkVisited(link.href);
+            render();
+        }
+    });
+
     document.getElementById('tag-tabs').addEventListener('click', e => {
         const btn = e.target.closest('button');
         if (!btn) return;
