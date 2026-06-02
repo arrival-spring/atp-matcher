@@ -59,6 +59,11 @@
         "source_uri": ["sasol.com"]
     },
     {
+        "name": "seattle_coffee_company",
+        "importableTags": ["opening_hours", "website"],
+        "source_uri": ["seattlecoffeecompany.co.za"]
+    },
+    {
         "name": "spar_bw_mz_na_sz_za",
         "importableTags": ["opening_hours", "phone", "website"],
         "source_uri": ["spar.co.za"]
