@@ -4,6 +4,11 @@
         "importableTags": ["atm", "car_wash", "opening_hours", "phone", "toilets"],
         "source_uri": ["astronenergy.co.za"]
     },
+    {
+        "name": "bargain_books_za",
+        "importableTags": ["email", "opening_hours", "phone"],
+        "source_uri": ["bargainbooks.co.za"]
+    },
     { "name": "bash", "importableTags": ["opening_hours", "website"], "source_uri": ["bash.com"] },
     { "name": "clicks", "importableTags": ["opening_hours", "phone", "website"], "source_uri": ["clicks.co.za"] },
     {
@@ -12,10 +17,6 @@
         "source_uri": ["debonairspizza.africa", "debonairspizza.co.za"]
     },
     {
-        "name": "bargain_books_za",
-        "importableTags": ["opening_hours", "phone", "email"],
-        "source_uri": ["bargainbooks.co.za"]
-    },{
         "name": "fishaways_za",
         "importableTags": ["opening_hours", "phone", "website"],
         "source_uri": ["fishaways.co.za"]
