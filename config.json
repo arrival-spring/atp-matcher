@@ -10,6 +10,7 @@
         "fuel:diesel",
         "atm",
         "toilets",
-        "car_wash"
+        "car_wash",
+        "email"
     ]
 }
