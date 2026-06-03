@@ -2,8 +2,26 @@ export function initDashboard(allSpiderResults) {
     const PAGE_SIZE = 10;
     let currentState = {
         search: '',
-        page: 1
+        page: 1,
     };
+
+    function updateUrl(replace = false) {
+        const url = new URL(window.location);
+        url.hash = `${currentState.search ? `search=${encodeURIComponent(currentState.search)}` : ''}${currentState.page > 1 ? `${currentState.search ? '&' : ''}page=${currentState.page}` : ''}`;
+        if (replace) {
+            window.history.replaceState({}, '', url);
+        } else {
+            window.history.pushState({}, '', url);
+        }
+    }
+
+    function loadStateFromUrl() {
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        currentState.search = params.get('search') || '';
+        currentState.page = parseInt(params.get('page')) || 1;
+        document.getElementById('search-input').value = currentState.search;
+    }
 
     function render() {
         const filtered = allSpiderResults.filter(spider =>
@@ -39,25 +57,48 @@ export function initDashboard(allSpiderResults) {
             const loadStatusLabel = spider.loadStatus ? `<span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">${spider.loadStatus}</span>` : '';
 
             return `
-                <tr class="border-b border-gray-700 hover:bg-gray-800 cursor-pointer" onclick="window.location='${name}.html'">
-                    <td class="px-6 py-4">
-                        ${statusIcon}
+                <tr class="flex flex-col md:table-row border-b border-gray-800 md:border-gray-700 hover:bg-gray-800 cursor-pointer p-4 md:p-0" onclick="window.location='${name}.html'">
+                    <td class="md:table-cell md:px-6 md:py-4 mb-2 md:mb-0">
+                        <div class="flex items-center gap-2">
+                            ${statusIcon}
+                            <div class="md:hidden">
+                                <a href="${name}.html" class="text-blue-400 hover:underline font-bold text-base" onclick="event.stopPropagation()">${name}</a>
+                                ${loadStatusLabel}
+                            </div>
+                        </div>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="hidden md:table-cell md:px-6 md:py-4">
                         <a href="${name}.html" class="text-blue-400 hover:underline font-bold text-lg" onclick="event.stopPropagation()">${name}</a>
                         ${loadStatusLabel}
                     </td>
-                    <td class="px-6 py-4">
-                        <span class="${issuesCount > 0 ? 'text-red-400' : 'text-green-400'} font-semibold">
-                            ${spider.loadStatus ? '-' : issuesCount}
-                        </span>
-                        <span class="text-gray-500"> / ${spider.loadStatus ? '-' : mappedCount}</span>
+                    <td class="md:table-cell md:px-6 md:py-4 md:text-right">
+                        <div class="flex justify-between md:block">
+                            <div class="text-sm md:text-base">
+                                <span class="${issuesCount > 0 ? 'text-red-400' : 'text-green-400'} font-semibold">
+                                    ${spider.loadStatus ? '-' : issuesCount}
+                                </span>
+                                <span class="text-gray-500"> / ${spider.loadStatus ? '-' : mappedCount}</span>
+                            </div>
+                            <div class="md:hidden text-right">
+                                <span class="text-gray-200 font-semibold text-sm">
+                                    ${spider.loadStatus ? '-' : mappedCount}
+                                </span>
+                                <span class="text-gray-500 text-sm"> / ${spider.loadStatus ? '-' : totalCount}</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between md:justify-end gap-4 mt-1">
+                            <span class="text-[10px] text-gray-500 uppercase tracking-tighter leading-none">(Issues / Mapped)</span>
+                            <span class="md:hidden text-[10px] text-gray-500 uppercase tracking-tighter leading-none">(Mapped / Total)</span>
+                        </div>
                     </td>
-                    <td class="px-6 py-4">
-                        <span class="text-gray-200 font-semibold">
-                            ${spider.loadStatus ? '-' : mappedCount}
-                        </span>
-                        <span class="text-gray-500"> / ${spider.loadStatus ? '-' : totalCount}</span>
+                    <td class="hidden md:table-cell md:px-6 md:py-4 md:text-right">
+                        <div>
+                            <span class="text-gray-200 font-semibold">
+                                ${spider.loadStatus ? '-' : mappedCount}
+                            </span>
+                            <span class="text-gray-500"> / ${spider.loadStatus ? '-' : totalCount}</span>
+                        </div>
+                        <div class="text-[10px] text-gray-500 uppercase tracking-tighter mt-1 leading-none">(Mapped / Total)</div>
                     </td>
                 </tr>
             `;
@@ -70,9 +111,10 @@ export function initDashboard(allSpiderResults) {
         pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || filtered.length === 0;
     }
 
-    document.getElementById('search-input').addEventListener('input', (e) => {
+    document.getElementById('search-input').addEventListener('input', e => {
         currentState.search = e.target.value;
         currentState.page = 1;
+        updateUrl(true);
         render();
     });
 
@@ -80,6 +122,7 @@ export function initDashboard(allSpiderResults) {
     pagination.querySelector('.prev-btn').onclick = () => {
         if (currentState.page > 1) {
             currentState.page--;
+            updateUrl();
             render();
         }
     };
@@ -90,9 +133,16 @@ export function initDashboard(allSpiderResults) {
         const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
         if (currentState.page < totalPages) {
             currentState.page++;
+            updateUrl();
             render();
         }
     };
 
+    window.onpopstate = () => {
+        loadStateFromUrl();
+        render();
+    };
+
+    loadStateFromUrl();
     render();
 }
