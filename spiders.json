@@ -16,6 +16,10 @@
         "importableTags": ["opening_hours", "phone", "website"],
         "source_uri": ["debonairspizza.africa", "debonairspizza.co.za"]
     },
+    {"name": "woolworths_za",
+        "importableTags": ["opening_hours", "phone"],
+        "source_uri": ["woolworths.co.za"]
+    },
     {
         "name": "exclusive_books_bw_na_za",
         "importableTags": ["email", "phone"],
