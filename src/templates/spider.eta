@@ -6,6 +6,27 @@
 
 <header class="mb-12">
     <h1 class="text-4xl font-extrabold mb-2"><%= it.name %></h1>
+
+    <% if (it.isStale) { %>
+        <div class="bg-orange-900/20 border border-orange-500/50 text-orange-200 p-4 rounded-lg mb-6">
+            <p class="font-bold">⚠️ Stale Data</p>
+            <p class="text-sm">The latest ATP run was empty. Showing data from <%= it.staleDate.substring(0, 10) %> instead.</p>
+        </div>
+    <% } %>
+
+    <% if (it.loadStatus === 'missing' || it.loadStatus === 'empty') { %>
+        <div class="bg-red-900/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6">
+            <p class="font-bold">❌ No Data Available</p>
+            <p class="text-sm">
+                <% if (it.loadStatus === 'missing') { %>
+                    The latest ATP run for this spider could not be found (404).
+                <% } else { %>
+                    All recent ATP runs for this spider were empty.
+                <% } %>
+            </p>
+        </div>
+    <% } %>
+
     <div class="text-gray-400 text-sm flex gap-4">
         <a href="https://data.alltheplaces.xyz/runs/latest/output/<%= it.name %>.geojson" target="_blank" class="text-blue-400 hover:underline inline-flex items-center">
             GeoJSON
