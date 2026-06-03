@@ -6,7 +6,7 @@
     },
     { "name": "bargain_books_za", "importableTags": ["email", "phone"], "source_uri": ["bargainbooks.co.za"] },
     { "name": "bash", "source_uri": ["bash.com"] },
-    { "name": "bradlows", "importableTags": ["phone"], "source_uri": ["bargainbooks.co.za"] },
+    { "name": "bradlows", "importableTags": ["phone"], "source_uri": ["bradlows.co.za"] },
     { "name": "clicks", "importableTags": ["phone"], "source_uri": ["clicks.co.za"] },
     {
         "name": "debonairs_pizza",
