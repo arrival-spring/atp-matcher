@@ -36,6 +36,7 @@
     { "name": "seattle_coffee_company", "source_uri": ["seattlecoffeecompany.co.za"] },
     { "name": "spar_bw_mz_na_sz_za", "importableTags": ["phone"], "source_uri": ["spar.co.za"] },
     { "name": "standard_bank_za", "source_uri": ["standardbank.co.za"], "categories": [{ "amenity": "bank" }] },
+    { "name": "nedbank_za", "source_uri": ["nedsecure.co.za"], "categories": [{ "amenity": "bank" }], "importableTags": ["email", "phone"] },
     { "name": "topt_za", "importableTags": ["phone"], "source_uri": ["topt.co.za"] },
     { "name": "virgin_active_bw_na_za", "importableTags": ["phone"], "source_uri": ["virginactive.co.za"] },
     { "name": "wimpy_za", "importableTags": ["phone"], "source_uri": ["wimpy.co.za"] },
