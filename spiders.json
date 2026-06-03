@@ -30,7 +30,7 @@
     { "name": "russells_za", "importableTags": ["phone"], "source_uri": ["russells.co.za"] },
     {
         "name": "sasol_za",
-        "importableTags": ["fuel:diesel", "fuel:lpg", "fuel:octane_93", "fuel:octane_95", "phone"],
+        "importableTags": ["fuel:*", "phone"],
         "source_uri": ["sasol.com"]
     },
     { "name": "seattle_coffee_company", "source_uri": ["seattlecoffeecompany.co.za"] },
