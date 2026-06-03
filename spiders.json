@@ -27,7 +27,7 @@
         "name": "nedbank_za",
         "source_uri": ["nedsecure.co.za"],
         "categories": [{ "amenity": "bank" }],
-        "importableTags": ["email", "phone"]
+        "importableTags": ["email"]
     },
     { "name": "ok_foods", "importableTags": ["phone"], "source_uri": ["okfoods.co.za"] },
     { "name": "pick_n_pay", "importableTags": ["phone"], "source_uri": ["pnp.co.za"] },
