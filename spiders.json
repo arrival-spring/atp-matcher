@@ -11,7 +11,6 @@
     },
     {
         "name": "bash",
-        "importableTags": [],
         "source_uri": ["bash.com"]
     },
     {
@@ -77,7 +76,6 @@
     },
     {
         "name": "seattle_coffee_company",
-        "importableTags": [],
         "source_uri": ["seattlecoffeecompany.co.za"]
     },
     {
@@ -87,7 +85,6 @@
     },
     {
         "name": "standard_bank_za",
-        "importableTags": [],
         "source_uri": ["standardbank.co.za"],
         "categories": [
             {

@@ -433,7 +433,7 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
 
         if (!isBrandSpider || !isAllowed) {
             itemStatus = !isBrandSpider ? 'not a brand spider' : 'disallowed source uri';
-            const possibleTags = new Set([...spider.importableTags, 'opening_hours', 'website']);
+            const possibleTags = new Set([...(spider.importableTags || []), 'opening_hours', 'website']);
             for (const tag of possibleTags) {
                 const spiderValue = props[tag] || null;
                 if (spiderValue) {
@@ -447,13 +447,13 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                 }
             }
         } else {
-            const allPossibleTags = new Set([...spider.importableTags, 'opening_hours', 'website']);
+            const allPossibleTags = new Set([...(spider.importableTags || []), 'opening_hours', 'website']);
             const matchEntries = spiderMatches.get(matchingValue) || [];
             if (matchEntries.length === 1) {
                 const osm = matchEntries[0];
                 for (const tag of Object.keys(osm.tags)) {
                     if (
-                        spider.importableTags.includes(tag) ||
+                        (spider.importableTags || []).includes(tag) ||
                         tag.startsWith('fuel:') ||
                         tag === 'opening_hours' ||
                         tag === 'website'

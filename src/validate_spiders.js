@@ -17,16 +17,21 @@ async function validate() {
     // 1. Check alphabetical order and remove auto-importable tags
     let autoRemovedTags = false;
     const cleanedSpiders = spiders.map(s => {
-        const originalTags = [...s.importableTags];
+        const originalTags = s.importableTags ? [...s.importableTags] : [];
         const filteredTags = originalTags.filter(tag => tag !== 'opening_hours' && tag !== 'website');
         if (originalTags.length !== filteredTags.length) {
             autoRemovedTags = true;
         }
-        return {
+        const cleanedSpider = {
             ...s,
-            importableTags: filteredTags.sort(),
             source_uri: [...s.source_uri].sort(),
         };
+        if (filteredTags.length > 0) {
+            cleanedSpider.importableTags = filteredTags.sort();
+        } else {
+            delete cleanedSpider.importableTags;
+        }
+        return cleanedSpider;
     });
 
     const sortedSpiders = [...cleanedSpiders].sort((a, b) => a.name.localeCompare(b.name));
@@ -130,7 +135,7 @@ async function validate() {
 
         const totalFeatures = data.features.length;
         const tagStats = {};
-        const tagsToTrack = [...new Set([...spider.importableTags, 'opening_hours', 'website'])];
+        const tagsToTrack = [...new Set([...(spider.importableTags || []), 'opening_hours', 'website'])];
 
         tagsToTrack.forEach(tag => {
             tagStats[tag] = { count: 0, unique: new Set() };
@@ -173,7 +178,7 @@ async function validate() {
 
         const errors = [];
         // 3. Check allowed tags
-        const disallowedTags = spider.importableTags.filter(tag => !config.allowedImportableTags.includes(tag));
+        const disallowedTags = (spider.importableTags || []).filter(tag => !config.allowedImportableTags.includes(tag));
         if (disallowedTags.length > 0) {
             errors.push(`Error: The following tags are not in the allowed list: ${disallowedTags.map(t => `\`${t}\``).join(', ')}`);
         }
