@@ -184,23 +184,73 @@ async function loadAllAtpData(spiders, runs) {
     for (const spider of spiders) {
         console.log(`Loading ATP data for spider: ${spider.name}`);
         const spiderRuns = [];
+        const runStatuses = []; // 'ok', '404', 'empty'
+        const featureCounts = [];
+
         for (const runId of runIds) {
             const url = `${ATP_BASE_URL}/${runId}/output/${spider.name}.geojson`;
             try {
                 const response = await axios.get(url);
-                spiderRuns.push(response.data);
+                const data = response.data;
+                const count = data.features ? data.features.length : 0;
+                spiderRuns.push(data);
+                featureCounts.push(count);
+                if (count === 0) {
+                    runStatuses.push('empty');
+                } else {
+                    runStatuses.push('ok');
+                }
             } catch (error) {
-                console.error(`Error downloading ${url}: ${error.message}`);
-                spiderRuns.push(null);
+                if (error.response && error.response.status === 404) {
+                    spiderRuns.push(null);
+                    runStatuses.push('404');
+                    featureCounts.push(null);
+                } else {
+                    console.error(`Error downloading ${url}: ${error.message}`);
+                    spiderRuns.push(null);
+                    runStatuses.push('error');
+                    featureCounts.push(null);
+                }
             }
         }
 
-        if (spiderRuns.some(run => run === null)) {
-            console.error(`Skipping ${spider.name} due to missing run data.`);
+        const latestStatus = runStatuses[3];
+
+        // Find effective latest run (most recent non-empty, non-404)
+        let effectiveLatestIndex = -1;
+        for (let i = 3; i >= 0; i--) {
+            if (runStatuses[i] === 'ok') {
+                effectiveLatestIndex = i;
+                break;
+            }
+        }
+
+        if (latestStatus === '404' || latestStatus === 'error') {
+            spidersData.set(spider.name, {
+                latestRun: null,
+                spiderMaps: spiderRuns.map(() => new Map()),
+                config: spider,
+                loadStatus: 'missing',
+                featureCounts,
+                runStatuses,
+            });
             continue;
         }
 
-        const latestRun = spiderRuns[3];
+        if (effectiveLatestIndex === -1) {
+            spidersData.set(spider.name, {
+                latestRun: null,
+                spiderMaps: spiderRuns.map(() => new Map()),
+                config: spider,
+                loadStatus: 'empty',
+                featureCounts,
+                runStatuses,
+            });
+            continue;
+        }
+
+        const latestRun = spiderRuns[effectiveLatestIndex];
+        const isStale = effectiveLatestIndex < 3;
         const lineage = latestRun?.dataset_attributes?.['spider:lineage'];
         const isBrandSpider = lineage === 'S_ATP_BRANDS';
 
@@ -225,12 +275,31 @@ async function loadAllAtpData(spiders, runs) {
             return map;
         });
 
+        // Calculate stability dot color
+        const validCounts = featureCounts.filter(c => c !== null);
+        let stabilityColor = 'green';
+        if (validCounts.length > 1) {
+            const minCount = Math.min(...validCounts);
+            const maxCount = Math.max(...validCounts);
+            const discrepancy = maxCount === 0 ? 0 : (maxCount - minCount) / maxCount;
+            if (discrepancy > 0.1) {
+                stabilityColor = 'red';
+            } else if (discrepancy > 0.05) {
+                stabilityColor = 'orange';
+            }
+        }
+
         spidersData.set(spider.name, {
             latestRun,
             spiderMaps,
             config: spider,
             lineage,
             isBrandSpider,
+            isStale,
+            staleDate: isStale ? runs[effectiveLatestIndex].start_time : null,
+            stabilityColor,
+            featureCounts,
+            runStatuses,
         });
 
         // Build lookup
@@ -600,6 +669,9 @@ function generateWebpage(allSpiderResults, atpDate, osmDate) {
             results: spider.results,
             isBrandSpider: spider.isBrandSpider,
             lineage: spider.lineage,
+            isStale: spider.isStale,
+            staleDate: spider.staleDate,
+            loadStatus: spider.loadStatus,
         });
         fs.writeFileSync(path.join(outputDir, `${spider.name}.html`), spiderHtml);
     });
@@ -654,6 +726,19 @@ async function run() {
 
     const allSpiderResults = [];
     for (const [spiderName, data] of spidersData) {
+        if (data.loadStatus === 'missing' || data.loadStatus === 'empty') {
+            allSpiderResults.push({
+                name: spiderName,
+                importableTags: [],
+                results: [],
+                isBrandSpider: false,
+                lineage: null,
+                loadStatus: data.loadStatus,
+                stabilityColor: 'gray',
+            });
+            continue;
+        }
+
         const { results, usedTags } = await processSpiderResults(data, allMatches.get(spiderName), runs);
         if (results) {
             allSpiderResults.push({
@@ -662,6 +747,9 @@ async function run() {
                 results: results,
                 isBrandSpider: data.isBrandSpider,
                 lineage: data.lineage,
+                isStale: data.isStale,
+                staleDate: data.staleDate,
+                stabilityColor: data.stabilityColor,
             });
         }
     }

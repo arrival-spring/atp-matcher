@@ -23,6 +23,7 @@
     <table class="min-w-full">
         <thead class="bg-gray-800 text-gray-400 text-left uppercase text-sm tracking-wider">
             <tr>
+                <th class="px-6 py-4 w-10"></th>
                 <th class="px-6 py-4">Spider Name</th>
                 <th class="px-6 py-4">Issues / Mapped</th>
                 <th class="px-6 py-4">Mapped / Total</th>
