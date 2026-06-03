@@ -37,7 +37,7 @@
     { "name": "pick_n_pay", "importableTags": ["opening_hours", "phone"], "source_uri": ["pnp.co.za"] },
     {
         "name": "postnet_za",
-        "importableTags": ["email", "opening_hours", "phone", "website"],
+        "importableTags": ["email", "phone", "website"],
         "source_uri": ["postnet.co.za"]
     },
     {
