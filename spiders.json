@@ -23,16 +23,18 @@
     { "name": "footgear_za", "importableTags": ["phone"], "source_uri": ["footgear.co.za"] },
     { "name": "kfc_za", "importableTags": ["phone"], "source_uri": ["yum.com"] },
     { "name": "lewis_stores", "importableTags": ["phone"], "source_uri": ["lewisstores.co.za"] },
+    {
+        "name": "nedbank_za",
+        "source_uri": ["nedsecure.co.za"],
+        "categories": [{ "amenity": "bank" }],
+        "importableTags": ["email"]
+    },
     { "name": "ok_foods", "importableTags": ["phone"], "source_uri": ["okfoods.co.za"] },
     { "name": "pick_n_pay", "importableTags": ["phone"], "source_uri": ["pnp.co.za"] },
     { "name": "postnet_za", "importableTags": ["email", "phone"], "source_uri": ["postnet.co.za"] },
     { "name": "rocomamas", "importableTags": ["email", "phone"], "source_uri": ["rocomamas.com"] },
     { "name": "russells_za", "importableTags": ["phone"], "source_uri": ["russells.co.za"] },
-    {
-        "name": "sasol_za",
-        "importableTags": ["fuel:*", "phone"],
-        "source_uri": ["sasol.com"]
-    },
+    { "name": "sasol_za", "importableTags": ["fuel:*", "phone"], "source_uri": ["sasol.com"] },
     { "name": "seattle_coffee_company", "source_uri": ["seattlecoffeecompany.co.za"] },
     { "name": "spar_bw_mz_na_sz_za", "importableTags": ["phone"], "source_uri": ["spar.co.za"] },
     { "name": "standard_bank_za", "source_uri": ["standardbank.co.za"], "categories": [{ "amenity": "bank" }] },
