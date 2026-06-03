@@ -36,12 +36,8 @@ export function initDashboard(allSpiderResults) {
 
         const tbody = document.getElementById('dashboard-tbody');
         tbody.innerHTML = pageData.map(spider => {
-            const isMapped = r => r.matchCount >= 1 && r.status !== 'disallowed source uri';
-            const mappedResults = (spider.results || []).filter(isMapped);
-            const issuesCount = mappedResults.filter(r => r.status !== 'matching').length;
-            const totalCount = (spider.results || []).length;
-            const mappedCount = mappedResults.length;
-            const name = spider.name.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const { name: rawName, issuesCount, mappedCount, totalCount, automaticUpdatesCount, isBrandSpider } = spider;
+            const name = rawName.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
             let statusIcon = '';
             if (spider.stabilityColor === 'green') {
@@ -55,6 +51,8 @@ export function initDashboard(allSpiderResults) {
             }
 
             const loadStatusLabel = spider.loadStatus ? `<span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">${spider.loadStatus}</span>` : '';
+
+            const showTotals = !spider.loadStatus && isBrandSpider;
 
             return `
                 <tr class="flex flex-col md:table-row border-b border-gray-800 md:border-gray-700 hover:bg-gray-800 cursor-pointer p-4 md:p-0" onclick="window.location='${name}.html'">
@@ -75,30 +73,37 @@ export function initDashboard(allSpiderResults) {
                         <div class="flex justify-between md:block">
                             <div class="text-sm md:text-base">
                                 <span class="${issuesCount > 0 ? 'text-red-400' : 'text-green-400'} font-semibold">
-                                    ${spider.loadStatus ? '-' : issuesCount}
+                                    ${showTotals ? issuesCount : ''}
                                 </span>
-                                <span class="text-gray-500"> / ${spider.loadStatus ? '-' : mappedCount}</span>
+                                <span class="text-gray-500">${showTotals ? ` / ${mappedCount}` : ''}</span>
                             </div>
                             <div class="md:hidden text-right">
-                                <span class="text-gray-200 font-semibold text-sm">
-                                    ${spider.loadStatus ? '-' : mappedCount}
+                                <span class="text-blue-400 font-semibold text-sm">
+                                    ${showTotals ? automaticUpdatesCount : ''}
                                 </span>
-                                <span class="text-gray-500 text-sm"> / ${spider.loadStatus ? '-' : totalCount}</span>
                             </div>
                         </div>
                         <div class="flex justify-between md:justify-end gap-4 mt-1">
-                            <span class="text-[10px] text-gray-500 uppercase tracking-tighter leading-none">(Issues / Mapped)</span>
-                            <span class="md:hidden text-[10px] text-gray-500 uppercase tracking-tighter leading-none">(Mapped / Total)</span>
+                            <span class="text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap">(Issues / Mapped)</span>
+                            <span class="md:hidden text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap">(Auto Updates)</span>
                         </div>
+                    </td>
+                    <td class="hidden md:table-cell md:px-6 md:py-4 md:text-right">
+                        <div class="text-sm md:text-base">
+                            <span class="text-blue-400 font-semibold">
+                                ${showTotals ? automaticUpdatesCount : ''}
+                            </span>
+                        </div>
+                        <div class="flex justify-end gap-4 mt-1 text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap">(Auto Updates)</div>
                     </td>
                     <td class="hidden md:table-cell md:px-6 md:py-4 md:text-right">
                         <div>
                             <span class="text-gray-200 font-semibold">
-                                ${spider.loadStatus ? '-' : mappedCount}
+                                ${showTotals ? mappedCount : ''}
                             </span>
-                            <span class="text-gray-500"> / ${spider.loadStatus ? '-' : totalCount}</span>
+                            <span class="text-gray-500">${showTotals ? ` / ${totalCount}` : ''}</span>
                         </div>
-                        <div class="text-[10px] text-gray-500 uppercase tracking-tighter mt-1 leading-none">(Mapped / Total)</div>
+                        <div class="text-[10px] text-gray-500 uppercase tracking-tighter mt-1 leading-none whitespace-nowrap">(Mapped / Total)</div>
                     </td>
                 </tr>
             `;
