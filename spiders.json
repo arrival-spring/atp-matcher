@@ -16,10 +16,6 @@
         "importableTags": ["opening_hours", "phone", "website"],
         "source_uri": ["debonairspizza.africa", "debonairspizza.co.za"]
     },
-    {"name": "postnet_za",
-        "importableTags": ["opening_hours", "phone", "website", "email"],
-        "source_uri": ["postnet.co.za"]
-    },
     {
         "name": "exclusive_books_bw_na_za",
         "importableTags": ["email", "phone"],
@@ -39,6 +35,11 @@
     { "name": "kfc_za", "importableTags": ["opening_hours", "phone", "website"], "source_uri": ["yum.com"] },
     { "name": "ok_foods", "importableTags": ["opening_hours", "phone", "website"], "source_uri": ["okfoods.co.za"] },
     { "name": "pick_n_pay", "importableTags": ["opening_hours", "phone"], "source_uri": ["pnp.co.za"] },
+    {
+        "name": "postnet_za",
+        "importableTags": ["email", "opening_hours", "phone", "website"],
+        "source_uri": ["postnet.co.za"]
+    },
     {
         "name": "rocomamas",
         "importableTags": ["email", "opening_hours", "phone", "website"],
