@@ -8,6 +8,7 @@
     { "name": "bash", "source_uri": ["bash.com"] },
     { "name": "bradlows", "importableTags": ["phone"], "source_uri": ["bradlows.co.za"] },
     { "name": "clicks", "importableTags": ["phone"], "source_uri": ["clicks.co.za"] },
+    { "name": "pedros", "importableTags": ["phone"], "source_uri": ["pedroschicken.co.za"] },
     {
         "name": "debonairs_pizza",
         "importableTags": ["phone"],
