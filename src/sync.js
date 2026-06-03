@@ -130,6 +130,21 @@ export function areWebsitesEqual(v1, v2) {
     return normalizeWebsite(v1) === normalizeWebsite(v2);
 }
 
+export function areEmailsEqual(osmValue, atpValue) {
+    if (osmValue === atpValue) return true;
+    if (!atpValue) return true;
+
+    const splitValues = val => (val ? val.split(';').map(v => v.trim().toLowerCase()) : []);
+
+    const atpList = splitValues(atpValue).filter(v => v !== '');
+    if (atpList.length === 0) return true;
+
+    const osmList = splitValues(osmValue).filter(v => v !== '');
+
+    // All ATP values must be in OSM
+    return atpList.every(v => osmList.includes(v));
+}
+
 export function areTagsEqual(tag, osmValue, atpValue, country) {
     if (tag === 'opening_hours') {
         return areOpeningHoursEqual(osmValue, atpValue, country);
@@ -137,6 +152,8 @@ export function areTagsEqual(tag, osmValue, atpValue, country) {
         return arePhonesEqual(osmValue, atpValue, country);
     } else if (tag === 'website') {
         return areWebsitesEqual(osmValue, atpValue);
+    } else if (tag === 'email') {
+        return areEmailsEqual(osmValue, atpValue);
     } else if (tag.startsWith('fuel:')) {
         const normalizeFuel = v => {
             if (v === null || v === undefined) return null;
@@ -386,6 +403,8 @@ async function streamOsmData(url, spiders, atpLookup, allMatches) {
         'nwr/contact:website',
         'nwr/phone',
         'nwr/contact:phone',
+        'nwr/email',
+        'nwr/contact:email',
     ];
     for (const key of refKeys) {
         filterArgs.push(`nwr/${key}`);
@@ -506,7 +525,7 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
 
         if (!isBrandSpider || !isAllowed) {
             itemStatus = !isBrandSpider ? 'not a brand spider' : 'disallowed source uri';
-            const possibleTags = new Set([...(spider.importableTags || []), 'opening_hours', 'website']);
+            const possibleTags = new Set([...(spider.importableTags || []), 'opening_hours', 'website', 'email']);
             for (const tag of possibleTags) {
                 const spiderValue = props[tag] || null;
                 if (spiderValue) {
@@ -520,7 +539,7 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                 }
             }
         } else {
-            const allPossibleTags = new Set([...(spider.importableTags || []), 'opening_hours', 'website']);
+            const allPossibleTags = new Set([...(spider.importableTags || []), 'opening_hours', 'website', 'email']);
             const matchEntries = spiderMatches.get(matchingValue) || [];
             if (matchEntries.length === 1) {
                 const osm = matchEntries[0];
@@ -529,7 +548,8 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                         (spider.importableTags || []).includes(tag) ||
                         tag.startsWith('fuel:') ||
                         tag === 'opening_hours' ||
-                        tag === 'website'
+                        tag === 'website' ||
+                        tag === 'email'
                     ) {
                         allPossibleTags.add(tag);
                     }
@@ -579,6 +599,8 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                             osmTagValue = osm.tags['contact:phone'] || null;
                         } else if (tag === 'website') {
                             osmTagValue = osm.tags['contact:website'] || null;
+                        } else if (tag === 'email') {
+                            osmTagValue = osm.tags['contact:email'] || null;
                         }
                     }
                     osmValue = osmTagValue;

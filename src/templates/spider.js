@@ -31,6 +31,15 @@ export function initSpiderDashboard(results, importableTags, atpDate) {
             .replace(/'/g, '&#039;');
     }
 
+    function renderStatusLabel(status) {
+        if (!status) return '';
+        return `
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-800 border border-gray-700 text-gray-300 capitalize inline-block align-middle ml-2">
+                ${escapeHtml(status)}
+            </span>
+        `;
+    }
+
     function isStable(history) {
         if (!history || history.length < 2) return true;
 
@@ -196,11 +205,10 @@ export function initSpiderDashboard(results, importableTags, atpDate) {
         const showOsmColumns = currentState.status !== 'no OSM tag';
 
         thead.innerHTML = `
-            <tr>
+            <tr class="hidden md:table-row">
                 <th class="px-4 py-3">Ref</th>
                 <th class="px-4 py-3">Spider Value</th>
                 ${showOsmColumns ? '<th class="px-4 py-3">OSM Value</th>' : ''}
-                <th class="px-4 py-3">Status</th>
                 <th class="px-4 py-3 text-right">OSM</th>
             </tr>
         `;
@@ -216,16 +224,31 @@ export function initSpiderDashboard(results, importableTags, atpDate) {
                 const refDisplay = escapeHtml(r.ref);
 
                 return `
-            <tr class="hover:bg-gray-800 transition-colors">
-                <td class="px-4 py-3 font-medium max-w-xs break-all">${refDisplay}</td>
-                <td class="px-4 py-3">${renderSpiderValue(r.spiderValue, r.history, currentState.tag)}</td>
-                ${showOsmColumns ? `<td class="px-4 py-3">${renderTagValue(r.osmValue, currentState.tag)}</td>` : ''}
-                <td class="px-4 py-3">
-                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-gray-800 border border-gray-700 text-gray-300 capitalize">
-                        ${escapeHtml(r.tagStatus)}
-                    </span>
+            <tr class="flex flex-col md:table-row border-b border-gray-800 md:border-none p-4 md:p-0 hover:bg-gray-800 transition-colors">
+                <td class="md:table-cell md:px-4 md:py-3 font-medium break-all mb-2 md:mb-0">
+                    <div class="text-lg md:text-base flex items-center flex-wrap">
+                        ${refDisplay}
+                        ${renderStatusLabel(r.tagStatus)}
+                    </div>
                 </td>
-                <td class="px-4 py-3 text-right">
+                <td class="md:table-cell md:px-4 md:py-3 mb-2 md:mb-0">
+                    <div class="flex md:block">
+                        <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">Spider:</span>
+                        <div class="flex-grow">${renderSpiderValue(r.spiderValue, r.history, currentState.tag)}</div>
+                    </div>
+                </td>
+                ${
+                    showOsmColumns
+                        ? `
+                <td class="md:table-cell md:px-4 md:py-3 mb-2 md:mb-0">
+                    <div class="flex md:block">
+                        <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">OSM:</span>
+                        <div class="flex-grow">${renderTagValue(r.osmValue, currentState.tag)}</div>
+                    </div>
+                </td>`
+                        : ''
+                }
+                <td class="md:table-cell md:px-4 md:py-3 md:text-right">
                     ${renderOsmColumn(r.osmId, suggestedFixes, visitedSet)}
                 </td>
             </tr>
@@ -258,12 +281,16 @@ export function initSpiderDashboard(results, importableTags, atpDate) {
         tbody.innerHTML = pageData
             .map(
                 r => `
-            <tr class="hover:bg-gray-800 transition-colors">
-                <td class="px-4 py-3 font-medium max-w-xs break-all">${escapeHtml(r.ref)}</td>
-                <td class="px-4 py-3 text-xs font-mono whitespace-pre-wrap">${Object.entries(r.allAtpTags || {})
+            <tr class="flex flex-col md:table-row border-b border-gray-800 md:border-none p-4 md:p-0 hover:bg-gray-800 transition-colors">
+                <td class="md:table-cell md:px-4 md:py-3 font-medium break-all mb-2 md:mb-0">
+                    <div class="text-lg md:text-base flex items-center flex-wrap">
+                        ${escapeHtml(r.ref)}
+                        ${renderStatusLabel(r.status)}
+                    </div>
+                </td>
+                <td class="md:table-cell md:px-4 md:py-3 text-xs font-mono whitespace-pre-wrap">${Object.entries(r.allAtpTags || {})
                     .map(([k, v]) => `${escapeHtml(k)}=${escapeHtml(v)}`)
                     .join('\n')}</td>
-                <td class="px-4 py-3 font-medium text-red-400 capitalize">${escapeHtml(r.status)}</td>
             </tr>
         `
             )
@@ -287,12 +314,16 @@ export function initSpiderDashboard(results, importableTags, atpDate) {
         tbody.innerHTML = pageData
             .map(
                 r => `
-            <tr class="hover:bg-gray-800 transition-colors">
-                <td class="px-4 py-3 font-medium max-w-xs break-all">${escapeHtml(r.ref)}</td>
-                <td class="px-4 py-3 text-xs font-mono whitespace-pre-wrap">${Object.entries(r.allAtpTags || {})
+            <tr class="flex flex-col md:table-row border-b border-gray-800 md:border-none p-4 md:p-0 hover:bg-gray-800 transition-colors">
+                <td class="md:table-cell md:px-4 md:py-3 font-medium break-all mb-2 md:mb-0">
+                    <div class="text-lg md:text-base flex items-center flex-wrap">
+                        ${escapeHtml(r.ref)}
+                        ${renderStatusLabel(`${r.status} (${r.matchCount} matches)`)}
+                    </div>
+                </td>
+                <td class="md:table-cell md:px-4 md:py-3 text-xs font-mono whitespace-pre-wrap">${Object.entries(r.allAtpTags || {})
                     .map(([k, v]) => `${escapeHtml(k)}=${escapeHtml(v)}`)
                     .join('\n')}</td>
-                <td class="px-4 py-3 font-medium text-red-400 capitalize">${escapeHtml(r.status)} (${r.matchCount} matches)</td>
             </tr>
         `
             )
@@ -340,15 +371,16 @@ export function initSpiderDashboard(results, importableTags, atpDate) {
 
         const hasFixes = Object.keys(suggestedFixes).length > 0;
         return `
-            <div class="flex flex-col items-end gap-1">
-                <a href="${osmUrl}" target="_blank" data-link-type="osm" class="inline-flex items-center ${isOsmVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline">
-                    <span>${osmId}</span>
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                </a>
-                <div class="text-xs text-gray-500">
-                    JOSM:
-                    <a href="javascript:void(0)" onclick="handleJosmLink('${josmEditUrl}')" class="${isJosmEditVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline">edit</a>
-                    ${hasFixes ? `<a href="javascript:void(0)" onclick="handleJosmLink('${josmUpdateUrl}')" class="${isJosmUpdateVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline ml-1">update</a>` : ''}
+            <div class="flex flex-col md:items-end gap-1 mt-2 md:mt-0 pt-2 md:pt-0 border-t border-gray-800 md:border-none">
+                <div class="flex items-center gap-4 md:flex-col md:items-end md:gap-1">
+                    <a href="${osmUrl}" target="_blank" data-link-type="osm" class="inline-flex items-center ${isOsmVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline">
+                        <span>${osmId}</span>
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                    <div class="text-xs text-gray-500">
+                        <a href="javascript:void(0)" onclick="handleJosmLink('${josmEditUrl}')" class="${isJosmEditVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline">edit</a>
+                        ${hasFixes ? `<a href="javascript:void(0)" onclick="handleJosmLink('${josmUpdateUrl}')" class="${isJosmUpdateVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline ml-1">update</a>` : ''}
+                    </div>
                 </div>
             </div>
         `;
