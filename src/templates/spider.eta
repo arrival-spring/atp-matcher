@@ -27,6 +27,13 @@
         </div>
     <% } %>
 
+    <% if (!it.isBrandSpider) { %>
+        <div class="bg-red-900/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6">
+            <p class="font-bold">❌ Not a Brand Spider</p>
+            <p class="text-sm">This spider does not have the expected <code>spider:lineage=S_ATP_BRANDS</code> attribute.</p>
+        </div>
+    <% } %>
+
     <div class="text-gray-400 text-sm flex gap-4">
         <a href="https://data.alltheplaces.xyz/runs/latest/output/<%= it.name %>.geojson" target="_blank" class="text-blue-400 hover:underline inline-flex items-center">
             GeoJSON
@@ -48,7 +55,7 @@
         <li class="mr-2" role="presentation">
             <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer" id="unmapped-tab" data-tab="unmapped" type="button" role="tab">Not Mapped</button>
         </li>
-        <% if (it.results.some(r => r.matchCount > 1 && r.status !== 'disallowed source uri')) { %>
+        <% if (it.results.some(r => r.matchCount > 1)) { %>
             <li class="mr-2" role="presentation">
                 <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer" id="duplicate-refs-tab" data-tab="duplicate-refs" type="button" role="tab">Duplicate Refs</button>
             </li>
@@ -73,11 +80,11 @@
                     <%= it.results.filter(r => r.status === 'disallowed source uri' || (!isUniquelyMatched(r) && r.matchCount <= 1)).length %>
                 </div>
             </div>
-            <% if (it.results.some(r => r.matchCount > 1 && r.status !== 'disallowed source uri')) { %>
+            <% if (it.results.some(r => r.matchCount > 1)) { %>
                 <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('duplicate-refs-tab').click()">
                     <h3 class="text-xl font-bold mb-4 text-gray-100">Duplicate Refs</h3>
                     <div class="text-3xl font-mono text-gray-200">
-                        <%= it.results.filter(r => r.matchCount > 1 && r.status !== 'disallowed source uri').length %>
+                        <%= it.results.filter(r => r.matchCount > 1).length %>
                     </div>
                 </div>
             <% } %>
@@ -94,7 +101,7 @@
                                }
                            });
                            const sortedStatuses = Object.keys(stats).sort((a, b) => {
-                               const priorities = ['not a brand spider', 'disallowed source uri', 'duplicate ref', 'mismatch', 'update OSM', 'not mapped', 'no OSM tag', 'matching'];
+                               const priorities = ['disallowed source uri', 'mismatch', 'update OSM', 'Add to OSM', 'matching'];
                                return priorities.indexOf(a) - priorities.indexOf(b);
                            });
                         %>
@@ -179,7 +186,7 @@
                        const t = r.tags.find(tt => tt.tag === tag);
                        if (t) tagStatuses.add(t.status);
                    });
-                   const allPossibleStatuses = ['not a brand spider', 'disallowed source uri', 'duplicate ref', 'mismatch', 'update OSM', 'no OSM tag', 'matching'];
+                   const allPossibleStatuses = ['disallowed source uri', 'mismatch', 'update OSM', 'Add to OSM', 'matching'];
                 %>
                 <% allPossibleStatuses.forEach(function(status) { %>
                     <% const count = it.results.filter(r => isUniquelyMatched(r) && r.tags.find(tt => tt.tag === tag && tt.status === status)).length; %>

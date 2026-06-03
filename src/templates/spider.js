@@ -202,7 +202,7 @@ export function initSpiderDashboard(results, importableTags, atpDate) {
 
         const thead = table.querySelector('thead');
 
-        const showOsmColumns = currentState.status !== 'no OSM tag';
+        const showOsmColumns = currentState.status !== 'Add to OSM';
 
         thead.innerHTML = `
             <tr class="hidden md:table-row">
@@ -217,7 +217,7 @@ export function initSpiderDashboard(results, importableTags, atpDate) {
         tbody.innerHTML = pageData
             .map(r => {
                 const suggestedFixes = {};
-                if (r.tagStatus === 'mismatch' || r.tagStatus === 'no OSM tag' || r.tagStatus === 'update OSM') {
+                if (r.tagStatus === 'mismatch' || r.tagStatus === 'Add to OSM' || r.tagStatus === 'update OSM') {
                     suggestedFixes[currentState.tag] = r.spiderValue;
                 }
 
@@ -303,7 +303,7 @@ export function initSpiderDashboard(results, importableTags, atpDate) {
     }
 
     function renderDuplicates() {
-        const duplicates = results.filter(r => r.matchCount > 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status));
+        const duplicates = results.filter(r => r.matchCount > 1);
         const totalPages = Math.ceil(duplicates.length / PAGE_SIZE) || 1;
         if (currentState.page > totalPages) currentState.page = totalPages;
 
