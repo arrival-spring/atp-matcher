@@ -22,8 +22,8 @@
     { "name": "fishaways_za", "importableTags": ["phone"], "source_uri": ["fishaways.co.za"] },
     { "name": "footgear_za", "importableTags": ["phone"], "source_uri": ["footgear.co.za"] },
     { "name": "kfc_za", "importableTags": ["phone"], "source_uri": ["yum.com"] },
-    { "name": "mica_hardware", "importableTags": ["phone"], "source_uri": ["mica.co.za"] },
     { "name": "lewis_stores", "importableTags": ["phone"], "source_uri": ["lewisstores.co.za"] },
+    { "name": "mica_hardware", "importableTags": ["phone"], "source_uri": ["mica.co.za"] },
     {
         "name": "nedbank_za",
         "source_uri": ["nedsecure.co.za"],
