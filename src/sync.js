@@ -1,3 +1,7 @@
+if (process.env.NO_DEBUG === 'true') {
+    console.debug = () => {};
+}
+
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
@@ -439,7 +443,7 @@ async function streamOsmData(url, spiders, atpLookup, allMatches) {
                             spiderMatches.set(match.atpRef, []);
                         }
                         spiderMatches.get(match.atpRef).push(entry);
-                        console.log(`[MATCH web] OSM:${id} matches ${match.spiderName} (${match.atpRef})`);
+                        console.debug(`[MATCH web] OSM:${id} matches ${match.spiderName} (${match.atpRef})`);
                     }
                 }
             }
@@ -465,7 +469,7 @@ async function streamOsmData(url, spiders, atpLookup, allMatches) {
                                 spiderMatches.set(match.atpRef, []);
                             }
                             spiderMatches.get(match.atpRef).push(entry);
-                            console.log(`[MATCH ref] OSM:${id} matches ${match.spiderName} (${match.atpRef})`);
+                            console.debug(`[MATCH ref] OSM:${id} matches ${match.spiderName} (${match.atpRef})`);
                         }
                     }
                 }
