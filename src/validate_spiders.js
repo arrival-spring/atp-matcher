@@ -135,7 +135,25 @@ async function validate() {
 
         const totalFeatures = data.features.length;
         const tagStats = {};
-        const tagsToTrack = [...new Set([...(spider.importableTags || []), 'opening_hours', 'website'])];
+
+        const expandedImportableTags = new Set();
+        const wildcards = (spider.importableTags || []).filter(t => t.endsWith(':*')).map(t => t.slice(0, -1));
+        const staticTags = (spider.importableTags || []).filter(t => !t.endsWith(':*'));
+        staticTags.forEach(t => expandedImportableTags.add(t));
+
+        if (wildcards.length > 0) {
+            data.features.forEach(f => {
+                for (const key of Object.keys(f.properties)) {
+                    for (const wildcard of wildcards) {
+                        if (key.startsWith(wildcard)) {
+                            expandedImportableTags.add(key);
+                        }
+                    }
+                }
+            });
+        }
+
+        const tagsToTrack = [...new Set([...expandedImportableTags, 'opening_hours', 'website'])];
 
         tagsToTrack.forEach(tag => {
             tagStats[tag] = { count: 0, unique: new Set() };
@@ -178,7 +196,13 @@ async function validate() {
 
         const errors = [];
         // 3. Check allowed tags
-        const disallowedTags = (spider.importableTags || []).filter(tag => !config.allowedImportableTags.includes(tag));
+        const disallowedTags = (spider.importableTags || []).filter(tag => {
+            if (tag.endsWith(':*')) {
+                const prefix = tag.slice(0, -1);
+                return !config.allowedImportableTags.some(allowed => allowed.startsWith(prefix));
+            }
+            return !config.allowedImportableTags.includes(tag);
+        });
         if (disallowedTags.length > 0) {
             errors.push(`Error: The following tags are not in the allowed list: ${disallowedTags.map(t => `\`${t}\``).join(', ')}`);
         }

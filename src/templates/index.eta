@@ -25,8 +25,9 @@
             <tr>
                 <th class="px-6 py-4 w-10"></th>
                 <th class="px-6 py-4">Spider Name</th>
-                <th class="px-6 py-4 text-right">Issues / Mapped</th>
-                <th class="px-6 py-4 text-right">Mapped / Total</th>
+                <th class="px-6 py-4 text-right whitespace-nowrap">Issues / Mapped</th>
+                <th class="px-6 py-4 text-right whitespace-nowrap">Automatic Updates</th>
+                <th class="px-6 py-4 text-right whitespace-nowrap">Mapped / Total</th>
             </tr>
         </thead>
         <tbody id="dashboard-tbody" class="divide-y divide-gray-800">
@@ -47,6 +48,6 @@
 
 <script type="module">
     import { initDashboard } from './index.js';
-    const allSpiderResults = <%~ JSON.stringify(it.allSpiderResults) %>;
-    initDashboard(allSpiderResults);
+    const indexData = <%~ JSON.stringify(it.indexData) %>;
+    initDashboard(indexData);
 </script>

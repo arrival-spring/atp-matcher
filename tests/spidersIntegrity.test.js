@@ -33,7 +33,13 @@ describe('Spiders Integrity Check', () => {
             if (spider.importableTags) {
                 expect(Array.isArray(spider.importableTags)).toBe(true);
                 spider.importableTags.forEach(tag => {
-                    expect(config.allowedImportableTags).toContain(tag);
+                    if (tag.endsWith(':*')) {
+                        const prefix = tag.slice(0, -1);
+                        const hasAllowedMatch = config.allowedImportableTags.some(allowed => allowed.startsWith(prefix));
+                        expect(hasAllowedMatch).toBe(true);
+                    } else {
+                        expect(config.allowedImportableTags).toContain(tag);
+                    }
                 });
             }
 

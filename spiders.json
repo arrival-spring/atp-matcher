@@ -71,7 +71,7 @@
     },
     {
         "name": "sasol_za",
-        "importableTags": ["fuel:diesel", "fuel:lpg", "fuel:octane_93", "fuel:octane_95", "phone"],
+        "importableTags": ["fuel:*", "phone"],
         "source_uri": ["sasol.com"]
     },
     {

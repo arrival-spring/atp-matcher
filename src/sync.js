@@ -174,7 +174,7 @@ export const STATUS_PRIORITY = [
     'mismatch',
     'update OSM',
     'not mapped',
-    'no OSM tag',
+    'Add to OSM',
     'matching',
 ];
 
@@ -299,7 +299,9 @@ async function loadAllAtpData(spiders, runs) {
         // Calculate stability dot color
         const validCounts = featureCounts.filter(c => c !== null);
         let stabilityColor = 'green';
-        if (validCounts.length > 1) {
+        if (!isBrandSpider) {
+            stabilityColor = 'red';
+        } else if (validCounts.length > 1) {
             const minCount = Math.min(...validCounts);
             const maxCount = Math.max(...validCounts);
             const discrepancy = maxCount === 0 ? 0 : (maxCount - minCount) / maxCount;
@@ -505,12 +507,31 @@ async function streamOsmData(url, spiders, atpLookup, allMatches) {
     });
 }
 
-async function processSpiderResults(spiderData, spiderMatches, runs) {
+export async function processSpiderResults(spiderData, spiderMatches, runs) {
     const { latestRun, spiderMaps, config: spider, lineage, isBrandSpider } = spiderData;
     console.log(`Processing spider results: ${spider.name}`);
 
     const results = [];
     const usedTags = new Set();
+
+    // Expand wildcard tags
+    const expandedImportableTags = new Set();
+    const wildcards = (spider.importableTags || []).filter(t => t.endsWith(':*')).map(t => t.slice(0, -1));
+    const staticTags = (spider.importableTags || []).filter(t => !t.endsWith(':*'));
+
+    staticTags.forEach(t => expandedImportableTags.add(t));
+
+    if (wildcards.length > 0) {
+        for (const feature of latestRun.features) {
+            for (const key of Object.keys(feature.properties)) {
+                for (const wildcard of wildcards) {
+                    if (key.startsWith(wildcard)) {
+                        expandedImportableTags.add(key);
+                    }
+                }
+            }
+        }
+    }
 
     for (const feature of latestRun.features) {
         const props = feature.properties;
@@ -525,7 +546,7 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
 
         if (!isBrandSpider || !isAllowed) {
             itemStatus = !isBrandSpider ? 'not a brand spider' : 'disallowed source uri';
-            const possibleTags = new Set([...(spider.importableTags || []), 'opening_hours', 'website', 'email']);
+            const possibleTags = new Set([...expandedImportableTags, 'opening_hours', 'website']);
             for (const tag of possibleTags) {
                 const spiderValue = props[tag] || null;
                 if (spiderValue) {
@@ -539,17 +560,15 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                 }
             }
         } else {
-            const allPossibleTags = new Set([...(spider.importableTags || []), 'opening_hours', 'website', 'email']);
+            const allPossibleTags = new Set([...expandedImportableTags, 'opening_hours', 'website']);
             const matchEntries = spiderMatches.get(matchingValue) || [];
             if (matchEntries.length === 1) {
                 const osm = matchEntries[0];
                 for (const tag of Object.keys(osm.tags)) {
                     if (
-                        (spider.importableTags || []).includes(tag) ||
-                        tag.startsWith('fuel:') ||
+                        expandedImportableTags.has(tag) ||
                         tag === 'opening_hours' ||
-                        tag === 'website' ||
-                        tag === 'email'
+                        tag === 'website'
                     ) {
                         allPossibleTags.add(tag);
                     }
@@ -606,7 +625,7 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                     osmValue = osmTagValue;
 
                     if (!osmTagValue) {
-                        status = 'no OSM tag';
+                        status = 'Add to OSM';
                     } else {
                         if (areTagsEqual(tag, osmTagValue, spiderValue, country)) {
                             status = 'matching';
@@ -664,21 +683,24 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
             }
         }
 
+        const isMapped = (spiderMatches.get(matchingValue) || []).length > 0;
+        const matchCount = (spiderMatches.get(matchingValue) || []).length;
+
         results.push({
             ref: matchingValue,
             status: itemStatus,
             tags: itemTags,
             osmId,
-            isMapped: (spiderMatches.get(matchingValue) || []).length > 0,
-            matchCount: (spiderMatches.get(matchingValue) || []).length,
-            allAtpTags: filteredAtpTags,
+            isMapped,
+            matchCount,
+            allAtpTags: isMapped ? undefined : filteredAtpTags,
         });
     }
 
     return { results, usedTags: Array.from(usedTags).sort() };
 }
 
-function generateWebpage(allSpiderResults, atpDate, osmDate) {
+export function generateWebpage(allSpiderResults, atpDate, osmDate) {
     const outputDir = 'output';
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir);
@@ -703,9 +725,20 @@ function generateWebpage(allSpiderResults, atpDate, osmDate) {
     });
 
     // Generate Index Page
+    const indexData = allSpiderResults.map(s => ({
+        name: s.name,
+        stabilityColor: s.stabilityColor,
+        loadStatus: s.loadStatus,
+        isBrandSpider: s.isBrandSpider,
+        totalCount: s.totalCount,
+        mappedCount: s.mappedCount,
+        issuesCount: s.issuesCount,
+        automaticUpdatesCount: s.automaticUpdatesCount,
+    }));
+
     const indexHtml = eta.render('./index', {
         title: 'Dashboard',
-        allSpiderResults,
+        indexData,
         atpDate,
         osmDate,
     });
@@ -767,6 +800,12 @@ async function run() {
 
         const { results, usedTags } = await processSpiderResults(data, allMatches.get(spiderName), runs);
         if (results) {
+            const isMapped = r => r.matchCount >= 1 && r.status !== 'disallowed source uri';
+            const mappedResults = results.filter(isMapped);
+            const mappedCount = mappedResults.length;
+            const issuesCount = mappedResults.filter(r => r.status !== 'matching').length;
+            const automaticUpdatesCount = mappedResults.filter(r => r.status === 'update OSM' || r.status === 'Add to OSM').length;
+
             allSpiderResults.push({
                 name: spiderName,
                 importableTags: usedTags,
@@ -776,6 +815,12 @@ async function run() {
                 isStale: data.isStale,
                 staleDate: data.staleDate,
                 stabilityColor: data.stabilityColor,
+                loadStatus: data.loadStatus,
+                // Totals for index page
+                totalCount: results.length,
+                mappedCount,
+                issuesCount,
+                automaticUpdatesCount,
             });
         }
     }
