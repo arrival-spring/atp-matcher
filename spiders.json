@@ -5,6 +5,11 @@
         "source_uri": ["astronenergy.co.za"]
     },
     {
+        "name": "bradlows",
+        "importableTags": ["phone"],
+        "source_uri": ["bargainbooks.co.za"]
+    },
+    {
         "name": "bargain_books_za",
         "importableTags": ["email", "phone"],
         "source_uri": ["bargainbooks.co.za"]
