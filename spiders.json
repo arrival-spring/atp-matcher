@@ -8,7 +8,6 @@
     { "name": "bash", "source_uri": ["bash.com"] },
     { "name": "bradlows", "importableTags": ["phone"], "source_uri": ["bradlows.co.za"] },
     { "name": "clicks", "importableTags": ["phone"], "source_uri": ["clicks.co.za"] },
-    { "name": "pedros", "importableTags": ["phone"], "source_uri": ["pedroschicken.co.za"] },
     {
         "name": "debonairs_pizza",
         "importableTags": ["phone"],
@@ -25,6 +24,7 @@
     { "name": "kfc_za", "importableTags": ["phone"], "source_uri": ["yum.com"] },
     { "name": "lewis_stores", "importableTags": ["phone"], "source_uri": ["lewisstores.co.za"] },
     { "name": "ok_foods", "importableTags": ["phone"], "source_uri": ["okfoods.co.za"] },
+    { "name": "pedros", "importableTags": ["phone"], "source_uri": ["pedroschicken.co.za"] },
     { "name": "pick_n_pay", "importableTags": ["phone"], "source_uri": ["pnp.co.za"] },
     { "name": "postnet_za", "importableTags": ["email", "phone"], "source_uri": ["postnet.co.za"] },
     { "name": "rocomamas", "importableTags": ["email", "phone"], "source_uri": ["rocomamas.com"] },
