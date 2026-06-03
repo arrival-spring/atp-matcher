@@ -30,10 +30,12 @@ describe('Spiders Integrity Check', () => {
             }
 
             // Check importableTags
-            expect(Array.isArray(spider.importableTags)).toBe(true);
-            spider.importableTags.forEach(tag => {
-                expect(config.allowedImportableTags).toContain(tag);
-            });
+            if (spider.importableTags) {
+                expect(Array.isArray(spider.importableTags)).toBe(true);
+                spider.importableTags.forEach(tag => {
+                    expect(config.allowedImportableTags).toContain(tag);
+                });
+            }
 
             // Check source_uri
             expect(Array.isArray(spider.source_uri)).toBe(true);
