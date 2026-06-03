@@ -70,22 +70,33 @@ export function initDashboard(allSpiderResults) {
                         ${loadStatusLabel}
                     </td>
                     <td class="md:table-cell md:px-6 md:py-4 md:text-right">
-                        <div class="flex justify-between md:block">
-                            <div class="text-sm md:text-base">
-                                <span class="${issuesCount > 0 ? 'text-red-400' : 'text-green-400'} font-semibold">
-                                    ${showTotals ? issuesCount : ''}
-                                </span>
-                                <span class="text-gray-500">${showTotals ? ` / ${mappedCount}` : ''}</span>
+                        <div class="grid grid-cols-3 md:block">
+                            <div class="flex flex-col md:block">
+                                <div class="text-sm md:text-base">
+                                    <span class="${issuesCount > 0 ? 'text-red-400' : 'text-green-400'} font-semibold">
+                                        ${showTotals ? issuesCount : ''}
+                                    </span>
+                                    <span class="text-gray-500">${showTotals ? ` / ${mappedCount}` : ''}</span>
+                                </div>
+                                <div class="md:hidden text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">(Issues / Mapped)</div>
                             </div>
-                            <div class="md:hidden text-right">
-                                <span class="text-blue-400 font-semibold text-sm">
-                                    ${showTotals ? automaticUpdatesCount : ''}
-                                </span>
+                            <div class="flex flex-col md:hidden">
+                                <div class="text-sm">
+                                    <span class="text-blue-400 font-semibold">
+                                        ${showTotals ? automaticUpdatesCount : ''}
+                                    </span>
+                                </div>
+                                <div class="text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">(Auto Updates)</div>
                             </div>
-                        </div>
-                        <div class="flex justify-between md:justify-end gap-4 mt-1">
-                            <span class="text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap">(Issues / Mapped)</span>
-                            <span class="md:hidden text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap">(Auto Updates)</span>
+                            <div class="flex flex-col md:hidden text-right">
+                                <div class="text-sm">
+                                    <span class="text-gray-200 font-semibold">
+                                        ${showTotals ? mappedCount : ''}
+                                    </span>
+                                    <span class="text-gray-500">${showTotals ? ` / ${totalCount}` : ''}</span>
+                                </div>
+                                <div class="text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">(Mapped / Total)</div>
+                            </div>
                         </div>
                     </td>
                     <td class="hidden md:table-cell md:px-6 md:py-4 md:text-right">
@@ -94,7 +105,6 @@ export function initDashboard(allSpiderResults) {
                                 ${showTotals ? automaticUpdatesCount : ''}
                             </span>
                         </div>
-                        <div class="flex justify-end gap-4 mt-1 text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap">(Auto Updates)</div>
                     </td>
                     <td class="hidden md:table-cell md:px-6 md:py-4 md:text-right">
                         <div>
@@ -103,7 +113,6 @@ export function initDashboard(allSpiderResults) {
                             </span>
                             <span class="text-gray-500">${showTotals ? ` / ${totalCount}` : ''}</span>
                         </div>
-                        <div class="text-[10px] text-gray-500 uppercase tracking-tighter mt-1 leading-none whitespace-nowrap">(Mapped / Total)</div>
                     </td>
                 </tr>
             `;

@@ -47,32 +47,36 @@
 </header>
 
 <!-- Tag Tabs -->
-<div class="mb-8 border-b border-gray-700">
-    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="tag-tabs" role="tablist">
-        <li class="mr-2" role="presentation">
-            <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer" id="summary-tab" data-tab="summary" type="button" role="tab">Summary</button>
-        </li>
-        <li class="mr-2" role="presentation">
-            <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer" id="unmapped-tab" data-tab="unmapped" type="button" role="tab">Not Mapped</button>
-        </li>
-        <% if (it.results.some(r => r.matchCount > 1)) { %>
-            <li class="mr-2" role="presentation">
-                <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer" id="duplicate-refs-tab" data-tab="duplicate-refs" type="button" role="tab">Duplicate Refs</button>
+<div class="sticky top-0 z-30 bg-gray-950 border-b border-gray-700 -mx-4 px-4 md:mx-0 md:px-0 md:pt-8">
+    <div class="relative overflow-hidden fade-edges">
+        <ul class="flex overflow-x-auto no-scrollbar -mb-px text-sm font-medium text-center" id="tag-tabs" role="tablist">
+            <li class="mr-2 shrink-0" role="presentation">
+                <button class="inline-block p-3 md:p-4 border-b-2 rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer whitespace-nowrap" id="summary-tab" data-tab="summary" type="button" role="tab">Summary</button>
             </li>
-        <% } %>
-        <% it.importableTags.forEach(function(tag) { %>
-            <li class="mr-2" role="presentation">
-            <button class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer" id="<%= tag %>-tab" data-tab="<%= tag %>" type="button" role="tab"><%= tag %></button>
+            <li class="mr-2 shrink-0" role="presentation">
+                <button class="inline-block p-3 md:p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer whitespace-nowrap" id="unmapped-tab" data-tab="unmapped" type="button" role="tab">Not Mapped</button>
             </li>
-        <% }) %>
-    </ul>
+            <% if (it.results.some(r => r.matchCount > 1)) { %>
+                <li class="mr-2 shrink-0" role="presentation">
+                    <button class="inline-block p-3 md:p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer whitespace-nowrap" id="duplicate-refs-tab" data-tab="duplicate-refs" type="button" role="tab">Duplicate Refs</button>
+                </li>
+            <% } %>
+            <% it.importableTags.forEach(function(tag) { %>
+                <li class="mr-2 shrink-0" role="presentation">
+                <button class="inline-block p-3 md:p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer whitespace-nowrap" id="<%= tag %>-tab" data-tab="<%= tag %>" type="button" role="tab"><%= tag %></button>
+                </li>
+            <% }) %>
+        </ul>
+    </div>
 </div>
+
+<div class="h-2 md:h-4"></div>
 
 <!-- Tab Content -->
 <div id="tab-content">
     <% const isUniquelyMatched = r => r.matchCount === 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status); %>
     <!-- Summary Section -->
-    <div class="hidden space-y-8" id="summary-content" role="tabpanel">
+    <div class="hidden space-y-8 mt-4 md:mt-8" id="summary-content" role="tabpanel">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('unmapped-tab').click()">
                 <h3 class="text-xl font-bold mb-4 text-gray-100">Not Mapped</h3>
@@ -129,9 +133,9 @@
                 <p class="text-sm">Lineage: <%= it.lineage || 'not found' %></p>
             </div>
         <% } %>
-        <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6 max-h-[80vh]">
+        <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6">
             <table class="min-w-full table-auto" id="unmapped-table">
-                <thead class="bg-gray-800 text-gray-400 text-left sticky top-0 z-10 shadow-sm">
+                <thead class="bg-gray-800 text-gray-400 text-left sticky top-[46px] md:top-[86px] z-10 shadow-sm">
                     <tr>
                         <th class="px-4 py-3">Ref</th>
                         <th class="px-4 py-3">Tags</th>
@@ -153,9 +157,9 @@
 
     <!-- Duplicate Refs Section -->
     <div class="hidden" id="duplicate-refs-content" role="tabpanel">
-        <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6 max-h-[80vh]">
+        <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6">
             <table class="min-w-full table-auto" id="duplicate-refs-table">
-                <thead class="bg-gray-800 text-gray-400 text-left sticky top-0 z-10 shadow-sm">
+                <thead class="bg-gray-800 text-gray-400 text-left sticky top-[46px] md:top-[86px] z-10 shadow-sm">
                     <tr>
                         <th class="px-4 py-3">Ref</th>
                         <th class="px-4 py-3">Tags</th>
@@ -179,7 +183,9 @@
     <% it.importableTags.forEach(function(tag) { %>
         <div class="hidden" id="<%= tag %>-content" role="tabpanel">
             <!-- Status Filters -->
-            <div class="flex flex-wrap gap-2 mb-6" id="<%= tag %>-status-filters">
+            <div class="sticky top-[46px] md:top-[86px] z-20 bg-gray-950 py-4 -mx-4 px-4 md:mx-0 md:px-0">
+                <div class="relative overflow-hidden fade-edges">
+                    <div class="flex overflow-x-auto no-scrollbar gap-2" id="<%= tag %>-status-filters">
                 <%
                    const tagStatuses = new Set();
                    it.results.filter(isUniquelyMatched).forEach(r => {
@@ -188,24 +194,26 @@
                    });
                    const allPossibleStatuses = ['disallowed source uri', 'mismatch', 'update OSM', 'Add to OSM', 'matching'];
                 %>
-                <% allPossibleStatuses.forEach(function(status) { %>
-                    <% const count = it.results.filter(r => isUniquelyMatched(r) && r.tags.find(tt => tt.tag === tag && tt.status === status)).length; %>
-                    <% if (count === 0 && status === 'disallowed source uri') { return; } %>
-                    <button
-                        class="px-4 py-2 rounded-full text-sm font-medium border transition-colors <%= count > 0 ? 'border-gray-600 text-gray-300 hover:bg-gray-700 cursor-pointer' : 'border-gray-800 text-gray-600 cursor-not-allowed' %>"
-                        data-status="<%= status %>"
-                        <%= count === 0 ? 'disabled' : '' %>
-                    >
-                        <span class="capitalize"><%= status %></span>
-                        <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-900 text-xs"><%= count %></span>
-                    </button>
-                <% }) %>
+                    <% allPossibleStatuses.forEach(function(status) { %>
+                        <% const count = it.results.filter(r => isUniquelyMatched(r) && r.tags.find(tt => tt.tag === tag && tt.status === status)).length; %>
+                        <% if (count === 0 && status === 'disallowed source uri') { return; } %>
+                        <button
+                            class="px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap <%= count > 0 ? 'border-gray-600 text-gray-300 hover:bg-gray-700 cursor-pointer' : 'border-gray-800 text-gray-600 cursor-not-allowed' %>"
+                            data-status="<%= status %>"
+                            <%= count === 0 ? 'disabled' : '' %>
+                        >
+                            <span class="capitalize"><%= status %></span>
+                            <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-900 text-xs"><%= count %></span>
+                        </button>
+                    <% }) %>
+                    </div>
+                </div>
             </div>
 
             <!-- Table -->
-            <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6 max-h-[80vh]">
+            <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6">
                 <table class="min-w-full table-auto" id="<%= tag %>-table">
-                    <thead class="bg-gray-800 text-gray-400 text-left sticky top-0 z-10 shadow-sm">
+                    <thead class="bg-gray-800 text-gray-400 text-left sticky top-[116px] md:top-[156px] z-10 shadow-sm">
                         <!-- Headers injected by JS -->
                     </thead>
                     <tbody class="text-gray-300 divide-y divide-gray-800">
