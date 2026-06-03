@@ -14,19 +14,28 @@ async function validate() {
     const spidersContent = fs.readFileSync(SPIDERS_FILE, 'utf8');
     const spiders = JSON.parse(spidersContent);
 
-    // 1. Check alphabetical order
-    const sortedSpiders = spiders
-        .map(s => ({
+    // 1. Check alphabetical order and remove auto-importable tags
+    let autoRemovedTags = false;
+    const cleanedSpiders = spiders.map(s => {
+        const originalTags = [...s.importableTags];
+        const filteredTags = originalTags.filter(tag => tag !== 'opening_hours' && tag !== 'website');
+        if (originalTags.length !== filteredTags.length) {
+            autoRemovedTags = true;
+        }
+        return {
             ...s,
-            importableTags: [...s.importableTags].sort(),
+            importableTags: filteredTags.sort(),
             source_uri: [...s.source_uri].sort(),
-        }))
-        .sort((a, b) => a.name.localeCompare(b.name));
-    const isSorted = JSON.stringify(spiders) === JSON.stringify(sortedSpiders);
+        };
+    });
+
+    const sortedSpiders = [...cleanedSpiders].sort((a, b) => a.name.localeCompare(b.name));
+    const isSorted = JSON.stringify(cleanedSpiders) === JSON.stringify(sortedSpiders);
 
     let reordered = false;
-    if (!isSorted) {
-        console.log('Spiders are not in alphabetical order. Reordering...');
+    if (!isSorted || autoRemovedTags) {
+        if (!isSorted) console.log('Spiders are not in alphabetical order. Reordering...');
+        if (autoRemovedTags) console.log('Removing opening_hours/website from importableTags...');
         const prettierConfig = await prettier.resolveConfig(SPIDERS_FILE);
         const formatted = await prettier.format(JSON.stringify(sortedSpiders), {
             ...prettierConfig,
@@ -69,18 +78,28 @@ async function validate() {
     if (addedOrModified.length === 0) {
         console.log('No spiders added or modified.');
         if (reordered) {
-            outputComment(
-                '> ℹ️ **Spiders were not in alphabetical order.** I have reordered them and committed the change.'
-            );
+            let msg = '';
+            if (!isSorted) {
+                msg += '> ℹ️ **Spiders were not in alphabetical order.** I have reordered them and committed the change.\n';
+            }
+            if (autoRemovedTags) {
+                msg +=
+                    '> ℹ️ **`opening_hours` and `website` are now automatically included.** I have removed them from `importableTags` and committed the change.\n';
+            }
+            outputComment(msg);
         }
         return;
     }
 
     if (addedOrModified.length > 1) {
         let errorMsg = '';
-        if (reordered) {
+        if (!isSorted) {
             errorMsg +=
                 '> ℹ️ **Spiders were not in alphabetical order.** I have reordered them and committed the change.\n\n';
+        }
+        if (autoRemovedTags) {
+            errorMsg +=
+                '> ℹ️ **`opening_hours` and `website` are now automatically included.** I have removed them from `importableTags` and committed the change.\n\n';
         }
         const names = addedOrModified.map(a => a.spider.name).join(', ');
         errorMsg += `Error: Only one spider should be added or modified per PR. Found: ${names}`;
@@ -111,7 +130,9 @@ async function validate() {
 
         const totalFeatures = data.features.length;
         const tagStats = {};
-        spider.importableTags.forEach(tag => {
+        const tagsToTrack = [...new Set([...spider.importableTags, 'opening_hours', 'website'])];
+
+        tagsToTrack.forEach(tag => {
             tagStats[tag] = { count: 0, unique: new Set() };
         });
 
@@ -119,7 +140,7 @@ async function validate() {
 
         data.features.forEach(f => {
             const props = f.properties;
-            spider.importableTags.forEach(tag => {
+            tagsToTrack.forEach(tag => {
                 if (props[tag]) {
                     tagStats[tag].count++;
                     tagStats[tag].unique.add(props[tag]);
@@ -138,8 +159,14 @@ async function validate() {
 
         let comment = '';
         if (reordered) {
-            comment +=
-                '> ℹ️ **Spiders were not in alphabetical order.** I have reordered them and committed the change.\n\n';
+            if (!isSorted) {
+                comment +=
+                    '> ℹ️ **Spiders were not in alphabetical order.** I have reordered them and committed the change.\n\n';
+            }
+            if (autoRemovedTags) {
+                comment +=
+                    '> ℹ️ **`opening_hours` and `website` are now automatically included.** I have removed them from `importableTags` and committed the change.\n\n';
+            }
         }
 
         comment += `### Spider Validation: ${spiderName} (${type})\n\n`;
@@ -183,7 +210,16 @@ async function validate() {
         comment += `**Total features:** ${totalFeatures}\n\n`;
 
         comment += `#### Importable Tags\n`;
-        spider.importableTags.forEach(tag => {
+        const tagsToShow = tagsToTrack
+            .filter(tag => {
+                if (tag === 'opening_hours' || tag === 'website') {
+                    return tagStats[tag].count > 0;
+                }
+                return true;
+            })
+            .sort();
+
+        tagsToShow.forEach(tag => {
             const isAllowed = config.allowedImportableTags.includes(tag);
             const count = tagStats[tag].count;
             const uniqueCount = tagStats[tag].unique.size;

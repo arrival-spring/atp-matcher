@@ -418,6 +418,7 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
     console.log(`Processing spider results: ${spider.name}`);
 
     const results = [];
+    const usedTags = new Set();
 
     for (const feature of latestRun.features) {
         const props = feature.properties;
@@ -428,33 +429,35 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
         const itemTags = [];
         let osmId = null;
 
-        if (!isBrandSpider) {
-            itemStatus = 'not a brand spider';
-            for (const tag of spider.importableTags) {
-                itemTags.push({
-                    tag,
-                    status: 'not a brand spider',
-                    osmValue: null,
-                    spiderValue: props[tag] || null,
-                });
-            }
-        } else if (!isAllowedSourceUri(props['@source_uri'], spider.source_uri)) {
-            itemStatus = 'disallowed source uri';
-            for (const tag of spider.importableTags) {
-                itemTags.push({
-                    tag,
-                    status: 'disallowed source uri',
-                    osmValue: null,
-                    spiderValue: props[tag] || null,
-                });
+        const isAllowed = isAllowedSourceUri(props['@source_uri'], spider.source_uri);
+
+        if (!isBrandSpider || !isAllowed) {
+            itemStatus = !isBrandSpider ? 'not a brand spider' : 'disallowed source uri';
+            const possibleTags = new Set([...spider.importableTags, 'opening_hours', 'website']);
+            for (const tag of possibleTags) {
+                const spiderValue = props[tag] || null;
+                if (spiderValue) {
+                    itemTags.push({
+                        tag,
+                        status: itemStatus,
+                        osmValue: null,
+                        spiderValue,
+                    });
+                    usedTags.add(tag);
+                }
             }
         } else {
-            const allPossibleTags = new Set([...spider.importableTags]);
+            const allPossibleTags = new Set([...spider.importableTags, 'opening_hours', 'website']);
             const matchEntries = spiderMatches.get(matchingValue) || [];
             if (matchEntries.length === 1) {
                 const osm = matchEntries[0];
                 for (const tag of Object.keys(osm.tags)) {
-                    if (spider.importableTags.includes(tag) || tag.startsWith('fuel:')) {
+                    if (
+                        spider.importableTags.includes(tag) ||
+                        tag.startsWith('fuel:') ||
+                        tag === 'opening_hours' ||
+                        tag === 'website'
+                    ) {
                         allPossibleTags.add(tag);
                     }
                 }
@@ -474,6 +477,8 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
                 if (!spiderValue) {
                     continue;
                 }
+
+                usedTags.add(tag);
 
                 const history = runs.map((run, idx) => {
                     let val = spiderMaps[idx].get(matchingValue)?.[tag] || null;
@@ -575,7 +580,7 @@ async function processSpiderResults(spiderData, spiderMatches, runs) {
         });
     }
 
-    return results;
+    return { results, usedTags: Array.from(usedTags).sort() };
 }
 
 function generateWebpage(allSpiderResults, atpDate, osmDate) {
@@ -649,11 +654,11 @@ async function run() {
 
     const allSpiderResults = [];
     for (const [spiderName, data] of spidersData) {
-        const results = await processSpiderResults(data, allMatches.get(spiderName), runs);
+        const { results, usedTags } = await processSpiderResults(data, allMatches.get(spiderName), runs);
         if (results) {
             allSpiderResults.push({
                 name: spiderName,
-                importableTags: data.config.importableTags,
+                importableTags: usedTags,
                 results: results,
                 isBrandSpider: data.isBrandSpider,
                 lineage: data.lineage,
