@@ -8,6 +8,10 @@ on:
 jobs:
     sync:
         runs-on: ubuntu-latest
+
+        env:
+            NO_DEBUG: true
+
         steps:
             - name: Checkout repository
               uses: actions/checkout@v5
