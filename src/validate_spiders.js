@@ -222,7 +222,12 @@ async function validate() {
             }
         }
 
-        // 5. Check lineage
+        // 5. Check showUnmatched type
+        if (spider.hasOwnProperty('showUnmatched') && typeof spider.showUnmatched !== 'boolean') {
+            errors.push('Error: `showUnmatched` must be a boolean.');
+        }
+
+        // 6. Check lineage
         const lineage = data.dataset_attributes?.['spider:lineage'];
         if (lineage !== 'S_ATP_BRANDS') {
             errors.push(`Error: This is not a brand spider. Lineage: \`${lineage || 'not found'}\``);
