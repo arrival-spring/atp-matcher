@@ -37,8 +37,15 @@ jobs:
               run: npm run build:css
 
             - name: Upload dashboard
-              uses: actions/upload-artifact@v7
+              uses: actions/upload-artifact@v4
               with:
                   name: atp-osm-dashboard
                   path: |
                       output/
+
+            - name: Upload safe edits
+              uses: actions/upload-artifact@v4
+              with:
+                  name: safe-edits
+                  path: |
+                      safe-edits/
