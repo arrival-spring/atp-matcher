@@ -39,5 +39,5 @@
     { "name": "topt_za", "importableTags": ["phone"], "source_uri": ["topt.co.za"], "showUnmatched": true },
     { "name": "virgin_active_bw_na_za", "importableTags": ["phone"], "source_uri": ["virginactive.co.za"] },
     { "name": "wimpy_za", "importableTags": ["phone"], "source_uri": ["wimpy.co.za"], "showUnmatched": true },
-    { "name": "woolworths_za", "importableTags": ["phone"], "source_uri": ["woolworths.co.za"], "showUnmatched": true }
+    { "name": "woolworths_za", "source_uri": ["woolworths.co.za"], "showUnmatched": true }
 ]
