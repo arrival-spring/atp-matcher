@@ -4,6 +4,7 @@ import axios from 'axios';
 import { getDomain } from 'tldts';
 import * as prettier from 'prettier';
 import { isAllowedSourceUri, matchesCategories } from './utils.js';
+import { getNsiEffectiveTags } from './nsi_utils.js';
 
 const CONFIG_FILE = 'config.json';
 const SPIDERS_FILE = 'spiders.json';
@@ -135,6 +136,7 @@ async function validate() {
 
         const totalFeatures = data.features.length;
         const tagStats = {};
+        const nsiOverlapTags = new Set();
 
         const expandedImportableTags = new Set();
         const wildcards = (spider.importableTags || []).filter(t => t.endsWith(':*')).map(t => t.slice(0, -1));
@@ -163,6 +165,18 @@ async function validate() {
 
         data.features.forEach(f => {
             const props = f.properties;
+
+            if (props.nsi_id) {
+                const nsiTags = getNsiEffectiveTags(props.nsi_id);
+                if (nsiTags) {
+                    for (const tag of Object.keys(nsiTags)) {
+                        if (expandedImportableTags.has(tag)) {
+                            nsiOverlapTags.add(tag);
+                        }
+                    }
+                }
+            }
+
             tagsToTrack.forEach(tag => {
                 if (props[tag]) {
                     tagStats[tag].count++;
@@ -231,6 +245,11 @@ async function validate() {
         const lineage = data.dataset_attributes?.['spider:lineage'];
         if (lineage !== 'S_ATP_BRANDS') {
             errors.push(`Error: This is not a brand spider. Lineage: \`${lineage || 'not found'}\``);
+        }
+
+        // 7. Check NSI overlaps
+        if (nsiOverlapTags.size > 0) {
+            errors.push(`Error: The following tags are already provided by NSI and should not be in \`importableTags\`: ${Array.from(nsiOverlapTags).map(t => `\`${t}\``).join(', ')}`);
         }
 
         if (errors.length > 0) {
