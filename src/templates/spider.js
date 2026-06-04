@@ -118,9 +118,34 @@ export function initSpiderDashboard(results, importableTags, atpDate) {
         }
     }
 
+    function showMismatchWarning() {
+        const warnedTags = JSON.parse(sessionStorage.getItem('mismatch_warned_tags') || '[]');
+        if (currentState.status === 'mismatch' && !warnedTags.includes(currentState.tag)) {
+            const modal = document.getElementById('mismatch-modal');
+            const backdrop = document.getElementById('modal-backdrop');
+            document.getElementById('mismatch-tag-name').textContent = currentState.tag;
+            document.getElementById('mismatch-tag-name-2').textContent = currentState.tag;
+            modal.classList.remove('hidden');
+            backdrop.classList.remove('hidden');
+            return true;
+        }
+        return false;
+    }
+
+    function hideMismatchWarning() {
+        document.getElementById('mismatch-modal').classList.add('hidden');
+        document.getElementById('modal-backdrop').classList.add('hidden');
+    }
+
     function render() {
         const visited = getVisitedLinks();
         const visitedSet = new Set(visited.links);
+
+        if (showMismatchWarning()) {
+            // Modal is shown, we can still render the background if we want,
+            // but the user must interact with the modal first.
+        }
+
         const isUniquelyMatched = r => r.matchCount === 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status);
         const hasDuplicates = results.some(r => r.matchCount > 1);
 
@@ -217,7 +242,9 @@ export function initSpiderDashboard(results, importableTags, atpDate) {
         tbody.innerHTML = pageData
             .map(r => {
                 const suggestedFixes = {};
-                if (r.tagStatus === 'mismatch' || r.tagStatus === 'Add to OSM' || r.tagStatus === 'update OSM') {
+                if (r.tagStatus === 'Add to OSM' || r.tagStatus === 'update OSM') {
+                    suggestedFixes[currentState.tag] = r.spiderValue;
+                } else if (r.tagStatus === 'mismatch' && currentState.status === 'mismatch') {
                     suggestedFixes[currentState.tag] = r.spiderValue;
                 }
 
@@ -479,6 +506,22 @@ export function initSpiderDashboard(results, importableTags, atpDate) {
 
     window.onpopstate = () => {
         loadStateFromUrl();
+        render();
+    };
+
+    document.getElementById('mismatch-understand-btn').onclick = () => {
+        const warnedTags = JSON.parse(sessionStorage.getItem('mismatch_warned_tags') || '[]');
+        if (!warnedTags.includes(currentState.tag)) {
+            warnedTags.push(currentState.tag);
+            sessionStorage.setItem('mismatch_warned_tags', JSON.stringify(warnedTags));
+        }
+        hideMismatchWarning();
+    };
+
+    document.getElementById('mismatch-back-btn').onclick = () => {
+        currentState.status = null;
+        updateUrl();
+        hideMismatchWarning();
         render();
     };
 
