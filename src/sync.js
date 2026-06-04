@@ -15,6 +15,7 @@ import { parsePhoneNumber } from 'libphonenumber-js';
 import normalizeUrl from 'normalize-url';
 import eta from './eta.js';
 import { isAllowedSourceUri, matchesCategories } from './utils.js';
+import { getNsiEffectiveTags, getNsiIdExists, getNsiItem } from './nsi_utils.js';
 
 const CONFIG_FILE = 'config.json';
 const SPIDERS_FILE = 'spiders.json';
@@ -332,10 +333,19 @@ async function loadAllAtpData(spiders, runs) {
         if (isBrandSpider && latestRun && latestRun.features) {
             latestRun.features.forEach(f => {
                 const props = f.properties;
-                const brand = props.brand;
-                const wikidata = props['brand:wikidata'];
+                let brand = props.brand;
+                let wikidata = props['brand:wikidata'];
                 const atpRef = props.ref;
                 const website = props.website;
+                const nsiId = props.nsi_id;
+
+                let effectiveNsiId = null;
+                if (nsiId && getNsiIdExists(nsiId)) {
+                    effectiveNsiId = nsiId;
+                    const nsiEntry = getNsiItem(nsiId);
+                    brand = nsiEntry.originalTags.brand || nsiEntry.originalTags.name || brand;
+                    wikidata = nsiEntry.originalTags['brand:wikidata'] || nsiEntry.originalTags['operator:wikidata'] || wikidata;
+                }
 
                 if (wikidata) {
                     if (!wikidataToSpiders.has(wikidata)) wikidataToSpiders.set(wikidata, new Set());
@@ -348,14 +358,14 @@ async function loadAllAtpData(spiders, runs) {
                     const matchingRef = refKeyName === 'branch' ? atpRef.toLowerCase() : atpRef;
                     const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}`;
                     if (!atpLookup.has(key)) atpLookup.set(key, []);
-                    atpLookup.get(key).push({ spiderName: spider.name, atpRef });
+                    atpLookup.get(key).push({ spiderName: spider.name, atpRef, nsiId: effectiveNsiId });
 
                     // Match by website
                     if (website) {
                         const normalizedWeb = normalizeWebsite(website);
                         const key = `web|${brand}|${wikidata}|${normalizedWeb}`;
                         if (!atpLookup.has(key)) atpLookup.set(key, []);
-                        atpLookup.get(key).push({ spiderName: spider.name, atpRef });
+                        atpLookup.get(key).push({ spiderName: spider.name, atpRef, nsiId: effectiveNsiId });
                     }
                 }
             });
@@ -467,6 +477,12 @@ async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, allMatc
                 for (const match of atpLookup.get(key)) {
                     const matchId = `${match.spiderName}|${match.atpRef}`;
                     if (!matchedAtpFeatures.has(matchId)) {
+                        if (match.nsiId) {
+                            const nsiTags = getNsiEffectiveTags(match.nsiId);
+                            const nsiMatch = Object.entries(nsiTags).every(([k, v]) => props[k] === v);
+                            if (!nsiMatch) continue;
+                        }
+
                         matchedAtpFeatures.add(matchId);
                         matchedSpiders.add(match.spiderName);
                         const spiderMatches = allMatches.get(match.spiderName);
@@ -494,6 +510,12 @@ async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, allMatc
 
                         const matchId = `${match.spiderName}|${match.atpRef}`;
                         if (!matchedAtpFeatures.has(matchId)) {
+                            if (match.nsiId) {
+                                const nsiTags = getNsiEffectiveTags(match.nsiId);
+                                const nsiMatch = Object.entries(nsiTags).every(([k, v]) => props[k] === v);
+                                if (!nsiMatch) continue;
+                            }
+
                             matchedAtpFeatures.add(matchId);
                             matchedSpiders.add(match.spiderName);
                             const spiderMatches = allMatches.get(match.spiderName);
