@@ -123,10 +123,31 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         if (currentState.status === 'mismatch' && !warnedTags.includes(currentState.tag)) {
             const modal = document.getElementById('mismatch-modal');
             const backdrop = document.getElementById('modal-backdrop');
+            const confirmBtn = document.getElementById('mismatch-understand-btn');
+            const progress = document.getElementById('mismatch-progress');
+
             document.getElementById('mismatch-tag-name').textContent = currentState.tag;
             document.getElementById('mismatch-tag-name-2').textContent = currentState.tag;
+
             modal.classList.remove('hidden');
             backdrop.classList.remove('hidden');
+
+            // Reset and start 2s timeout
+            confirmBtn.disabled = true;
+            progress.style.transition = 'none';
+            progress.style.width = '0';
+
+            // Trigger animation
+            setTimeout(() => {
+                progress.style.transition = 'width 2s linear';
+                progress.style.width = '100%';
+            }, 10);
+
+            setTimeout(() => {
+                confirmBtn.disabled = false;
+                confirmBtn.classList.add('cursor-pointer', 'hover:bg-blue-500');
+            }, 2000);
+
             return true;
         }
         return false;

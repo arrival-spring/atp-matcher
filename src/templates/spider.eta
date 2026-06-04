@@ -250,8 +250,9 @@
             <button id="mismatch-back-btn" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors border border-gray-600 font-medium cursor-pointer">
                 Take me back
             </button>
-            <button id="mismatch-understand-btn" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium cursor-pointer">
-                I understand
+            <button id="mismatch-understand-btn" class="relative px-6 py-3 bg-gray-700 text-white rounded-lg font-medium overflow-hidden group disabled:opacity-100" disabled>
+                <div id="mismatch-progress" class="absolute inset-0 bg-blue-600 w-0"></div>
+                <span class="relative z-10">I understand</span>
             </button>
         </div>
     </div>
