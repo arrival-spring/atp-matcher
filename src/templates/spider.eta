@@ -259,5 +259,5 @@
 
 <script type="module">
     import { initSpiderDashboard } from './spider.js';
-    initSpiderDashboard(<%~ JSON.stringify(it.results) %>, <%~ JSON.stringify(it.importableTags) %>, <%~ JSON.stringify(it.atpDate) %>);
+    initSpiderDashboard(<%~ JSON.stringify(it.name) %>, <%~ JSON.stringify(it.results) %>, <%~ JSON.stringify(it.importableTags) %>, <%~ JSON.stringify(it.atpDate) %>);
 </script>

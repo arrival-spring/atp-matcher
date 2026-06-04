@@ -1,4 +1,4 @@
-export function initSpiderDashboard(results, importableTags, atpDate) {
+export function initSpiderDashboard(spiderName, results, importableTags, atpDate) {
     const PAGE_SIZE = 25;
     let currentState = {
         tag: 'summary',
@@ -119,7 +119,7 @@ export function initSpiderDashboard(results, importableTags, atpDate) {
     }
 
     function showMismatchWarning() {
-        const warnedTags = JSON.parse(sessionStorage.getItem('mismatch_warned_tags') || '[]');
+        const warnedTags = JSON.parse(sessionStorage.getItem(`mismatch_warned_tags_${spiderName}`) || '[]');
         if (currentState.status === 'mismatch' && !warnedTags.includes(currentState.tag)) {
             const modal = document.getElementById('mismatch-modal');
             const backdrop = document.getElementById('modal-backdrop');
@@ -510,10 +510,10 @@ export function initSpiderDashboard(results, importableTags, atpDate) {
     };
 
     document.getElementById('mismatch-understand-btn').onclick = () => {
-        const warnedTags = JSON.parse(sessionStorage.getItem('mismatch_warned_tags') || '[]');
+        const warnedTags = JSON.parse(sessionStorage.getItem(`mismatch_warned_tags_${spiderName}`) || '[]');
         if (!warnedTags.includes(currentState.tag)) {
             warnedTags.push(currentState.tag);
-            sessionStorage.setItem('mismatch_warned_tags', JSON.stringify(warnedTags));
+            sessionStorage.setItem(`mismatch_warned_tags_${spiderName}`, JSON.stringify(warnedTags));
         }
         hideMismatchWarning();
     };
