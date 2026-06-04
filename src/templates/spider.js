@@ -1,10 +1,13 @@
-export function initSpiderDashboard(spiderName, results, importableTags, atpDate) {
+export function initSpiderDashboard(spiderName, results, importableTags, atpDate, showUnmatched) {
     const PAGE_SIZE = 25;
     let currentState = {
         tag: 'summary',
         status: null,
         page: 1,
     };
+
+    let unmappedCache = null;
+    let unmatchedCache = null;
 
     function updateUrl() {
         const url = new URL(window.location);
@@ -193,6 +196,11 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
             return;
         }
 
+        if (currentState.tag === 'unmatched') {
+            renderUnmatched();
+            return;
+        }
+
         if (currentState.tag === 'duplicate-refs') {
             renderDuplicates();
             return;
@@ -313,19 +321,34 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || filtered.length === 0;
     }
 
-    function renderUnmapped() {
-        const isUniquelyMatched = r => r.matchCount === 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status);
-        const isDuplicate = r => r.matchCount > 1;
-        const unmapped = results.filter(
-            r => ['disallowed source uri', 'not a brand spider'].includes(r.status) || (!isUniquelyMatched(r) && !isDuplicate(r))
-        );
-        const totalPages = Math.ceil(unmapped.length / PAGE_SIZE) || 1;
+    async function renderUnmapped() {
+        const table = document.getElementById('unmapped-table');
+        const loading = document.getElementById('unmapped-loading');
+
+        if (!unmappedCache) {
+            table.classList.add('hidden');
+            loading.classList.remove('hidden');
+            try {
+                const response = await fetch(`${spiderName}_unmapped.json`);
+                unmappedCache = await response.json();
+            } catch (e) {
+                console.error('Failed to load unmapped data', e);
+                unmappedCache = [];
+            }
+            loading.classList.add('hidden');
+            table.classList.remove('hidden');
+        }
+
+        const disallowedOrNotBrand = results.filter(r => ['disallowed source uri', 'not a brand spider'].includes(r.status));
+        const allUnmapped = [...disallowedOrNotBrand, ...unmappedCache];
+
+        const totalPages = Math.ceil(allUnmapped.length / PAGE_SIZE) || 1;
         if (currentState.page > totalPages) currentState.page = totalPages;
 
         const start = (currentState.page - 1) * PAGE_SIZE;
-        const pageData = unmapped.slice(start, start + PAGE_SIZE);
+        const pageData = allUnmapped.slice(start, start + PAGE_SIZE);
 
-        const tbody = document.querySelector('#unmapped-table tbody');
+        const tbody = table.querySelector('tbody');
         tbody.innerHTML = pageData
             .map(
                 r => `
@@ -336,9 +359,14 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
                         ${renderStatusLabel(r.status)}
                     </div>
                 </td>
-                <td class="md:table-cell md:px-4 md:py-3 text-xs font-mono whitespace-pre-wrap">${Object.entries(r.allAtpTags || {})
-                    .map(([k, v]) => `${escapeHtml(k)}=${escapeHtml(v)}`)
-                    .join('\n')}</td>
+                <td class="md:table-cell md:px-4 md:py-3">
+                    <div class="flex md:block">
+                        <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">Tags:</span>
+                        <div class="text-xs font-mono whitespace-pre-wrap flex-grow">${Object.entries(r.allAtpTags || {})
+                            .map(([k, v]) => `${escapeHtml(k)}=${escapeHtml(v)}`)
+                            .join('\n')}</div>
+                    </div>
+                </td>
             </tr>
         `
             )
@@ -347,7 +375,62 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         const pagination = document.getElementById('unmapped-pagination');
         pagination.querySelector('.page-info').textContent = `Page ${currentState.page} of ${totalPages}`;
         pagination.querySelector('.prev-btn').disabled = currentState.page === 1;
-        pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || unmapped.length === 0;
+        pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || allUnmapped.length === 0;
+    }
+
+    async function renderUnmatched() {
+        const table = document.getElementById('unmatched-table');
+        const loading = document.getElementById('unmatched-loading');
+
+        if (!unmatchedCache) {
+            table.classList.add('hidden');
+            loading.classList.remove('hidden');
+            try {
+                const response = await fetch(`${spiderName}_unmatched.json`);
+                unmatchedCache = await response.json();
+            } catch (e) {
+                console.error('Failed to load unmatched data', e);
+                unmatchedCache = [];
+            }
+            loading.classList.add('hidden');
+            table.classList.remove('hidden');
+        }
+
+        const totalPages = Math.ceil(unmatchedCache.length / PAGE_SIZE) || 1;
+        if (currentState.page > totalPages) currentState.page = totalPages;
+
+        const start = (currentState.page - 1) * PAGE_SIZE;
+        const pageData = unmatchedCache.slice(start, start + PAGE_SIZE);
+
+        const tbody = table.querySelector('tbody');
+        tbody.innerHTML = pageData
+            .map(
+                r => `
+            <tr class="flex flex-col md:table-row border-b border-gray-800 md:border-none p-4 md:p-0 hover:bg-gray-800 transition-colors">
+                <td class="md:table-cell md:px-4 md:py-3 font-medium break-all mb-2 md:mb-0">
+                    <div class="text-lg md:text-base flex items-center flex-wrap">
+                        <a href="https://www.openstreetmap.org/${r.id.startsWith('n') ? 'node' : r.id.startsWith('w') ? 'way' : 'relation'}/${r.id.substring(1)}" target="_blank" class="text-blue-400 hover:underline">
+                            ${escapeHtml(r.id)}
+                        </a>
+                    </div>
+                </td>
+                <td class="md:table-cell md:px-4 md:py-3">
+                    <div class="flex md:block">
+                        <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">Tags:</span>
+                        <div class="text-xs font-mono whitespace-pre-wrap flex-grow">${Object.entries(r.tags || {})
+                            .map(([k, v]) => `${escapeHtml(k)}=${escapeHtml(v)}`)
+                            .join('\n')}</div>
+                    </div>
+                </td>
+            </tr>
+        `
+            )
+            .join('');
+
+        const pagination = document.getElementById('unmatched-pagination');
+        pagination.querySelector('.page-info').textContent = `Page ${currentState.page} of ${totalPages}`;
+        pagination.querySelector('.prev-btn').disabled = currentState.page === 1;
+        pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || unmatchedCache.length === 0;
     }
 
     function renderDuplicates() {
@@ -369,9 +452,14 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
                         ${renderStatusLabel(`${r.status} (${r.matchCount} matches)`)}
                     </div>
                 </td>
-                <td class="md:table-cell md:px-4 md:py-3 text-xs font-mono whitespace-pre-wrap">${Object.entries(r.allAtpTags || {})
-                    .map(([k, v]) => `${escapeHtml(k)}=${escapeHtml(v)}`)
-                    .join('\n')}</td>
+                <td class="md:table-cell md:px-4 md:py-3">
+                    <div class="flex md:block">
+                        <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">Tags:</span>
+                        <div class="text-xs font-mono whitespace-pre-wrap flex-grow">${Object.entries(r.allAtpTags || {})
+                            .map(([k, v]) => `${escapeHtml(k)}=${escapeHtml(v)}`)
+                            .join('\n')}</div>
+                    </div>
+                </td>
             </tr>
         `
             )
@@ -507,6 +595,23 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         updateUrl();
         render();
     };
+
+    // Unmatched pagination
+    const unmatchedPagination = document.getElementById('unmatched-pagination');
+    if (unmatchedPagination) {
+        unmatchedPagination.querySelector('.prev-btn').onclick = () => {
+            if (currentState.page > 1) {
+                currentState.page--;
+                updateUrl();
+                render();
+            }
+        };
+        unmatchedPagination.querySelector('.next-btn').onclick = () => {
+            currentState.page++;
+            updateUrl();
+            render();
+        };
+    }
 
     // Duplicate Refs pagination
     const duplicatesPagination = document.getElementById('duplicate-refs-pagination');

@@ -203,6 +203,7 @@ async function loadAllAtpData(spiders, runs) {
     const runIds = runs.map(r => r.run_id);
     const spidersData = new Map();
     const atpLookup = new Map();
+    const wikidataToSpiders = new Map();
 
     for (const spider of spiders) {
         console.log(`Loading ATP data for spider: ${spider.name}`);
@@ -336,6 +337,11 @@ async function loadAllAtpData(spiders, runs) {
                 const atpRef = props.ref;
                 const website = props.website;
 
+                if (wikidata) {
+                    if (!wikidataToSpiders.has(wikidata)) wikidataToSpiders.set(wikidata, new Set());
+                    wikidataToSpiders.get(wikidata).add(spider.name);
+                }
+
                 if (brand && wikidata && atpRef) {
                     // Match by ref (using the spider's custom ref_key if provided)
                     const refKeyName = spider.ref_key || 'ref';
@@ -355,7 +361,7 @@ async function loadAllAtpData(spiders, runs) {
             });
         }
     }
-    return { spidersData, atpLookup };
+    return { spidersData, atpLookup, wikidataToSpiders };
 }
 
 function parseOplTags(tagsStr) {
@@ -382,7 +388,7 @@ function parseOplTags(tagsStr) {
     return tags;
 }
 
-async function streamOsmData(url, spiders, atpLookup, allMatches) {
+async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, allMatches, allUnmatched) {
     console.log(`Streaming OSM data from ${url}...`);
 
     const response = await axios({
@@ -451,6 +457,7 @@ async function streamOsmData(url, spiders, atpLookup, allMatches) {
         };
 
         const matchedAtpFeatures = new Set();
+        const matchedSpiders = new Set();
 
         // 1. Try matching by website
         if (website) {
@@ -461,6 +468,7 @@ async function streamOsmData(url, spiders, atpLookup, allMatches) {
                     const matchId = `${match.spiderName}|${match.atpRef}`;
                     if (!matchedAtpFeatures.has(matchId)) {
                         matchedAtpFeatures.add(matchId);
+                        matchedSpiders.add(match.spiderName);
                         const spiderMatches = allMatches.get(match.spiderName);
                         if (!spiderMatches.has(match.atpRef)) {
                             spiderMatches.set(match.atpRef, []);
@@ -487,6 +495,7 @@ async function streamOsmData(url, spiders, atpLookup, allMatches) {
                         const matchId = `${match.spiderName}|${match.atpRef}`;
                         if (!matchedAtpFeatures.has(matchId)) {
                             matchedAtpFeatures.add(matchId);
+                            matchedSpiders.add(match.spiderName);
                             const spiderMatches = allMatches.get(match.spiderName);
                             if (!spiderMatches.has(match.atpRef)) {
                                 spiderMatches.set(match.atpRef, []);
@@ -495,6 +504,19 @@ async function streamOsmData(url, spiders, atpLookup, allMatches) {
                             console.debug(`[MATCH ref] OSM:${id} matches ${match.spiderName} (${match.atpRef})`);
                         }
                     }
+                }
+            }
+        }
+
+        // 3. Collect potentially unmatched elements
+        if (wikidata && wikidataToSpiders.has(wikidata)) {
+            for (const spiderName of wikidataToSpiders.get(wikidata)) {
+                if (matchedSpiders.has(spiderName)) continue;
+
+                const spider = spiders.find(s => s.name === spiderName);
+                if (spider && spider.showUnmatched && matchesCategories(props, spider.categories)) {
+                    if (!allUnmatched.has(spiderName)) allUnmatched.set(spiderName, new Map());
+                    allUnmatched.get(spiderName).set(id, entry);
                 }
             }
         }
@@ -514,6 +536,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
     console.log(`Processing spider results: ${spider.name}`);
 
     const results = [];
+    const unmapped = [];
     const usedTags = new Set();
 
     // Expand wildcard tags
@@ -699,15 +722,26 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
         const isMapped = (spiderMatches.get(matchingValue) || []).length > 0;
         const matchCount = (spiderMatches.get(matchingValue) || []).length;
 
-        results.push({
+        const result = {
             ref: matchingValue,
             status: itemStatus,
             tags: itemTags,
             osmId,
             isMapped,
             matchCount,
-            allAtpTags: isMapped ? undefined : filteredAtpTags,
-        });
+        };
+
+        if (isMapped || itemStatus === 'disallowed source uri' || itemStatus === 'not a brand spider') {
+            results.push({
+                ...result,
+                allAtpTags: (result.matchCount > 1 || !isMapped) ? filteredAtpTags : undefined,
+            });
+        } else {
+            unmapped.push({
+                ...result,
+                allAtpTags: filteredAtpTags,
+            });
+        }
 
         // Collect safe edits
         if (osmId && (itemStatus === 'update OSM' || itemStatus === 'Add to OSM')) {
@@ -811,7 +845,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
         }
     }
 
-    return { results, usedTags: Array.from(usedTags).sort() };
+    return { results, unmapped, usedTags: Array.from(usedTags).sort() };
 }
 
 export function generateWebpage(allSpiderResults, atpDate, osmDate) {
@@ -834,6 +868,9 @@ export function generateWebpage(allSpiderResults, atpDate, osmDate) {
             isStale: spider.isStale,
             staleDate: spider.staleDate,
             loadStatus: spider.loadStatus,
+            showUnmatched: spider.showUnmatched,
+            unmappedCount: spider.unmappedCount,
+            unmatchedCount: spider.unmatchedCount,
         });
         fs.writeFileSync(path.join(outputDir, `${spider.name}.html`), spiderHtml);
     });
@@ -888,14 +925,15 @@ async function run() {
         osmDate = new Date().toISOString();
     }
 
-    const { spidersData, atpLookup } = await loadAllAtpData(spiders, runs);
+    const { spidersData, atpLookup, wikidataToSpiders } = await loadAllAtpData(spiders, runs);
 
     const allMatches = new Map();
+    const allUnmatched = new Map();
     for (const spiderName of spidersData.keys()) {
         allMatches.set(spiderName, new Map());
     }
 
-    await streamOsmData(config.osmExtractUrl, spiders, atpLookup, allMatches);
+    await streamOsmData(config.osmExtractUrl, spiders, atpLookup, wikidataToSpiders, allMatches, allUnmatched);
 
     const safeEdits = {};
 
@@ -914,26 +952,40 @@ async function run() {
             continue;
         }
 
-        const { results, usedTags } = await processSpiderResults(data, allMatches.get(spiderName), runs, safeEdits);
+        const { results, unmapped, usedTags } = await processSpiderResults(data, allMatches.get(spiderName), runs, safeEdits);
         if (results) {
-            const isMapped = r => r.matchCount >= 1 && r.status !== 'disallowed source uri';
+            const isMapped = r => r.matchCount >= 1 && r.status !== 'disallowed source uri' && r.status !== 'not a brand spider';
             const mappedResults = results.filter(isMapped);
             const mappedCount = mappedResults.length;
             const issuesCount = mappedResults.filter(r => r.status !== 'matching').length;
             const automaticUpdatesCount = mappedResults.filter(r => r.status === 'update OSM' || r.status === 'Add to OSM').length;
 
+            const unmatchedMap = allUnmatched.get(spiderName);
+            const unmatched = unmatchedMap ? Array.from(unmatchedMap.values()) : [];
+
+            // Write separate JSON files
+            const outputDir = 'output';
+            if (!fs.existsSync(outputDir)) {
+                fs.mkdirSync(outputDir);
+            }
+            fs.writeFileSync(path.join(outputDir, `${spiderName}_unmapped.json`), JSON.stringify(unmapped));
+            fs.writeFileSync(path.join(outputDir, `${spiderName}_unmatched.json`), JSON.stringify(unmatched));
+
             allSpiderResults.push({
                 name: spiderName,
                 importableTags: usedTags,
-                results: results,
+                results: results.map(r => ({ ...r, allAtpTags: undefined })),
                 isBrandSpider: data.isBrandSpider,
                 lineage: data.lineage,
                 isStale: data.isStale,
                 staleDate: data.staleDate,
                 stabilityColor: data.stabilityColor,
                 loadStatus: data.loadStatus,
+                showUnmatched: data.config.showUnmatched || false,
+                unmappedCount: unmapped.length,
+                unmatchedCount: unmatched.length,
                 // Totals for index page
-                totalCount: results.length,
+                totalCount: results.length + unmapped.length,
                 mappedCount,
                 issuesCount,
                 automaticUpdatesCount,

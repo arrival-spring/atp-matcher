@@ -2,45 +2,49 @@
     {
         "name": "astron_energy_za",
         "importableTags": ["atm", "car_wash", "phone", "toilets"],
-        "source_uri": ["astronenergy.co.za"]
+        "source_uri": ["astronenergy.co.za"],
+        "showUnmatched": true
     },
-    { "name": "bargain_books_za", "importableTags": ["email", "phone"], "source_uri": ["bargainbooks.co.za"] },
-    { "name": "bash", "source_uri": ["bash.com"] },
-    { "name": "bradlows", "importableTags": ["phone"], "source_uri": ["bradlows.co.za"] },
-    { "name": "clicks", "importableTags": ["phone"], "source_uri": ["clicks.co.za"] },
+    { "name": "bargain_books_za", "importableTags": ["email", "phone"], "source_uri": ["bargainbooks.co.za"], "showUnmatched": true },
+    { "name": "bash", "source_uri": ["bash.com"], "showUnmatched": true },
+    { "name": "bradlows", "importableTags": ["phone"], "source_uri": ["bradlows.co.za"], "showUnmatched": true },
+    { "name": "clicks", "importableTags": ["phone"], "source_uri": ["clicks.co.za"], "showUnmatched": true },
     {
         "name": "debonairs_pizza",
         "importableTags": ["phone"],
-        "source_uri": ["debonairspizza.africa", "debonairspizza.co.za"]
+        "source_uri": ["debonairspizza.africa", "debonairspizza.co.za"],
+        "showUnmatched": true
     },
     {
         "name": "exclusive_books_bw_na_za",
         "importableTags": ["email", "phone"],
         "source_uri": ["exclusivebooks.co.za"],
-        "ref_key": "branch"
+        "ref_key": "branch",
+        "showUnmatched": true
     },
-    { "name": "fishaways_za", "importableTags": ["phone"], "source_uri": ["fishaways.co.za"] },
-    { "name": "footgear_za", "importableTags": ["phone"], "source_uri": ["footgear.co.za"] },
+    { "name": "fishaways_za", "importableTags": ["phone"], "source_uri": ["fishaways.co.za"], "showUnmatched": true },
+    { "name": "footgear_za", "importableTags": ["phone"], "source_uri": ["footgear.co.za"], "showUnmatched": true },
     { "name": "kfc_za", "importableTags": ["phone"], "source_uri": ["yum.com"] },
-    { "name": "lewis_stores", "importableTags": ["phone"], "source_uri": ["lewisstores.co.za"] },
-    { "name": "mica_hardware", "importableTags": ["phone"], "source_uri": ["mica.co.za"] },
+    { "name": "lewis_stores", "importableTags": ["phone"], "source_uri": ["lewisstores.co.za"], "showUnmatched": true },
+    { "name": "mica_hardware", "importableTags": ["phone"], "source_uri": ["mica.co.za"], "showUnmatched": true },
     {
         "name": "nedbank_za",
         "source_uri": ["nedsecure.co.za"],
         "categories": [{ "amenity": "bank" }],
-        "importableTags": ["email"]
+        "importableTags": ["email"],
+        "showUnmatched": true
     },
-    { "name": "ok_foods", "importableTags": ["phone"], "source_uri": ["okfoods.co.za"] },
-    { "name": "pick_n_pay", "importableTags": ["phone"], "source_uri": ["pnp.co.za"] },
-    { "name": "postnet_za", "importableTags": ["email", "phone"], "source_uri": ["postnet.co.za"] },
-    { "name": "rocomamas", "importableTags": ["email", "phone"], "source_uri": ["rocomamas.com"] },
-    { "name": "russells_za", "importableTags": ["phone"], "source_uri": ["russells.co.za"] },
-    { "name": "sasol_za", "importableTags": ["fuel:*", "phone"], "source_uri": ["sasol.com"] },
-    { "name": "seattle_coffee_company", "source_uri": ["seattlecoffeecompany.co.za"] },
-    { "name": "spar_bw_mz_na_sz_za", "importableTags": ["phone"], "source_uri": ["spar.co.za"] },
-    { "name": "standard_bank_za", "source_uri": ["standardbank.co.za"], "categories": [{ "amenity": "bank" }] },
-    { "name": "topt_za", "importableTags": ["phone"], "source_uri": ["topt.co.za"] },
+    { "name": "ok_foods", "importableTags": ["phone"], "source_uri": ["okfoods.co.za"], "showUnmatched": true },
+    { "name": "pick_n_pay", "importableTags": ["phone"], "source_uri": ["pnp.co.za"], "showUnmatched": true },
+    { "name": "postnet_za", "importableTags": ["email", "phone"], "source_uri": ["postnet.co.za"], "showUnmatched": true },
+    { "name": "rocomamas", "importableTags": ["email", "phone"], "source_uri": ["rocomamas.com"], "showUnmatched": true },
+    { "name": "russells_za", "importableTags": ["phone"], "source_uri": ["russells.co.za"], "showUnmatched": true },
+    { "name": "sasol_za", "importableTags": ["fuel:*", "phone"], "source_uri": ["sasol.com"], "showUnmatched": true },
+    { "name": "seattle_coffee_company", "source_uri": ["seattlecoffeecompany.co.za"], "showUnmatched": true },
+    { "name": "spar_bw_mz_na_sz_za", "importableTags": ["phone"], "source_uri": ["spar.co.za"], "showUnmatched": true },
+    { "name": "standard_bank_za", "source_uri": ["standardbank.co.za"], "categories": [{ "amenity": "bank" }], "showUnmatched": true },
+    { "name": "topt_za", "importableTags": ["phone"], "source_uri": ["topt.co.za"], "showUnmatched": true },
     { "name": "virgin_active_bw_na_za", "importableTags": ["phone"], "source_uri": ["virginactive.co.za"] },
-    { "name": "wimpy_za", "importableTags": ["phone"], "source_uri": ["wimpy.co.za"] },
-    { "name": "woolworths_za", "importableTags": ["phone"], "source_uri": ["woolworths.co.za"] }
+    { "name": "wimpy_za", "importableTags": ["phone"], "source_uri": ["wimpy.co.za"], "showUnmatched": true },
+    { "name": "woolworths_za", "importableTags": ["phone"], "source_uri": ["woolworths.co.za"], "showUnmatched": true }
 ]

@@ -56,6 +56,11 @@
             <li class="mr-2 shrink-0" role="presentation">
                 <button class="inline-block p-3 md:p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer whitespace-nowrap" id="unmapped-tab" data-tab="unmapped" type="button" role="tab">Not Mapped</button>
             </li>
+            <% if (it.showUnmatched) { %>
+                <li class="mr-2 shrink-0" role="presentation">
+                    <button class="inline-block p-3 md:p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer whitespace-nowrap" id="unmatched-tab" data-tab="unmatched" type="button" role="tab">Unmatched</button>
+                </li>
+            <% } %>
             <% if (it.results.some(r => r.matchCount > 1)) { %>
                 <li class="mr-2 shrink-0" role="presentation">
                     <button class="inline-block p-3 md:p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer whitespace-nowrap" id="duplicate-refs-tab" data-tab="duplicate-refs" type="button" role="tab">Duplicate Refs</button>
@@ -81,9 +86,17 @@
             <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('unmapped-tab').click()">
                 <h3 class="text-xl font-bold mb-4 text-gray-100">Not Mapped</h3>
                 <div class="text-3xl font-mono text-gray-200">
-                    <%= it.results.filter(r => r.status === 'disallowed source uri' || (!isUniquelyMatched(r) && r.matchCount <= 1)).length %>
+                    <%= it.unmappedCount + it.results.filter(r => r.status === 'disallowed source uri' || r.status === 'not a brand spider').length %>
                 </div>
             </div>
+            <% if (it.showUnmatched) { %>
+                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('unmatched-tab').click()">
+                    <h3 class="text-xl font-bold mb-4 text-gray-100">Unmatched</h3>
+                    <div class="text-3xl font-mono text-gray-200">
+                        <%= it.unmatchedCount %>
+                    </div>
+                </div>
+            <% } %>
             <% if (it.results.some(r => r.matchCount > 1)) { %>
                 <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('duplicate-refs-tab').click()">
                     <h3 class="text-xl font-bold mb-4 text-gray-100">Duplicate Refs</h3>
@@ -133,13 +146,16 @@
                 <p class="text-sm">Lineage: <%= it.lineage || 'not found' %></p>
             </div>
         <% } %>
+        <div id="unmapped-loading" class="hidden py-12 flex flex-col items-center justify-center gap-4">
+            <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-gray-400 animate-pulse">Loading Not Mapped items...</p>
+        </div>
         <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6">
             <table class="min-w-full table-auto" id="unmapped-table">
                 <thead class="bg-gray-800 text-gray-400 text-left sticky top-[46px] md:top-[86px] z-10 shadow-sm">
-                    <tr>
+                    <tr class="hidden md:table-row">
                         <th class="px-4 py-3">Ref</th>
                         <th class="px-4 py-3">Tags</th>
-                        <th class="px-4 py-3">Status</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-300 divide-y divide-gray-800">
@@ -155,15 +171,41 @@
         </div>
     </div>
 
+    <!-- Unmatched Section -->
+    <div class="hidden" id="unmatched-content" role="tabpanel">
+        <div id="unmatched-loading" class="hidden py-12 flex flex-col items-center justify-center gap-4">
+            <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-gray-400 animate-pulse">Loading Unmatched items...</p>
+        </div>
+        <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6">
+            <table class="min-w-full table-auto" id="unmatched-table">
+                <thead class="bg-gray-800 text-gray-400 text-left sticky top-[46px] md:top-[86px] z-10 shadow-sm">
+                    <tr class="hidden md:table-row">
+                        <th class="px-4 py-3">OSM ID</th>
+                        <th class="px-4 py-3">Tags</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-300 divide-y divide-gray-800">
+                    <!-- Rows injected by JS -->
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination -->
+        <div class="flex justify-between items-center bg-gray-800 p-4 rounded-lg" id="unmatched-pagination">
+            <button class="prev-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer">Previous</button>
+            <span class="page-info text-gray-400 font-medium">Page 1 of 1</span>
+            <button class="next-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer">Next</button>
+        </div>
+    </div>
+
     <!-- Duplicate Refs Section -->
     <div class="hidden" id="duplicate-refs-content" role="tabpanel">
         <div class="overflow-x-auto bg-gray-900 rounded-lg shadow mb-6">
             <table class="min-w-full table-auto" id="duplicate-refs-table">
                 <thead class="bg-gray-800 text-gray-400 text-left sticky top-[46px] md:top-[86px] z-10 shadow-sm">
-                    <tr>
+                    <tr class="hidden md:table-row">
                         <th class="px-4 py-3">Ref</th>
                         <th class="px-4 py-3">Tags</th>
-                        <th class="px-4 py-3">Status</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-300 divide-y divide-gray-800">
@@ -260,5 +302,5 @@
 
 <script type="module">
     import { initSpiderDashboard } from './spider.js';
-    initSpiderDashboard(<%~ JSON.stringify(it.name) %>, <%~ JSON.stringify(it.results) %>, <%~ JSON.stringify(it.importableTags) %>, <%~ JSON.stringify(it.atpDate) %>);
+    initSpiderDashboard(<%~ JSON.stringify(it.name) %>, <%~ JSON.stringify(it.results) %>, <%~ JSON.stringify(it.importableTags) %>, <%~ JSON.stringify(it.atpDate) %>, <%~ it.showUnmatched %>);
 </script>
