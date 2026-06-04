@@ -15,13 +15,6 @@
         "source_uri": ["debonairspizza.africa", "debonairspizza.co.za"],
         "showUnmatched": true
     },
-    {
-        "name": "exclusive_books_bw_na_za",
-        "importableTags": ["email", "phone"],
-        "source_uri": ["exclusivebooks.co.za"],
-        "ref_key": "branch",
-        "showUnmatched": true
-    },
     { "name": "fishaways_za", "importableTags": ["phone"], "source_uri": ["fishaways.co.za"], "showUnmatched": true },
     { "name": "footgear_za", "importableTags": ["phone"], "source_uri": ["footgear.co.za"], "showUnmatched": true },
     { "name": "kfc_za", "importableTags": ["phone"], "source_uri": ["yum.com"] },
