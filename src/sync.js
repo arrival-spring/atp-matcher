@@ -6,6 +6,8 @@ import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
+import slugify from 'slugify';
+import { countries as countriesList } from 'countries-list';
 import readline from 'readline';
 import opening_hours from 'opening_hours';
 import { LRUCache } from 'lru-cache';
@@ -507,7 +509,7 @@ async function streamOsmData(url, spiders, atpLookup, allMatches) {
     });
 }
 
-export async function processSpiderResults(spiderData, spiderMatches, runs) {
+export async function processSpiderResults(spiderData, spiderMatches, runs, safeEdits = {}) {
     const { latestRun, spiderMaps, config: spider, lineage, isBrandSpider } = spiderData;
     console.log(`Processing spider results: ${spider.name}`);
 
@@ -625,36 +627,47 @@ export async function processSpiderResults(spiderData, spiderMatches, runs) {
                     osmValue = osmTagValue;
 
                     if (!osmTagValue) {
-                        status = 'Add to OSM';
+                        const v3 = history.length >= 3 ? history[2].value : null;
+                        const v4 = history.length >= 4 ? history[3].value : null;
+                        if (
+                            v3 !== null &&
+                            v4 !== null &&
+                            areTagsEqual(tag, v3, v4, country) &&
+                            areTagsEqual(tag, v4, spiderValue, country)
+                        ) {
+                            status = 'Add to OSM';
+                        } else {
+                            status = 'mismatch';
+                        }
                     } else {
                         if (areTagsEqual(tag, osmTagValue, spiderValue, country)) {
                             status = 'matching';
                         } else {
                             // Check for update OSM
                             let canUpdate = false;
-                            if (nonNullValues.length === 4) {
-                                const [v1, v2, v3, v4] = nonNullValues;
+                            const v1 = history.length >= 1 ? history[0].value : null;
+                            const v2 = history.length >= 2 ? history[1].value : null;
+                            const v3 = history.length >= 3 ? history[2].value : null;
+                            const v4 = history.length >= 4 ? history[3].value : null;
+
+                            if (v1 !== null && v2 !== null && v3 !== null && v4 !== null) {
                                 if (
                                     areTagsEqual(tag, v1, v2, country) &&
                                     areTagsEqual(tag, v3, v4, country) &&
                                     areTagsEqual(tag, osmTagValue, v1, country) &&
-                                    !areTagsEqual(tag, osmTagValue, v4, country)
-                                ) {
-                                    canUpdate = true;
-                                }
-                            } else if (nonNullValues.length === 3) {
-                                const [v1, v2, v3] = nonNullValues;
-                                if (
-                                    areTagsEqual(tag, v2, v3, country) &&
-                                    areTagsEqual(tag, osmTagValue, v1, country) &&
-                                    !areTagsEqual(tag, osmTagValue, v3, country)
+                                    !areTagsEqual(tag, osmTagValue, v4, country) &&
+                                    areTagsEqual(tag, v4, spiderValue, country)
                                 ) {
                                     canUpdate = true;
                                 }
                             }
 
                             if (canUpdate) {
-                                status = 'update OSM';
+                                if (tag === 'opening_hours' && osmTagValue.includes('PH')) {
+                                    status = 'mismatch';
+                                } else {
+                                    status = 'update OSM';
+                                }
                             } else {
                                 status = 'mismatch';
                             }
@@ -695,6 +708,107 @@ export async function processSpiderResults(spiderData, spiderMatches, runs) {
             matchCount,
             allAtpTags: isMapped ? undefined : filteredAtpTags,
         });
+
+        // Collect safe edits
+        if (osmId && (itemStatus === 'update OSM' || itemStatus === 'Add to OSM')) {
+            const rawCountryCode = props['addr:country'];
+            const countryCode = typeof rawCountryCode === 'string' ? rawCountryCode.toUpperCase() : null;
+            const state = props['addr:state'];
+            const osmType = osmId.startsWith('n') ? 'node' : osmId.startsWith('w') ? 'way' : 'relation';
+            const osmNumericId = osmId.replace(/^[nwr]/, '');
+
+            if (countryCode && /^[A-Z]{2}$/.test(countryCode)) {
+                const countryInfo = countriesList[countryCode];
+                if (countryInfo) {
+                    const countryName = countryInfo.native;
+                    const tagsToEdit = itemTags.filter(t => t.status === 'update OSM' || t.status === 'Add to OSM');
+
+                    if (tagsToEdit.length > 0) {
+                        const originalValues = {};
+                        const newValues = {};
+                        tagsToEdit.forEach(t => {
+                            originalValues[t.tag] = t.osmValue;
+                            newValues[t.tag] = t.spiderValue;
+                        });
+
+                        const edit = {
+                            type: osmType,
+                            id: osmNumericId,
+                            originalValues,
+                            newValues
+                        };
+
+                        if (!safeEdits[spider.name]) safeEdits[spider.name] = {};
+
+                        const stateSlug = state ? slugify(state, { lower: true, remove: /[*+~.()'"!:@]/g }) : null;
+                        const fileKey = stateSlug ? `${countryCode}_${stateSlug}` : countryCode;
+
+                        if (!safeEdits[spider.name][fileKey]) {
+                            safeEdits[spider.name][fileKey] = {
+                                metadata: {
+                                    spider: spider.name,
+                                    country: countryName,
+                                    countryCode,
+                                    tags: []
+                                },
+                                edits: []
+                            };
+                            if (state) {
+                                safeEdits[spider.name][fileKey].metadata.state = state;
+                            }
+                        }
+
+                        const currentFile = safeEdits[spider.name][fileKey];
+                        currentFile.edits.push(edit);
+                        tagsToEdit.forEach(t => {
+                            if (!currentFile.metadata.tags.includes(t.tag)) {
+                                currentFile.metadata.tags.push(t.tag);
+                            }
+                        });
+                    }
+                }
+            } else if (countryCode) {
+                console.warn(`Spider ${spider.name} has invalid country code: ${countryCode} for ref ${matchingValue}`);
+            } else {
+                // Countryless
+                const tagsToEdit = itemTags.filter(t => t.status === 'update OSM' || t.status === 'Add to OSM');
+                if (tagsToEdit.length > 0) {
+                    const originalValues = {};
+                    const newValues = {};
+                    tagsToEdit.forEach(t => {
+                        originalValues[t.tag] = t.osmValue;
+                        newValues[t.tag] = t.spiderValue;
+                    });
+
+                    const edit = {
+                        type: osmType,
+                        id: osmNumericId,
+                        originalValues,
+                        newValues
+                    };
+
+                    if (!safeEdits[spider.name]) safeEdits[spider.name] = {};
+                    const fileKey = 'countryless';
+                    if (!safeEdits[spider.name][fileKey]) {
+                        safeEdits[spider.name][fileKey] = {
+                            metadata: {
+                                spider: spider.name,
+                                country: 'Countryless',
+                                tags: []
+                            },
+                            edits: []
+                        };
+                    }
+                    const currentFile = safeEdits[spider.name][fileKey];
+                    currentFile.edits.push(edit);
+                    tagsToEdit.forEach(t => {
+                        if (!currentFile.metadata.tags.includes(t.tag)) {
+                            currentFile.metadata.tags.push(t.tag);
+                        }
+                    });
+                }
+            }
+        }
     }
 
     return { results, usedTags: Array.from(usedTags).sort() };
@@ -783,6 +897,8 @@ async function run() {
 
     await streamOsmData(config.osmExtractUrl, spiders, atpLookup, allMatches);
 
+    const safeEdits = {};
+
     const allSpiderResults = [];
     for (const [spiderName, data] of spidersData) {
         if (data.loadStatus === 'missing' || data.loadStatus === 'empty') {
@@ -798,7 +914,7 @@ async function run() {
             continue;
         }
 
-        const { results, usedTags } = await processSpiderResults(data, allMatches.get(spiderName), runs);
+        const { results, usedTags } = await processSpiderResults(data, allMatches.get(spiderName), runs, safeEdits);
         if (results) {
             const isMapped = r => r.matchCount >= 1 && r.status !== 'disallowed source uri';
             const mappedResults = results.filter(isMapped);
@@ -826,6 +942,21 @@ async function run() {
     }
 
     generateWebpage(allSpiderResults, atpDate, osmDate);
+
+    // Save safe edits
+    const safeEditsDir = 'safe-edits';
+    if (fs.existsSync(safeEditsDir)) {
+        fs.rmSync(safeEditsDir, { recursive: true, force: true });
+    }
+    fs.mkdirSync(safeEditsDir);
+
+    for (const [spiderName, files] of Object.entries(safeEdits)) {
+        const spiderDir = path.join(safeEditsDir, spiderName);
+        fs.mkdirSync(spiderDir, { recursive: true });
+        for (const [fileKey, content] of Object.entries(files)) {
+            fs.writeFileSync(path.join(spiderDir, `${fileKey}.json`), JSON.stringify(content, null, 2));
+        }
+    }
 }
 
 if (process.argv[1] === import.meta.filename || process.argv[1]?.endsWith('sync.js')) {
