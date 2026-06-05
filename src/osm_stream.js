@@ -57,10 +57,6 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
         'nwr/brand:wikidata',
         'nwr/website',
         'nwr/contact:website',
-        'nwr/phone',
-        'nwr/contact:phone',
-        'nwr/email',
-        'nwr/contact:email',
     ];
     for (const key of refKeys) {
         filterArgs.push(`nwr/${key}`);
