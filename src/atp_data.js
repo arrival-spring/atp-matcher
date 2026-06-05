@@ -162,7 +162,10 @@ export async function loadAllAtpData(spiders, runs) {
                     effectiveNsiId = nsiId;
                     const nsiEntry = getNsiItem(nsiId);
                     brand = nsiEntry.originalTags.brand || nsiEntry.originalTags.name || brand;
-                    wikidata = nsiEntry.originalTags['brand:wikidata'] || nsiEntry.originalTags['operator:wikidata'] || wikidata;
+                    wikidata =
+                        nsiEntry.originalTags['brand:wikidata'] ||
+                        nsiEntry.originalTags['operator:wikidata'] ||
+                        wikidata;
                 }
 
                 if (wikidata) {

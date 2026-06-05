@@ -86,7 +86,8 @@ async function validate() {
         if (reordered) {
             let msg = '';
             if (!isSorted) {
-                msg += '> ℹ️ **Spiders were not in alphabetical order.** I have reordered them and committed the change.\n';
+                msg +=
+                    '> ℹ️ **Spiders were not in alphabetical order.** I have reordered them and committed the change.\n';
             }
             if (autoRemovedTags) {
                 msg +=
@@ -218,7 +219,9 @@ async function validate() {
             return !config.allowedImportableTags.includes(tag);
         });
         if (disallowedTags.length > 0) {
-            errors.push(`Error: The following tags are not in the allowed list: ${disallowedTags.map(t => `\`${t}\``).join(', ')}`);
+            errors.push(
+                `Error: The following tags are not in the allowed list: ${disallowedTags.map(t => `\`${t}\``).join(', ')}`
+            );
         }
 
         // 4. Check categories structure
@@ -249,7 +252,13 @@ async function validate() {
 
         // 7. Check NSI overlaps
         if (nsiOverlapTags.size > 0) {
-            errors.push(`Error: The following tags are already provided by NSI and should not be in \`importableTags\`: ${Array.from(nsiOverlapTags).map(t => `\`${t}\``).join(', ')}`);
+            errors.push(
+                `Error: The following tags are already provided by NSI and should not be in \`importableTags\`: ${Array.from(
+                    nsiOverlapTags
+                )
+                    .map(t => `\`${t}\``)
+                    .join(', ')}`
+            );
         }
 
         if (errors.length > 0) {

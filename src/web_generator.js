@@ -68,6 +68,7 @@ export function generateWebpage(allSpiderResults, atpDate, osmDate) {
     try {
         fs.copyFileSync(path.join('src', 'templates', 'spider.js'), path.join(outputDir, 'spider.js'));
         fs.copyFileSync(path.join('src', 'templates', 'index.js'), path.join(outputDir, 'index.js'));
+        fs.copyFileSync(path.join('src', 'templates', 'utils.js'), path.join(outputDir, 'utils.js'));
     } catch (error) {
         console.error(`Error copying template JS files: ${error.message}`);
     }

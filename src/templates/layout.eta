@@ -36,6 +36,10 @@
         </div>
     </div>
 
+    <script type="module">
+        import { getVisitedLinks } from '<%= it.basePath %>/utils.js';
+        window.getVisitedLinks = getVisitedLinks;
+    </script>
     <footer class="max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-800 text-gray-500 text-sm">
         <div class="flex flex-wrap gap-x-8 gap-y-2">
             <div><strong>ATP Data:</strong> <%= it.atpDate %></div>

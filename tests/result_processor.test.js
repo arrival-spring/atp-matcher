@@ -39,9 +39,7 @@ describe('processSpiderResults Status Logic', () => {
     };
 
     test('should identify "update OSM" when stable and mismatching', async () => {
-        const spiderMatches = new Map([
-            ['123', [{ id: 'n1', tags: { website: 'https://old.com' } }]],
-        ]);
+        const spiderMatches = new Map([['123', [{ id: 'n1', tags: { website: 'https://old.com' } }]]]);
 
         const { results } = await processSpiderResults(spiderData, spiderMatches, runs);
         const websiteTag = results[0].tags.find(t => t.tag === 'website');
@@ -58,9 +56,7 @@ describe('processSpiderResults Status Logic', () => {
                 new Map([['123', { website: 'https://new.com' }]]),
             ],
         };
-        const spiderMatches = new Map([
-            ['123', [{ id: 'n1', tags: { website: 'https://old.com' } }]],
-        ]);
+        const spiderMatches = new Map([['123', [{ id: 'n1', tags: { website: 'https://old.com' } }]]]);
 
         const { results } = await processSpiderResults(unstableSpiderData, spiderMatches, runs);
         const websiteTag = results[0].tags.find(t => t.tag === 'website');
@@ -68,9 +64,7 @@ describe('processSpiderResults Status Logic', () => {
     });
 
     test('should identify "Add to OSM" when OSM value is missing and ATP is stable', async () => {
-        const spiderMatches = new Map([
-            ['123', [{ id: 'n1', tags: {} }]],
-        ]);
+        const spiderMatches = new Map([['123', [{ id: 'n1', tags: {} }]]]);
 
         const { results } = await processSpiderResults(spiderData, spiderMatches, runs);
         const websiteTag = results[0].tags.find(t => t.tag === 'website');
@@ -81,19 +75,27 @@ describe('processSpiderResults Status Logic', () => {
         const matchingSpiderData = {
             ...spiderData,
             latestRun: {
-                features: [{ properties: { ref: '123', website: 'https://old.com', 'addr:country': 'US', 'addr:state': 'California', '@source_uri': 'https://allowed.com/data' } }]
+                features: [
+                    {
+                        properties: {
+                            ref: '123',
+                            website: 'https://old.com',
+                            'addr:country': 'US',
+                            'addr:state': 'California',
+                            '@source_uri': 'https://allowed.com/data',
+                        },
+                    },
+                ],
             },
             spiderMaps: Array(4).fill(new Map([['123', { website: 'https://old.com' }]])),
             config: {
                 ...spiderData.config,
-                source_uri: ['allowed.com']
+                source_uri: ['allowed.com'],
             },
             lineage: 'S_ATP_BRANDS',
             isBrandSpider: true,
         };
-        const spiderMatches = new Map([
-            ['123', [{ id: 'n1', tags: { website: 'https://old.com' } }]],
-        ]);
+        const spiderMatches = new Map([['123', [{ id: 'n1', tags: { website: 'https://old.com' } }]]]);
 
         const { results } = await processSpiderResults(matchingSpiderData, spiderMatches, runs);
         const websiteTag = results[0].tags.find(t => t.tag === 'website');
@@ -174,9 +176,7 @@ describe('processSpiderResults Safe Edits', () => {
     };
 
     test('should generate safe edits for "update OSM"', async () => {
-        const spiderMatches = new Map([
-            ['123', [{ id: 'n12345', tags: { website: 'https://old.com' } }]],
-        ]);
+        const spiderMatches = new Map([['123', [{ id: 'n12345', tags: { website: 'https://old.com' } }]]]);
         const safeEdits = {};
 
         await processSpiderResults(spiderData, spiderMatches, runs, safeEdits);
@@ -206,14 +206,12 @@ describe('processSpiderResults Safe Edits', () => {
             },
             config: {
                 ...spiderData.config,
-                source_uri: ['allowed.com']
+                source_uri: ['allowed.com'],
             },
             lineage: 'S_ATP_BRANDS',
             isBrandSpider: true,
         };
-        const spiderMatches = new Map([
-            ['123', [{ id: 'w987', tags: { website: 'https://old.com' } }]],
-        ]);
+        const spiderMatches = new Map([['123', [{ id: 'w987', tags: { website: 'https://old.com' } }]]]);
         const safeEdits = {};
 
         await processSpiderResults(countrylessData, spiderMatches, runs, safeEdits);
@@ -225,9 +223,7 @@ describe('processSpiderResults Safe Edits', () => {
     });
 
     test('should include metadata in safe edits', async () => {
-        const spiderMatches = new Map([
-            ['123', [{ id: 'r1', tags: { website: 'https://old.com' } }]],
-        ]);
+        const spiderMatches = new Map([['123', [{ id: 'r1', tags: { website: 'https://old.com' } }]]]);
         const safeEdits = {};
 
         await processSpiderResults(spiderData, spiderMatches, runs, safeEdits);
@@ -253,7 +249,7 @@ describe('Importable Tags Logic', () => {
         config: {
             name: 'test_spider',
             importableTags: ['brand', 'fuel:*'],
-            source_uri: ['example.com']
+            source_uri: ['example.com'],
         },
         latestRun: {
             features: [
@@ -263,11 +259,11 @@ describe('Importable Tags Logic', () => {
                         brand: 'Test Brand',
                         'fuel:octane_95': 'yes',
                         'fuel:diesel': 'no',
-                        'other_tag': 'ignore me',
-                        '@source_uri': 'http://example.com'
-                    }
-                }
-            ]
+                        other_tag: 'ignore me',
+                        '@source_uri': 'http://example.com',
+                    },
+                },
+            ],
         },
         spiderMaps: [
             new Map([['1', { brand: 'Test Brand', 'fuel:octane_95': 'yes', 'fuel:diesel': 'no' }]]),
@@ -275,7 +271,7 @@ describe('Importable Tags Logic', () => {
             new Map([['1', { brand: 'Test Brand', 'fuel:octane_95': 'yes', 'fuel:diesel': 'no' }]]),
             new Map([['1', { brand: 'Test Brand', 'fuel:octane_95': 'yes', 'fuel:diesel': 'no' }]]),
         ],
-        isBrandSpider: true
+        isBrandSpider: true,
     };
 
     test('should expand wildcard tags', async () => {
@@ -293,15 +289,17 @@ describe('Importable Tags Logic', () => {
         const dataWithExtra = {
             ...mockSpiderData,
             latestRun: {
-                features: [{
-                    properties: {
-                        ref: '1',
-                        opening_hours: '24/7',
-                        website: 'http://example.com',
-                        '@source_uri': 'http://example.com'
-                    }
-                }]
-            }
+                features: [
+                    {
+                        properties: {
+                            ref: '1',
+                            opening_hours: '24/7',
+                            website: 'http://example.com',
+                            '@source_uri': 'http://example.com',
+                        },
+                    },
+                ],
+            },
         };
         const spiderMatches = new Map();
         const { usedTags } = await processSpiderResults(dataWithExtra, spiderMatches, mockRuns);

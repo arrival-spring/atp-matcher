@@ -1,3 +1,5 @@
+import { escapeHtml } from './utils.js';
+
 export function initDashboard(allSpiderResults) {
     const PAGE_SIZE = 10;
     let currentState = {
@@ -35,26 +37,36 @@ export function initDashboard(allSpiderResults) {
         const pageData = filtered.slice(start, start + PAGE_SIZE);
 
         const tbody = document.getElementById('dashboard-tbody');
-        tbody.innerHTML = pageData.map(spider => {
-            const { name: rawName, issuesCount, mappedCount, totalCount, automaticUpdatesCount, isBrandSpider } = spider;
-            const name = rawName.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        tbody.innerHTML = pageData
+            .map(spider => {
+                const {
+                    name: rawName,
+                    issuesCount,
+                    mappedCount,
+                    totalCount,
+                    automaticUpdatesCount,
+                    isBrandSpider,
+                } = spider;
+                const name = escapeHtml(rawName);
 
-            let statusIcon = '';
-            if (spider.stabilityColor === 'green') {
-                statusIcon = '<div class="w-3 h-3 rounded-full bg-green-500" title="Stable"></div>';
-            } else if (spider.stabilityColor === 'orange') {
-                statusIcon = '<div class="w-3 h-3 rounded-full bg-orange-500" title="Minor variations"></div>';
-            } else if (spider.stabilityColor === 'red') {
-                statusIcon = '<div class="w-3 h-3 rounded-full bg-red-500" title="Major variations"></div>';
-            } else if (spider.stabilityColor === 'gray') {
-                statusIcon = '<div class="w-3 h-3 rounded-full bg-gray-600" title="Missing data"></div>';
-            }
+                let statusIcon = '';
+                if (spider.stabilityColor === 'green') {
+                    statusIcon = '<div class="w-3 h-3 rounded-full bg-green-500" title="Stable"></div>';
+                } else if (spider.stabilityColor === 'orange') {
+                    statusIcon = '<div class="w-3 h-3 rounded-full bg-orange-500" title="Minor variations"></div>';
+                } else if (spider.stabilityColor === 'red') {
+                    statusIcon = '<div class="w-3 h-3 rounded-full bg-red-500" title="Major variations"></div>';
+                } else if (spider.stabilityColor === 'gray') {
+                    statusIcon = '<div class="w-3 h-3 rounded-full bg-gray-600" title="Missing data"></div>';
+                }
 
-            const loadStatusLabel = spider.loadStatus ? `<span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">${spider.loadStatus}</span>` : '';
+                const loadStatusLabel = spider.loadStatus
+                    ? `<span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">${spider.loadStatus}</span>`
+                    : '';
 
-            const showTotals = !spider.loadStatus && isBrandSpider;
+                const showTotals = !spider.loadStatus && isBrandSpider;
 
-            return `
+                return `
                 <tr class="flex flex-col md:table-row border-b border-gray-800 md:border-gray-700 hover:bg-gray-800 cursor-pointer p-4 md:p-0" onclick="window.location='${name}/'">
                     <td class="md:table-cell md:px-6 md:py-4 mb-2 md:mb-0">
                         <div class="flex items-center gap-2">
@@ -116,7 +128,8 @@ export function initDashboard(allSpiderResults) {
                     </td>
                 </tr>
             `;
-        }).join('');
+            })
+            .join('');
 
         // Update Pagination
         const pagination = document.getElementById('pagination');
