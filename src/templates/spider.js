@@ -52,15 +52,31 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         return values.every(v => v === values[0]);
     }
 
-    function renderTagValue(value, tag) {
+    function renderTagValue(value, tag, visitedSet = new Set()) {
         const escaped = escapeHtml(value);
-        if (tag === 'website' && value) {
-            return `<a href="${escaped}" target="_blank" class="text-blue-400 hover:underline break-all">${escaped}</a>`;
+        if ((tag === 'website' || tag === 'contact:website') && value) {
+            const isVisited = visitedSet.has(value);
+            return `<a href="${escaped}" target="_blank" data-link-type="website" class="${isVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline break-all">${escaped}</a>`;
         }
         return `<code class="text-sm break-all">${escaped}</code>`;
     }
 
-    function renderSpiderValue(spiderValue, history, tag) {
+    function renderTagsWithLinks(tags, visitedSet = new Set()) {
+        return Object.entries(tags || {})
+            .map(([k, v]) => {
+                const escapedK = escapeHtml(k);
+                let valueHtml;
+                if (k === 'website' || k === 'contact:website') {
+                    valueHtml = renderTagValue(v, k, visitedSet);
+                } else {
+                    valueHtml = escapeHtml(v);
+                }
+                return `${escapedK}=${valueHtml}`;
+            })
+            .join('\n');
+    }
+
+    function renderSpiderValue(spiderValue, history, tag, visitedSet = new Set()) {
         if (!spiderValue) return '';
 
         const nonNullValues = history ? history.filter(h => h.value !== null) : [];
@@ -72,7 +88,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
                     <svg class="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="stable value">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    ${renderTagValue(spiderValue, tag)}
+                    ${renderTagValue(spiderValue, tag, visitedSet)}
                 </div>
             `;
         } else {
@@ -81,14 +97,14 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
                 .map(
                     h => `
                 <div class="text-xs text-gray-400">
-                    <span class="font-mono">${h.date}</span>: <span class="text-gray-300">${renderTagValue(h.value, tag)}</span>
+                    <span class="font-mono">${h.date}</span>: <span class="text-gray-300">${renderTagValue(h.value, tag, visitedSet)}</span>
                 </div>
             `
                 )
                 .join('');
             return `
                 <div class="space-y-1">
-                    <div class="font-bold text-white">${renderTagValue(spiderValue, tag)}</div>
+                    <div class="font-bold text-white">${renderTagValue(spiderValue, tag, visitedSet)}</div>
                     <div class="pl-2 border-l border-gray-700">
                         ${historyHtml}
                     </div>
@@ -290,7 +306,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
                 <td class="md:table-cell md:px-4 md:py-3 mb-2 md:mb-0">
                     <div class="flex md:block">
                         <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">Spider:</span>
-                        <div class="flex-grow">${renderSpiderValue(r.spiderValue, r.history, currentState.tag)}</div>
+                        <div class="flex-grow">${renderSpiderValue(r.spiderValue, r.history, currentState.tag, visitedSet)}</div>
                     </div>
                 </td>
                 ${
@@ -299,7 +315,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
                 <td class="md:table-cell md:px-4 md:py-3 mb-2 md:mb-0">
                     <div class="flex md:block">
                         <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">OSM:</span>
-                        <div class="flex-grow">${renderTagValue(r.osmValue, currentState.tag)}</div>
+                        <div class="flex-grow">${renderTagValue(r.osmValue, currentState.tag, visitedSet)}</div>
                     </div>
                 </td>`
                         : ''
@@ -322,6 +338,8 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
     }
 
     async function renderUnmapped() {
+        const visited = getVisitedLinks();
+        const visitedSet = new Set(visited.links);
         const table = document.getElementById('unmapped-table');
         const loading = document.getElementById('unmapped-loading');
 
@@ -362,9 +380,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
                 <td class="md:table-cell md:px-4 md:py-3">
                     <div class="flex md:block">
                         <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">Tags:</span>
-                        <div class="text-xs font-mono whitespace-pre-wrap flex-grow">${Object.entries(r.allAtpTags || {})
-                            .map(([k, v]) => `${escapeHtml(k)}=${escapeHtml(v)}`)
-                            .join('\n')}</div>
+                        <div class="text-xs font-mono whitespace-pre-wrap flex-grow">${renderTagsWithLinks(r.allAtpTags, visitedSet)}</div>
                     </div>
                 </td>
             </tr>
@@ -379,6 +395,8 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
     }
 
     async function renderUnmatched() {
+        const visited = getVisitedLinks();
+        const visitedSet = new Set(visited.links);
         const table = document.getElementById('unmatched-table');
         const loading = document.getElementById('unmatched-loading');
 
@@ -409,18 +427,17 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
             <tr class="flex flex-col md:table-row border-b border-gray-800 md:border-none p-4 md:p-0 hover:bg-gray-800 transition-colors">
                 <td class="md:table-cell md:px-4 md:py-3 font-medium break-all mb-2 md:mb-0">
                     <div class="text-lg md:text-base flex items-center flex-wrap">
-                        <a href="https://www.openstreetmap.org/${r.id.startsWith('n') ? 'node' : r.id.startsWith('w') ? 'way' : 'relation'}/${r.id.substring(1)}" target="_blank" class="text-blue-400 hover:underline">
-                            ${escapeHtml(r.id)}
-                        </a>
+                        ${escapeHtml(r.id)}
                     </div>
                 </td>
                 <td class="md:table-cell md:px-4 md:py-3">
                     <div class="flex md:block">
                         <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">Tags:</span>
-                        <div class="text-xs font-mono whitespace-pre-wrap flex-grow">${Object.entries(r.tags || {})
-                            .map(([k, v]) => `${escapeHtml(k)}=${escapeHtml(v)}`)
-                            .join('\n')}</div>
+                        <div class="text-xs font-mono whitespace-pre-wrap flex-grow">${renderTagsWithLinks(r.tags, visitedSet)}</div>
                     </div>
+                </td>
+                <td class="md:table-cell md:px-4 md:py-3 md:text-right">
+                    ${renderOsmColumn(r.id, {}, visitedSet)}
                 </td>
             </tr>
         `
@@ -434,6 +451,8 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
     }
 
     function renderDuplicates() {
+        const visited = getVisitedLinks();
+        const visitedSet = new Set(visited.links);
         const duplicates = results.filter(r => r.matchCount > 1);
         const totalPages = Math.ceil(duplicates.length / PAGE_SIZE) || 1;
         if (currentState.page > totalPages) currentState.page = totalPages;
@@ -455,9 +474,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
                 <td class="md:table-cell md:px-4 md:py-3">
                     <div class="flex md:block">
                         <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">Tags:</span>
-                        <div class="text-xs font-mono whitespace-pre-wrap flex-grow">${Object.entries(r.allAtpTags || {})
-                            .map(([k, v]) => `${escapeHtml(k)}=${escapeHtml(v)}`)
-                            .join('\n')}</div>
+                        <div class="text-xs font-mono whitespace-pre-wrap flex-grow">${renderTagsWithLinks(r.allAtpTags, visitedSet)}</div>
                     </div>
                 </td>
             </tr>
@@ -524,7 +541,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
 
     // Event Listeners
     document.addEventListener('click', e => {
-        const link = e.target.closest('a[data-link-type="osm"]');
+        const link = e.target.closest('a[data-link-type="osm"], a[data-link-type="website"]');
         if (link) {
             markLinkVisited(link.href);
             render();
@@ -532,7 +549,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
     });
 
     document.addEventListener('auxclick', e => {
-        const link = e.target.closest('a[data-link-type="osm"]');
+        const link = e.target.closest('a[data-link-type="osm"], a[data-link-type="website"]');
         if (link && e.button === 1) {
             markLinkVisited(link.href);
             render();
