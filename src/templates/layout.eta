@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= it.title %> | ATP-OSM Sync</title>
-    <link href="./style.css" rel="stylesheet">
+    <link href="<%= it.basePath %>/style.css" rel="stylesheet">
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen p-4 md:p-8 md:pt-0">
     <div class="max-w-7xl mx-auto">

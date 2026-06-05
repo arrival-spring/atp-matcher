@@ -106,13 +106,27 @@ async function run() {
                 const unmatchedMap = allUnmatched.get(spiderName);
                 const unmatched = unmatchedMap ? Array.from(unmatchedMap.values()) : [];
 
-                // Write separate JSON files
+                // Write separate JSON and GeoJSON files
                 const outputDir = 'output';
-                if (!fs.existsSync(outputDir)) {
-                    fs.mkdirSync(outputDir);
+                const spiderDir = path.join(outputDir, spiderName);
+                if (!fs.existsSync(spiderDir)) {
+                    fs.mkdirSync(spiderDir, { recursive: true });
                 }
-                fs.writeFileSync(path.join(outputDir, `${spiderName}_unmapped.json`), JSON.stringify(unmapped));
-                fs.writeFileSync(path.join(outputDir, `${spiderName}_unmatched.json`), JSON.stringify(unmatched));
+
+                fs.writeFileSync(path.join(spiderDir, `${spiderName}_unmapped.json`), JSON.stringify(unmapped));
+                fs.writeFileSync(path.join(spiderDir, `${spiderName}_unmatched.json`), JSON.stringify(unmatched));
+
+                // Generate unmapped GeoJSON for JOSM (including disallowed source uri and not a brand spider)
+                const unmappedRefs = new Set([
+                    ...unmapped.map(u => u.ref),
+                    ...results.filter(r => r.status === 'disallowed source uri' || r.status === 'not a brand spider').map(r => r.ref)
+                ]);
+
+                const unmappedGeoJson = {
+                    type: 'FeatureCollection',
+                    features: data.latestRun.features.filter(f => unmappedRefs.has(f.properties.ref))
+                };
+                fs.writeFileSync(path.join(spiderDir, `${spiderName}_unmapped.geojson`), JSON.stringify(unmappedGeoJson));
 
                 allSpiderResults.push({
                     name: spiderName,

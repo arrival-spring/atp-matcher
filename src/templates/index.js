@@ -55,18 +55,18 @@ export function initDashboard(allSpiderResults) {
             const showTotals = !spider.loadStatus && isBrandSpider;
 
             return `
-                <tr class="flex flex-col md:table-row border-b border-gray-800 md:border-gray-700 hover:bg-gray-800 cursor-pointer p-4 md:p-0" onclick="window.location='${name}.html'">
+                <tr class="flex flex-col md:table-row border-b border-gray-800 md:border-gray-700 hover:bg-gray-800 cursor-pointer p-4 md:p-0" onclick="window.location='${name}/'">
                     <td class="md:table-cell md:px-6 md:py-4 mb-2 md:mb-0">
                         <div class="flex items-center gap-2">
                             ${statusIcon}
                             <div class="md:hidden">
-                                <a href="${name}.html" class="text-blue-400 hover:underline font-bold text-base" onclick="event.stopPropagation()">${name}</a>
+                                <a href="${name}/" class="text-blue-400 hover:underline font-bold text-base" onclick="event.stopPropagation()">${name}</a>
                                 ${loadStatusLabel}
                             </div>
                         </div>
                     </td>
                     <td class="hidden md:table-cell md:px-6 md:py-4">
-                        <a href="${name}.html" class="text-blue-400 hover:underline font-bold text-lg" onclick="event.stopPropagation()">${name}</a>
+                        <a href="${name}/" class="text-blue-400 hover:underline font-bold text-lg" onclick="event.stopPropagation()">${name}</a>
                         ${loadStatusLabel}
                     </td>
                     <td class="md:table-cell md:px-6 md:py-4 md:text-right">
