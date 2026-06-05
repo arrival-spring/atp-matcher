@@ -183,6 +183,7 @@
                     <tr class="hidden md:table-row">
                         <th class="px-4 py-3">OSM ID</th>
                         <th class="px-4 py-3">Tags</th>
+                        <th class="px-4 py-3 text-right">OSM</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-300 divide-y divide-gray-800">
