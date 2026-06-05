@@ -1,3 +1,5 @@
+import { escapeHtml, renderStatusLabel, handleJosmLink, getVisitedLinks, markLinkVisited } from './utils.js';
+
 export function initSpiderDashboard(spiderName, results, importableTags, atpDate, showUnmatched) {
     const PAGE_SIZE = 25;
     let currentState = {
@@ -21,26 +23,6 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         currentState.tag = params.get('tag') || 'summary';
         currentState.status = params.get('status');
         currentState.page = parseInt(params.get('page')) || 1;
-    }
-
-    function escapeHtml(unsafe) {
-        if (unsafe === null || unsafe === undefined) return '';
-        return unsafe
-            .toString()
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    }
-
-    function renderStatusLabel(status) {
-        if (!status) return '';
-        return `
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-800 border border-gray-700 text-gray-300 capitalize inline-block align-middle ml-2">
-                ${escapeHtml(status)}
-            </span>
-        `;
     }
 
     function isStable(history) {
@@ -110,30 +92,6 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
                     </div>
                 </div>
             `;
-        }
-    }
-
-    function getVisitedLinks() {
-        const storageKey = 'visited_links';
-        const data = localStorage.getItem(storageKey);
-        if (!data) return { atpDate: atpDate, links: [] };
-
-        try {
-            const parsed = JSON.parse(data);
-            if (parsed.atpDate !== atpDate) {
-                return { atpDate: atpDate, links: [] };
-            }
-            return parsed;
-        } catch {
-            return { atpDate: atpDate, links: [] };
-        }
-    }
-
-    function markLinkVisited(url) {
-        const visited = getVisitedLinks();
-        if (!visited.links.includes(url)) {
-            visited.links.push(url);
-            localStorage.setItem('visited_links', JSON.stringify(visited));
         }
     }
 
@@ -210,7 +168,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
     }
 
     function render() {
-        const visited = getVisitedLinks();
+        const visited = getVisitedLinks(atpDate);
         const visitedSet = new Set(visited.links);
 
         if (showMismatchWarning()) {
@@ -218,7 +176,8 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
             // but the user must interact with the modal first.
         }
 
-        const isUniquelyMatched = r => r.matchCount === 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status);
+        const isUniquelyMatched = r =>
+            r.matchCount === 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status);
         const hasDuplicates = results.some(r => r.matchCount > 1);
 
         // Update Tabs
@@ -370,7 +329,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
     }
 
     async function renderUnmapped() {
-        const visited = getVisitedLinks();
+        const visited = getVisitedLinks(atpDate);
         const visitedSet = new Set(visited.links);
         const table = document.getElementById('unmapped-table');
         const loading = document.getElementById('unmapped-loading');
@@ -389,7 +348,9 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
             table.classList.remove('hidden');
         }
 
-        const disallowedOrNotBrand = results.filter(r => ['disallowed source uri', 'not a brand spider'].includes(r.status));
+        const disallowedOrNotBrand = results.filter(r =>
+            ['disallowed source uri', 'not a brand spider'].includes(r.status)
+        );
         const allUnmapped = [...disallowedOrNotBrand, ...unmappedCache];
 
         const totalPages = Math.ceil(allUnmapped.length / PAGE_SIZE) || 1;
@@ -427,7 +388,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
     }
 
     async function renderUnmatched() {
-        const visited = getVisitedLinks();
+        const visited = getVisitedLinks(atpDate);
         const visitedSet = new Set(visited.links);
         const table = document.getElementById('unmatched-table');
         const loading = document.getElementById('unmatched-loading');
@@ -479,11 +440,12 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         const pagination = document.getElementById('unmatched-pagination');
         pagination.querySelector('.page-info').textContent = `Page ${currentState.page} of ${totalPages}`;
         pagination.querySelector('.prev-btn').disabled = currentState.page === 1;
-        pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || unmatchedCache.length === 0;
+        pagination.querySelector('.next-btn').disabled =
+            currentState.page === totalPages || unmatchedCache.length === 0;
     }
 
     function renderDuplicates() {
-        const visited = getVisitedLinks();
+        const visited = getVisitedLinks(atpDate);
         const visitedSet = new Set(visited.links);
         const duplicates = results.filter(r => r.matchCount > 1);
         const totalPages = Math.ceil(duplicates.length / PAGE_SIZE) || 1;
@@ -519,15 +481,6 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         pagination.querySelector('.prev-btn').disabled = currentState.page === 1;
         pagination.querySelector('.next-btn').disabled = currentState.page === totalPages || duplicates.length === 0;
     }
-
-    window.handleJosmLink = function (url) {
-        markLinkVisited(url);
-        render();
-        fetch(url, { mode: 'no-cors' }).catch(() => {
-            document.getElementById('josm-modal').classList.remove('hidden');
-            document.getElementById('modal-backdrop').classList.remove('hidden');
-        });
-    };
 
     function renderOsmColumn(osmId, suggestedFixes = {}, visitedSet = new Set()) {
         if (!osmId) return '';
@@ -575,7 +528,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
     document.addEventListener('click', e => {
         const link = e.target.closest('a[data-link-type="osm"], a[data-link-type="website"]');
         if (link) {
-            markLinkVisited(link.href);
+            markLinkVisited(link.href, atpDate);
             render();
         }
     });
@@ -583,7 +536,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
     document.addEventListener('auxclick', e => {
         const link = e.target.closest('a[data-link-type="osm"], a[data-link-type="website"]');
         if (link && e.button === 1) {
-            markLinkVisited(link.href);
+            markLinkVisited(link.href, atpDate);
             render();
         }
     });
@@ -598,12 +551,18 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         render();
     });
 
+    window.handleJosmLink = function (url) {
+        handleJosmLink(url, atpDate, render);
+    };
+
     importableTags.forEach(tag => {
         const panel = document.getElementById(`${tag}-content`);
         if (!panel) return;
 
         // Status filter listeners
-        panel.querySelector(`[id="${tag}-status-filters"]`).addEventListener('click', e => {
+        const statusFilters = panel.querySelector(`[id="${tag}-status-filters"]`);
+        if (!statusFilters) return;
+        statusFilters.addEventListener('click', e => {
             const btn = e.target.closest('button');
             if (!btn || btn.disabled) return;
 
@@ -687,7 +646,8 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
     document.getElementById('open-unmapped-josm').onclick = () => {
         showModal({
             title: 'JOSM Import Warning',
-            message: 'This will load and open the unmapped items from ATP into JOSM. This may be useful to match them to existing elements. DO NOT import them, but use conflation and judgement.',
+            message:
+                'This will load and open the unmapped items from ATP into JOSM. This may be useful to match them to existing elements. DO NOT import them, but use conflation and judgement.',
             showImportBtn: true,
             onUnderstand: () => {
                 // Button switching handled in showModal

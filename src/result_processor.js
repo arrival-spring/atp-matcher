@@ -62,11 +62,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
             if (matchEntries.length === 1) {
                 const osm = matchEntries[0];
                 for (const tag of Object.keys(osm.tags)) {
-                    if (
-                        expandedImportableTags.has(tag) ||
-                        tag === 'opening_hours' ||
-                        tag === 'website'
-                    ) {
+                    if (expandedImportableTags.has(tag) || tag === 'opening_hours' || tag === 'website') {
                         allPossibleTags.add(tag);
                     }
                 }
@@ -206,7 +202,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
         if (isMapped || itemStatus === 'disallowed source uri' || itemStatus === 'not a brand spider') {
             results.push({
                 ...result,
-                allAtpTags: (result.matchCount > 1 || !isMapped) ? filteredAtpTags : undefined,
+                allAtpTags: result.matchCount > 1 || !isMapped ? filteredAtpTags : undefined,
             });
         } else {
             unmapped.push({
@@ -241,7 +237,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                             type: osmType,
                             id: osmNumericId,
                             originalValues,
-                            newValues
+                            newValues,
                         };
 
                         if (!safeEdits[spider.name]) safeEdits[spider.name] = {};
@@ -255,9 +251,9 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                                     spider: spider.name,
                                     country: countryName,
                                     countryCode,
-                                    tags: []
+                                    tags: [],
                                 },
-                                edits: []
+                                edits: [],
                             };
                             if (state) {
                                 safeEdits[spider.name][fileKey].metadata.state = state;
@@ -290,7 +286,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                         type: osmType,
                         id: osmNumericId,
                         originalValues,
-                        newValues
+                        newValues,
                     };
 
                     if (!safeEdits[spider.name]) safeEdits[spider.name] = {};
@@ -300,9 +296,9 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                             metadata: {
                                 spider: spider.name,
                                 country: 'Countryless',
-                                tags: []
+                                tags: [],
                             },
-                            edits: []
+                            edits: [],
                         };
                     }
                     const currentFile = safeEdits[spider.name][fileKey];

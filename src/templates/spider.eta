@@ -290,11 +290,7 @@
             </svg>
             <h3 class="text-2xl font-bold">Important Warning</h3>
         </div>
-        <p class="text-lg text-gray-200 mb-8 leading-relaxed">
-            Some of the data from the spider may be wrong. <strong class="text-white">DO NOT simply update <span id="mismatch-tag-name"></span> on all of the objects.</strong>
-            Check the history to see who added <span id="mismatch-tag-name-2"></span> and their likely source.
-            If you are not sure then <strong class="text-white">DO NOT MAKE A CHANGE</strong> unless you can survey the place.
-        </p>
+        <p class="text-lg text-gray-200 mb-8 leading-relaxed"></p>
         <div class="flex justify-end gap-4">
             <button id="mismatch-back-btn" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors border border-gray-600 font-medium cursor-pointer">
                 Take me back

@@ -50,14 +50,7 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
         }
     }
 
-    const filterArgs = [
-        'tags-filter',
-        '-',
-        'nwr/brand',
-        'nwr/brand:wikidata',
-        'nwr/website',
-        'nwr/contact:website',
-    ];
+    const filterArgs = ['tags-filter', '-', 'nwr/brand', 'nwr/brand:wikidata', 'nwr/website', 'nwr/contact:website'];
     for (const key of refKeys) {
         filterArgs.push(`nwr/${key}`);
     }

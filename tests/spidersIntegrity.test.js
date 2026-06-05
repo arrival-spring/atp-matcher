@@ -35,7 +35,9 @@ describe('Spiders Integrity Check', () => {
                 spider.importableTags.forEach(tag => {
                     if (tag.endsWith(':*')) {
                         const prefix = tag.slice(0, -1);
-                        const hasAllowedMatch = config.allowedImportableTags.some(allowed => allowed.startsWith(prefix));
+                        const hasAllowedMatch = config.allowedImportableTags.some(allowed =>
+                            allowed.startsWith(prefix)
+                        );
                         expect(hasAllowedMatch).toBe(true);
                     } else {
                         expect(config.allowedImportableTags).toContain(tag);
@@ -71,6 +73,4 @@ describe('Spiders Integrity Check', () => {
         const uniqueNames = new Set(names);
         expect(uniqueNames.size).toBe(names.length);
     });
-
-
 });

@@ -5,7 +5,12 @@
         "source_uri": ["astronenergy.co.za"],
         "showUnmatched": true
     },
-    { "name": "bargain_books_za", "importableTags": ["email", "phone"], "source_uri": ["bargainbooks.co.za"], "showUnmatched": true },
+    {
+        "name": "bargain_books_za",
+        "importableTags": ["email", "phone"],
+        "source_uri": ["bargainbooks.co.za"],
+        "showUnmatched": true
+    },
     { "name": "bash", "source_uri": ["bash.com"], "showUnmatched": true },
     { "name": "bradlows", "importableTags": ["phone"], "source_uri": ["bradlows.co.za"], "showUnmatched": true },
     { "name": "clicks", "importableTags": ["phone"], "source_uri": ["clicks.co.za"], "showUnmatched": true },
@@ -29,13 +34,28 @@
     },
     { "name": "ok_foods", "importableTags": ["phone"], "source_uri": ["okfoods.co.za"], "showUnmatched": true },
     { "name": "pick_n_pay", "importableTags": ["phone"], "source_uri": ["pnp.co.za"], "showUnmatched": true },
-    { "name": "postnet_za", "importableTags": ["email", "phone"], "source_uri": ["postnet.co.za"], "showUnmatched": true },
-    { "name": "rocomamas", "importableTags": ["email", "phone"], "source_uri": ["rocomamas.com"], "showUnmatched": true },
+    {
+        "name": "postnet_za",
+        "importableTags": ["email", "phone"],
+        "source_uri": ["postnet.co.za"],
+        "showUnmatched": true
+    },
+    {
+        "name": "rocomamas",
+        "importableTags": ["email", "phone"],
+        "source_uri": ["rocomamas.com"],
+        "showUnmatched": true
+    },
     { "name": "russells_za", "importableTags": ["phone"], "source_uri": ["russells.co.za"], "showUnmatched": true },
     { "name": "sasol_za", "importableTags": ["fuel:*", "phone"], "source_uri": ["sasol.com"], "showUnmatched": true },
     { "name": "seattle_coffee_company", "source_uri": ["seattlecoffeecompany.co.za"], "showUnmatched": true },
     { "name": "spar_bw_mz_na_sz_za", "importableTags": ["phone"], "source_uri": ["spar.co.za"], "showUnmatched": true },
-    { "name": "standard_bank_za", "source_uri": ["standardbank.co.za"], "categories": [{ "amenity": "bank" }], "showUnmatched": true },
+    {
+        "name": "standard_bank_za",
+        "source_uri": ["standardbank.co.za"],
+        "categories": [{ "amenity": "bank" }],
+        "showUnmatched": true
+    },
     { "name": "topt_za", "importableTags": ["phone"], "source_uri": ["topt.co.za"], "showUnmatched": true },
     { "name": "virgin_active_bw_na_za", "importableTags": ["phone"], "source_uri": ["virginactive.co.za"] },
     { "name": "wimpy_za", "importableTags": ["phone"], "source_uri": ["wimpy.co.za"], "showUnmatched": true },
