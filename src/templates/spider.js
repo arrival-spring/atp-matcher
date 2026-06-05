@@ -137,36 +137,68 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         }
     }
 
+    function showModal({ title, message, onUnderstand, showImportBtn = false }) {
+        const modal = document.getElementById('mismatch-modal');
+        const backdrop = document.getElementById('modal-backdrop');
+        const confirmBtn = document.getElementById('mismatch-understand-btn');
+        const importBtn = document.getElementById('mismatch-import-btn');
+        const progress = document.getElementById('mismatch-progress');
+        const titleEl = modal.querySelector('h3');
+        const messageEl = modal.querySelector('p');
+
+        titleEl.textContent = title;
+        messageEl.innerHTML = message;
+
+        modal.classList.remove('hidden');
+        backdrop.classList.remove('hidden');
+        confirmBtn.classList.remove('hidden');
+        importBtn.classList.add('hidden');
+
+        // Reset and start 2s timeout
+        confirmBtn.disabled = true;
+        confirmBtn.classList.remove('cursor-pointer', 'hover:bg-blue-500');
+        progress.style.transition = 'none';
+        progress.style.width = '0';
+
+        // Trigger animation
+        setTimeout(() => {
+            progress.style.transition = 'width 2s linear';
+            progress.style.width = '100%';
+        }, 10);
+
+        setTimeout(() => {
+            confirmBtn.disabled = false;
+            confirmBtn.classList.add('cursor-pointer', 'hover:bg-blue-500');
+        }, 2000);
+
+        confirmBtn.onclick = () => {
+            if (showImportBtn) {
+                confirmBtn.classList.add('hidden');
+                importBtn.classList.remove('hidden');
+            }
+            onUnderstand();
+        };
+    }
+
     function showMismatchWarning() {
         const warnedTags = JSON.parse(sessionStorage.getItem(`mismatch_warned_tags_${spiderName}`) || '[]');
         if (currentState.status === 'mismatch' && !warnedTags.includes(currentState.tag)) {
-            const modal = document.getElementById('mismatch-modal');
-            const backdrop = document.getElementById('modal-backdrop');
-            const confirmBtn = document.getElementById('mismatch-understand-btn');
-            const progress = document.getElementById('mismatch-progress');
-
-            document.getElementById('mismatch-tag-name').textContent = currentState.tag;
-            document.getElementById('mismatch-tag-name-2').textContent = currentState.tag;
-
-            modal.classList.remove('hidden');
-            backdrop.classList.remove('hidden');
-
-            // Reset and start 2s timeout
-            confirmBtn.disabled = true;
-            progress.style.transition = 'none';
-            progress.style.width = '0';
-
-            // Trigger animation
-            setTimeout(() => {
-                progress.style.transition = 'width 2s linear';
-                progress.style.width = '100%';
-            }, 10);
-
-            setTimeout(() => {
-                confirmBtn.disabled = false;
-                confirmBtn.classList.add('cursor-pointer', 'hover:bg-blue-500');
-            }, 2000);
-
+            showModal({
+                title: 'Important Warning',
+                message: `
+                    Some of the data from the spider may be wrong. <strong class="text-white">DO NOT simply update ${escapeHtml(currentState.tag)} on all of the objects.</strong>
+                    Check the history to see who added ${escapeHtml(currentState.tag)} and their likely source.
+                    If you are not sure then <strong class="text-white">DO NOT MAKE A CHANGE</strong> unless you can survey the place.
+                `,
+                onUnderstand: () => {
+                    const warnedTags = JSON.parse(sessionStorage.getItem(`mismatch_warned_tags_${spiderName}`) || '[]');
+                    if (!warnedTags.includes(currentState.tag)) {
+                        warnedTags.push(currentState.tag);
+                        sessionStorage.setItem(`mismatch_warned_tags_${spiderName}`, JSON.stringify(warnedTags));
+                    }
+                    hideMismatchWarning();
+                },
+            });
             return true;
         }
         return false;
@@ -347,7 +379,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
             table.classList.add('hidden');
             loading.classList.remove('hidden');
             try {
-                const response = await fetch(`${spiderName}_unmapped.json`);
+                const response = await fetch(`./${spiderName}_unmapped.json`);
                 unmappedCache = await response.json();
             } catch (e) {
                 console.error('Failed to load unmapped data', e);
@@ -404,7 +436,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
             table.classList.add('hidden');
             loading.classList.remove('hidden');
             try {
-                const response = await fetch(`${spiderName}_unmatched.json`);
+                const response = await fetch(`./${spiderName}_unmatched.json`);
                 unmatchedCache = await response.json();
             } catch (e) {
                 console.error('Failed to load unmatched data', e);
@@ -652,12 +684,21 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         render();
     };
 
-    document.getElementById('mismatch-understand-btn').onclick = () => {
-        const warnedTags = JSON.parse(sessionStorage.getItem(`mismatch_warned_tags_${spiderName}`) || '[]');
-        if (!warnedTags.includes(currentState.tag)) {
-            warnedTags.push(currentState.tag);
-            sessionStorage.setItem(`mismatch_warned_tags_${spiderName}`, JSON.stringify(warnedTags));
-        }
+    document.getElementById('open-unmapped-josm').onclick = () => {
+        showModal({
+            title: 'JOSM Import Warning',
+            message: 'This will load and open the unmapped items from ATP into JOSM. This may be useful to match them to existing elements. DO NOT import them, but use conflation and judgement.',
+            showImportBtn: true,
+            onUnderstand: () => {
+                // Button switching handled in showModal
+            },
+        });
+    };
+
+    document.getElementById('mismatch-import-btn').onclick = () => {
+        const geojsonUrl = new URL(`${spiderName}_unmapped.geojson`, window.location.href).href;
+        const josmUrl = `http://127.0.0.1:8111/import?url=${encodeURIComponent(geojsonUrl)}`;
+        handleJosmLink(josmUrl);
         hideMismatchWarning();
     };
 

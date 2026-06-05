@@ -1,7 +1,7 @@
 <% layout("./layout") %>
 
 <nav class="mb-8">
-    <a href="index.html" class="text-blue-400 hover:underline">← Back to Index</a>
+    <a href="<%= it.basePath %>/index.html" class="text-blue-400 hover:underline">← Back to Index</a>
 </nav>
 
 <header class="mb-12">
@@ -169,6 +169,12 @@
             <span class="page-info text-gray-400 font-medium">Page 1 of 1</span>
             <button class="next-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer">Next</button>
         </div>
+
+        <div class="mt-8 text-center">
+            <button id="open-unmapped-josm" class="text-blue-400 hover:underline text-sm cursor-pointer bg-transparent border-none">
+                Open unmapped items in JOSM
+            </button>
+        </div>
     </div>
 
     <!-- Unmatched Section -->
@@ -297,11 +303,14 @@
                 <div id="mismatch-progress" class="absolute inset-0 bg-blue-600 w-0"></div>
                 <span class="relative z-10">I understand</span>
             </button>
+            <button id="mismatch-import-btn" class="hidden px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium cursor-pointer">
+                Download and open in JOSM
+            </button>
         </div>
     </div>
 </div>
 
 <script type="module">
-    import { initSpiderDashboard } from './spider.js';
+    import { initSpiderDashboard } from '<%= it.basePath %>/spider.js';
     initSpiderDashboard(<%~ JSON.stringify(it.name) %>, <%~ JSON.stringify(it.results) %>, <%~ JSON.stringify(it.importableTags) %>, <%~ JSON.stringify(it.atpDate) %>, <%~ it.showUnmatched %>);
 </script>

@@ -11,6 +11,11 @@ export function generateWebpage(allSpiderResults, atpDate, osmDate) {
     // Generate Spider Pages
     allSpiderResults.forEach(spider => {
         try {
+            const spiderDir = path.join(outputDir, spider.name);
+            if (!fs.existsSync(spiderDir)) {
+                fs.mkdirSync(spiderDir, { recursive: true });
+            }
+
             const spiderHtml = eta.render('./spider', {
                 title: spider.name,
                 name: spider.name,
@@ -26,8 +31,9 @@ export function generateWebpage(allSpiderResults, atpDate, osmDate) {
                 showUnmatched: spider.showUnmatched,
                 unmappedCount: spider.unmappedCount,
                 unmatchedCount: spider.unmatchedCount,
+                basePath: '..',
             });
-            fs.writeFileSync(path.join(outputDir, `${spider.name}.html`), spiderHtml);
+            fs.writeFileSync(path.join(spiderDir, 'index.html'), spiderHtml);
         } catch (error) {
             console.error(`Error generating spider page for ${spider.name}: ${error.message}`);
         }
@@ -51,6 +57,7 @@ export function generateWebpage(allSpiderResults, atpDate, osmDate) {
             indexData,
             atpDate,
             osmDate,
+            basePath: '.',
         });
         fs.writeFileSync(path.join(outputDir, 'index.html'), indexHtml);
     } catch (error) {
