@@ -1,4 +1,4 @@
-import { areOpeningHoursEqual, arePhonesEqual, areWebsitesEqual, areTagsEqual, getOverallStatus } from '../src/sync.js';
+import { areOpeningHoursEqual, arePhonesEqual, areWebsitesEqual, areTagsEqual, getOverallStatus, normalizeWebsite } from '../src/tag_comparisons.js';
 
 describe('Tag Comparison Logic', () => {
     describe('areOpeningHoursEqual', () => {
@@ -128,6 +128,22 @@ describe('Tag Comparison Logic', () => {
 
         test('should return matching for empty list', () => {
             expect(getOverallStatus([])).toBe('matching');
+        });
+    });
+
+    describe('Website Normalization', () => {
+        test('normalizeWebsite should handle various URL formats', () => {
+            expect(normalizeWebsite('http://example.com')).toBe('https://example.com');
+            expect(normalizeWebsite('https://example.com')).toBe('https://example.com');
+            expect(normalizeWebsite('example.com')).toBe('https://example.com');
+            expect(normalizeWebsite('http://example.com/path')).toBe('https://example.com/path');
+            expect(normalizeWebsite('HTTPS://EXAMPLE.COM/')).toBe('https://example.com');
+        });
+
+        test('areWebsitesEqual should handle null/undefined', () => {
+            expect(areWebsitesEqual(null, 'http://example.com')).toBe(false);
+            expect(areWebsitesEqual('http://example.com', undefined)).toBe(false);
+            expect(areWebsitesEqual(null, null)).toBe(true);
         });
     });
 });

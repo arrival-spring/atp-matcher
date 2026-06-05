@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "sync": "node src/sync.js",
+        "sync": "node src/main.js",
         "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
         "build:css": "tailwindcss -i src/input.css -o output/style.css",
         "lint": "eslint .",
