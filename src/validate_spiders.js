@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { execSync } from 'child_process';
 import axios from 'axios';
+import './axios_config.js';
 import { getDomain } from 'tldts';
 import * as prettier from 'prettier';
 import { isAllowedSourceUri, matchesCategories } from './utils.js';
