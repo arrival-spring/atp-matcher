@@ -153,11 +153,47 @@ async function run() {
                         }
                         pairs.get(key).count++;
                     });
-                    return Array.from(pairs.values()).sort((a, b) => b.count - a.count);
+
+                    const pairsArray = Array.from(pairs.values());
+
+                    // Identify wikidata -> brand mapping for sorting Wikidata-only items after their brand equivalents
+                    const wikidataToBrand = new Map();
+                    pairsArray.forEach(p => {
+                        if (p.brand && p.wikidata && !wikidataToBrand.has(p.wikidata)) {
+                            wikidataToBrand.set(p.wikidata, p.brand);
+                        }
+                    });
+
+                    return pairsArray.sort((a, b) => {
+                        // "No brand" (both null) always last
+                        if (!a.brand && !a.wikidata) return 1;
+                        if (!b.brand && !b.wikidata) return -1;
+
+                        const getSortKey = p => {
+                            if (p.brand) return p.brand.toLowerCase();
+                            if (p.wikidata && wikidataToBrand.has(p.wikidata))
+                                return wikidataToBrand.get(p.wikidata).toLowerCase();
+                            return 'zzzzzzzzzz'; // After all brands
+                        };
+
+                        const sortKeyA = getSortKey(a);
+                        const sortKeyB = getSortKey(b);
+
+                        if (sortKeyA !== sortKeyB) {
+                            return sortKeyA.localeCompare(sortKeyB);
+                        }
+
+                        // If same sort key, brands come before Wikidata-only equivalents
+                        if (a.brand && !b.brand) return -1;
+                        if (!a.brand && b.brand) return 1;
+
+                        // Otherwise sort by wikidata
+                        return (a.wikidata || '').localeCompare(b.wikidata || '');
+                    });
                 };
 
                 const getFilterLabel = pair => {
-                    if (!pair.brand && !pair.wikidata) return 'No Brand';
+                    if (!pair.brand && !pair.wikidata) return 'No brand';
                     if (pair.brand && pair.wikidata) return `${pair.brand} (${pair.wikidata})`;
                     return pair.brand || pair.wikidata;
                 };
@@ -166,19 +202,21 @@ async function run() {
                 const unmappedItemsForFilter = [...unmapped, ...unmappedResults];
 
                 getBrandWikidataPairs(unmappedItemsForFilter).forEach(pair => {
+                    const isNoBrand = !pair.brand && !pair.wikidata;
                     unmappedFilters.push({
                         label: getFilterLabel(pair),
-                        brand: pair.brand,
-                        wikidata: pair.wikidata,
+                        brand: isNoBrand ? '__none__' : pair.brand,
+                        wikidata: isNoBrand ? '__none__' : pair.wikidata,
                         count: pair.count,
                     });
                 });
 
                 getBrandWikidataPairs(unmatched).forEach(pair => {
+                    const isNoBrand = !pair.brand && !pair.wikidata;
                     unmatchedFilters.push({
                         label: getFilterLabel(pair),
-                        brand: pair.brand,
-                        wikidata: pair.wikidata,
+                        brand: isNoBrand ? '__none__' : pair.brand,
+                        wikidata: isNoBrand ? '__none__' : pair.wikidata,
                         count: pair.count,
                     });
                 });
