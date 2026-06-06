@@ -1,7 +1,0 @@
-127.0.0.1 - - [05/Jun/2026 19:28:48] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [05/Jun/2026 19:28:48] "GET /style.css HTTP/1.1" 200 -
-127.0.0.1 - - [05/Jun/2026 19:28:48] "GET /utils.js HTTP/1.1" 200 -
-127.0.0.1 - - [05/Jun/2026 19:28:48] "GET /index.js HTTP/1.1" 200 -
-127.0.0.1 - - [05/Jun/2026 19:28:48] "GET /astron_energy_za/ HTTP/1.1" 200 -
-127.0.0.1 - - [05/Jun/2026 19:28:48] "GET /spider.js HTTP/1.1" 200 -
-127.0.0.1 - - [05/Jun/2026 19:28:49] "GET /astron_energy_za/astron_energy_za_unmapped.json HTTP/1.1" 200 -
