@@ -23,6 +23,9 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         currentState.tag = params.get('tag') || 'summary';
         currentState.status = params.get('status');
         currentState.page = parseInt(params.get('page')) || 1;
+
+        // Reset all tab counts first
+        document.querySelectorAll('#tag-tabs .tab-count').forEach(el => el.classList.add('hidden'));
     }
 
     function isStable(history) {
@@ -167,6 +170,41 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         document.getElementById('modal-backdrop').classList.add('hidden');
     }
 
+    function updateFadeEffect(container) {
+        const wrapper = container.parentElement;
+        if (!wrapper.classList.contains('fade-wrapper')) return;
+
+        const scrollLeft = container.scrollLeft;
+        const scrollWidth = container.scrollWidth;
+        const clientWidth = container.clientWidth;
+
+        const isScrollable = scrollWidth > clientWidth;
+        const atStart = scrollLeft <= 1;
+        const atEnd = scrollLeft + clientWidth >= scrollWidth - 1;
+
+        wrapper.classList.remove('fade-left', 'fade-right', 'fade-both');
+
+        if (isScrollable) {
+            if (!atStart && !atEnd) {
+                wrapper.classList.add('fade-both');
+            } else if (!atStart) {
+                wrapper.classList.add('fade-left');
+            } else if (!atEnd) {
+                wrapper.classList.add('fade-right');
+            }
+        }
+    }
+
+    function initFading() {
+        const scrollContainers = document.querySelectorAll('.overflow-x-auto.no-scrollbar');
+        scrollContainers.forEach(container => {
+            container.addEventListener('scroll', () => updateFadeEffect(container));
+            // Initial check and also on resize
+            updateFadeEffect(container);
+            new ResizeObserver(() => updateFadeEffect(container)).observe(container);
+        });
+    }
+
     function render() {
         const visited = getVisitedLinks(atpDate);
         const visitedSet = new Set(visited.links);
@@ -190,6 +228,9 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
                 btn.classList.add('border-transparent');
             }
         });
+
+        // Hide all counts first
+        document.querySelectorAll('#tag-tabs .tab-count').forEach(el => el.classList.add('hidden'));
 
         // Update Content visibility
         document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
@@ -356,6 +397,13 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         const totalPages = Math.ceil(allUnmapped.length / PAGE_SIZE) || 1;
         if (currentState.page > totalPages) currentState.page = totalPages;
 
+        // Show count on tab
+        const tabCount = document.querySelector('#unmapped-tab .tab-count');
+        if (tabCount) {
+            tabCount.textContent = `(${allUnmapped.length})`;
+            tabCount.classList.remove('hidden');
+        }
+
         const start = (currentState.page - 1) * PAGE_SIZE;
         const pageData = allUnmapped.slice(start, start + PAGE_SIZE);
 
@@ -409,6 +457,13 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
 
         const totalPages = Math.ceil(unmatchedCache.length / PAGE_SIZE) || 1;
         if (currentState.page > totalPages) currentState.page = totalPages;
+
+        // Show count on tab
+        const tabCount = document.querySelector('#unmatched-tab .tab-count');
+        if (tabCount) {
+            tabCount.textContent = `(${unmatchedCache.length})`;
+            tabCount.classList.remove('hidden');
+        }
 
         const start = (currentState.page - 1) * PAGE_SIZE;
         const pageData = unmatchedCache.slice(start, start + PAGE_SIZE);
@@ -669,7 +724,20 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         render();
     };
 
+    document.getElementById('modal-backdrop').onclick = () => {
+        const mismatchModal = document.getElementById('mismatch-modal');
+        const josmModal = document.getElementById('josm-modal');
+
+        if (!mismatchModal.classList.contains('hidden')) {
+            document.getElementById('mismatch-back-btn').click();
+        } else if (josmModal && !josmModal.classList.contains('hidden')) {
+            josmModal.classList.add('hidden');
+            document.getElementById('modal-backdrop').classList.add('hidden');
+        }
+    };
+
     // Initial load
     loadStateFromUrl();
+    initFading();
     render();
 }

@@ -9,7 +9,13 @@
         scrollbar-width: none;
     }
 
-    .fade-edges {
-        mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+    .fade-right {
+        mask-image: linear-gradient(to right, black calc(100% - 40px), transparent);
+    }
+    .fade-left {
+        mask-image: linear-gradient(to left, black calc(100% - 40px), transparent);
+    }
+    .fade-both {
+        mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent);
     }
 }

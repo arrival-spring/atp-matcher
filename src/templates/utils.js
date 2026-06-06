@@ -11,9 +11,10 @@ export function escapeHtml(unsafe) {
 
 export function renderStatusLabel(status) {
     if (!status) return '';
+    const label = status === 'not mapped' ? 'Unmapped' : status;
     return `
         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-800 border border-gray-700 text-gray-300 capitalize inline-block align-middle ml-2">
-            ${escapeHtml(status)}
+            ${escapeHtml(label)}
         </span>
     `;
 }

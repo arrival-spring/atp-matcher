@@ -1,6 +1,6 @@
 <% layout("./layout") %>
 
-<header class="mb-12">
+<header class="mb-12 mt-4">
     <h1 class="text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400">
         ATP-OSM Sync
     </h1>

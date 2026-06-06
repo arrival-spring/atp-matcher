@@ -1,6 +1,6 @@
 <% layout("./layout") %>
 
-<nav class="mb-8">
+<nav class="mb-8 mt-4">
     <a href="<%= it.basePath %>/index.html" class="text-blue-400 hover:underline">← Back to Index</a>
 </nav>
 
@@ -8,14 +8,14 @@
     <h1 class="text-4xl font-extrabold mb-2"><%= it.name %></h1>
 
     <% if (it.isStale) { %>
-        <div class="bg-orange-900/20 border border-orange-500/50 text-orange-200 p-4 rounded-lg mb-6">
+        <div class="bg-orange-900/20 border border-orange-500/50 text-orange-200 p-4 rounded-lg mb-6 mt-4">
             <p class="font-bold">⚠️ Stale Data</p>
             <p class="text-sm">The latest ATP run was empty. Showing data from <%= it.staleDate.substring(0, 10) %> instead.</p>
         </div>
     <% } %>
 
     <% if (it.loadStatus === 'missing' || it.loadStatus === 'empty') { %>
-        <div class="bg-red-900/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6">
+        <div class="bg-red-900/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6 mt-4">
             <p class="font-bold">❌ No Data Available</p>
             <p class="text-sm">
                 <% if (it.loadStatus === 'missing') { %>
@@ -28,13 +28,13 @@
     <% } %>
 
     <% if (!it.isBrandSpider) { %>
-        <div class="bg-red-900/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6">
+        <div class="bg-red-900/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6 mt-4">
             <p class="font-bold">❌ Not a Brand Spider</p>
             <p class="text-sm">This spider does not have the expected <code>spider:lineage=S_ATP_BRANDS</code> attribute.</p>
         </div>
     <% } %>
 
-    <div class="text-gray-400 text-sm flex gap-4">
+    <div class="text-gray-400 text-sm flex gap-4 mt-4">
         <a href="https://data.alltheplaces.xyz/runs/latest/output/<%= it.name %>.geojson" target="_blank" class="text-blue-400 hover:underline inline-flex items-center">
             GeoJSON
             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
@@ -47,28 +47,34 @@
 </header>
 
 <!-- Tag Tabs -->
-<div class="sticky top-0 z-30 bg-gray-950 border-b border-gray-700 -mx-4 px-4 md:mx-0 md:px-0 md:pt-8">
-    <div class="relative overflow-hidden fade-edges">
+<div class="sticky top-0 z-30 bg-gray-950 border-b border-gray-700 -mx-4 px-4 md:mx-0 md:px-0">
+    <div class="relative overflow-hidden fade-wrapper">
         <ul class="flex overflow-x-auto no-scrollbar -mb-px text-sm font-medium text-center" id="tag-tabs" role="tablist">
-            <li class="mr-2 shrink-0" role="presentation">
+            <li class="shrink-0" role="presentation">
                 <button class="inline-block p-3 md:p-4 border-b-2 rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer whitespace-nowrap" id="summary-tab" data-tab="summary" type="button" role="tab">Summary</button>
             </li>
-            <li class="mr-2 shrink-0" role="presentation">
-                <button class="inline-block p-3 md:p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer whitespace-nowrap" id="unmapped-tab" data-tab="unmapped" type="button" role="tab">Not Mapped</button>
+            <li class="shrink-0" role="presentation">
+                <button class="inline-block p-3 md:p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer whitespace-nowrap" id="unmapped-tab" data-tab="unmapped" type="button" role="tab">
+                    Unmapped <span class="tab-count ml-1 opacity-60 text-xs hidden"></span>
+                </button>
             </li>
             <% if (it.showUnmatched) { %>
-                <li class="mr-2 shrink-0" role="presentation">
-                    <button class="inline-block p-3 md:p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer whitespace-nowrap" id="unmatched-tab" data-tab="unmatched" type="button" role="tab">Unmatched</button>
+                <li class="shrink-0" role="presentation">
+                    <button class="inline-block p-3 md:p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer whitespace-nowrap" id="unmatched-tab" data-tab="unmatched" type="button" role="tab">
+                        Unmatched <span class="tab-count ml-1 opacity-60 text-xs hidden"></span>
+                    </button>
                 </li>
             <% } %>
             <% if (it.results.some(r => r.matchCount > 1)) { %>
-                <li class="mr-2 shrink-0" role="presentation">
+                <li class="shrink-0 border-r border-gray-700 pr-2 mr-2" role="presentation">
                     <button class="inline-block p-3 md:p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer whitespace-nowrap" id="duplicate-refs-tab" data-tab="duplicate-refs" type="button" role="tab">Duplicate Refs</button>
                 </li>
+            <% } else { %>
+                <li class="shrink-0 border-r border-gray-700 mr-2" role="presentation"></li>
             <% } %>
             <% it.importableTags.forEach(function(tag) { %>
-                <li class="mr-2 shrink-0" role="presentation">
-                <button class="inline-block p-3 md:p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer whitespace-nowrap" id="<%= tag %>-tab" data-tab="<%= tag %>" type="button" role="tab"><%= tag %></button>
+                <li class="shrink-0" role="presentation">
+                <button class="inline-block p-3 md:p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-300 hover:border-gray-300 transition-colors cursor-pointer whitespace-nowrap font-mono" id="<%= tag %>-tab" data-tab="<%= tag %>" type="button" role="tab"><%= tag %></button>
                 </li>
             <% }) %>
         </ul>
@@ -81,33 +87,43 @@
 <div id="tab-content">
     <% const isUniquelyMatched = r => r.matchCount === 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status); %>
     <!-- Summary Section -->
-    <div class="hidden space-y-8 mt-4 md:mt-8" id="summary-content" role="tabpanel">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('unmapped-tab').click()">
-                <h3 class="text-xl font-bold mb-4 text-gray-100">Not Mapped</h3>
-                <div class="text-3xl font-mono text-gray-200">
-                    <%= it.unmappedCount + it.results.filter(r => r.status === 'disallowed source uri' || r.status === 'not a brand spider').length %>
+    <div class="hidden space-y-12 mt-4 md:mt-8" id="summary-content" role="tabpanel">
+        <!-- Overview Section -->
+        <section>
+            <h2 class="font-bold mb-6 text-gray-400 uppercase tracking-widest text-xs">Overview</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-gray-900 p-6 rounded-lg border-2 border-gray-800 cursor-pointer hover:bg-gray-800 transition-colors" onclick="document.getElementById('unmapped-tab').click()">
+                    <h3 class="text-xl font-bold mb-4 text-gray-100">Unmapped</h3>
+                    <div class="text-3xl font-mono text-gray-200">
+                        <%= it.unmappedCount + it.results.filter(r => r.status === 'disallowed source uri' || r.status === 'not a brand spider').length %>
+                    </div>
                 </div>
+                <% if (it.showUnmatched) { %>
+                    <div class="bg-gray-900 p-6 rounded-lg border-2 border-gray-800 cursor-pointer hover:bg-gray-800 transition-colors" onclick="document.getElementById('unmatched-tab').click()">
+                        <h3 class="text-xl font-bold mb-4 text-gray-100">Unmatched</h3>
+                        <div class="text-3xl font-mono text-gray-200">
+                            <%= it.unmatchedCount %>
+                        </div>
+                    </div>
+                <% } %>
+                <% if (it.results.some(r => r.matchCount > 1)) { %>
+                    <div class="bg-gray-900 p-6 rounded-lg border-2 border-gray-800 cursor-pointer hover:bg-gray-800 transition-colors" onclick="document.getElementById('duplicate-refs-tab').click()">
+                        <h3 class="text-xl font-bold mb-4 text-gray-100">Duplicate Refs</h3>
+                        <div class="text-3xl font-mono text-gray-200">
+                            <%= it.results.filter(r => r.matchCount > 1).length %>
+                        </div>
+                    </div>
+                <% } %>
             </div>
-            <% if (it.showUnmatched) { %>
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('unmatched-tab').click()">
-                    <h3 class="text-xl font-bold mb-4 text-gray-100">Unmatched</h3>
-                    <div class="text-3xl font-mono text-gray-200">
-                        <%= it.unmatchedCount %>
-                    </div>
-                </div>
-            <% } %>
-            <% if (it.results.some(r => r.matchCount > 1)) { %>
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('duplicate-refs-tab').click()">
-                    <h3 class="text-xl font-bold mb-4 text-gray-100">Duplicate Refs</h3>
-                    <div class="text-3xl font-mono text-gray-200">
-                        <%= it.results.filter(r => r.matchCount > 1).length %>
-                    </div>
-                </div>
-            <% } %>
+        </section>
+
+        <!-- Tag Details Section -->
+        <section>
+            <h2 class="font-bold mb-6 text-gray-400 uppercase tracking-widest text-xs">Tag Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <% it.importableTags.forEach(function(tag) { %>
                 <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-700 transition-colors" onclick="document.getElementById('<%= tag %>-tab').click()">
-                    <h3 class="text-xl font-bold mb-4 text-gray-100"><%= tag %></h3>
+                    <h3 class="text-xl font-bold mb-4 text-gray-100 font-mono"><%= tag %></h3>
                     <div class="space-y-2">
                         <%
                            const stats = {};
@@ -135,7 +151,8 @@
                     </div>
                 </div>
             <% }) %>
-        </div>
+            </div>
+        </section>
     </div>
 
     <!-- Unmapped Section -->
@@ -148,11 +165,11 @@
         <% } %>
         <div id="unmapped-loading" class="hidden py-12 flex flex-col items-center justify-center gap-4">
             <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <p class="text-gray-400 animate-pulse">Loading Not Mapped items...</p>
+            <p class="text-gray-400 animate-pulse">Loading Unmapped items...</p>
         </div>
         <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6">
             <table class="min-w-full table-auto" id="unmapped-table">
-                <thead class="bg-gray-800 text-gray-400 text-left sticky top-[46px] md:top-[86px] z-10 shadow-sm">
+                <thead class="bg-gray-800 text-gray-400 text-left sticky top-[44px] md:top-[52px] z-10 shadow-sm">
                     <tr class="hidden md:table-row">
                         <th class="px-4 py-3">Ref</th>
                         <th class="px-4 py-3">Tags</th>
@@ -185,7 +202,7 @@
         </div>
         <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6">
             <table class="min-w-full table-auto" id="unmatched-table">
-                <thead class="bg-gray-800 text-gray-400 text-left sticky top-[46px] md:top-[86px] z-10 shadow-sm">
+                <thead class="bg-gray-800 text-gray-400 text-left sticky top-[44px] md:top-[52px] z-10 shadow-sm">
                     <tr class="hidden md:table-row">
                         <th class="px-4 py-3">OSM ID</th>
                         <th class="px-4 py-3">Tags</th>
@@ -209,7 +226,7 @@
     <div class="hidden" id="duplicate-refs-content" role="tabpanel">
         <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6">
             <table class="min-w-full table-auto" id="duplicate-refs-table">
-                <thead class="bg-gray-800 text-gray-400 text-left sticky top-[46px] md:top-[86px] z-10 shadow-sm">
+                <thead class="bg-gray-800 text-gray-400 text-left sticky top-[44px] md:top-[52px] z-10 shadow-sm">
                     <tr class="hidden md:table-row">
                         <th class="px-4 py-3">Ref</th>
                         <th class="px-4 py-3">Tags</th>
@@ -232,8 +249,8 @@
     <% it.importableTags.forEach(function(tag) { %>
         <div class="hidden" id="<%= tag %>-content" role="tabpanel">
             <!-- Status Filters -->
-            <div class="sticky top-[46px] md:top-[86px] z-20 bg-gray-950 py-4 -mx-4 px-4 md:mx-0 md:px-0">
-                <div class="relative overflow-hidden fade-edges">
+            <div class="sticky top-[44px] md:top-[52px] z-20 bg-gray-950 py-4 -mx-4 px-4 md:mx-0 md:px-0">
+                <div class="relative overflow-hidden fade-wrapper">
                     <div class="flex overflow-x-auto no-scrollbar gap-2" id="<%= tag %>-status-filters">
                 <%
                    const tagStatuses = new Set();
@@ -262,7 +279,7 @@
             <!-- Table -->
             <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6">
                 <table class="min-w-full table-auto" id="<%= tag %>-table">
-                    <thead class="bg-gray-800 text-gray-400 text-left sticky top-[116px] md:top-[156px] z-10 shadow-sm">
+                    <thead class="bg-gray-800 text-gray-400 text-left sticky top-[114px] md:top-[122px] z-10 shadow-sm">
                         <!-- Headers injected by JS -->
                     </thead>
                     <tbody class="text-gray-300 divide-y divide-gray-800">
