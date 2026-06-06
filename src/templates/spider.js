@@ -77,7 +77,8 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
                 </div>
             `;
         } else {
-            const historyHtml = history
+            const historyHtml = [...history]
+                .reverse()
                 .filter(h => h.value)
                 .map(
                     h => `
@@ -497,6 +498,32 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         pagination.querySelector('.prev-btn').disabled = currentState.page === 1;
         pagination.querySelector('.next-btn').disabled =
             currentState.page === totalPages || unmatchedCache.length === 0;
+
+        // Render bulk JOSM links
+        const bulkContainer = document.getElementById('unmatched-bulk-josm-container');
+        const bulkLinksEl = document.getElementById('unmatched-bulk-josm-links');
+
+        if (unmatchedCache.length > 0) {
+            bulkContainer.classList.remove('hidden');
+            const links = [];
+            const BATCH_SIZE = 100;
+
+            for (let i = 0; i < unmatchedCache.length; i += BATCH_SIZE) {
+                const batch = unmatchedCache.slice(i, i + BATCH_SIZE);
+                const objects = batch.map(r => r.id[0] + r.id.substring(1)).join(',');
+                const josmUrl = `http://127.0.0.1:8111/load_object?objects=${objects}&relation_members=true`;
+                const label = `(${i + 1}-${Math.min(i + BATCH_SIZE, unmatchedCache.length)})`;
+
+                links.push(`
+                    <a href="javascript:void(0)" onclick="handleJosmLink('${josmUrl}')" class="text-blue-400 hover:underline text-sm">
+                        ${label}
+                    </a>
+                `);
+            }
+            bulkLinksEl.innerHTML = links.join('');
+        } else {
+            bulkContainer.classList.add('hidden');
+        }
     }
 
     function renderDuplicates() {

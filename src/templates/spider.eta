@@ -220,6 +220,11 @@
             <span class="page-info text-gray-400 font-medium">Page 1 of 1</span>
             <button class="next-btn bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer">Next</button>
         </div>
+
+        <div id="unmatched-bulk-josm-container" class="mt-8 text-center space-y-2 hidden">
+            <div class="text-gray-400 text-sm mb-2">Open all unmatched in JOSM</div>
+            <div id="unmatched-bulk-josm-links" class="flex flex-wrap justify-center gap-4"></div>
+        </div>
     </div>
 
     <!-- Duplicate Refs Section -->
