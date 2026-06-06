@@ -712,7 +712,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
 
     document.getElementById('mismatch-import-btn').onclick = () => {
         const geojsonUrl = new URL(`${spiderName}_unmapped.geojson`, window.location.href).href;
-        const josmUrl = `http://127.0.0.1:8111/import?url=${encodeURIComponent(geojsonUrl)}`;
+        const josmUrl = `http://127.0.0.1:8111/import?new_layer=true&upload_policy=blocked&url=${encodeURIComponent(geojsonUrl)}`;
         handleJosmLink(josmUrl);
         hideMismatchWarning();
     };
