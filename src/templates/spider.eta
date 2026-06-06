@@ -163,13 +163,41 @@
                 <p class="text-sm">Lineage: <%= it.lineage || 'not found' %></p>
             </div>
         <% } %>
+
+        <% if (it.unmappedFilters && it.unmappedFilters.length > 1) { %>
+            <div class="sticky top-[44px] md:top-[52px] z-20 bg-gray-950 py-4 -mx-4 px-4 md:mx-0 md:px-0">
+                <div class="relative overflow-hidden fade-wrapper">
+                    <div class="flex overflow-x-auto no-scrollbar gap-2" id="unmapped-brand-filters">
+                        <button
+                            class="px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap bg-blue-600 border-blue-500 text-white cursor-pointer"
+                            data-brand-all="true"
+                        >
+                            All Brands
+                            <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-900 text-xs"><%= it.unmappedCount + it.results.filter(r => r.status === 'disallowed source uri' || r.status === 'not a brand spider').length %></span>
+                        </button>
+                        <% it.unmappedFilters.forEach(function(filter) { %>
+                            <button
+                                class="px-4 py-2 rounded-full text-sm font-medium border border-gray-600 text-gray-300 hover:bg-gray-700 transition-colors whitespace-nowrap cursor-pointer"
+                                data-brand="<%= filter.brand || '' %>"
+                                data-wikidata="<%= filter.wikidata || '' %>"
+                                data-geojson="<%= filter.geojson || '' %>"
+                            >
+                                <%= filter.label %>
+                                <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-900 text-xs"><%= filter.count %></span>
+                            </button>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+
         <div id="unmapped-loading" class="hidden py-12 flex flex-col items-center justify-center gap-4">
             <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
             <p class="text-gray-400 animate-pulse">Loading Unmapped items...</p>
         </div>
         <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6">
             <table class="min-w-full table-auto" id="unmapped-table">
-                <thead class="bg-gray-800 text-gray-400 text-left sticky top-[44px] md:top-[52px] z-10 shadow-sm">
+                <thead class="bg-gray-800 text-gray-400 text-left sticky z-10 shadow-sm <%= it.unmappedFilters && it.unmappedFilters.length > 1 ? 'top-[114px] md:top-[122px]' : 'top-[44px] md:top-[52px]' %>">
                     <tr class="hidden md:table-row">
                         <th class="px-4 py-3">Ref</th>
                         <th class="px-4 py-3">Tags</th>
@@ -196,13 +224,39 @@
 
     <!-- Unmatched Section -->
     <div class="hidden" id="unmatched-content" role="tabpanel">
+        <% if (it.unmatchedFilters && it.unmatchedFilters.length > 1) { %>
+            <div class="sticky top-[44px] md:top-[52px] z-20 bg-gray-950 py-4 -mx-4 px-4 md:mx-0 md:px-0">
+                <div class="relative overflow-hidden fade-wrapper">
+                    <div class="flex overflow-x-auto no-scrollbar gap-2" id="unmatched-brand-filters">
+                        <button
+                            class="px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap bg-blue-600 border-blue-500 text-white cursor-pointer"
+                            data-brand-all="true"
+                        >
+                            All Brands
+                            <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-900 text-xs"><%= it.unmatchedCount %></span>
+                        </button>
+                        <% it.unmatchedFilters.forEach(function(filter) { %>
+                            <button
+                                class="px-4 py-2 rounded-full text-sm font-medium border border-gray-600 text-gray-300 hover:bg-gray-700 transition-colors whitespace-nowrap cursor-pointer"
+                                data-brand="<%= filter.brand || '' %>"
+                                data-wikidata="<%= filter.wikidata || '' %>"
+                            >
+                                <%= filter.label %>
+                                <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-900 text-xs"><%= filter.count %></span>
+                            </button>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+
         <div id="unmatched-loading" class="hidden py-12 flex flex-col items-center justify-center gap-4">
             <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
             <p class="text-gray-400 animate-pulse">Loading Unmatched items...</p>
         </div>
         <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6">
             <table class="min-w-full table-auto" id="unmatched-table">
-                <thead class="bg-gray-800 text-gray-400 text-left sticky top-[44px] md:top-[52px] z-10 shadow-sm">
+                <thead class="bg-gray-800 text-gray-400 text-left sticky z-10 shadow-sm <%= it.unmatchedFilters && it.unmatchedFilters.length > 1 ? 'top-[114px] md:top-[122px]' : 'top-[44px] md:top-[52px]' %>">
                     <tr class="hidden md:table-row">
                         <th class="px-4 py-3">OSM ID</th>
                         <th class="px-4 py-3">Tags</th>
@@ -330,5 +384,13 @@
 
 <script type="module">
     import { initSpiderDashboard } from '<%= it.basePath %>/spider.js';
-    initSpiderDashboard(<%~ JSON.stringify(it.name) %>, <%~ JSON.stringify(it.results) %>, <%~ JSON.stringify(it.importableTags) %>, <%~ JSON.stringify(it.atpDate) %>, <%~ it.showUnmatched %>);
+    initSpiderDashboard({
+        spiderName: <%~ JSON.stringify(it.name) %>,
+        results: <%~ JSON.stringify(it.results) %>,
+        importableTags: <%~ JSON.stringify(it.importableTags) %>,
+        atpDate: <%~ JSON.stringify(it.atpDate) %>,
+        showUnmatched: <%~ it.showUnmatched %>,
+        unmappedFilters: <%~ JSON.stringify(it.unmappedFilters || []) %>,
+        unmatchedFilters: <%~ JSON.stringify(it.unmatchedFilters || []) %>
+    });
 </script>
