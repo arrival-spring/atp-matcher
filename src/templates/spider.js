@@ -702,7 +702,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         showModal({
             title: 'JOSM Import Warning',
             message:
-                'This will load and open the unmapped items from ATP into JOSM. This may be useful to match them to existing elements. DO NOT import them, but use conflation and judgement.',
+                'This will load and open the unmapped items from ATP into JOSM. This may be useful to match them to existing elements. <strong class="text-white">DO NOT import them</strong>, but use conflation and judgement.',
             showImportBtn: true,
             onUnderstand: () => {
                 // Button switching handled in showModal
