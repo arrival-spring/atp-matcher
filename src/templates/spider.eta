@@ -172,7 +172,7 @@
                             class="px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap bg-blue-600 border-blue-500 text-white cursor-pointer"
                             data-brand-all="true"
                         >
-                            All Brands
+                            All brands
                             <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-900 text-xs"><%= it.unmappedCount + it.results.filter(r => r.status === 'disallowed source uri' || r.status === 'not a brand spider').length %></span>
                         </button>
                         <% it.unmappedFilters.forEach(function(filter) { %>
@@ -232,7 +232,7 @@
                             class="px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap bg-blue-600 border-blue-500 text-white cursor-pointer"
                             data-brand-all="true"
                         >
-                            All Brands
+                            All brands
                             <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-900 text-xs"><%= it.unmatchedCount %></span>
                         </button>
                         <% it.unmatchedFilters.forEach(function(filter) { %>
@@ -276,7 +276,7 @@
         </div>
 
         <div id="unmatched-bulk-josm-container" class="mt-8 text-center space-y-2 hidden">
-            <div class="text-gray-400 text-sm mb-2">Open all unmatched in JOSM</div>
+            <div id="unmatched-bulk-josm-header" class="text-gray-400 text-sm mb-2">Open all unmatched in JOSM</div>
             <div id="unmatched-bulk-josm-links" class="flex flex-wrap justify-center gap-4"></div>
         </div>
     </div>

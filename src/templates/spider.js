@@ -234,9 +234,14 @@ export function initSpiderDashboard({
             const brand = btn.dataset.brand === '' ? null : btn.dataset.brand;
             const wikidata = btn.dataset.wikidata === '' ? null : btn.dataset.wikidata;
 
-            const isActive = isAll
-                ? activeBrand === null && activeWikidata === null
-                : brand === activeBrand && wikidata === activeWikidata;
+            let isActive = false;
+            if (isAll) {
+                isActive = activeBrand === null && activeWikidata === null;
+            } else if (brand === '__none__' && wikidata === '__none__') {
+                isActive = activeBrand === '__none__' && activeWikidata === '__none__';
+            } else {
+                isActive = brand === activeBrand && wikidata === activeWikidata;
+            }
 
             if (isActive) {
                 btn.classList.add('bg-blue-600', 'border-blue-500', 'text-white');
@@ -451,6 +456,11 @@ export function initSpiderDashboard({
                 if (!props) return false;
                 const b = props.brand || null;
                 const w = props['brand:wikidata'] || null;
+
+                if (currentState.brand === '__none__' && currentState.wikidata === '__none__') {
+                    return b === null && w === null;
+                }
+
                 return b === currentState.brand && w === currentState.wikidata;
             });
         }
@@ -501,6 +511,9 @@ export function initSpiderDashboard({
         const visitedSet = new Set(visited.links);
         const table = document.getElementById('unmatched-table');
         const loading = document.getElementById('unmatched-loading');
+        const bulkContainer = document.getElementById('unmatched-bulk-josm-container');
+        const bulkLinksEl = document.getElementById('unmatched-bulk-josm-links');
+        const bulkHeader = document.getElementById('unmatched-bulk-josm-header');
 
         if (!unmatchedCache) {
             table.classList.add('hidden');
@@ -523,6 +536,11 @@ export function initSpiderDashboard({
                 const props = r.tags;
                 const b = props.brand || null;
                 const w = props['brand:wikidata'] || null;
+
+                if (currentState.brand === '__none__' && currentState.wikidata === '__none__') {
+                    return b === null && w === null;
+                }
+
                 return b === currentState.brand && w === currentState.wikidata;
             });
         }
@@ -571,27 +589,38 @@ export function initSpiderDashboard({
             currentState.page === totalPages || filteredUnmatched.length === 0;
 
         // Render bulk JOSM links
-        const bulkContainer = document.getElementById('unmatched-bulk-josm-container');
-        const bulkLinksEl = document.getElementById('unmatched-bulk-josm-links');
-
         if (filteredUnmatched.length > 0) {
             bulkContainer.classList.remove('hidden');
-            const links = [];
-            const BATCH_SIZE = 100;
 
-            for (let i = 0; i < filteredUnmatched.length; i += BATCH_SIZE) {
-                const batch = filteredUnmatched.slice(i, i + BATCH_SIZE);
-                const objects = batch.map(r => r.id[0] + r.id.substring(1)).join(',');
+            if (filteredUnmatched.length <= 100) {
+                const objects = filteredUnmatched.map(r => r.id[0] + r.id.substring(1)).join(',');
                 const josmUrl = `http://127.0.0.1:8111/load_object?objects=${objects}&relation_members=true`;
-                const label = `(${i + 1}-${Math.min(i + BATCH_SIZE, filteredUnmatched.length)})`;
 
-                links.push(`
+                bulkHeader.innerHTML = `
                     <a href="javascript:void(0)" onclick="handleJosmLink('${josmUrl}')" class="text-blue-400 hover:underline text-sm">
-                        ${label}
+                        Open all unmatched in JOSM
                     </a>
-                `);
+                `;
+                bulkLinksEl.innerHTML = '';
+            } else {
+                bulkHeader.innerHTML = 'Open all unmatched in JOSM';
+                const links = [];
+                const BATCH_SIZE = 100;
+
+                for (let i = 0; i < filteredUnmatched.length; i += BATCH_SIZE) {
+                    const batch = filteredUnmatched.slice(i, i + BATCH_SIZE);
+                    const objects = batch.map(r => r.id[0] + r.id.substring(1)).join(',');
+                    const josmUrl = `http://127.0.0.1:8111/load_object?objects=${objects}&relation_members=true`;
+                    const label = `(${i + 1}-${Math.min(i + BATCH_SIZE, filteredUnmatched.length)})`;
+
+                    links.push(`
+                        <a href="javascript:void(0)" onclick="handleJosmLink('${josmUrl}')" class="text-blue-400 hover:underline text-sm">
+                            ${label}
+                        </a>
+                    `);
+                }
+                bulkLinksEl.innerHTML = links.join('');
             }
-            bulkLinksEl.innerHTML = links.join('');
         } else {
             bulkContainer.classList.add('hidden');
         }
@@ -853,7 +882,12 @@ export function initSpiderDashboard({
         let geojsonFile = `${spiderName}_unmapped.geojson`;
 
         if (currentState.brand !== null || currentState.wikidata !== null) {
-            const activeFilter = unmappedFilters.find(f => f.brand === currentState.brand && f.wikidata === currentState.wikidata);
+            const activeFilter = unmappedFilters.find(f => {
+                if (currentState.brand === '__none__' && currentState.wikidata === '__none__') {
+                    return f.brand === '__none__' && f.wikidata === '__none__';
+                }
+                return f.brand === currentState.brand && f.wikidata === currentState.wikidata;
+            });
             if (activeFilter && activeFilter.geojson) {
                 geojsonFile = activeFilter.geojson;
             }
