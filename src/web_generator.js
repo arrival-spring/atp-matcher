@@ -1,6 +1,26 @@
 import fs from 'fs';
 import path from 'path';
-import eta from './eta.js';
+import { execSync } from 'child_process';
+
+function generateHtmlShell(title, basePath, componentName, props) {
+    return `<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title} | ATP-OSM Sync</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔄</text></svg>">
+    <link href="${basePath}/style.css" rel="stylesheet">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen p-4 md:p-8">
+    <div id="${componentName}-dashboard-root"></div>
+    <script type="module" src="${basePath}/assets/${componentName}.js"></script>
+    <script type="module">
+        window.init${componentName.charAt(0).toUpperCase() + componentName.slice(1)}Dashboard(${JSON.stringify(props)});
+    </script>
+</body>
+</html>`;
+}
 
 export function generateWebpage(allSpiderResults, atpDate, osmDate) {
     const outputDir = 'output';
@@ -16,9 +36,8 @@ export function generateWebpage(allSpiderResults, atpDate, osmDate) {
                 fs.mkdirSync(spiderDir, { recursive: true });
             }
 
-            const spiderHtml = eta.render('./spider', {
-                title: spider.name,
-                name: spider.name,
+            const spiderHtml = generateHtmlShell(spider.name, '..', 'spider', {
+                spiderName: spider.name,
                 importableTags: spider.importableTags,
                 atpDate,
                 osmDate,
@@ -29,11 +48,8 @@ export function generateWebpage(allSpiderResults, atpDate, osmDate) {
                 staleDate: spider.staleDate,
                 loadStatus: spider.loadStatus,
                 showUnmatched: spider.showUnmatched,
-                unmappedCount: spider.unmappedCount,
-                unmatchedCount: spider.unmatchedCount,
-                unmappedFilters: spider.unmappedFilters,
-                unmatchedFilters: spider.unmatchedFilters,
-                basePath: '..',
+                unmappedFilters: spider.unmappedFilters || [],
+                unmatchedFilters: spider.unmatchedFilters || [],
             });
             fs.writeFileSync(path.join(spiderDir, 'index.html'), spiderHtml);
         } catch (error) {
@@ -54,24 +70,21 @@ export function generateWebpage(allSpiderResults, atpDate, osmDate) {
             automaticUpdatesCount: s.automaticUpdatesCount,
         }));
 
-        const indexHtml = eta.render('./index', {
-            title: 'Dashboard',
-            indexData,
+        const indexHtml = generateHtmlShell('Dashboard', '.', 'index', {
+            allSpiderResults: indexData,
             atpDate,
             osmDate,
-            basePath: '.',
         });
         fs.writeFileSync(path.join(outputDir, 'index.html'), indexHtml);
     } catch (error) {
         console.error(`Error generating index page: ${error.message}`);
     }
 
-    // Copy JS files
+    // Build frontend assets
     try {
-        fs.copyFileSync(path.join('src', 'templates', 'spider.js'), path.join(outputDir, 'spider.js'));
-        fs.copyFileSync(path.join('src', 'templates', 'index.js'), path.join(outputDir, 'index.js'));
-        fs.copyFileSync(path.join('src', 'templates', 'utils.js'), path.join(outputDir, 'utils.js'));
+        console.log('Building frontend assets with Vite...');
+        execSync('npm run build:fe', { stdio: 'inherit' });
     } catch (error) {
-        console.error(`Error copying template JS files: ${error.message}`);
+        console.error(`Error building frontend assets: ${error.message}`);
     }
 }

@@ -1,0 +1,209 @@
+import { h } from 'preact';
+import { markLinkVisited, handleJosmLink } from '../utils';
+
+export function StatusLabel({ status }) {
+    if (!status) return null;
+    const label = status === 'not mapped' ? 'Unmapped' : status;
+    return (
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-800 border border-gray-700 text-gray-300 capitalize inline-block align-middle ml-2">
+            {label}
+        </span>
+    );
+}
+
+export function TagValue({ value, tag, visitedSet }) {
+    if (!value) return null;
+    if ((tag === 'website' || tag === 'contact:website') && value) {
+        const isVisited = visitedSet.has(value);
+        return (
+            <a
+                href={value}
+                target="_blank"
+                class={`${isVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline break-all`}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {value}
+            </a>
+        );
+    }
+    return <code class="text-sm break-all">{value}</code>;
+}
+
+export function TagsWithLinks({ tags, visitedSet }) {
+    if (!tags) return null;
+    return Object.entries(tags).map(([k, v]) => (
+        <div key={k}>
+            <span class="text-gray-500">{k}=</span>
+            <TagValue value={v} tag={k} visitedSet={visitedSet} />
+        </div>
+    ));
+}
+
+export function SpiderValue({ value, history, tag, visitedSet }) {
+    if (!value) return null;
+    const nonNullValues = history ? history.filter(h => h.value !== null) : [];
+    const isStableValue = nonNullValues.length <= 1 || nonNullValues.every(v => v.value === value);
+
+    if (isStableValue) {
+        return (
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="stable value">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <TagValue value={value} tag={tag} visitedSet={visitedSet} />
+            </div>
+        );
+    }
+
+    return (
+        <div class="space-y-1">
+            <div class="font-bold text-white">
+                <TagValue value={value} tag={tag} visitedSet={visitedSet} />
+            </div>
+            <div class="pl-2 border-l border-gray-700">
+                {[...history].reverse().filter(h => h.value).map(h => (
+                    <div key={h.date} class="text-xs text-gray-400">
+                        <span class="font-mono">{h.date}</span>: <span class="text-gray-300">
+                            <TagValue value={h.value} tag={tag} visitedSet={visitedSet} />
+                        </span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+export function OsmColumn({ osmId, suggestedFixes = {}, visitedSet, atpDate, onVisited, onJosmError }) {
+    if (!osmId) return null;
+    const typeMap = { n: 'node', w: 'way', r: 'relation' };
+    const typeChar = osmId.toString()[0];
+    const osmType = typeMap[typeChar];
+    const id = osmId.toString().substring(1);
+    if (!osmType) return null;
+
+    const osmUrl = `https://www.openstreetmap.org/${osmType}/${id}`;
+    const isOsmVisited = visitedSet.has(osmUrl);
+
+    const josmFixBaseUrl = 'http://127.0.0.1:8111/load_object';
+    const josmEditUrl = `${josmFixBaseUrl}?objects=${osmType[0]}${id}&relation_members=true`;
+    const isJosmEditVisited = visitedSet.has(josmEditUrl);
+
+    const encodedTags = Object.entries(suggestedFixes).map(([key, value]) => {
+        const encodedKey = encodeURIComponent(key);
+        const encodedValue = value ? encodeURIComponent(value) : '';
+        return `${encodedKey}=${encodedValue}`;
+    });
+
+    const addtagsValue = encodedTags.join(encodeURIComponent('|'));
+    const josmUpdateUrl = `${josmEditUrl}&addtags=${addtagsValue}`;
+    const isJosmUpdateVisited = visitedSet.has(josmUpdateUrl);
+
+    const hasFixes = Object.keys(suggestedFixes).length > 0;
+
+    return (
+        <div class="flex flex-col md:items-end gap-1 mt-2 md:mt-0 pt-2 md:pt-0 border-t border-gray-800 md:border-none">
+            <div class="flex items-center gap-4 md:flex-col md:items-end md:gap-1">
+                <a
+                    href={osmUrl}
+                    target="_blank"
+                    class={`inline-flex items-center ${isOsmVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline`}
+                    onClick={() => { markLinkVisited(osmUrl, atpDate); if(onVisited) onVisited(); }}
+                >
+                    <span>{osmId}</span>
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
+                <div class="text-xs text-gray-500">
+                    <a
+                        href="javascript:void(0)"
+                        onClick={() => handleJosmLink(josmEditUrl, atpDate, onVisited, onJosmError)}
+                        class={`${isJosmEditVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline`}
+                    >edit</a>
+                    {hasFixes && (
+                        <a
+                            href="javascript:void(0)"
+                            onClick={() => handleJosmLink(josmUpdateUrl, atpDate, onVisited, onJosmError)}
+                            class={`${isJosmUpdateVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline ml-1`}
+                        >update</a>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export function BulkJosmLinks({ items, atpDate, onVisited, onJosmError }) {
+    if (items.length === 0) return null;
+    const BATCH_SIZE = 100;
+
+    if (items.length <= BATCH_SIZE) {
+        const objects = items.map(r => r.id[0] + r.id.substring(1)).join(',');
+        const josmUrl = `http://127.0.0.1:8111/load_object?objects=${objects}&relation_members=true`;
+        return (
+            <a
+                href="javascript:void(0)"
+                onClick={() => handleJosmLink(josmUrl, atpDate, onVisited, onJosmError)}
+                class="text-blue-400 hover:underline text-sm"
+            >
+                Open all unmatched in JOSM
+            </a>
+        );
+    }
+
+    const links = [];
+    for (let i = 0; i < items.length; i += BATCH_SIZE) {
+        const batch = items.slice(i, i + BATCH_SIZE);
+        const objects = batch.map(r => r.id[0] + r.id.substring(1)).join(',');
+        const josmUrl = `http://127.0.0.1:8111/load_object?objects=${objects}&relation_members=true`;
+        const label = `(${i + 1}-${Math.min(i + BATCH_SIZE, items.length)})`;
+        links.push(
+            <a
+                key={label}
+                href="javascript:void(0)"
+                onClick={() => handleJosmLink(josmUrl, atpDate, onVisited, onJosmError)}
+                class="text-blue-400 hover:underline text-sm"
+            >
+                {label}
+            </a>
+        );
+    }
+
+    return (
+        <>
+            <div class="text-gray-400 text-sm mb-2">Open all unmatched in JOSM</div>
+            <div class="flex flex-wrap justify-center gap-4">{links}</div>
+        </>
+    );
+}
+
+export function Pagination({ page, totalPages, onPageChange, totalItems }) {
+    return (
+        <div class="flex justify-between items-center bg-gray-800 p-4 rounded-lg">
+            <button
+                onClick={() => onPageChange(page - 1)}
+                disabled={page === 1}
+                class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer text-sm font-medium"
+            >
+                Previous
+            </button>
+            <span class="text-gray-400 font-medium text-sm">
+                Page {page} of {totalPages}
+            </span>
+            <button
+                onClick={() => onPageChange(page + 1)}
+                disabled={page === totalPages || totalItems === 0}
+                class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer text-sm font-medium"
+            >
+                Next
+            </button>
+        </div>
+    );
+}
+
+export function LoadingIndicator({ message }) {
+    return (
+        <div class="py-12 flex flex-col items-center justify-center gap-4">
+            <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-gray-400 animate-pulse">{message}</p>
+        </div>
+    );
+}
