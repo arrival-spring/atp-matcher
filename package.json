@@ -24,6 +24,7 @@
     "homepage": "https://github.com/arrival-spring/atp-matcher#readme",
     "dependencies": {
         "axios": "^1.16.1",
+        "axios-retry": "^4.5.0",
         "countries-list": "^3.3.0",
         "eta": "^3.5.0",
         "libphonenumber-js": "^1.13.4",

@@ -3,6 +3,7 @@ if (process.env.NO_DEBUG === 'true') {
 }
 
 import axios from 'axios';
+import './axios_config.js';
 import fs from 'fs';
 import path from 'path';
 import { getRuns, loadAllAtpData } from './atp_data.js';
