@@ -1,0 +1,97 @@
+import { h } from 'preact';
+import { useState, useEffect } from 'preact/hooks';
+
+export function MismatchModal({ title, message, onUnderstand, onBack, showImportBtn }) {
+    const [progress, setProgress] = useState(0);
+    const [canConfirm, setCanConfirm] = useState(false);
+    const [isImport, setIsImport] = useState(false);
+
+    useEffect(() => {
+        const start = Date.now();
+        const duration = 2000;
+        const interval = setInterval(() => {
+            const elapsed = Date.now() - start;
+            const p = Math.min(100, (elapsed / duration) * 100);
+            setProgress(p);
+            if (p === 100) {
+                setCanConfirm(true);
+                clearInterval(interval);
+            }
+        }, 16);
+        return () => clearInterval(interval);
+    }, []);
+
+    const handleConfirm = () => {
+        if (showImportBtn && !isImport) {
+            setIsImport(true);
+        } else {
+            onUnderstand();
+        }
+    };
+
+    return (
+        <div class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-gray-900 border border-gray-700 rounded-xl shadow-2xl z-50">
+            <div class="p-8">
+                <div class="flex items-center gap-4 mb-6 text-orange-400">
+                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    <h3 class="text-2xl font-bold">{title}</h3>
+                </div>
+                <p class="text-lg text-gray-200 mb-8 leading-relaxed" dangerouslySetInnerHTML={{ __html: message }} />
+                <div class="flex justify-end gap-4">
+                    <button
+                        onClick={onBack}
+                        class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors border border-gray-600 font-medium cursor-pointer"
+                    >
+                        {showImportBtn ? 'Cancel' : 'Take me back'}
+                    </button>
+                    {!isImport && (
+                        <button
+                            onClick={handleConfirm}
+                            disabled={!canConfirm}
+                            class="relative px-6 py-3 bg-gray-700 text-white rounded-lg font-medium overflow-hidden group disabled:opacity-100"
+                        >
+                            <div class="absolute inset-0 bg-blue-600 transition-all duration-100" style={{ width: `${progress}%` }} />
+                            <span class="relative z-10">I understand</span>
+                        </button>
+                    )}
+                    {isImport && (
+                        <button
+                            onClick={onUnderstand}
+                            class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium cursor-pointer"
+                        >
+                            Download and open in JOSM
+                        </button>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export function JosmErrorModal({ onClose }) {
+    return (
+        <div id="josm-modal" class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-gray-900 border border-gray-700 rounded-xl shadow-2xl z-50">
+            <div class="p-8">
+                <div class="flex items-center gap-4 mb-6 text-red-400">
+                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    <h3 class="text-2xl font-bold">JOSM Error</h3>
+                </div>
+                <p class="text-lg text-gray-200 mb-8 leading-relaxed">
+                    Could not connect to JOSM. Please make sure JOSM is running and Remote Control is enabled in preferences.
+                </p>
+                <div class="flex justify-end">
+                    <button
+                        onClick={onClose}
+                        class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium cursor-pointer"
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}

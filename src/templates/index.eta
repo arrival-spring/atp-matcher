@@ -7,47 +7,9 @@
     <p class="text-xl text-gray-400">Data synchronization between All The Places and OpenStreetMap</p>
 </header>
 
-<div class="mb-6">
-    <div class="relative max-w-md">
-        <input type="text" id="search-input" placeholder="Search spiders..."
-            class="w-full bg-gray-900 border border-gray-700 rounded-lg py-2 px-4 pl-10 text-gray-200 focus:outline-none focus:border-blue-500">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-        </div>
-    </div>
-</div>
+<div id="dashboard-root"></div>
 
-<div class="bg-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-800">
-    <table class="min-w-full">
-        <thead class="bg-gray-800 text-gray-400 text-left uppercase text-sm tracking-wider hidden md:table-header-group">
-            <tr>
-                <th class="px-6 py-4 w-10"></th>
-                <th class="px-6 py-4">Spider Name</th>
-                <th class="px-6 py-4 text-right whitespace-nowrap">Issues / Mapped</th>
-                <th class="px-6 py-4 text-right whitespace-nowrap">Automatic Updates</th>
-                <th class="px-6 py-4 text-right whitespace-nowrap">Mapped / Total</th>
-            </tr>
-        </thead>
-        <tbody id="dashboard-tbody" class="divide-y divide-gray-800">
-            <!-- Rendered via index.js -->
-        </tbody>
-    </table>
-</div>
-
-<div id="pagination" class="mt-6 flex items-center justify-between">
-    <button class="prev-btn px-4 py-2 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer">
-        Previous
-    </button>
-    <span class="page-info text-gray-400 font-medium"></span>
-    <button class="next-btn px-4 py-2 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer">
-        Next
-    </button>
-</div>
-
+<script type="module" src="<%= it.basePath %>/assets/index.js"></script>
 <script type="module">
-    import { initDashboard } from './index.js';
-    const indexData = <%~ JSON.stringify(it.indexData) %>;
-    initDashboard(indexData);
+    window.initDashboard(<%~ JSON.stringify(it.indexData) %>);
 </script>

@@ -9,28 +9,10 @@ export function escapeHtml(unsafe) {
         .replace(/'/g, '&#039;');
 }
 
-export function renderStatusLabel(status) {
-    if (!status) return '';
-    const label = status === 'not mapped' ? 'Unmapped' : status;
-    return `
-        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-800 border border-gray-700 text-gray-300 capitalize inline-block align-middle ml-2">
-            ${escapeHtml(label)}
-        </span>
-    `;
-}
-
-export function handleJosmLink(url, atpDate, renderCallback) {
-    markLinkVisited(url, atpDate);
-    if (renderCallback) renderCallback();
-    fetch(url, { mode: 'no-cors' }).catch(() => {
-        document.getElementById('josm-modal').classList.remove('hidden');
-        document.getElementById('modal-backdrop').classList.remove('hidden');
-    });
-}
-
 const VISITED_LINKS_KEY = 'visited_links';
 
 export function getVisitedLinks(atpDate) {
+    if (typeof window === 'undefined') return { atpDate: atpDate, links: [] };
     const data = localStorage.getItem(VISITED_LINKS_KEY);
     if (!data) return { atpDate: atpDate, links: [] };
 
@@ -46,9 +28,18 @@ export function getVisitedLinks(atpDate) {
 }
 
 export function markLinkVisited(url, atpDate) {
+    if (typeof window === 'undefined') return;
     const visited = getVisitedLinks(atpDate);
     if (!visited.links.includes(url)) {
         visited.links.push(url);
         localStorage.setItem(VISITED_LINKS_KEY, JSON.stringify(visited));
     }
+}
+
+export function handleJosmLink(url, atpDate, onVisited, onError) {
+    markLinkVisited(url, atpDate);
+    if (onVisited) onVisited();
+    fetch(url, { mode: 'no-cors' }).catch(() => {
+        if (onError) onError();
+    });
 }
