@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import eta from './eta.js';
+import { execSync } from 'child_process';
 
 export function generateWebpage(allSpiderResults, atpDate, osmDate) {
     const outputDir = 'output';
@@ -66,12 +67,11 @@ export function generateWebpage(allSpiderResults, atpDate, osmDate) {
         console.error(`Error generating index page: ${error.message}`);
     }
 
-    // Copy JS files
+    // Build frontend assets
     try {
-        fs.copyFileSync(path.join('src', 'templates', 'spider.js'), path.join(outputDir, 'spider.js'));
-        fs.copyFileSync(path.join('src', 'templates', 'index.js'), path.join(outputDir, 'index.js'));
-        fs.copyFileSync(path.join('src', 'templates', 'utils.js'), path.join(outputDir, 'utils.js'));
+        console.log('Building frontend assets with Vite...');
+        execSync('npm run build:fe', { stdio: 'inherit' });
     } catch (error) {
-        console.error(`Error copying template JS files: ${error.message}`);
+        console.error(`Error building frontend assets: ${error.message}`);
     }
 }
