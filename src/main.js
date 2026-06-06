@@ -6,6 +6,7 @@ import axios from 'axios';
 import './axios_config.js';
 import fs from 'fs';
 import path from 'path';
+import slugify from 'slugify';
 import { getRuns, loadAllAtpData } from './atp_data.js';
 import { streamOsmData } from './osm_stream.js';
 import { processSpiderResults } from './result_processor.js';
@@ -103,6 +104,23 @@ async function run() {
             );
 
             if (results) {
+                // For unmapped items in results (disallowed source uri, not a brand spider),
+                // we need to make sure they have allAtpTags for the brand filters to work.
+                const unmappedResults = results
+                    .filter(r => r.status === 'disallowed source uri' || r.status === 'not a brand spider')
+                    .map(r => {
+                        const feature = data.latestRun.features.find(f => f.properties.ref === r.ref);
+                        const filteredAtpTags = {};
+                        if (feature) {
+                            for (const [k, v] of Object.entries(feature.properties)) {
+                                if (!k.startsWith('@') && k !== 'nsi_id') {
+                                    filteredAtpTags[k] = v;
+                                }
+                            }
+                        }
+                        return { ...r, allAtpTags: filteredAtpTags };
+                    });
+
                 const isMapped = r =>
                     r.matchCount >= 1 && r.status !== 'disallowed source uri' && r.status !== 'not a brand spider';
                 const mappedResults = results.filter(isMapped);
@@ -115,6 +133,56 @@ async function run() {
                 const unmatchedMap = allUnmatched.get(spiderName);
                 const unmatched = unmatchedMap ? Array.from(unmatchedMap.values()) : [];
 
+                // Identify unique brand/Wikidata pairs for unmapped and unmatched
+                const unmappedFilters = [];
+                const unmatchedFilters = [];
+
+                const getBrandWikidataPairs = items => {
+                    const pairs = new Map();
+                    items.forEach(item => {
+                        const props = item.allAtpTags || item.tags;
+                        if (!props || Array.isArray(props)) {
+                            console.warn(`Item missing properties or has array tags: ${item.ref || item.id}`);
+                            return;
+                        }
+                        const brand = props.brand || null;
+                        const wikidata = props['brand:wikidata'] || null;
+                        const key = `${brand}|${wikidata}`;
+                        if (!pairs.has(key)) {
+                            pairs.set(key, { brand, wikidata, count: 0 });
+                        }
+                        pairs.get(key).count++;
+                    });
+                    return Array.from(pairs.values()).sort((a, b) => b.count - a.count);
+                };
+
+                const getFilterLabel = pair => {
+                    if (!pair.brand && !pair.wikidata) return 'No Brand';
+                    if (pair.brand && pair.wikidata) return `${pair.brand} (${pair.wikidata})`;
+                    return pair.brand || pair.wikidata;
+                };
+
+                // For unmapped, we need features that are actually unmapped (including disallowed/not brand)
+                const unmappedItemsForFilter = [...unmapped, ...unmappedResults];
+
+                getBrandWikidataPairs(unmappedItemsForFilter).forEach(pair => {
+                    unmappedFilters.push({
+                        label: getFilterLabel(pair),
+                        brand: pair.brand,
+                        wikidata: pair.wikidata,
+                        count: pair.count,
+                    });
+                });
+
+                getBrandWikidataPairs(unmatched).forEach(pair => {
+                    unmatchedFilters.push({
+                        label: getFilterLabel(pair),
+                        brand: pair.brand,
+                        wikidata: pair.wikidata,
+                        count: pair.count,
+                    });
+                });
+
                 // Write separate JSON and GeoJSON files
                 const outputDir = 'output';
                 const spiderDir = path.join(outputDir, spiderName);
@@ -126,12 +194,7 @@ async function run() {
                 fs.writeFileSync(path.join(spiderDir, `${spiderName}_unmatched.json`), JSON.stringify(unmatched));
 
                 // Generate unmapped GeoJSON for JOSM (including disallowed source uri and not a brand spider)
-                const unmappedRefs = new Set([
-                    ...unmapped.map(u => u.ref),
-                    ...results
-                        .filter(r => r.status === 'disallowed source uri' || r.status === 'not a brand spider')
-                        .map(r => r.ref),
-                ]);
+                const unmappedRefs = new Set(unmappedItemsForFilter.map(r => r.ref));
 
                 const unmappedGeoJson = {
                     type: 'FeatureCollection',
@@ -142,10 +205,38 @@ async function run() {
                     JSON.stringify(unmappedGeoJson)
                 );
 
+                // Generate filtered GeoJSONs for unmapped
+                unmappedFilters.forEach(filter => {
+                    if (unmappedFilters.length <= 1) return; // Don't bother if there's only one option (likely All or No Brand)
+
+                    const filteredFeatures = unmappedGeoJson.features.filter(f => {
+                        const b = f.properties.brand || null;
+                        const w = f.properties['brand:wikidata'] || null;
+                        return b === filter.brand && w === filter.wikidata;
+                    });
+
+                    const brandSlug = filter.brand
+                        ? slugify(filter.brand, { lower: true, remove: /[*+~.()'"!:@]/g })
+                        : 'no-brand';
+                    const wikidataPart = filter.wikidata ? `_${filter.wikidata}` : '';
+                    const filename = `${spiderName}_unmapped_${brandSlug}${wikidataPart}.geojson`;
+                    filter.geojson = filename;
+
+                    fs.writeFileSync(path.join(spiderDir, filename), JSON.stringify({
+                        type: 'FeatureCollection',
+                        features: filteredFeatures
+                    }));
+                });
+
                 allSpiderResults.push({
                     name: spiderName,
                     importableTags: usedTags,
-                    results: results.map(r => ({ ...r, allAtpTags: undefined })),
+                    results: results.map(r => {
+                        if (r.status === 'disallowed source uri' || r.status === 'not a brand spider') {
+                            return unmappedResults.find(ur => ur.ref === r.ref) || r;
+                        }
+                        return { ...r, allAtpTags: undefined };
+                    }),
                     isBrandSpider: data.isBrandSpider,
                     lineage: data.lineage,
                     isStale: data.isStale,
@@ -155,6 +246,8 @@ async function run() {
                     showUnmatched: data.config.showUnmatched || false,
                     unmappedCount: unmapped.length,
                     unmatchedCount: unmatched.length,
+                    unmappedFilters,
+                    unmatchedFilters,
                     // Totals for index page
                     totalCount: results.length + unmapped.length,
                     mappedCount,

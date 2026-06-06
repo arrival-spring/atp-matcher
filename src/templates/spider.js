@@ -1,11 +1,21 @@
 import { escapeHtml, renderStatusLabel, handleJosmLink, getVisitedLinks, markLinkVisited } from './utils.js';
 
-export function initSpiderDashboard(spiderName, results, importableTags, atpDate, showUnmatched) {
+export function initSpiderDashboard({
+    spiderName,
+    results,
+    importableTags,
+    atpDate,
+    showUnmatched,
+    unmappedFilters = [],
+    unmatchedFilters = [],
+}) {
     const PAGE_SIZE = 25;
     let currentState = {
         tag: 'summary',
         status: null,
         page: 1,
+        brand: null,
+        wikidata: null,
     };
 
     let unmappedCache = null;
@@ -13,7 +23,14 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
 
     function updateUrl() {
         const url = new URL(window.location);
-        url.hash = `tag=${currentState.tag}${currentState.status ? `&status=${currentState.status}` : ''}${currentState.page > 1 ? `&page=${currentState.page}` : ''}`;
+        const params = new URLSearchParams();
+        params.set('tag', currentState.tag);
+        if (currentState.status) params.set('status', currentState.status);
+        if (currentState.page > 1) params.set('page', currentState.page);
+        if (currentState.brand !== null) params.set('brand', currentState.brand);
+        if (currentState.wikidata !== null) params.set('wikidata', currentState.wikidata);
+
+        url.hash = params.toString();
         window.history.pushState({}, '', url);
     }
 
@@ -23,6 +40,8 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         currentState.tag = params.get('tag') || 'summary';
         currentState.status = params.get('status');
         currentState.page = parseInt(params.get('page')) || 1;
+        currentState.brand = params.get('brand');
+        currentState.wikidata = params.get('wikidata');
 
         // Reset all tab counts first
         document.querySelectorAll('#tag-tabs .tab-count').forEach(el => el.classList.add('hidden'));
@@ -206,6 +225,29 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         });
     }
 
+    function updateFilterButtons(containerId, activeBrand, activeWikidata) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        container.querySelectorAll('button').forEach(btn => {
+            const isAll = btn.dataset.brandAll === 'true';
+            const brand = btn.dataset.brand === '' ? null : btn.dataset.brand;
+            const wikidata = btn.dataset.wikidata === '' ? null : btn.dataset.wikidata;
+
+            const isActive = isAll
+                ? activeBrand === null && activeWikidata === null
+                : brand === activeBrand && wikidata === activeWikidata;
+
+            if (isActive) {
+                btn.classList.add('bg-blue-600', 'border-blue-500', 'text-white');
+                btn.classList.remove('text-gray-300', 'hover:bg-gray-700');
+            } else {
+                btn.classList.remove('bg-blue-600', 'border-blue-500', 'text-white');
+                btn.classList.add('text-gray-300', 'hover:bg-gray-700');
+            }
+        });
+    }
+
     function render() {
         const visited = getVisitedLinks(atpDate);
         const visitedSet = new Set(visited.links);
@@ -218,6 +260,13 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         const isUniquelyMatched = r =>
             r.matchCount === 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status);
         const hasDuplicates = results.some(r => r.matchCount > 1);
+
+        // Update Brand Filters
+        if (currentState.tag === 'unmapped') {
+            updateFilterButtons('unmapped-brand-filters', currentState.brand, currentState.wikidata);
+        } else if (currentState.tag === 'unmatched') {
+            updateFilterButtons('unmatched-brand-filters', currentState.brand, currentState.wikidata);
+        }
 
         // Update Tabs
         document.querySelectorAll('#tag-tabs button').forEach(btn => {
@@ -393,7 +442,18 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         const disallowedOrNotBrand = results.filter(r =>
             ['disallowed source uri', 'not a brand spider'].includes(r.status)
         );
-        const allUnmapped = [...disallowedOrNotBrand, ...unmappedCache];
+        let allUnmapped = [...disallowedOrNotBrand, ...unmappedCache];
+
+        // Apply Brand Filter
+        if (currentState.brand !== null || currentState.wikidata !== null) {
+            allUnmapped = allUnmapped.filter(r => {
+                const props = r.allAtpTags;
+                if (!props) return false;
+                const b = props.brand || null;
+                const w = props['brand:wikidata'] || null;
+                return b === currentState.brand && w === currentState.wikidata;
+            });
+        }
 
         const totalPages = Math.ceil(allUnmapped.length / PAGE_SIZE) || 1;
         if (currentState.page > totalPages) currentState.page = totalPages;
@@ -456,7 +516,18 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
             table.classList.remove('hidden');
         }
 
-        const totalPages = Math.ceil(unmatchedCache.length / PAGE_SIZE) || 1;
+        let filteredUnmatched = unmatchedCache;
+        // Apply Brand Filter
+        if (currentState.brand !== null || currentState.wikidata !== null) {
+            filteredUnmatched = unmatchedCache.filter(r => {
+                const props = r.tags;
+                const b = props.brand || null;
+                const w = props['brand:wikidata'] || null;
+                return b === currentState.brand && w === currentState.wikidata;
+            });
+        }
+
+        const totalPages = Math.ceil(filteredUnmatched.length / PAGE_SIZE) || 1;
         if (currentState.page > totalPages) currentState.page = totalPages;
 
         // Show count on tab
@@ -467,7 +538,7 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         }
 
         const start = (currentState.page - 1) * PAGE_SIZE;
-        const pageData = unmatchedCache.slice(start, start + PAGE_SIZE);
+        const pageData = filteredUnmatched.slice(start, start + PAGE_SIZE);
 
         const tbody = table.querySelector('tbody');
         tbody.innerHTML = pageData
@@ -497,22 +568,22 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         pagination.querySelector('.page-info').textContent = `Page ${currentState.page} of ${totalPages}`;
         pagination.querySelector('.prev-btn').disabled = currentState.page === 1;
         pagination.querySelector('.next-btn').disabled =
-            currentState.page === totalPages || unmatchedCache.length === 0;
+            currentState.page === totalPages || filteredUnmatched.length === 0;
 
         // Render bulk JOSM links
         const bulkContainer = document.getElementById('unmatched-bulk-josm-container');
         const bulkLinksEl = document.getElementById('unmatched-bulk-josm-links');
 
-        if (unmatchedCache.length > 0) {
+        if (filteredUnmatched.length > 0) {
             bulkContainer.classList.remove('hidden');
             const links = [];
             const BATCH_SIZE = 100;
 
-            for (let i = 0; i < unmatchedCache.length; i += BATCH_SIZE) {
-                const batch = unmatchedCache.slice(i, i + BATCH_SIZE);
+            for (let i = 0; i < filteredUnmatched.length; i += BATCH_SIZE) {
+                const batch = filteredUnmatched.slice(i, i + BATCH_SIZE);
                 const objects = batch.map(r => r.id[0] + r.id.substring(1)).join(',');
                 const josmUrl = `http://127.0.0.1:8111/load_object?objects=${objects}&relation_members=true`;
-                const label = `(${i + 1}-${Math.min(i + BATCH_SIZE, unmatchedCache.length)})`;
+                const label = `(${i + 1}-${Math.min(i + BATCH_SIZE, filteredUnmatched.length)})`;
 
                 links.push(`
                     <a href="javascript:void(0)" onclick="handleJosmLink('${josmUrl}')" class="text-blue-400 hover:underline text-sm">
@@ -629,6 +700,8 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
         currentState.tag = btn.dataset.tab;
         currentState.status = null;
         currentState.page = 1;
+        currentState.brand = null;
+        currentState.wikidata = null;
         updateUrl();
         render();
     });
@@ -636,6 +709,45 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
     window.handleJosmLink = function (url) {
         handleJosmLink(url, atpDate, render);
     };
+
+    // Brand filter listeners
+    const unmappedBrandFilters = document.getElementById('unmapped-brand-filters');
+    if (unmappedBrandFilters) {
+        unmappedBrandFilters.addEventListener('click', e => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+
+            if (btn.dataset.brandAll === 'true') {
+                currentState.brand = null;
+                currentState.wikidata = null;
+            } else {
+                currentState.brand = btn.dataset.brand === '' ? null : btn.dataset.brand;
+                currentState.wikidata = btn.dataset.wikidata === '' ? null : btn.dataset.wikidata;
+            }
+            currentState.page = 1;
+            updateUrl();
+            render();
+        });
+    }
+
+    const unmatchedBrandFilters = document.getElementById('unmatched-brand-filters');
+    if (unmatchedBrandFilters) {
+        unmatchedBrandFilters.addEventListener('click', e => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+
+            if (btn.dataset.brandAll === 'true') {
+                currentState.brand = null;
+                currentState.wikidata = null;
+            } else {
+                currentState.brand = btn.dataset.brand === '' ? null : btn.dataset.brand;
+                currentState.wikidata = btn.dataset.wikidata === '' ? null : btn.dataset.wikidata;
+            }
+            currentState.page = 1;
+            updateUrl();
+            render();
+        });
+    }
 
     importableTags.forEach(tag => {
         const panel = document.getElementById(`${tag}-content`);
@@ -738,7 +850,16 @@ export function initSpiderDashboard(spiderName, results, importableTags, atpDate
     };
 
     document.getElementById('mismatch-import-btn').onclick = () => {
-        const geojsonUrl = new URL(`${spiderName}_unmapped.geojson`, window.location.href).href;
+        let geojsonFile = `${spiderName}_unmapped.geojson`;
+
+        if (currentState.brand !== null || currentState.wikidata !== null) {
+            const activeFilter = unmappedFilters.find(f => f.brand === currentState.brand && f.wikidata === currentState.wikidata);
+            if (activeFilter && activeFilter.geojson) {
+                geojsonFile = activeFilter.geojson;
+            }
+        }
+
+        const geojsonUrl = new URL(geojsonFile, window.location.href).href;
         const josmUrl = `http://127.0.0.1:8111/import?new_layer=true&upload_policy=false&url=${encodeURIComponent(geojsonUrl)}`;
         handleJosmLink(josmUrl);
         hideMismatchWarning();

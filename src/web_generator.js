@@ -31,6 +31,8 @@ export function generateWebpage(allSpiderResults, atpDate, osmDate) {
                 showUnmatched: spider.showUnmatched,
                 unmappedCount: spider.unmappedCount,
                 unmatchedCount: spider.unmatchedCount,
+                unmappedFilters: spider.unmappedFilters,
+                unmatchedFilters: spider.unmatchedFilters,
                 basePath: '..',
             });
             fs.writeFileSync(path.join(spiderDir, 'index.html'), spiderHtml);
