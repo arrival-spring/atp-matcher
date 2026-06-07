@@ -178,6 +178,9 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                 });
             }
             itemStatus = getOverallStatus(itemTags.map(t => t.status));
+            if (itemStatus === 'matching' && matchEntries.length === 0) {
+                itemStatus = 'notMapped';
+            }
         }
 
         const filteredAtpTags = {};

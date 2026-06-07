@@ -17,6 +17,7 @@ function Dashboard({ allSpiderResults }) {
 
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
+    const [sort, setSort] = useState({ column: null, direction: 'desc' });
 
     // Load state from URL hash
     useEffect(() => {
@@ -25,8 +26,11 @@ function Dashboard({ allSpiderResults }) {
             const params = new URLSearchParams(hash);
             const s = params.get('search') || '';
             const p = parseInt(params.get('page')) || 1;
+            const sortCol = params.get('sort');
+            const sortDir = params.get('dir') || 'desc';
             setSearch(s);
             setPage(p);
+            if (sortCol) setSort({ column: sortCol, direction: sortDir });
         };
 
         loadState();
@@ -40,16 +44,75 @@ function Dashboard({ allSpiderResults }) {
         const params = new URLSearchParams();
         if (search) params.set('search', search);
         if (page > 1) params.set('page', page);
+        if (sort.column) {
+            params.set('sort', sort.column);
+            params.set('dir', sort.direction);
+        }
 
         const newHash = params.toString();
         if (window.location.hash.substring(1) !== newHash) {
             window.history.pushState({}, '', `${url.pathname}${url.search}${newHash ? '#' + newHash : ''}`);
         }
-    }, [search, page]);
+    }, [search, page, sort]);
+
+    const handleSort = (column) => {
+        let direction = column === 'name' ? 'asc' : 'desc';
+        if (sort.column === column) {
+            direction = sort.direction === 'desc' ? 'asc' : 'desc';
+        }
+        setSort({ column, direction });
+        setPage(1);
+    };
 
     const filtered = useMemo(() => {
-        return allSpiderResults.filter(spider => spider.name.toLowerCase().includes(search.toLowerCase()));
-    }, [allSpiderResults, search]);
+        let data = allSpiderResults.filter(spider => spider.name.toLowerCase().includes(search.toLowerCase()));
+
+        if (sort.column) {
+            data.sort((a, b) => {
+                let valA, valB, secondaryA, secondaryB;
+
+                switch (sort.column) {
+                    case 'status':
+                        valA = a.stabilityScore;
+                        valB = b.stabilityScore;
+                        break;
+                    case 'name':
+                        valA = a.name;
+                        valB = b.name;
+                        break;
+                    case 'issues':
+                        valA = a.issuesCount;
+                        valB = b.issuesCount;
+                        secondaryA = a.mappedCount;
+                        secondaryB = b.mappedCount;
+                        break;
+                    case 'updates':
+                        valA = a.automaticUpdatesCount;
+                        valB = b.automaticUpdatesCount;
+                        break;
+                    case 'mapped':
+                        valA = a.mappedCount;
+                        valB = b.mappedCount;
+                        secondaryA = a.totalCount;
+                        secondaryB = b.totalCount;
+                        break;
+                    default:
+                        return 0;
+                }
+
+                if (valA === valB && secondaryA !== undefined) {
+                    valA = secondaryA;
+                    valB = secondaryB;
+                }
+
+                if (valA < valB) return sort.direction === 'asc' ? -1 : 1;
+                if (valA > valB) return sort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        return data;
+    }, [allSpiderResults, search, sort]);
 
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
     const effectivePage = Math.min(page, totalPages);
@@ -91,16 +154,50 @@ function Dashboard({ allSpiderResults }) {
                 <table class="min-w-full table-auto">
                     <thead class="bg-gray-800 text-gray-400 text-left">
                         <tr class="hidden md:table-row">
-                            <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider w-16">{t('index.table.status')}</th>
-                            <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider">{t('index.table.spiderName')}</th>
-                            <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right">
-                                {t('index.table.issuesMapped')}
+                            <th
+                                class="px-6 py-3 text-xs font-medium uppercase tracking-wider w-16 cursor-pointer hover:text-white transition-colors"
+                                onClick={() => handleSort('status')}
+                            >
+                                <div class="flex items-center gap-1">
+                                    {t('index.table.status')}
+                                    <SortIcon column="status" currentSort={sort} />
+                                </div>
                             </th>
-                            <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right">
-                                {t('index.table.autoUpdates')}
+                            <th
+                                class="px-6 py-3 text-xs font-medium uppercase tracking-wider cursor-pointer hover:text-white transition-colors"
+                                onClick={() => handleSort('name')}
+                            >
+                                <div class="flex items-center gap-1">
+                                    {t('index.table.spiderName')}
+                                    <SortIcon column="name" currentSort={sort} />
+                                </div>
                             </th>
-                            <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right">
-                                {t('index.table.mappedTotal')}
+                            <th
+                                class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right cursor-pointer hover:text-white transition-colors"
+                                onClick={() => handleSort('issues')}
+                            >
+                                <div class="flex items-center justify-end gap-1">
+                                    {t('index.table.issuesMapped')}
+                                    <SortIcon column="issues" currentSort={sort} />
+                                </div>
+                            </th>
+                            <th
+                                class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right cursor-pointer hover:text-white transition-colors"
+                                onClick={() => handleSort('updates')}
+                            >
+                                <div class="flex items-center justify-end gap-1">
+                                    {t('index.table.autoUpdates')}
+                                    <SortIcon column="updates" currentSort={sort} />
+                                </div>
+                            </th>
+                            <th
+                                class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right cursor-pointer hover:text-white transition-colors"
+                                onClick={() => handleSort('mapped')}
+                            >
+                                <div class="flex items-center justify-end gap-1">
+                                    {t('index.table.mappedTotal')}
+                                    <SortIcon column="mapped" currentSort={sort} />
+                                </div>
                             </th>
                         </tr>
                     </thead>
@@ -132,6 +229,21 @@ function Dashboard({ allSpiderResults }) {
                 </button>
             </div>
         </div>
+    );
+}
+
+function SortIcon({ column, currentSort }) {
+    if (currentSort.column !== column) {
+        return (
+            <svg class="w-3 h-3 opacity-20" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5 12l5 5 5-5H5zM5 8l5-5 5 5H5z" />
+            </svg>
+        );
+    }
+    return (
+        <svg class={`w-3 h-3 ${currentSort.direction === 'asc' ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5 15l5 5 5-5H5z" />
+        </svg>
     );
 }
 

@@ -3,6 +3,21 @@ import { useMemo } from 'preact/hooks';
 import { StatusLabel, TagValue, SpiderValue, OsmColumn, Pagination } from './Common';
 import { t } from '../i18n';
 
+function SortIcon({ column, currentSort }) {
+    if (currentSort.sort !== column) {
+        return (
+            <svg class="w-3 h-3 opacity-20" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5 12l5 5 5-5H5zM5 8l5-5 5 5H5z" />
+            </svg>
+        );
+    }
+    return (
+        <svg class={`w-3 h-3 ${currentSort.dir === 'asc' ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5 15l5 5 5-5H5z" />
+        </svg>
+    );
+}
+
 export function TagTab({
     tag,
     results,
@@ -34,9 +49,45 @@ export function TagTab({
     );
 
     const filtered = useMemo(() => {
-        if (!currentState.status) return tagResults;
-        return tagResults.filter(r => r.tagStatus === currentState.status);
-    }, [tagResults, currentState.status]);
+        let data = tagResults;
+        if (currentState.status) {
+            data = data.filter(r => r.tagStatus === currentState.status);
+        }
+
+        if (currentState.sort) {
+            data = [...data].sort((a, b) => {
+                let valA, valB;
+                switch (currentState.sort) {
+                    case 'ref':
+                        valA = a.ref;
+                        valB = b.ref;
+                        break;
+                    case 'spiderValue':
+                        valA = a.spiderValue || '';
+                        valB = b.spiderValue || '';
+                        break;
+                    case 'osmValue':
+                        valA = a.osmValue || '';
+                        valB = b.osmValue || '';
+                        break;
+                    default:
+                        return 0;
+                }
+                const direction = currentState.dir === 'desc' ? -1 : 1;
+                return valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' }) * direction;
+            });
+        }
+
+        return data;
+    }, [tagResults, currentState.status, currentState.sort, currentState.dir]);
+
+    const handleSort = (column) => {
+        let direction = 'asc';
+        if (currentState.sort === column && currentState.dir === 'asc') {
+            direction = 'desc';
+        }
+        setCurrentState(prev => ({ ...prev, sort: column, dir: direction, page: 1 }));
+    };
 
     const totalPages = Math.ceil(filtered.length / pageSize) || 1;
     const effectivePage = Math.min(currentState.page, totalPages);
@@ -83,9 +134,35 @@ export function TagTab({
                 <table class="min-w-full table-auto">
                     <thead class="bg-gray-800 text-gray-400 text-left sticky top-[114px] md:top-[122px] z-10 shadow-sm">
                         <tr class="hidden md:table-row">
-                            <th class="px-4 py-3">{t('spider.table.ref')}</th>
-                            <th class="px-4 py-3">{t('spider.table.spiderValue')}</th>
-                            {showOsmColumns && <th class="px-4 py-3">{t('spider.table.osmValue')}</th>}
+                            <th
+                                class="px-4 py-3 cursor-pointer hover:text-white transition-colors"
+                                onClick={() => handleSort('ref')}
+                            >
+                                <div class="flex items-center gap-1">
+                                    {t('spider.table.ref')}
+                                    <SortIcon column="ref" currentSort={currentState} />
+                                </div>
+                            </th>
+                            <th
+                                class="px-4 py-3 cursor-pointer hover:text-white transition-colors"
+                                onClick={() => handleSort('spiderValue')}
+                            >
+                                <div class="flex items-center gap-1">
+                                    {t('spider.table.spiderValue')}
+                                    <SortIcon column="spiderValue" currentSort={currentState} />
+                                </div>
+                            </th>
+                            {showOsmColumns && (
+                                <th
+                                    class="px-4 py-3 cursor-pointer hover:text-white transition-colors"
+                                    onClick={() => handleSort('osmValue')}
+                                >
+                                    <div class="flex items-center gap-1">
+                                        {t('spider.table.osmValue')}
+                                        <SortIcon column="osmValue" currentSort={currentState} />
+                                    </div>
+                                </th>
+                            )}
                             <th class="px-4 py-3 text-right">OSM</th>
                         </tr>
                     </thead>
