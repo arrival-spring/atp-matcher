@@ -1,5 +1,6 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
+import { t } from '../i18n';
 
 export function MismatchModal({ title, message, onUnderstand, onBack, showImportBtn }) {
     const [progress, setProgress] = useState(0);
@@ -49,7 +50,7 @@ export function MismatchModal({ title, message, onUnderstand, onBack, showImport
                         onClick={onBack}
                         class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors border border-gray-600 font-medium cursor-pointer"
                     >
-                        {showImportBtn ? 'Cancel' : 'Take me back'}
+                        {showImportBtn ? t('index.pagination.previous') : t('spider.backToIndex')}
                     </button>
                     {!isImport && (
                         <button
@@ -61,7 +62,7 @@ export function MismatchModal({ title, message, onUnderstand, onBack, showImport
                                 class="absolute inset-0 bg-blue-600 transition-all duration-100"
                                 style={{ width: `${progress}%` }}
                             />
-                            <span class="relative z-10">I understand</span>
+                            <span class="relative z-10">{t('spider.modals.understand')}</span>
                         </button>
                     )}
                     {isImport && (
@@ -69,7 +70,7 @@ export function MismatchModal({ title, message, onUnderstand, onBack, showImport
                             onClick={onUnderstand}
                             class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium cursor-pointer"
                         >
-                            Download and open in JOSM
+                            {t('spider.actions.openUnmapped')}
                         </button>
                     )}
                 </div>
@@ -94,18 +95,17 @@ export function JosmErrorModal({ onClose }) {
                             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                         ></path>
                     </svg>
-                    <h3 class="text-2xl font-bold">JOSM Error</h3>
+                    <h3 class="text-2xl font-bold">{t('spider.modals.josmError.title')}</h3>
                 </div>
                 <p class="text-lg text-gray-200 mb-8 leading-relaxed">
-                    Could not connect to JOSM. Please make sure JOSM is running and Remote Control is enabled in
-                    preferences.
+                    {t('spider.modals.josmError.message')}
                 </p>
                 <div class="flex justify-end">
                     <button
                         onClick={onClose}
                         class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium cursor-pointer"
                     >
-                        Close
+                        {t('spider.modals.understand')}
                     </button>
                 </div>
             </div>

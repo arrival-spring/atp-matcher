@@ -1,0 +1,103 @@
+{
+  "title": "ATP-OSM Sync",
+  "subtitle": "Data synchronization between All The Places and OpenStreetMap",
+  "footer": {
+    "atpData": "ATP Data:",
+    "osmData": "OSM Data:"
+  },
+  "index": {
+    "dashboard": "Dashboard",
+    "searchPlaceholder": "Search spiders...",
+    "table": {
+      "status": "Status",
+      "spiderName": "Spider Name",
+      "issuesMapped": "Issues / Mapped",
+      "autoUpdates": "Auto Updates",
+      "mappedTotal": "Mapped / Total"
+    },
+    "stability": {
+      "stable": "Stable",
+      "minorVariations": "Minor variations",
+      "majorVariations": "Major variations",
+      "missingData": "Missing data"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {{ page }} of {{ totalPages }}"
+    }
+  },
+  "spider": {
+    "backToDashboard": "Back to Dashboard",
+    "staleData": "Stale Data",
+    "staleDataDesc": "The latest ATP run was empty. Showing data from {{ date }} instead.",
+    "noData": "No Data Available",
+    "noData404": "The latest ATP run for this spider could not be found (404).",
+    "noDataEmpty": "All recent ATP runs for this spider were empty.",
+    "notBrandSpider": "Not a Brand Spider",
+    "notBrandSpiderDesc": "This spider does not have the expected spider:lineage=S_ATP_BRANDS attribute.",
+    "links": {
+      "source": "Spider Source"
+    },
+    "tabs": {
+      "summary": "Summary",
+      "unmapped": "Unmapped",
+      "unmatched": "Unmatched",
+      "duplicateRefs": "Duplicate Refs"
+    },
+    "summary": {
+      "overview": "Overview",
+      "tagDetails": "Tag Details",
+      "noData": "No data available"
+    },
+    "table": {
+      "ref": "Ref",
+      "tags": "Tags",
+      "spiderValue": "Spider Value",
+      "osmValue": "OSM Value",
+      "osmId": "OSM ID"
+    },
+    "status": {
+      "notMapped": "Unmapped",
+      "addToOsm": "Add to OSM",
+      "updateOsm": "Update OSM",
+      "mismatch": "Mismatch",
+      "matching": "Matching",
+      "disallowedSourceUri": "Disallowed Source URI",
+      "notABrandSpider": "Not a Brand Spider",
+      "duplicateRef": "Duplicate Ref"
+    },
+    "tooltips": {
+      "stableValue": "stable value"
+    },
+    "actions": {
+      "edit": "edit",
+      "update": "update",
+      "openUnmatched": "Open all unmatched in JOSM",
+      "openUnmapped": "Open unmapped items in JOSM"
+    },
+    "modals": {
+      "josmError": {
+        "title": "JOSM Error",
+        "message": "Could not connect to JOSM. Please make sure JOSM is running and Remote Control is enabled in preferences."
+      },
+      "mismatch": {
+        "title": "Important Warning",
+        "message": "Some of the data from the spider may be wrong. DO NOT simply update {{ tag }} on all of the objects. Check the history to see who added {{ tag }} and their likely source. If you are not sure then DO NOT MAKE A CHANGE unless you can survey the place."
+      },
+      "josmImport": {
+        "message": "This will load and open the unmapped items from ATP into JOSM. This may be useful to match them to existing elements. DO NOT import them, but use conflation and judgement."
+      },
+      "understand": "I understand"
+    },
+    "filters": {
+      "allBrands": "All brands",
+      "noBrand": "No brand"
+    },
+    "loading": "Loading items..."
+  },
+  "locales": {
+    "searchPlaceholder": "Search languages...",
+    "noResults": "No languages found"
+  }
+}

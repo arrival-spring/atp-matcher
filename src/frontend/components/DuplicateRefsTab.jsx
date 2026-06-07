@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useMemo } from 'preact/hooks';
 import { StatusLabel, TagsWithLinks, Pagination } from './Common';
+import { t } from '../i18n';
 
 export function DuplicateRefsTab({ results, currentState, setCurrentState, visitedSet, pageSize }) {
     const duplicates = useMemo(() => results.filter(r => r.matchCount > 1), [results]);
@@ -14,8 +15,8 @@ export function DuplicateRefsTab({ results, currentState, setCurrentState, visit
                 <table class="min-w-full table-auto">
                     <thead class="bg-gray-800 text-gray-400 text-left sticky top-[44px] md:top-[52px] z-10 shadow-sm">
                         <tr class="hidden md:table-row">
-                            <th class="px-4 py-3">Ref</th>
-                            <th class="px-4 py-3">Tags</th>
+                            <th class="px-4 py-3">{t('spider.table.ref')}</th>
+                            <th class="px-4 py-3">{t('spider.table.tags')}</th>
                         </tr>
                     </thead>
                     <tbody class="text-gray-300 divide-y divide-gray-800">
@@ -33,7 +34,7 @@ export function DuplicateRefsTab({ results, currentState, setCurrentState, visit
                                 <td class="md:table-cell md:px-4 md:py-3">
                                     <div class="flex md:block">
                                         <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">
-                                            Tags:
+                                                    {t('spider.table.tags')}:
                                         </span>
                                         <div class="text-xs font-mono whitespace-pre-wrap flex-grow">
                                             <TagsWithLinks tags={r.allAtpTags} visitedSet={visitedSet} />

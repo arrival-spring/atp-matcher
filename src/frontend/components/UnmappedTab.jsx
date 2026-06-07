@@ -3,6 +3,7 @@ import { useMemo, useState } from 'preact/hooks';
 import { StatusLabel, TagsWithLinks, Pagination, LoadingIndicator } from './Common';
 import { MismatchModal } from './Modals';
 import { handleJosmLink } from '../utils';
+import { t } from '../i18n';
 
 export function UnmappedTab({
     results,
@@ -17,7 +18,7 @@ export function UnmappedTab({
     pageSize,
 }) {
     const disallowedOrNotBrand = useMemo(
-        () => results.filter(r => ['disallowed source uri', 'not a brand spider'].includes(r.status)),
+        () => results.filter(r => ['disallowedSourceUri', 'notABrandSpider'].includes(r.status)),
         [results]
     );
 
@@ -75,7 +76,7 @@ export function UnmappedTab({
                 />
             )}
 
-            {loading && <LoadingIndicator message="Loading Unmapped items..." />}
+            {loading && <LoadingIndicator message={t('spider.loading')} />}
 
             {!loading && (
                 <>
@@ -85,8 +86,8 @@ export function UnmappedTab({
                                 class={`bg-gray-800 text-gray-400 text-left sticky z-10 shadow-sm ${filters && filters.length > 1 ? 'top-[114px] md:top-[122px]' : 'top-[44px] md:top-[52px]'}`}
                             >
                                 <tr class="hidden md:table-row">
-                                    <th class="px-4 py-3">Ref</th>
-                                    <th class="px-4 py-3">Tags</th>
+                                    <th class="px-4 py-3">{t('spider.table.ref')}</th>
+                                    <th class="px-4 py-3">{t('spider.table.tags')}</th>
                                 </tr>
                             </thead>
                             <tbody class="text-gray-300 divide-y divide-gray-800">
@@ -104,7 +105,7 @@ export function UnmappedTab({
                                         <td class="md:table-cell md:px-4 md:py-3">
                                             <div class="flex md:block">
                                                 <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">
-                                                    Tags:
+                                                    {t('spider.table.tags')}:
                                                 </span>
                                                 <div class="text-xs font-mono whitespace-pre-wrap flex-grow">
                                                     <TagsWithLinks tags={r.allAtpTags} visitedSet={visitedSet} />
@@ -129,15 +130,15 @@ export function UnmappedTab({
                             onClick={() => setShowJosmWarning(true)}
                             class="text-blue-400 hover:underline text-sm cursor-pointer bg-transparent border-none"
                         >
-                            Open unmapped items in JOSM
+                            {t('spider.actions.openUnmapped')}
                         </button>
                     </div>
 
                     {showJosmWarning && (
                         <>
                             <MismatchModal
-                                title="JOSM Import Warning"
-                                message="This will load and open the unmapped items from ATP into JOSM. This may be useful to match them to existing elements. <strong class='text-white'>DO NOT import them</strong>, but use conflation and judgement."
+                                title={t('spider.modals.mismatch.title')}
+                                message={t('spider.modals.josmImport.message')}
                                 onUnderstand={handleImport}
                                 onBack={() => setShowJosmWarning(false)}
                                 showImportBtn
@@ -167,7 +168,7 @@ export function BrandFilters({ filters, currentState, onFilterChange, totalCount
                         }`}
                         onClick={() => onFilterChange(null, null)}
                     >
-                        All brands
+                        {t('spider.filters.allBrands')}
                         <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-900 text-xs">{totalCount}</span>
                     </button>
                     {filters.map(filter => {

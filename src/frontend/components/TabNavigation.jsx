@@ -1,5 +1,6 @@
 import { h } from 'preact';
 import { useRef, useState, useEffect } from 'preact/hooks';
+import { t } from '../i18n';
 
 export function TabNavigation({
     activeTab,
@@ -46,13 +47,13 @@ export function TabNavigation({
                 >
                     <TabButton
                         id="summary"
-                        label="Summary"
+                        label={t('spider.tabs.summary')}
                         active={activeTab === 'summary'}
                         onClick={() => onTabChange('summary')}
                     />
                     <TabButton
                         id="unmapped"
-                        label="Unmapped"
+                        label={t('spider.tabs.unmapped')}
                         count={activeTab === 'unmapped' ? unmappedCount : null}
                         active={activeTab === 'unmapped'}
                         onClick={() => onTabChange('unmapped')}
@@ -60,7 +61,7 @@ export function TabNavigation({
                     {showUnmatched && (
                         <TabButton
                             id="unmatched"
-                            label="Unmatched"
+                            label={t('spider.tabs.unmatched')}
                             count={activeTab === 'unmatched' ? unmatchedCount : null}
                             active={activeTab === 'unmatched'}
                             onClick={() => onTabChange('unmatched')}
@@ -70,7 +71,7 @@ export function TabNavigation({
                         <li class="shrink-0 border-r border-gray-700 pr-2 mr-2" role="presentation">
                             <TabButton
                                 id="duplicate-refs"
-                                label="Duplicate Refs"
+                                label={t('spider.tabs.duplicateRefs')}
                                 active={activeTab === 'duplicate-refs'}
                                 onClick={() => onTabChange('duplicate-refs')}
                             />

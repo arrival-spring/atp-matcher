@@ -1,5 +1,6 @@
 import { h } from 'preact';
 import { Layout } from './Layout';
+import { t } from '../i18n';
 
 export function SpiderPage({
     name,
@@ -18,7 +19,7 @@ export function SpiderPage({
 }) {
     return h(Layout, { title: name, basePath: basePath, atpDate: atpDate, osmDate: osmDate }, [
         h('nav', { class: 'mb-8 mt-4' }, [
-            h('a', { href: `${basePath}/index.html`, class: 'text-blue-400 hover:underline' }, '← Back to Index'),
+            h('a', { href: `${basePath}/index.html`, class: 'text-blue-400 hover:underline' }, `← ${t('spider.backToDashboard')}`),
         ]),
         h('header', { class: 'mb-12' }, [
             h('h1', { class: 'text-4xl font-extrabold mb-2' }, name),
@@ -27,32 +28,30 @@ export function SpiderPage({
                     'div',
                     { class: 'bg-orange-900/20 border border-orange-500/50 text-orange-200 p-4 rounded-lg mb-6 mt-4' },
                     [
-                        h('p', { class: 'font-bold' }, '⚠️ Stale Data'),
+                        h('p', { class: 'font-bold' }, `⚠️ ${t('spider.staleData')}`),
                         h(
                             'p',
                             { class: 'text-sm' },
-                            `The latest ATP run was empty. Showing data from ${staleDate.substring(0, 10)} instead.`
+                            t('spider.staleDataDesc', { date: staleDate.substring(0, 10) })
                         ),
                     ]
                 ),
             (loadStatus === 'missing' || loadStatus === 'empty') &&
                 h('div', { class: 'bg-red-900/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6 mt-4' }, [
-                    h('p', { class: 'font-bold' }, '❌ No Data Available'),
+                    h('p', { class: 'font-bold' }, `❌ ${t('spider.noData')}`),
                     h(
                         'p',
                         { class: 'text-sm' },
                         loadStatus === 'missing'
-                            ? 'The latest ATP run for this spider could not be found (404).'
-                            : 'All recent ATP runs for this spider were empty.'
+                            ? t('spider.noData404')
+                            : t('spider.noDataEmpty')
                     ),
                 ]),
             !isBrandSpider &&
                 h('div', { class: 'bg-red-900/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6 mt-4' }, [
-                    h('p', { class: 'font-bold' }, '❌ Not a Brand Spider'),
+                    h('p', { class: 'font-bold' }, `❌ ${t('spider.notBrandSpider')}`),
                     h('p', { class: 'text-sm' }, [
-                        'This spider does not have the expected ',
-                        h('code', null, 'spider:lineage=S_ATP_BRANDS'),
-                        ' attribute.',
+                        t('spider.notBrandSpiderDesc')
                     ]),
                 ]),
             h('div', { class: 'text-gray-400 text-sm flex gap-4 mt-4' }, [
@@ -87,7 +86,7 @@ export function SpiderPage({
                         class: 'text-blue-400 hover:underline inline-flex items-center',
                     },
                     [
-                        'Spider Source',
+                        t('spider.links.source'),
                         h(
                             'svg',
                             { class: 'w-4 h-4 ml-1', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },

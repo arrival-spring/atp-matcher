@@ -42,7 +42,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
         const isAllowed = isAllowedSourceUri(props['@source_uri'], spider.source_uri);
 
         if (!isBrandSpider || !isAllowed) {
-            itemStatus = !isBrandSpider ? 'not a brand spider' : 'disallowed source uri';
+            itemStatus = !isBrandSpider ? 'notABrandSpider' : 'disallowedSourceUri';
             const possibleTags = new Set([...expandedImportableTags, 'opening_hours', 'website']);
             for (const tag of possibleTags) {
                 const spiderValue = props[tag] || null;
@@ -101,7 +101,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                     nonNullValues.length <= 1 || nonNullValues.every(v => areTagsEqual(tag, v, spiderValue, country));
 
                 if (matchEntries.length > 1) {
-                    status = 'duplicate ref';
+                    status = 'duplicateRef';
                 } else if (matchEntries.length === 1) {
                     const osm = matchEntries[0];
                     osmId = osm.id;
@@ -126,7 +126,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                             areTagsEqual(tag, v3, v4, country) &&
                             areTagsEqual(tag, v4, spiderValue, country)
                         ) {
-                            status = 'Add to OSM';
+                            status = 'addToOsm';
                         } else {
                             status = 'mismatch';
                         }
@@ -134,7 +134,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                         if (areTagsEqual(tag, osmTagValue, spiderValue, country)) {
                             status = 'matching';
                         } else {
-                            // Check for update OSM
+                            // Check for updateOsm
                             let canUpdate = false;
                             const v1 = history.length >= 1 ? history[0].value : null;
                             const v2 = history.length >= 2 ? history[1].value : null;
@@ -157,7 +157,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                                 if (tag === 'opening_hours' && osmTagValue.includes('PH')) {
                                     status = 'mismatch';
                                 } else {
-                                    status = 'update OSM';
+                                    status = 'updateOsm';
                                 }
                             } else {
                                 status = 'mismatch';
@@ -165,7 +165,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                         }
                     }
                 } else {
-                    status = 'not mapped';
+                    status = 'notMapped';
                 }
 
                 itemTags.push({
@@ -199,7 +199,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
             matchCount,
         };
 
-        if (isMapped || itemStatus === 'disallowed source uri' || itemStatus === 'not a brand spider') {
+        if (isMapped || itemStatus === 'disallowedSourceUri' || itemStatus === 'notABrandSpider') {
             results.push({
                 ...result,
                 allAtpTags: result.matchCount > 1 || !isMapped ? filteredAtpTags : undefined,
@@ -212,7 +212,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
         }
 
         // Collect safe edits
-        if (osmId && (itemStatus === 'update OSM' || itemStatus === 'Add to OSM')) {
+        if (osmId && (itemStatus === 'updateOsm' || itemStatus === 'addToOsm')) {
             const rawCountryCode = props['addr:country'];
             const countryCode = typeof rawCountryCode === 'string' ? rawCountryCode.toUpperCase() : null;
             const state = props['addr:state'];
@@ -223,7 +223,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                 const countryInfo = countriesList[countryCode];
                 if (countryInfo) {
                     const countryName = countryInfo.native;
-                    const tagsToEdit = itemTags.filter(t => t.status === 'update OSM' || t.status === 'Add to OSM');
+                    const tagsToEdit = itemTags.filter(t => t.status === 'updateOsm' || t.status === 'addToOsm');
 
                     if (tagsToEdit.length > 0) {
                         const originalValues = {};
@@ -273,7 +273,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                 console.warn(`Spider ${spider.name} has invalid country code: ${countryCode} for ref ${matchingValue}`);
             } else {
                 // Countryless
-                const tagsToEdit = itemTags.filter(t => t.status === 'update OSM' || t.status === 'Add to OSM');
+                const tagsToEdit = itemTags.filter(t => t.status === 'updateOsm' || t.status === 'addToOsm');
                 if (tagsToEdit.length > 0) {
                     const originalValues = {};
                     const newValues = {};
