@@ -1,6 +1,7 @@
 import { render, h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { escapeHtml, getVisitedLinks, markLinkVisited } from './utils';
+import { t, initI18n } from './i18n';
 import { TabNavigation } from './components/TabNavigation';
 import { SummaryTab } from './components/SummaryTab';
 import { UnmappedTab } from './components/UnmappedTab';
@@ -20,6 +21,14 @@ function SpiderDashboard({
     unmappedFilters = [],
     unmatchedFilters = [],
 }) {
+    const [currentLocale, setCurrentLocale] = useState(null);
+
+    useEffect(() => {
+        const handleLocaleChange = (e) => setCurrentLocale(e.detail);
+        window.addEventListener('localeChanged', handleLocaleChange);
+        return () => window.removeEventListener('localeChanged', handleLocaleChange);
+    }, []);
+
     const [currentState, setCurrentState] = useState({
         tag: 'summary',
         status: null,
@@ -113,12 +122,8 @@ function SpiderDashboard({
             const warnedTags = JSON.parse(sessionStorage.getItem(`mismatch_warned_tags_${spiderName}`) || '[]');
             if (!warnedTags.includes(currentState.tag)) {
                 setMismatchModalConfig({
-                    title: 'Important Warning',
-                    message: `
-                        Some of the data from the spider may be wrong. <strong class="text-white">DO NOT simply update ${escapeHtml(currentState.tag)} on all of the objects.</strong>
-                        Check the history to see who added ${escapeHtml(currentState.tag)} and their likely source.
-                        If you are not sure then <strong class="text-white">DO NOT MAKE A CHANGE</strong> unless you can survey the place.
-                    `,
+                    title: t('spider.modals.mismatch.title'),
+                    message: t('spider.modals.mismatch.message', { tag: `<strong class="text-white">${escapeHtml(currentState.tag)}</strong>` }),
                     onUnderstand: () => {
                         const warnedTags = JSON.parse(
                             sessionStorage.getItem(`mismatch_warned_tags_${spiderName}`) || '[]'
@@ -148,7 +153,7 @@ function SpiderDashboard({
     };
 
     const isUniquelyMatched = r =>
-        r.matchCount === 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status);
+        r.matchCount === 1 && !['disallowedSourceUri', 'notABrandSpider'].includes(r.status);
 
     const switchTab = tag => {
         setCurrentState({
@@ -170,7 +175,7 @@ function SpiderDashboard({
                 hasDuplicates={results.some(r => r.matchCount > 1)}
                 unmappedCount={
                     (unmappedCache ? unmappedCache.length : 0) +
-                    results.filter(r => ['disallowed source uri', 'not a brand spider'].includes(r.status)).length
+                    results.filter(r => ['disallowedSourceUri', 'notABrandSpider'].includes(r.status)).length
                 }
                 unmatchedCount={unmatchedCache ? unmatchedCache.length : 0}
             />
@@ -183,7 +188,7 @@ function SpiderDashboard({
                         showUnmatched={showUnmatched}
                         unmappedCount={
                             (unmappedCache ? unmappedCache.length : 0) +
-                            results.filter(r => ['disallowed source uri', 'not a brand spider'].includes(r.status))
+                            results.filter(r => ['disallowedSourceUri', 'notABrandSpider'].includes(r.status))
                                 .length
                         }
                         unmatchedCount={unmatchedCache ? unmatchedCache.length : 0}
@@ -262,7 +267,8 @@ function SpiderDashboard({
     );
 }
 
-window.initSpiderDashboard = props => {
+window.initSpiderDashboard = async props => {
+    await initI18n();
     const container = document.getElementById('spider-dashboard-root');
     if (container) {
         render(<SpiderDashboard {...props} />, container);

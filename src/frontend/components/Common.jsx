@@ -1,11 +1,19 @@
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 import { markLinkVisited, handleJosmLink } from '../utils';
+import { t } from '../i18n';
 
 export function StatusLabel({ status }) {
     if (!status) return null;
-    const label = status === 'not mapped' ? 'Unmapped' : status;
+    const isSpecial = status.includes('(');
+    let label;
+    if (isSpecial) {
+        const [baseStatus, extra] = status.split(' (');
+        label = `${t(`spider.status.${baseStatus}`)} (${extra}`;
+    } else {
+        label = t(`spider.status.${status}`);
+    }
     return (
-        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-800 border border-gray-700 text-gray-300 capitalize inline-block align-middle ml-2">
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-800 border border-gray-700 text-gray-300 inline-block align-middle ml-2">
             {label}
         </span>
     );
@@ -52,7 +60,7 @@ export function SpiderValue({ value, history, tag, visitedSet }) {
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
-                    title="stable value"
+                    title={t('spider.tooltips.stableValue')}
                 >
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                 </svg>
@@ -138,7 +146,7 @@ export function OsmColumn({ osmId, suggestedFixes = {}, visitedSet, atpDate, onV
                         onClick={() => handleJosmLink(josmEditUrl, atpDate, onVisited, onJosmError)}
                         class={`${isJosmEditVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline`}
                     >
-                        edit
+                        {t('spider.actions.edit')}
                     </a>
                     {hasFixes && (
                         <a
@@ -146,7 +154,7 @@ export function OsmColumn({ osmId, suggestedFixes = {}, visitedSet, atpDate, onV
                             onClick={() => handleJosmLink(josmUpdateUrl, atpDate, onVisited, onJosmError)}
                             class={`${isJosmUpdateVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline ml-1`}
                         >
-                            update
+                            {t('spider.actions.update')}
                         </a>
                     )}
                 </div>
@@ -168,7 +176,7 @@ export function BulkJosmLinks({ items, atpDate, onVisited, onJosmError }) {
                 onClick={() => handleJosmLink(josmUrl, atpDate, onVisited, onJosmError)}
                 class="text-blue-400 hover:underline text-sm"
             >
-                Open all unmatched in JOSM
+                {t('spider.actions.openUnmatched')}
             </a>
         );
     }
@@ -192,10 +200,10 @@ export function BulkJosmLinks({ items, atpDate, onVisited, onJosmError }) {
     }
 
     return (
-        <>
-            <div class="text-gray-400 text-sm mb-2">Open all unmatched in JOSM</div>
+        <Fragment>
+            <div class="text-gray-400 text-sm mb-2">{t('spider.actions.openUnmatched')}</div>
             <div class="flex flex-wrap justify-center gap-4">{links}</div>
-        </>
+        </Fragment>
     );
 }
 
@@ -207,17 +215,17 @@ export function Pagination({ page, totalPages, onPageChange, totalItems }) {
                 disabled={page === 1}
                 class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer text-sm font-medium"
             >
-                Previous
+                {t('index.pagination.previous')}
             </button>
             <span class="text-gray-400 font-medium text-sm">
-                Page {page} of {totalPages}
+                {t('index.pagination.pageOf', { page, totalPages })}
             </span>
             <button
                 onClick={() => onPageChange(page + 1)}
                 disabled={page === totalPages || totalItems === 0}
                 class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer text-sm font-medium"
             >
-                Next
+                {t('index.pagination.next')}
             </button>
         </div>
     );

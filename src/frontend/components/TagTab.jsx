@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useMemo } from 'preact/hooks';
 import { StatusLabel, TagValue, SpiderValue, OsmColumn, Pagination } from './Common';
+import { t } from '../i18n';
 
 export function TagTab({
     tag,
@@ -41,8 +42,8 @@ export function TagTab({
     const effectivePage = Math.min(currentState.page, totalPages);
     const pageData = filtered.slice((effectivePage - 1) * pageSize, effectivePage * pageSize);
 
-    const possibleStatuses = ['disallowed source uri', 'mismatch', 'update OSM', 'Add to OSM', 'matching'];
-    const showOsmColumns = currentState.status !== 'Add to OSM';
+    const possibleStatuses = ['disallowedSourceUri', 'mismatch', 'updateOsm', 'addToOsm', 'matching'];
+    const showOsmColumns = currentState.status !== 'addToOsm';
 
     return (
         <div>
@@ -51,7 +52,7 @@ export function TagTab({
                     <div class="flex overflow-x-auto no-scrollbar gap-2">
                         {possibleStatuses.map(status => {
                             const count = tagResults.filter(r => r.tagStatus === status).length;
-                            if (count === 0 && status === 'disallowed source uri') return null;
+                            if (count === 0 && status === 'disallowedSourceUri') return null;
                             const active = currentState.status === status;
                             return (
                                 <button
@@ -69,7 +70,7 @@ export function TagTab({
                                     }
                                     disabled={count === 0}
                                 >
-                                    <span class="capitalize">{status}</span>
+                                    <span>{t(`spider.status.${status}`)}</span>
                                     <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-900 text-xs">{count}</span>
                                 </button>
                             );
@@ -82,18 +83,18 @@ export function TagTab({
                 <table class="min-w-full table-auto">
                     <thead class="bg-gray-800 text-gray-400 text-left sticky top-[114px] md:top-[122px] z-10 shadow-sm">
                         <tr class="hidden md:table-row">
-                            <th class="px-4 py-3">Ref</th>
-                            <th class="px-4 py-3">Spider Value</th>
-                            {showOsmColumns && <th class="px-4 py-3">OSM Value</th>}
-                            <th class="px-4 py-3 text-right">OSM</th>
+                            <th class="px-4 py-3">{t('spider.table.ref')}</th>
+                            <th class="px-4 py-3">{t('spider.table.spiderValue')}</th>
+                            {showOsmColumns && <th class="px-4 py-3">{t('spider.table.osmValue')}</th>}
+                            <th class="px-4 py-3 text-right">{t('spider.table.osm')}</th>
                         </tr>
                     </thead>
                     <tbody class="text-gray-300 divide-y divide-gray-800">
                         {pageData.map(r => {
                             const suggestedFixes = {};
                             if (
-                                r.tagStatus === 'Add to OSM' ||
-                                r.tagStatus === 'update OSM' ||
+                                r.tagStatus === 'addToOsm' ||
+                                r.tagStatus === 'updateOsm' ||
                                 (r.tagStatus === 'mismatch' && currentState.status === 'mismatch')
                             ) {
                                 suggestedFixes[tag] = r.spiderValue;
@@ -112,7 +113,7 @@ export function TagTab({
                                     <td class="md:table-cell md:px-4 md:py-3 mb-2 md:mb-0">
                                         <div class="flex md:block">
                                             <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">
-                                                Spider:
+                                                {t('spider.table.spiderValue')}:
                                             </span>
                                             <div class="flex-grow">
                                                 <SpiderValue
@@ -128,7 +129,7 @@ export function TagTab({
                                         <td class="md:table-cell md:px-4 md:py-3 mb-2 md:mb-0">
                                             <div class="flex md:block">
                                                 <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">
-                                                    OSM:
+                                                    {t('spider.table.osmValue')}:
                                                 </span>
                                                 <div class="flex-grow">
                                                     <TagValue value={r.osmValue} tag={tag} visitedSet={visitedSet} />

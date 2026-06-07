@@ -104,10 +104,10 @@ async function run() {
             );
 
             if (results) {
-                // For unmapped items in results (disallowed source uri, not a brand spider),
+                // For unmapped items in results (disallowedSourceUri, notABrandSpider),
                 // we need to make sure they have allAtpTags for the brand filters to work.
                 const unmappedResults = results
-                    .filter(r => r.status === 'disallowed source uri' || r.status === 'not a brand spider')
+                    .filter(r => r.status === 'disallowedSourceUri' || r.status === 'notABrandSpider')
                     .map(r => {
                         const feature = data.latestRun.features.find(f => f.properties.ref === r.ref);
                         const filteredAtpTags = {};
@@ -122,12 +122,12 @@ async function run() {
                     });
 
                 const isMapped = r =>
-                    r.matchCount >= 1 && r.status !== 'disallowed source uri' && r.status !== 'not a brand spider';
+                    r.matchCount >= 1 && r.status !== 'disallowedSourceUri' && r.status !== 'notABrandSpider';
                 const mappedResults = results.filter(isMapped);
                 const mappedCount = mappedResults.length;
                 const issuesCount = mappedResults.filter(r => r.status !== 'matching').length;
                 const automaticUpdatesCount = mappedResults.filter(
-                    r => r.status === 'update OSM' || r.status === 'Add to OSM'
+                    r => r.status === 'updateOsm' || r.status === 'addToOsm'
                 ).length;
 
                 const unmatchedMap = allUnmatched.get(spiderName);
@@ -231,7 +231,7 @@ async function run() {
                 fs.writeFileSync(path.join(spiderDir, `${spiderName}_unmapped.json`), JSON.stringify(unmapped));
                 fs.writeFileSync(path.join(spiderDir, `${spiderName}_unmatched.json`), JSON.stringify(unmatched));
 
-                // Generate unmapped GeoJSON for JOSM (including disallowed source uri and not a brand spider)
+                // Generate unmapped GeoJSON for JOSM (including disallowedSourceUri and notABrandSpider)
                 const unmappedRefs = new Set(unmappedItemsForFilter.map(r => r.ref));
 
                 const unmappedGeoJson = {
@@ -273,7 +273,7 @@ async function run() {
                     name: spiderName,
                     importableTags: usedTags,
                     results: results.map(r => {
-                        if (r.status === 'disallowed source uri' || r.status === 'not a brand spider') {
+                        if (r.status === 'disallowedSourceUri' || r.status === 'notABrandSpider') {
                             return unmappedResults.find(ur => ur.ref === r.ref) || r;
                         }
                         return { ...r, allAtpTags: undefined };

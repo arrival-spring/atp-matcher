@@ -73,6 +73,18 @@ export function generateWebpage(allSpiderResults, atpDate, osmDate) {
     try {
         console.log('Building frontend assets with Vite...');
         execSync('npm run build:fe', { stdio: 'inherit' });
+
+        // Copy locales to output
+        const localesDir = path.join(outputDir, 'locales');
+        if (!fs.existsSync(localesDir)) {
+            fs.mkdirSync(localesDir, { recursive: true });
+        }
+        const srcLocalesDir = path.join('src', 'locales');
+        fs.readdirSync(srcLocalesDir).forEach(file => {
+            if (file.endsWith('.json')) {
+                fs.copyFileSync(path.join(srcLocalesDir, file), path.join(localesDir, file));
+            }
+        });
     } catch (error) {
         console.error(`Error building frontend assets: ${error.message}`);
     }

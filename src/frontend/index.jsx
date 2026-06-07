@@ -1,10 +1,19 @@
 import { render, h } from 'preact';
 import { useState, useEffect, useMemo } from 'preact/hooks';
 import { escapeHtml } from './utils';
+import { t, initI18n } from './i18n';
 
 const PAGE_SIZE = 10;
 
 function Dashboard({ allSpiderResults }) {
+    const [currentLocale, setCurrentLocale] = useState(null);
+
+    useEffect(() => {
+        const handleLocaleChange = (e) => setCurrentLocale(e.detail);
+        window.addEventListener('localeChanged', handleLocaleChange);
+        return () => window.removeEventListener('localeChanged', handleLocaleChange);
+    }, []);
+
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
 
@@ -71,7 +80,7 @@ function Dashboard({ allSpiderResults }) {
                     type="text"
                     id="search-input"
                     class="block w-full pl-10 pr-3 py-3 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
-                    placeholder="Search spiders..."
+                    placeholder={t('index.searchPlaceholder')}
                     value={search}
                     onInput={handleSearchChange}
                 />
@@ -81,16 +90,16 @@ function Dashboard({ allSpiderResults }) {
                 <table class="min-w-full table-auto">
                     <thead class="bg-gray-800 text-gray-400 text-left">
                         <tr class="hidden md:table-row">
-                            <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider w-16">Status</th>
-                            <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider">Spider Name</th>
+                            <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider w-16">{t('index.table.status')}</th>
+                            <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider">{t('index.table.spiderName')}</th>
                             <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right">
-                                Issues / Mapped
+                                {t('index.table.issuesMapped')}
                             </th>
                             <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right">
-                                Auto Updates
+                                {t('index.table.autoUpdates')}
                             </th>
                             <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right">
-                                Mapped / Total
+                                {t('index.table.mappedTotal')}
                             </th>
                         </tr>
                     </thead>
@@ -108,17 +117,17 @@ function Dashboard({ allSpiderResults }) {
                     disabled={effectivePage === 1}
                     class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer text-sm font-medium"
                 >
-                    Previous
+                    {t('index.pagination.previous')}
                 </button>
                 <span class="text-gray-400 font-medium text-sm">
-                    Page {effectivePage} of {totalPages}
+                    {t('index.pagination.pageOf', { page: effectivePage, totalPages })}
                 </span>
                 <button
                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                     disabled={effectivePage === totalPages || filtered.length === 0}
                     class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer text-sm font-medium"
                 >
-                    Next
+                    {t('index.pagination.next')}
                 </button>
             </div>
         </div>
@@ -145,10 +154,10 @@ function SpiderRow({ spider }) {
     };
 
     const statusTitles = {
-        green: 'Stable',
-        orange: 'Minor variations',
-        red: 'Major variations',
-        gray: 'Missing data',
+        green: t('index.stability.stable'),
+        orange: t('index.stability.minorVariations'),
+        red: t('index.stability.majorVariations'),
+        gray: t('index.stability.missingData'),
     };
 
     const showTotals = !loadStatus && isBrandSpider;
@@ -237,7 +246,8 @@ function SpiderRow({ spider }) {
     );
 }
 
-window.initDashboard = allSpiderResults => {
+window.initDashboard = async allSpiderResults => {
+    await initI18n();
     const container = document.getElementById('dashboard-root');
     if (container) {
         render(<Dashboard allSpiderResults={allSpiderResults} />, container);

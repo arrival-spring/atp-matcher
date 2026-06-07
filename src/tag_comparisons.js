@@ -7,13 +7,13 @@ const ohCache = new LRUCache({ max: 1000 });
 const ohCompareCache = new LRUCache({ max: 5000 });
 
 export const STATUS_PRIORITY = [
-    'not a brand spider',
-    'disallowed source uri',
-    'duplicate ref',
+    'notABrandSpider',
+    'disallowedSourceUri',
+    'duplicateRef',
     'mismatch',
-    'update OSM',
-    'not mapped',
-    'Add to OSM',
+    'updateOsm',
+    'notMapped',
+    'addToOsm',
     'matching',
 ];
 

@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useMemo } from 'preact/hooks';
 import { TagsWithLinks, OsmColumn, Pagination, BulkJosmLinks, LoadingIndicator } from './Common';
+import { t } from '../i18n';
 import { BrandFilters } from './UnmappedTab';
 
 export function UnmatchedTab({
@@ -47,7 +48,7 @@ export function UnmatchedTab({
                 />
             )}
 
-            {loading && <LoadingIndicator message="Loading Unmatched items..." />}
+            {loading && <LoadingIndicator message={t('spider.loading.unmatched')} />}
 
             {!loading && (
                 <>
@@ -57,9 +58,9 @@ export function UnmatchedTab({
                                 class={`bg-gray-800 text-gray-400 text-left sticky z-10 shadow-sm ${filters && filters.length > 1 ? 'top-[114px] md:top-[122px]' : 'top-[44px] md:top-[52px]'}`}
                             >
                                 <tr class="hidden md:table-row">
-                                    <th class="px-4 py-3">OSM ID</th>
-                                    <th class="px-4 py-3">Tags</th>
-                                    <th class="px-4 py-3 text-right">OSM</th>
+                                    <th class="px-4 py-3">{t('spider.table.osmId')}</th>
+                                    <th class="px-4 py-3">{t('spider.table.tags')}</th>
+                                    <th class="px-4 py-3 text-right">{t('spider.table.osm')}</th>
                                 </tr>
                             </thead>
                             <tbody class="text-gray-300 divide-y divide-gray-800">
@@ -74,7 +75,7 @@ export function UnmatchedTab({
                                         <td class="md:table-cell md:px-4 md:py-3">
                                             <div class="flex md:block">
                                                 <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">
-                                                    Tags:
+                                                    {t('spider.table.tags')}:
                                                 </span>
                                                 <div class="text-xs font-mono whitespace-pre-wrap flex-grow">
                                                     <TagsWithLinks tags={r.tags} visitedSet={visitedSet} />

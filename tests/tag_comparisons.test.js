@@ -137,10 +137,10 @@ describe('Tag Comparison Logic', () => {
 
     describe('getOverallStatus', () => {
         test('should return highest priority status', () => {
-            expect(getOverallStatus(['matching', 'mismatch', 'Add to OSM'])).toBe('mismatch');
-            expect(getOverallStatus(['matching', 'update OSM', 'not mapped'])).toBe('update OSM');
-            expect(getOverallStatus(['disallowed source uri', 'mismatch'])).toBe('disallowed source uri');
-            expect(getOverallStatus(['not a brand spider', 'disallowed source uri'])).toBe('not a brand spider');
+            expect(getOverallStatus(['matching', 'mismatch', 'addToOsm'])).toBe('mismatch');
+            expect(getOverallStatus(['matching', 'updateOsm', 'notMapped'])).toBe('updateOsm');
+            expect(getOverallStatus(['disallowedSourceUri', 'mismatch'])).toBe('disallowedSourceUri');
+            expect(getOverallStatus(['notABrandSpider', 'disallowedSourceUri'])).toBe('notABrandSpider');
         });
 
         test('should return matching if all are matching', () => {

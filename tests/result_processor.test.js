@@ -38,12 +38,12 @@ describe('processSpiderResults Status Logic', () => {
         lineage: 'S_ATP_BRANDS',
     };
 
-    test('should identify "update OSM" when stable and mismatching', async () => {
+    test('should identify "updateOsm" when stable and mismatching', async () => {
         const spiderMatches = new Map([['123', [{ id: 'n1', tags: { website: 'https://old.com' } }]]]);
 
         const { results } = await processSpiderResults(spiderData, spiderMatches, runs);
         const websiteTag = results[0].tags.find(t => t.tag === 'website');
-        expect(websiteTag.status).toBe('update OSM');
+        expect(websiteTag.status).toBe('updateOsm');
     });
 
     test('should identify "mismatch" when unstable', async () => {
@@ -63,12 +63,12 @@ describe('processSpiderResults Status Logic', () => {
         expect(websiteTag.status).toBe('mismatch');
     });
 
-    test('should identify "Add to OSM" when OSM value is missing and ATP is stable', async () => {
+    test('should identify "addToOsm" when OSM value is missing and ATP is stable', async () => {
         const spiderMatches = new Map([['123', [{ id: 'n1', tags: {} }]]]);
 
         const { results } = await processSpiderResults(spiderData, spiderMatches, runs);
         const websiteTag = results[0].tags.find(t => t.tag === 'website');
-        expect(websiteTag.status).toBe('Add to OSM');
+        expect(websiteTag.status).toBe('addToOsm');
     });
 
     test('should identify "matching" when values are equal', async () => {
@@ -102,7 +102,7 @@ describe('processSpiderResults Status Logic', () => {
         expect(websiteTag.status).toBe('matching');
     });
 
-    test('should handle "disallowed source uri"', async () => {
+    test('should handle "disallowedSourceUri"', async () => {
         const disallowedData = {
             ...spiderData,
             latestRun: {
@@ -122,10 +122,10 @@ describe('processSpiderResults Status Logic', () => {
         const spiderMatches = new Map();
 
         const { results } = await processSpiderResults(disallowedData, spiderMatches, runs);
-        expect(results[0].status).toBe('disallowed source uri');
+        expect(results[0].status).toBe('disallowedSourceUri');
     });
 
-    test('should handle "not a brand spider"', async () => {
+    test('should handle "notABrandSpider"', async () => {
         const notBrandData = {
             ...spiderData,
             isBrandSpider: false,
@@ -133,7 +133,7 @@ describe('processSpiderResults Status Logic', () => {
         const spiderMatches = new Map();
 
         const { results } = await processSpiderResults(notBrandData, spiderMatches, runs);
-        expect(results[0].status).toBe('not a brand spider');
+        expect(results[0].status).toBe('notABrandSpider');
     });
 });
 
@@ -175,7 +175,7 @@ describe('processSpiderResults Safe Edits', () => {
         lineage: 'S_ATP_BRANDS',
     };
 
-    test('should generate safe edits for "update OSM"', async () => {
+    test('should generate safe edits for "updateOsm"', async () => {
         const spiderMatches = new Map([['123', [{ id: 'n12345', tags: { website: 'https://old.com' } }]]]);
         const safeEdits = {};
 
