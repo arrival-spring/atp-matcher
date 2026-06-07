@@ -38,9 +38,7 @@ function Dashboard({ allSpiderResults }) {
     }, [search, page]);
 
     const filtered = useMemo(() => {
-        return allSpiderResults.filter(spider =>
-            spider.name.toLowerCase().includes(search.toLowerCase())
-        );
+        return allSpiderResults.filter(spider => spider.name.toLowerCase().includes(search.toLowerCase()));
     }, [allSpiderResults, search]);
 
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
@@ -51,7 +49,7 @@ function Dashboard({ allSpiderResults }) {
         return filtered.slice(start, start + PAGE_SIZE);
     }, [filtered, effectivePage]);
 
-    const handleSearchChange = (e) => {
+    const handleSearchChange = e => {
         setSearch(e.target.value);
         setPage(1);
     };
@@ -61,7 +59,12 @@ function Dashboard({ allSpiderResults }) {
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
                     </svg>
                 </div>
                 <input
@@ -80,9 +83,15 @@ function Dashboard({ allSpiderResults }) {
                         <tr class="hidden md:table-row">
                             <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider w-16">Status</th>
                             <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider">Spider Name</th>
-                            <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right">Issues / Mapped</th>
-                            <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right">Auto Updates</th>
-                            <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right">Mapped / Total</th>
+                            <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right">
+                                Issues / Mapped
+                            </th>
+                            <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right">
+                                Auto Updates
+                            </th>
+                            <th class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right">
+                                Mapped / Total
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-800">
@@ -147,7 +156,7 @@ function SpiderRow({ spider }) {
     return (
         <tr
             class="flex flex-col md:table-row border-b border-gray-800 md:border-gray-700 hover:bg-gray-800 cursor-pointer p-4 md:p-0"
-            onClick={() => window.location.href = `${name}/`}
+            onClick={() => (window.location.href = `${name}/`)}
         >
             <td class="md:table-cell md:px-6 md:py-4 mb-2 md:mb-0">
                 <div class="flex items-center gap-2">
@@ -159,14 +168,12 @@ function SpiderRow({ spider }) {
                         <a
                             href={`${name}/`}
                             class="text-blue-400 hover:underline font-bold text-base"
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={e => e.stopPropagation()}
                         >
                             {name}
                         </a>
                         {loadStatus && (
-                            <span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">
-                                {loadStatus}
-                            </span>
+                            <span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">{loadStatus}</span>
                         )}
                     </div>
                 </div>
@@ -175,14 +182,12 @@ function SpiderRow({ spider }) {
                 <a
                     href={`${name}/`}
                     class="text-blue-400 hover:underline font-bold text-lg"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={e => e.stopPropagation()}
                 >
                     {name}
                 </a>
                 {loadStatus && (
-                    <span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">
-                        {loadStatus}
-                    </span>
+                    <span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">{loadStatus}</span>
                 )}
             </td>
             <td class="md:table-cell md:px-6 md:py-4 md:text-right">
@@ -200,9 +205,7 @@ function SpiderRow({ spider }) {
                     </div>
                     <div class="flex flex-col md:hidden">
                         <div class="text-sm">
-                            <span class="text-blue-400 font-semibold">
-                                {showTotals ? automaticUpdatesCount : ''}
-                            </span>
+                            <span class="text-blue-400 font-semibold">{showTotals ? automaticUpdatesCount : ''}</span>
                         </div>
                         <div class="text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">
                             (Auto Updates)
@@ -210,9 +213,7 @@ function SpiderRow({ spider }) {
                     </div>
                     <div class="flex flex-col md:hidden text-right">
                         <div class="text-sm">
-                            <span class="text-gray-200 font-semibold">
-                                {showTotals ? mappedCount : ''}
-                            </span>
+                            <span class="text-gray-200 font-semibold">{showTotals ? mappedCount : ''}</span>
                             <span class="text-gray-500">{showTotals ? ` / ${totalCount}` : ''}</span>
                         </div>
                         <div class="text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">
@@ -223,16 +224,12 @@ function SpiderRow({ spider }) {
             </td>
             <td class="hidden md:table-cell md:px-6 md:py-4 md:text-right">
                 <div class="text-sm md:text-base">
-                    <span class="text-blue-400 font-semibold">
-                        {showTotals ? automaticUpdatesCount : ''}
-                    </span>
+                    <span class="text-blue-400 font-semibold">{showTotals ? automaticUpdatesCount : ''}</span>
                 </div>
             </td>
             <td class="hidden md:table-cell md:px-6 md:py-4 md:text-right">
                 <div>
-                    <span class="text-gray-200 font-semibold">
-                        {showTotals ? mappedCount : ''}
-                    </span>
+                    <span class="text-gray-200 font-semibold">{showTotals ? mappedCount : ''}</span>
                     <span class="text-gray-500">{showTotals ? ` / ${totalCount}` : ''}</span>
                 </div>
             </td>
@@ -240,7 +237,7 @@ function SpiderRow({ spider }) {
     );
 }
 
-window.initDashboard = (allSpiderResults) => {
+window.initDashboard = allSpiderResults => {
     const container = document.getElementById('dashboard-root');
     if (container) {
         render(<Dashboard allSpiderResults={allSpiderResults} />, container);

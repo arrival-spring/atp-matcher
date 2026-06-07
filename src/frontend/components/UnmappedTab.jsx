@@ -4,10 +4,22 @@ import { StatusLabel, TagsWithLinks, Pagination, LoadingIndicator } from './Comm
 import { MismatchModal } from './Modals';
 import { handleJosmLink } from '../utils';
 
-export function UnmappedTab({ results, unmappedCache, loading, filters, currentState, setCurrentState, visitedSet, spiderName, onJosmError, pageSize }) {
-    const disallowedOrNotBrand = useMemo(() => results.filter(r =>
-        ['disallowed source uri', 'not a brand spider'].includes(r.status)
-    ), [results]);
+export function UnmappedTab({
+    results,
+    unmappedCache,
+    loading,
+    filters,
+    currentState,
+    setCurrentState,
+    visitedSet,
+    spiderName,
+    onJosmError,
+    pageSize,
+}) {
+    const disallowedOrNotBrand = useMemo(
+        () => results.filter(r => ['disallowed source uri', 'not a brand spider'].includes(r.status)),
+        [results]
+    );
 
     const allUnmapped = useMemo(() => {
         if (!unmappedCache) return disallowedOrNotBrand;
@@ -69,7 +81,9 @@ export function UnmappedTab({ results, unmappedCache, loading, filters, currentS
                 <>
                     <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6">
                         <table class="min-w-full table-auto">
-                            <thead class={`bg-gray-800 text-gray-400 text-left sticky z-10 shadow-sm ${filters && filters.length > 1 ? 'top-[114px] md:top-[122px]' : 'top-[44px] md:top-[52px]'}`}>
+                            <thead
+                                class={`bg-gray-800 text-gray-400 text-left sticky z-10 shadow-sm ${filters && filters.length > 1 ? 'top-[114px] md:top-[122px]' : 'top-[44px] md:top-[52px]'}`}
+                            >
                                 <tr class="hidden md:table-row">
                                     <th class="px-4 py-3">Ref</th>
                                     <th class="px-4 py-3">Tags</th>
@@ -77,7 +91,10 @@ export function UnmappedTab({ results, unmappedCache, loading, filters, currentS
                             </thead>
                             <tbody class="text-gray-300 divide-y divide-gray-800">
                                 {pageData.map(r => (
-                                    <tr key={r.ref} class="flex flex-col md:table-row border-b border-gray-800 md:border-none p-4 md:p-0 hover:bg-gray-800 transition-colors">
+                                    <tr
+                                        key={r.ref}
+                                        class="flex flex-col md:table-row border-b border-gray-800 md:border-none p-4 md:p-0 hover:bg-gray-800 transition-colors"
+                                    >
                                         <td class="md:table-cell md:px-4 md:py-3 font-medium break-all mb-2 md:mb-0">
                                             <div class="text-lg md:text-base flex items-center flex-wrap">
                                                 {r.ref}
@@ -86,7 +103,9 @@ export function UnmappedTab({ results, unmappedCache, loading, filters, currentS
                                         </td>
                                         <td class="md:table-cell md:px-4 md:py-3">
                                             <div class="flex md:block">
-                                                <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">Tags:</span>
+                                                <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">
+                                                    Tags:
+                                                </span>
                                                 <div class="text-xs font-mono whitespace-pre-wrap flex-grow">
                                                     <TagsWithLinks tags={r.allAtpTags} visitedSet={visitedSet} />
                                                 </div>
@@ -123,7 +142,10 @@ export function UnmappedTab({ results, unmappedCache, loading, filters, currentS
                                 onBack={() => setShowJosmWarning(false)}
                                 showImportBtn
                             />
-                            <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" onClick={() => setShowJosmWarning(false)} />
+                            <div
+                                class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+                                onClick={() => setShowJosmWarning(false)}
+                            />
                         </>
                     )}
                 </>
@@ -149,7 +171,9 @@ export function BrandFilters({ filters, currentState, onFilterChange, totalCount
                         <span class="ml-2 px-2 py-0.5 rounded-full bg-gray-900 text-xs">{totalCount}</span>
                     </button>
                     {filters.map(filter => {
-                        const active = currentState.brand === (filter.brand || null) && currentState.wikidata === (filter.wikidata || null);
+                        const active =
+                            currentState.brand === (filter.brand || null) &&
+                            currentState.wikidata === (filter.wikidata || null);
                         return (
                             <button
                                 key={filter.label}

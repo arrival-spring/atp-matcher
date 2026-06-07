@@ -2,17 +2,35 @@ import { h } from 'preact';
 import { useMemo } from 'preact/hooks';
 import { StatusLabel, TagValue, SpiderValue, OsmColumn, Pagination } from './Common';
 
-export function TagTab({ tag, results, currentState, setCurrentState, visitedSet, atpDate, onLinkClick, onJosmError, pageSize }) {
-    const tagResults = useMemo(() => results.map(r => {
-        const tagData = r.tags.find(t => t.tag === tag);
-        return tagData ? {
-            ...r,
-            tagStatus: tagData.status,
-            osmValue: tagData.osmValue,
-            spiderValue: tagData.spiderValue,
-            history: tagData.history,
-        } : null;
-    }).filter(r => r !== null), [results, tag]);
+export function TagTab({
+    tag,
+    results,
+    currentState,
+    setCurrentState,
+    visitedSet,
+    atpDate,
+    onLinkClick,
+    onJosmError,
+    pageSize,
+}) {
+    const tagResults = useMemo(
+        () =>
+            results
+                .map(r => {
+                    const tagData = r.tags.find(t => t.tag === tag);
+                    return tagData
+                        ? {
+                              ...r,
+                              tagStatus: tagData.status,
+                              osmValue: tagData.osmValue,
+                              spiderValue: tagData.spiderValue,
+                              history: tagData.history,
+                          }
+                        : null;
+                })
+                .filter(r => r !== null),
+        [results, tag]
+    );
 
     const filtered = useMemo(() => {
         if (!currentState.status) return tagResults;
@@ -45,7 +63,10 @@ export function TagTab({ tag, results, currentState, setCurrentState, visitedSet
                                                 : 'border-gray-600 text-gray-300 hover:bg-gray-700 cursor-pointer'
                                             : 'border-gray-800 text-gray-600 cursor-not-allowed'
                                     }`}
-                                    onClick={() => count > 0 && setCurrentState(prev => ({ ...prev, status: active ? null : status, page: 1 }))}
+                                    onClick={() =>
+                                        count > 0 &&
+                                        setCurrentState(prev => ({ ...prev, status: active ? null : status, page: 1 }))
+                                    }
                                     disabled={count === 0}
                                 >
                                     <span class="capitalize">{status}</span>
@@ -70,11 +91,18 @@ export function TagTab({ tag, results, currentState, setCurrentState, visitedSet
                     <tbody class="text-gray-300 divide-y divide-gray-800">
                         {pageData.map(r => {
                             const suggestedFixes = {};
-                            if (r.tagStatus === 'Add to OSM' || r.tagStatus === 'update OSM' || (r.tagStatus === 'mismatch' && currentState.status === 'mismatch')) {
+                            if (
+                                r.tagStatus === 'Add to OSM' ||
+                                r.tagStatus === 'update OSM' ||
+                                (r.tagStatus === 'mismatch' && currentState.status === 'mismatch')
+                            ) {
                                 suggestedFixes[tag] = r.spiderValue;
                             }
                             return (
-                                <tr key={r.ref} class="flex flex-col md:table-row border-b border-gray-800 md:border-none p-4 md:p-0 hover:bg-gray-800 transition-colors">
+                                <tr
+                                    key={r.ref}
+                                    class="flex flex-col md:table-row border-b border-gray-800 md:border-none p-4 md:p-0 hover:bg-gray-800 transition-colors"
+                                >
                                     <td class="md:table-cell md:px-4 md:py-3 font-medium break-all mb-2 md:mb-0">
                                         <div class="text-lg md:text-base flex items-center flex-wrap">
                                             {r.ref}
@@ -83,16 +111,25 @@ export function TagTab({ tag, results, currentState, setCurrentState, visitedSet
                                     </td>
                                     <td class="md:table-cell md:px-4 md:py-3 mb-2 md:mb-0">
                                         <div class="flex md:block">
-                                            <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">Spider:</span>
+                                            <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">
+                                                Spider:
+                                            </span>
                                             <div class="flex-grow">
-                                                <SpiderValue value={r.spiderValue} history={r.history} tag={tag} visitedSet={visitedSet} />
+                                                <SpiderValue
+                                                    value={r.spiderValue}
+                                                    history={r.history}
+                                                    tag={tag}
+                                                    visitedSet={visitedSet}
+                                                />
                                             </div>
                                         </div>
                                     </td>
                                     {showOsmColumns && (
                                         <td class="md:table-cell md:px-4 md:py-3 mb-2 md:mb-0">
                                             <div class="flex md:block">
-                                                <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">OSM:</span>
+                                                <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">
+                                                    OSM:
+                                                </span>
                                                 <div class="flex-grow">
                                                     <TagValue value={r.osmValue} tag={tag} visitedSet={visitedSet} />
                                                 </div>
@@ -100,7 +137,14 @@ export function TagTab({ tag, results, currentState, setCurrentState, visitedSet
                                         </td>
                                     )}
                                     <td class="md:table-cell md:px-4 md:py-3 md:text-right">
-                                        <OsmColumn osmId={r.osmId} suggestedFixes={suggestedFixes} visitedSet={visitedSet} atpDate={atpDate} onVisited={() => onLinkClick()} onJosmError={onJosmError} />
+                                        <OsmColumn
+                                            osmId={r.osmId}
+                                            suggestedFixes={suggestedFixes}
+                                            visitedSet={visitedSet}
+                                            atpDate={atpDate}
+                                            onVisited={() => onLinkClick()}
+                                            onJosmError={onJosmError}
+                                        />
                                     </td>
                                 </tr>
                             );

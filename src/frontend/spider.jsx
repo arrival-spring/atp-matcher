@@ -120,7 +120,9 @@ function SpiderDashboard({
                         If you are not sure then <strong class="text-white">DO NOT MAKE A CHANGE</strong> unless you can survey the place.
                     `,
                     onUnderstand: () => {
-                        const warnedTags = JSON.parse(sessionStorage.getItem(`mismatch_warned_tags_${spiderName}`) || '[]');
+                        const warnedTags = JSON.parse(
+                            sessionStorage.getItem(`mismatch_warned_tags_${spiderName}`) || '[]'
+                        );
                         if (!warnedTags.includes(currentState.tag)) {
                             warnedTags.push(currentState.tag);
                             sessionStorage.setItem(`mismatch_warned_tags_${spiderName}`, JSON.stringify(warnedTags));
@@ -130,7 +132,7 @@ function SpiderDashboard({
                     onBack: () => {
                         setCurrentState(prev => ({ ...prev, status: null }));
                         setShowMismatchModal(false);
-                    }
+                    },
                 });
                 setShowMismatchModal(true);
             }
@@ -148,7 +150,7 @@ function SpiderDashboard({
     const isUniquelyMatched = r =>
         r.matchCount === 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status);
 
-    const switchTab = (tag) => {
+    const switchTab = tag => {
         setCurrentState({
             tag,
             status: null,
@@ -166,7 +168,10 @@ function SpiderDashboard({
                 showUnmatched={showUnmatched}
                 importableTags={importableTags}
                 hasDuplicates={results.some(r => r.matchCount > 1)}
-                unmappedCount={(unmappedCache ? unmappedCache.length : 0) + results.filter(r => ['disallowed source uri', 'not a brand spider'].includes(r.status)).length}
+                unmappedCount={
+                    (unmappedCache ? unmappedCache.length : 0) +
+                    results.filter(r => ['disallowed source uri', 'not a brand spider'].includes(r.status)).length
+                }
                 unmatchedCount={unmatchedCache ? unmatchedCache.length : 0}
             />
 
@@ -176,7 +181,11 @@ function SpiderDashboard({
                         results={results}
                         importableTags={importableTags}
                         showUnmatched={showUnmatched}
-                        unmappedCount={(unmappedCache ? unmappedCache.length : 0) + results.filter(r => ['disallowed source uri', 'not a brand spider'].includes(r.status)).length}
+                        unmappedCount={
+                            (unmappedCache ? unmappedCache.length : 0) +
+                            results.filter(r => ['disallowed source uri', 'not a brand spider'].includes(r.status))
+                                .length
+                        }
                         unmatchedCount={unmatchedCache ? unmatchedCache.length : 0}
                         onTabChange={switchTab}
                     />
@@ -234,15 +243,10 @@ function SpiderDashboard({
             </div>
 
             {showMismatchModal && (
-                <MismatchModal
-                    {...mismatchModalConfig}
-                    onClose={() => mismatchModalConfig.onBack()}
-                />
+                <MismatchModal {...mismatchModalConfig} onClose={() => mismatchModalConfig.onBack()} />
             )}
 
-            {showJosmErrorModal && (
-                <JosmErrorModal onClose={() => setShowJosmErrorModal(false)} />
-            )}
+            {showJosmErrorModal && <JosmErrorModal onClose={() => setShowJosmErrorModal(false)} />}
 
             {(showMismatchModal || showJosmErrorModal) && (
                 <div
@@ -258,7 +262,7 @@ function SpiderDashboard({
     );
 }
 
-window.initSpiderDashboard = (props) => {
+window.initSpiderDashboard = props => {
     const container = document.getElementById('spider-dashboard-root');
     if (container) {
         render(<SpiderDashboard {...props} />, container);

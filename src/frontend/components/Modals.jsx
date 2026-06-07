@@ -34,7 +34,12 @@ export function MismatchModal({ title, message, onUnderstand, onBack, showImport
             <div class="p-8">
                 <div class="flex items-center gap-4 mb-6 text-orange-400">
                     <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        ></path>
                     </svg>
                     <h3 class="text-2xl font-bold">{title}</h3>
                 </div>
@@ -52,7 +57,10 @@ export function MismatchModal({ title, message, onUnderstand, onBack, showImport
                             disabled={!canConfirm}
                             class="relative px-6 py-3 bg-gray-700 text-white rounded-lg font-medium overflow-hidden group disabled:opacity-100"
                         >
-                            <div class="absolute inset-0 bg-blue-600 transition-all duration-100" style={{ width: `${progress}%` }} />
+                            <div
+                                class="absolute inset-0 bg-blue-600 transition-all duration-100"
+                                style={{ width: `${progress}%` }}
+                            />
                             <span class="relative z-10">I understand</span>
                         </button>
                     )}
@@ -72,16 +80,25 @@ export function MismatchModal({ title, message, onUnderstand, onBack, showImport
 
 export function JosmErrorModal({ onClose }) {
     return (
-        <div id="josm-modal" class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-gray-900 border border-gray-700 rounded-xl shadow-2xl z-50">
+        <div
+            id="josm-modal"
+            class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-gray-900 border border-gray-700 rounded-xl shadow-2xl z-50"
+        >
             <div class="p-8">
                 <div class="flex items-center gap-4 mb-6 text-red-400">
                     <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        ></path>
                     </svg>
                     <h3 class="text-2xl font-bold">JOSM Error</h3>
                 </div>
                 <p class="text-lg text-gray-200 mb-8 leading-relaxed">
-                    Could not connect to JOSM. Please make sure JOSM is running and Remote Control is enabled in preferences.
+                    Could not connect to JOSM. Please make sure JOSM is running and Remote Control is enabled in
+                    preferences.
                 </p>
                 <div class="flex justify-end">
                     <button

@@ -4,7 +4,7 @@ import { isAllowedSourceUri } from './utils.js';
 import { areTagsEqual, formatPhone, getOverallStatus } from './tag_comparisons.js';
 
 export async function processSpiderResults(spiderData, spiderMatches, runs, safeEdits = {}) {
-    const { latestRun, spiderMaps, config: spider, lineage, isBrandSpider } = spiderData;
+    const { latestRun, spiderMaps, config: spider, isBrandSpider } = spiderData;
     console.log(`Processing spider results: ${spider.name}`);
 
     const results = [];
