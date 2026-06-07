@@ -187,8 +187,13 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
             }
         }
 
-        const isMapped = (spiderMatches.get(matchingValue) || []).length > 0;
-        const matchCount = (spiderMatches.get(matchingValue) || []).length;
+        const allMatchesForRef = spiderMatches.get(matchingValue) || [];
+        const isMapped = allMatchesForRef.length > 0;
+        const matchCount = allMatchesForRef.length;
+
+        if (matchCount > 1) {
+            itemStatus = 'duplicateRef';
+        }
 
         const result = {
             ref: matchingValue,
@@ -203,6 +208,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
             results.push({
                 ...result,
                 allAtpTags: result.matchCount > 1 || !isMapped ? filteredAtpTags : undefined,
+                matches: result.matchCount > 1 ? allMatchesForRef : undefined,
             });
         } else {
             unmapped.push({

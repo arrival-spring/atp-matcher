@@ -2,6 +2,7 @@ import { render, h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { escapeHtml, getVisitedLinks, markLinkVisited } from './utils';
 import { t, initI18n } from './i18n';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { TabNavigation } from './components/TabNavigation';
 import { SummaryTab } from './components/SummaryTab';
 import { UnmappedTab } from './components/UnmappedTab';
@@ -18,6 +19,8 @@ function SpiderDashboard({
     importableTags,
     atpDate,
     showUnmatched,
+    unmappedCount,
+    unmatchedCount,
     unmappedFilters = [],
     unmatchedFilters = [],
 }) {
@@ -165,6 +168,13 @@ function SpiderDashboard({
         });
     };
 
+    const finalUnmappedCount =
+        unmappedCache !== null
+            ? unmappedCache.length + results.filter(r => ['disallowedSourceUri', 'notABrandSpider'].includes(r.status)).length
+            : unmappedCount;
+
+    const finalUnmatchedCount = unmatchedCache !== null ? unmatchedCache.length : unmatchedCount;
+
     return (
         <div class="space-y-4">
             <TabNavigation
@@ -173,11 +183,8 @@ function SpiderDashboard({
                 showUnmatched={showUnmatched}
                 importableTags={importableTags}
                 hasDuplicates={results.some(r => r.matchCount > 1)}
-                unmappedCount={
-                    (unmappedCache ? unmappedCache.length : 0) +
-                    results.filter(r => ['disallowedSourceUri', 'notABrandSpider'].includes(r.status)).length
-                }
-                unmatchedCount={unmatchedCache ? unmatchedCache.length : 0}
+                unmappedCount={finalUnmappedCount}
+                unmatchedCount={finalUnmatchedCount}
             />
 
             <div id="tab-content" class="mt-4 md:mt-8">
@@ -186,12 +193,8 @@ function SpiderDashboard({
                         results={results}
                         importableTags={importableTags}
                         showUnmatched={showUnmatched}
-                        unmappedCount={
-                            (unmappedCache ? unmappedCache.length : 0) +
-                            results.filter(r => ['disallowedSourceUri', 'notABrandSpider'].includes(r.status))
-                                .length
-                        }
-                        unmatchedCount={unmatchedCache ? unmatchedCache.length : 0}
+                        unmappedCount={finalUnmappedCount}
+                        unmatchedCount={finalUnmatchedCount}
                         onTabChange={switchTab}
                     />
                 )}
@@ -229,6 +232,9 @@ function SpiderDashboard({
                         currentState={currentState}
                         setCurrentState={setCurrentState}
                         visitedSet={new Set(visited.links)}
+                        atpDate={atpDate}
+                        onLinkClick={handleLinkClick}
+                        onJosmError={onJosmError}
                         pageSize={PAGE_SIZE}
                     />
                 )}
@@ -272,5 +278,9 @@ window.initSpiderDashboard = async props => {
     const container = document.getElementById('spider-dashboard-root');
     if (container) {
         render(<SpiderDashboard {...props} />, container);
+    }
+    const switcherContainer = document.getElementById('language-switcher-root');
+    if (switcherContainer) {
+        render(<LanguageSwitcher />, switcherContainer);
     }
 };

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import fs from 'fs';
 import { spawn } from 'child_process';
 import readline from 'readline';
 import { getNsiEffectiveTags } from './nsi_utils.js';
@@ -30,6 +31,51 @@ export function parseOplTags(tagsStr) {
 }
 
 export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, allMatches, allUnmatched) {
+    if (process.env.MOCK === 'true') {
+        console.log('Using mock OSM data...');
+        const mockMatches = JSON.parse(fs.readFileSync('mock_data/osm_matches.json', 'utf8'));
+        const mockUnmatched = JSON.parse(fs.readFileSync('mock_data/osm_unmatched.json', 'utf8'));
+
+        for (const entry of mockMatches) {
+            const props = entry.tags;
+            const brand = props.brand;
+            const wikidata = props['brand:wikidata'];
+            const website = props.website || props['contact:website'];
+
+            // Simplified matching for mock
+            for (const spider of spiders) {
+                const refKeyName = spider.ref_key || 'ref';
+                const osmRefValue = props[refKeyName];
+                if (osmRefValue) {
+                    const matchingRef = refKeyName === 'branch' ? osmRefValue.toLowerCase() : osmRefValue;
+                    const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}`;
+                    if (atpLookup.has(key)) {
+                        for (const match of atpLookup.get(key)) {
+                            if (match.spiderName !== spider.name) continue;
+                            const spiderMatches = allMatches.get(match.spiderName);
+                            if (!spiderMatches.has(match.atpRef)) {
+                                spiderMatches.set(match.atpRef, []);
+                            }
+                            spiderMatches.get(match.atpRef).push(entry);
+                        }
+                    }
+                }
+            }
+        }
+
+        for (const entry of mockUnmatched) {
+            const props = entry.tags;
+            const wikidata = props['brand:wikidata'];
+            if (wikidata && wikidataToSpiders.has(wikidata)) {
+                for (const spiderName of wikidataToSpiders.get(wikidata)) {
+                    if (!allUnmatched.has(spiderName)) allUnmatched.set(spiderName, new Map());
+                    allUnmatched.get(spiderName).set(entry.id, entry);
+                }
+            }
+        }
+        return Promise.resolve();
+    }
+
     console.log(`Streaming OSM data from ${url}...`);
 
     let response;

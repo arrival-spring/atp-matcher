@@ -13,6 +13,8 @@ export function SpiderPage({
     staleDate,
     loadStatus,
     showUnmatched,
+    unmappedCount,
+    unmatchedCount,
     unmappedFilters,
     unmatchedFilters,
     basePath,
@@ -114,6 +116,8 @@ export function SpiderPage({
         importableTags: ${JSON.stringify(importableTags)},
         atpDate: ${JSON.stringify(atpDate)},
         showUnmatched: ${showUnmatched},
+        unmappedCount: ${unmappedCount || 0},
+        unmatchedCount: ${unmatchedCount || 0},
         unmappedFilters: ${JSON.stringify(unmappedFilters || [])},
         unmatchedFilters: ${JSON.stringify(unmatchedFilters || [])}
     });`,

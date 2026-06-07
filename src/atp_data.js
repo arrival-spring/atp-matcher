@@ -1,4 +1,5 @@
 import axios from 'axios';
+import fs from 'fs';
 import { matchesCategories } from './utils.js';
 import { getNsiIdExists, getNsiItem } from './nsi_utils.js';
 import { normalizeWebsite } from './tag_comparisons.js';
@@ -7,6 +8,9 @@ const HISTORY_URL = 'https://data.alltheplaces.xyz/runs/history.json';
 const ATP_BASE_URL = 'https://alltheplaces-data.openaddresses.io/runs';
 
 export async function getRuns() {
+    if (process.env.MOCK === 'true') {
+        return JSON.parse(fs.readFileSync('mock_data/runs.json', 'utf8')).slice(-4);
+    }
     console.log('Fetching ATP run history...');
     try {
         const response = await axios.get(HISTORY_URL);
@@ -33,8 +37,18 @@ export async function loadAllAtpData(spiders, runs) {
         for (const runId of runIds) {
             const url = `${ATP_BASE_URL}/${runId}/output/${spider.name}.geojson`;
             try {
-                const response = await axios.get(url);
-                const data = response.data;
+                let data;
+                if (process.env.MOCK === 'true') {
+                    const mockFile = `mock_data/runs/${runId.substring(0, 10)}/output/${spider.name}.geojson`;
+                    if (fs.existsSync(mockFile)) {
+                        data = JSON.parse(fs.readFileSync(mockFile, 'utf8'));
+                    } else {
+                        throw { response: { status: 404 } };
+                    }
+                } else {
+                    const response = await axios.get(url);
+                    data = response.data;
+                }
                 const count = data.features ? data.features.length : 0;
                 spiderRuns.push(data);
                 featureCounts.push(count);

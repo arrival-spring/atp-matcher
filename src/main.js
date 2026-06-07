@@ -28,7 +28,11 @@ async function run() {
     let config, spiders;
     try {
         config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
-        spiders = JSON.parse(fs.readFileSync(SPIDERS_FILE, 'utf8'));
+        if (process.env.MOCK === 'true') {
+            spiders = JSON.parse(fs.readFileSync('mock_data/mock_spiders.json', 'utf8'));
+        } else {
+            spiders = JSON.parse(fs.readFileSync(SPIDERS_FILE, 'utf8'));
+        }
     } catch (error) {
         console.error(`Error parsing configuration files: ${error.message}`);
         process.exit(1);
@@ -46,12 +50,16 @@ async function run() {
     const atpDate = runs[runs.length - 1].start_time;
 
     let osmDate;
-    try {
-        const head = await axios.head(config.osmExtractUrl);
-        osmDate = head.headers['last-modified'] ? new Date(head.headers['last-modified']).toISOString() : null;
-    } catch (e) {
-        console.warn(`Failed to get OSM date from ${config.osmExtractUrl}, using current time: ${e.message}`);
-        osmDate = new Date().toISOString();
+    if (process.env.MOCK === 'true') {
+        osmDate = '2025-01-04T12:00:00Z';
+    } else {
+        try {
+            const head = await axios.head(config.osmExtractUrl);
+            osmDate = head.headers['last-modified'] ? new Date(head.headers['last-modified']).toISOString() : null;
+        } catch (e) {
+            console.warn(`Failed to get OSM date from ${config.osmExtractUrl}, using current time: ${e.message}`);
+            osmDate = new Date().toISOString();
+        }
     }
 
     let spidersData, atpLookup, wikidataToSpiders;

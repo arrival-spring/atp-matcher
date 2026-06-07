@@ -24,10 +24,13 @@ export function LanguageSwitcher() {
         );
     }, [locales, search]);
 
-    return h('div', { class: 'absolute top-0 right-0 z-50' }, [
+    return h('div', { class: 'fixed top-4 right-4 z-50' }, [
         h('button', {
-            onClick: () => setIsMenuOpen(!isMenuOpen),
-            class: 'p-2 rounded-full hover:bg-gray-800 transition-colors text-2xl leading-none cursor-pointer',
+            onClick: (e) => {
+                e.stopPropagation();
+                setIsMenuOpen(!isMenuOpen);
+            },
+            class: 'p-2 rounded-full hover:bg-gray-800 transition-colors text-2xl leading-none cursor-pointer bg-gray-900 shadow-lg border border-gray-700',
             title: 'Switch Language'
         }, '🌐'),
         isMenuOpen && h('div', { class: 'absolute right-0 mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-xl overflow-hidden' }, [
