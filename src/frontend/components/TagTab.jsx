@@ -86,7 +86,7 @@ export function TagTab({
                             <th class="px-4 py-3">{t('spider.table.ref')}</th>
                             <th class="px-4 py-3">{t('spider.table.spiderValue')}</th>
                             {showOsmColumns && <th class="px-4 py-3">{t('spider.table.osmValue')}</th>}
-                            <th class="px-4 py-3 text-right">{t('spider.table.osm')}</th>
+                            <th class="px-4 py-3 text-right">OSM</th>
                         </tr>
                     </thead>
                     <tbody class="text-gray-300 divide-y divide-gray-800">

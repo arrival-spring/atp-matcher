@@ -76,7 +76,7 @@ export function UnmappedTab({
                 />
             )}
 
-            {loading && <LoadingIndicator message={t('spider.loading.unmapped')} />}
+            {loading && <LoadingIndicator message={t('spider.loading')} />}
 
             {!loading && (
                 <>
@@ -137,8 +137,8 @@ export function UnmappedTab({
                     {showJosmWarning && (
                         <>
                             <MismatchModal
-                                title={t('spider.modals.josmImport.title')}
-                                message={t('spider.modals.josmImport.message')}
+                                title={t('spider.modals.mismatch.title')}
+                                message={t('spider.modals.mismatch.message', { tag: 'JOSM Import' })}
                                 onUnderstand={handleImport}
                                 onBack={() => setShowJosmWarning(false)}
                                 showImportBtn

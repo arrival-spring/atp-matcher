@@ -19,7 +19,7 @@ export function SpiderPage({
 }) {
     return h(Layout, { title: name, basePath: basePath, atpDate: atpDate, osmDate: osmDate }, [
         h('nav', { class: 'mb-8 mt-4' }, [
-            h('a', { href: `${basePath}/index.html`, class: 'text-blue-400 hover:underline' }, `← ${t('spider.backToIndex')}`),
+            h('a', { href: `${basePath}/index.html`, class: 'text-blue-400 hover:underline' }, `← ${t('spider.backToDashboard')}`),
         ]),
         h('header', { class: 'mb-12' }, [
             h('h1', { class: 'text-4xl font-extrabold mb-2' }, name),
@@ -63,7 +63,7 @@ export function SpiderPage({
                         class: 'text-blue-400 hover:underline inline-flex items-center',
                     },
                     [
-                        t('spider.links.geojson'),
+                        'GeoJSON',
                         h(
                             'svg',
                             { class: 'w-4 h-4 ml-1', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' },

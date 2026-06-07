@@ -48,7 +48,7 @@ export function UnmatchedTab({
                 />
             )}
 
-            {loading && <LoadingIndicator message={t('spider.loading.unmatched')} />}
+            {loading && <LoadingIndicator message={t('spider.loading')} />}
 
             {!loading && (
                 <>
@@ -60,7 +60,7 @@ export function UnmatchedTab({
                                 <tr class="hidden md:table-row">
                                     <th class="px-4 py-3">{t('spider.table.osmId')}</th>
                                     <th class="px-4 py-3">{t('spider.table.tags')}</th>
-                                    <th class="px-4 py-3 text-right">{t('spider.table.osm')}</th>
+                                    <th class="px-4 py-3 text-right">OSM</th>
                                 </tr>
                             </thead>
                             <tbody class="text-gray-300 divide-y divide-gray-800">

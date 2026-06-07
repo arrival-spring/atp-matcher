@@ -12,15 +12,31 @@ const LOCAL_STORAGE_KEY = 'atp_osm_sync_locale';
 
 export const getAvailableLocales = () => {
     return localesMetadata.map(code => {
-        const nativeNames = new Intl.DisplayNames([code], { type: 'language' });
-        const currentNames = new Intl.DisplayNames([currentLocale], { type: 'language' });
-        const englishNames = new Intl.DisplayNames(['en'], { type: 'language' });
+        const getDisplayName = (locale) => {
+            try {
+                const langNames = new Intl.DisplayNames([locale], { type: 'language' });
+                const baseName = langNames.of(code);
+
+                if (code.includes('-')) {
+                    const regionCode = code.split('-')[1].toUpperCase();
+                    const regionNames = new Intl.DisplayNames([locale], { type: 'region' });
+                    const regionName = regionNames.of(regionCode);
+
+                    const baseLang = code.split('-')[0];
+                    const baseLangName = langNames.of(baseLang);
+                    return `${baseLangName} (${regionName})`;
+                }
+                return baseName;
+            } catch (e) {
+                return code;
+            }
+        };
 
         return {
             code,
-            native: nativeNames.of(code),
-            localized: currentNames.of(code),
-            english: englishNames.of(code)
+            native: getDisplayName(code),
+            localized: getDisplayName(currentLocale),
+            english: getDisplayName('en')
         };
     });
 };
