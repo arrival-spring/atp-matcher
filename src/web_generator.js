@@ -32,6 +32,8 @@ export function generateWebpage(allSpiderResults, atpDate, osmDate) {
                     staleDate: spider.staleDate,
                     loadStatus: spider.loadStatus,
                     showUnmatched: spider.showUnmatched,
+                    unmappedCount: spider.unmappedCount,
+                    unmatchedCount: spider.unmatchedCount,
                     unmappedFilters: spider.unmappedFilters,
                     unmatchedFilters: spider.unmatchedFilters,
                     basePath: '..',

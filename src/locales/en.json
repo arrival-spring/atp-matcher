@@ -53,6 +53,8 @@
     "table": {
       "ref": "Ref",
       "tags": "Tags",
+      "atpTags": "ATP Tags",
+      "osmMatches": "OSM Matches",
       "spiderValue": "Spider Value",
       "osmValue": "OSM Value",
       "osmId": "OSM ID"

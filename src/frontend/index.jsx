@@ -2,6 +2,7 @@ import { render, h } from 'preact';
 import { useState, useEffect, useMemo } from 'preact/hooks';
 import { escapeHtml } from './utils';
 import { t, initI18n } from './i18n';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
 
 const PAGE_SIZE = 10;
 
@@ -251,5 +252,9 @@ window.initDashboard = async allSpiderResults => {
     const container = document.getElementById('dashboard-root');
     if (container) {
         render(<Dashboard allSpiderResults={allSpiderResults} />, container);
+    }
+    const switcherContainer = document.getElementById('language-switcher-root');
+    if (switcherContainer) {
+        render(<LanguageSwitcher />, switcherContainer);
     }
 };

@@ -1,0 +1,81 @@
+[
+  {
+    "id": "n1",
+    "tags": {
+      "ref": "stable-match",
+      "name": "Stable Shop",
+      "brand": "Stable Brand",
+      "brand:wikidata": "Q1",
+      "phone": "+44 123 456789",
+      "website": "https://stable.example.com",
+      "opening_hours": "Mo-Fr 09:00-18:00"
+    }
+  },
+  {
+    "id": "n2",
+    "tags": {
+      "ref": "mismatch-phone",
+      "name": "Mismatch Shop",
+      "brand": "Stable Brand",
+      "brand:wikidata": "Q1",
+      "phone": "+44 000 000000",
+      "website": "https://mismatch.example.com"
+    }
+  },
+  {
+    "id": "n3",
+    "tags": {
+      "ref": "update-website",
+      "name": "Update Shop",
+      "brand": "Stable Brand",
+      "brand:wikidata": "Q1",
+      "website": "https://old.example.com"
+    }
+  },
+  {
+    "id": "n4",
+    "tags": {
+      "ref": "add-phone",
+      "name": "Add Shop",
+      "brand": "Stable Brand",
+      "brand:wikidata": "Q1"
+    }
+  },
+  {
+    "id": "n5",
+    "tags": {
+      "ref": "duplicate-match",
+      "name": "Duplicate Shop (1)",
+      "brand": "Stable Brand",
+      "brand:wikidata": "Q1"
+    }
+  },
+  {
+    "id": "n6",
+    "tags": {
+      "ref": "duplicate-match",
+      "name": "Duplicate Shop (2)",
+      "brand": "Stable Brand",
+      "brand:wikidata": "Q1",
+      "note": "Something else"
+    }
+  },
+  {
+    "id": "n7",
+    "tags": {
+      "ref": "duplicate-match-2",
+      "name": "Duplicate Shop 2 (1)",
+      "brand": "Stable Brand",
+      "brand:wikidata": "Q1"
+    }
+  },
+  {
+    "id": "n8",
+    "tags": {
+      "ref": "duplicate-match-2",
+      "name": "Duplicate Shop 2 (2)",
+      "brand": "Stable Brand",
+      "brand:wikidata": "Q1"
+    }
+  }
+]
