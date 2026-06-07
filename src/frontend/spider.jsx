@@ -38,6 +38,8 @@ function SpiderDashboard({
         page: 1,
         brand: null,
         wikidata: null,
+        sort: null,
+        dir: 'asc',
     });
 
     const [unmappedCache, setUnmappedCache] = useState(null);
@@ -60,6 +62,8 @@ function SpiderDashboard({
                 page: parseInt(params.get('page')) || 1,
                 brand: params.get('brand'),
                 wikidata: params.get('wikidata'),
+                sort: params.get('sort'),
+                dir: params.get('dir') || 'asc',
             });
         };
 
@@ -76,6 +80,10 @@ function SpiderDashboard({
         if (currentState.page > 1) params.set('page', currentState.page);
         if (currentState.brand !== null) params.set('brand', currentState.brand);
         if (currentState.wikidata !== null) params.set('wikidata', currentState.wikidata);
+        if (currentState.sort) {
+            params.set('sort', currentState.sort);
+            params.set('dir', currentState.dir);
+        }
 
         const newHash = params.toString();
         if (window.location.hash.substring(1) !== newHash) {

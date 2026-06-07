@@ -294,6 +294,7 @@ async function run() {
                     isStale: data.isStale,
                     staleDate: data.staleDate,
                     stabilityColor: data.stabilityColor,
+                    stabilityScore: data.stabilityScore,
                     loadStatus: data.loadStatus,
                     showUnmatched: data.config.showUnmatched || false,
                     unmappedCount: unmapped.length,

@@ -132,20 +132,27 @@ export async function loadAllAtpData(spiders, runs) {
             return map;
         });
 
-        // Calculate stability dot color
+        // Calculate stability dot color and score
         const validCounts = featureCounts.filter(c => c !== null);
         let stabilityColor = 'green';
+        let stabilityScore = 1.0;
         if (!isBrandSpider) {
             stabilityColor = 'red';
+            stabilityScore = 0.0;
         } else if (validCounts.length > 1) {
             const minCount = Math.min(...validCounts);
             const maxCount = Math.max(...validCounts);
             const discrepancy = maxCount === 0 ? 0 : (maxCount - minCount) / maxCount;
+            stabilityScore = 1.0 - discrepancy;
+
             if (discrepancy > 0.1) {
                 stabilityColor = 'red';
             } else if (discrepancy > 0.05) {
                 stabilityColor = 'orange';
             }
+        } else if (validCounts.length <= 1) {
+            stabilityColor = 'gray';
+            stabilityScore = 0.0;
         }
 
         spidersData.set(spider.name, {
@@ -157,6 +164,7 @@ export async function loadAllAtpData(spiders, runs) {
             isStale,
             staleDate: isStale ? runs[effectiveLatestIndex].start_time : null,
             stabilityColor,
+            stabilityScore,
             featureCounts,
             runStatuses,
         });

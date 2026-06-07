@@ -10,7 +10,7 @@ const localesMetadata = [
                 const filename = parts[parts.length - 1];
                 return filename.replace('.json', '');
             })
-            .filter(code => code && code !== 'locales'),
+            .filter(code => code && code !== 'locales' && code !== 'en'),
     ]),
 ].sort();
 

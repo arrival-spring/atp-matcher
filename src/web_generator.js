@@ -50,6 +50,7 @@ export function generateWebpage(allSpiderResults, atpDate, osmDate) {
         const indexData = allSpiderResults.map(s => ({
             name: s.name,
             stabilityColor: s.stabilityColor,
+            stabilityScore: s.stabilityScore,
             loadStatus: s.loadStatus,
             isBrandSpider: s.isBrandSpider,
             totalCount: s.totalCount,
