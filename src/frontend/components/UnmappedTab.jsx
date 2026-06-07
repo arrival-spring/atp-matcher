@@ -138,7 +138,7 @@ export function UnmappedTab({
                         <>
                             <MismatchModal
                                 title={t('spider.modals.mismatch.title')}
-                                message={t('spider.modals.mismatch.message', { tag: 'JOSM Import' })}
+                                message={t('spider.modals.josmImport.message')}
                                 onUnderstand={handleImport}
                                 onBack={() => setShowJosmWarning(false)}
                                 showImportBtn

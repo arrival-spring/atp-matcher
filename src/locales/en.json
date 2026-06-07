@@ -85,6 +85,9 @@
         "title": "Important Warning",
         "message": "Some of the data from the spider may be wrong. DO NOT simply update {{ tag }} on all of the objects. Check the history to see who added {{ tag }} and their likely source. If you are not sure then DO NOT MAKE A CHANGE unless you can survey the place."
       },
+      "josmImport": {
+        "message": "This will load and open the unmapped items from ATP into JOSM. This may be useful to match them to existing elements. DO NOT import them, but use conflation and judgement."
+      },
       "understand": "I understand"
     },
     "filters": {
