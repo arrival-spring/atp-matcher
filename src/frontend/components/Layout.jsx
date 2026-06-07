@@ -24,7 +24,7 @@ export function Layout({ title, basePath, atpDate, osmDate, children }) {
             h('link', { href: `${basePath}/style.css`, rel: 'stylesheet' }),
             h('script', { dangerouslySetInnerHTML: { __html: `window.basePath = ${JSON.stringify(basePath)};` } })
         ]),
-        h('body', { class: 'bg-gray-950 text-gray-100 min-h-screen p-4 md:p-8' }, [
+        h('body', { class: 'bg-gray-950 text-gray-100 min-h-screen p-4 md:p-8 relative' }, [
             h('div', { id: 'language-switcher-root' }),
             h('div', { class: 'max-w-7xl mx-auto relative' }, [
                 children

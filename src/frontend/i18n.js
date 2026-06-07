@@ -1,12 +1,18 @@
 import en from '../locales/en.json';
 
-const localeFiles = import.meta.glob?.('../locales/*.json') || {};
-const localesMetadata = Object.keys(localeFiles)
-    .map(path => {
-        const match = path.match(/\.\.\/locales\/(.+)\.json$/);
-        return match ? match[1] : null;
-    })
-    .filter(code => code && code !== 'locales');
+const localeFiles = import.meta.glob?.('../locales/*.json', { eager: true }) || {};
+const localesMetadata = [
+    ...new Set([
+        'en',
+        ...Object.keys(localeFiles)
+            .map(path => {
+                const parts = path.split('/');
+                const filename = parts[parts.length - 1];
+                return filename.replace('.json', '');
+            })
+            .filter(code => code && code !== 'locales'),
+    ]),
+].sort();
 
 let currentLocale = 'en';
 let translations = { en };
