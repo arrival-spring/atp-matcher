@@ -1,7 +1,8 @@
 import { h } from 'preact';
 
 export function SummaryTab({ results, importableTags, showUnmatched, unmappedCount, unmatchedCount, onTabChange }) {
-    const isUniquelyMatched = r => r.matchCount === 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status);
+    const isUniquelyMatched = r =>
+        r.matchCount === 1 && !['disallowed source uri', 'not a brand spider'].includes(r.status);
 
     return (
         <div class="space-y-12">
@@ -10,10 +11,18 @@ export function SummaryTab({ results, importableTags, showUnmatched, unmappedCou
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <SummaryCard title="Unmapped" value={unmappedCount} onClick={() => onTabChange('unmapped')} />
                     {showUnmatched && (
-                        <SummaryCard title="Unmatched" value={unmatchedCount} onClick={() => onTabChange('unmatched')} />
+                        <SummaryCard
+                            title="Unmatched"
+                            value={unmatchedCount}
+                            onClick={() => onTabChange('unmatched')}
+                        />
                     )}
                     {results.some(r => r.matchCount > 1) && (
-                        <SummaryCard title="Duplicate Refs" value={results.filter(r => r.matchCount > 1).length} onClick={() => onTabChange('duplicate-refs')} />
+                        <SummaryCard
+                            title="Duplicate Refs"
+                            value={results.filter(r => r.matchCount > 1).length}
+                            onClick={() => onTabChange('duplicate-refs')}
+                        />
                     )}
                 </div>
             </section>
@@ -28,7 +37,13 @@ export function SummaryTab({ results, importableTags, showUnmatched, unmappedCou
                             if (t) stats[t.status] = (stats[t.status] || 0) + 1;
                         });
                         const sortedStatuses = Object.keys(stats).sort((a, b) => {
-                            const priorities = ['disallowed source uri', 'mismatch', 'update OSM', 'Add to OSM', 'matching'];
+                            const priorities = [
+                                'disallowed source uri',
+                                'mismatch',
+                                'update OSM',
+                                'Add to OSM',
+                                'matching',
+                            ];
                             return priorities.indexOf(a) - priorities.indexOf(b);
                         });
 
@@ -40,14 +55,15 @@ export function SummaryTab({ results, importableTags, showUnmatched, unmappedCou
                             >
                                 <h3 class="text-xl font-bold mb-4 text-gray-100 font-mono">{tag}</h3>
                                 <div class="space-y-2">
-                                    {sortedStatuses.map(status => (
-                                        status !== 'not mapped' && (
-                                            <div key={status} class="flex justify-between items-center text-sm">
-                                                <span class="text-gray-400 capitalize">{status}</span>
-                                                <span class="font-mono text-gray-200">{stats[status]}</span>
-                                            </div>
-                                        )
-                                    ))}
+                                    {sortedStatuses.map(
+                                        status =>
+                                            status !== 'not mapped' && (
+                                                <div key={status} class="flex justify-between items-center text-sm">
+                                                    <span class="text-gray-400 capitalize">{status}</span>
+                                                    <span class="font-mono text-gray-200">{stats[status]}</span>
+                                                </div>
+                                            )
+                                    )}
                                     {Object.keys(stats).length === 0 && (
                                         <p class="text-gray-500 italic">No data available</p>
                                     )}

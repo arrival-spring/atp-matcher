@@ -20,7 +20,7 @@ export function TagValue({ value, tag, visitedSet }) {
                 href={value}
                 target="_blank"
                 class={`${isVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline break-all`}
-                onClick={(e) => e.stopPropagation()}
+                onClick={e => e.stopPropagation()}
             >
                 {value}
             </a>
@@ -47,7 +47,13 @@ export function SpiderValue({ value, history, tag, visitedSet }) {
     if (isStableValue) {
         return (
             <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" title="stable value">
+                <svg
+                    class="w-4 h-4 text-green-500 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    title="stable value"
+                >
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                 </svg>
                 <TagValue value={value} tag={tag} visitedSet={visitedSet} />
@@ -61,13 +67,17 @@ export function SpiderValue({ value, history, tag, visitedSet }) {
                 <TagValue value={value} tag={tag} visitedSet={visitedSet} />
             </div>
             <div class="pl-2 border-l border-gray-700">
-                {[...history].reverse().filter(h => h.value).map(h => (
-                    <div key={h.date} class="text-xs text-gray-400">
-                        <span class="font-mono">{h.date}</span>: <span class="text-gray-300">
-                            <TagValue value={h.value} tag={tag} visitedSet={visitedSet} />
-                        </span>
-                    </div>
-                ))}
+                {[...history]
+                    .reverse()
+                    .filter(h => h.value)
+                    .map(h => (
+                        <div key={h.date} class="text-xs text-gray-400">
+                            <span class="font-mono">{h.date}</span>:{' '}
+                            <span class="text-gray-300">
+                                <TagValue value={h.value} tag={tag} visitedSet={visitedSet} />
+                            </span>
+                        </div>
+                    ))}
             </div>
         </div>
     );
@@ -107,23 +117,37 @@ export function OsmColumn({ osmId, suggestedFixes = {}, visitedSet, atpDate, onV
                     href={osmUrl}
                     target="_blank"
                     class={`inline-flex items-center ${isOsmVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline`}
-                    onClick={() => { markLinkVisited(osmUrl, atpDate); if(onVisited) onVisited(); }}
+                    onClick={() => {
+                        markLinkVisited(osmUrl, atpDate);
+                        if (onVisited) onVisited();
+                    }}
                 >
                     <span>{osmId}</span>
-                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        ></path>
+                    </svg>
                 </a>
                 <div class="text-xs text-gray-500">
                     <a
                         href="javascript:void(0)"
                         onClick={() => handleJosmLink(josmEditUrl, atpDate, onVisited, onJosmError)}
                         class={`${isJosmEditVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline`}
-                    >edit</a>
+                    >
+                        edit
+                    </a>
                     {hasFixes && (
                         <a
                             href="javascript:void(0)"
                             onClick={() => handleJosmLink(josmUpdateUrl, atpDate, onVisited, onJosmError)}
                             class={`${isJosmUpdateVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline ml-1`}
-                        >update</a>
+                        >
+                            update
+                        </a>
                     )}
                 </div>
             </div>

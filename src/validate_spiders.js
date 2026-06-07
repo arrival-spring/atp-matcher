@@ -241,7 +241,10 @@ async function validate() {
         }
 
         // 5. Check showUnmatched type
-        if (spider.hasOwnProperty('showUnmatched') && typeof spider.showUnmatched !== 'boolean') {
+        if (
+            Object.prototype.hasOwnProperty.call(spider, 'showUnmatched') &&
+            typeof spider.showUnmatched !== 'boolean'
+        ) {
             errors.push('Error: `showUnmatched` must be a boolean.');
         }
 

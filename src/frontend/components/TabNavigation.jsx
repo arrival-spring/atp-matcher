@@ -1,7 +1,15 @@
 import { h } from 'preact';
 import { useRef, useState, useEffect } from 'preact/hooks';
 
-export function TabNavigation({ activeTab, onTabChange, showUnmatched, importableTags, hasDuplicates, unmappedCount, unmatchedCount }) {
+export function TabNavigation({
+    activeTab,
+    onTabChange,
+    showUnmatched,
+    importableTags,
+    hasDuplicates,
+    unmappedCount,
+    unmatchedCount,
+}) {
     const scrollRef = useRef(null);
     const [fadeState, setFadeState] = useState('');
 
@@ -36,7 +44,12 @@ export function TabNavigation({ activeTab, onTabChange, showUnmatched, importabl
                     class="flex overflow-x-auto no-scrollbar -mb-px text-sm font-medium text-center"
                     role="tablist"
                 >
-                    <TabButton id="summary" label="Summary" active={activeTab === 'summary'} onClick={() => onTabChange('summary')} />
+                    <TabButton
+                        id="summary"
+                        label="Summary"
+                        active={activeTab === 'summary'}
+                        onClick={() => onTabChange('summary')}
+                    />
                     <TabButton
                         id="unmapped"
                         label="Unmapped"
@@ -55,12 +68,24 @@ export function TabNavigation({ activeTab, onTabChange, showUnmatched, importabl
                     )}
                     {hasDuplicates && (
                         <li class="shrink-0 border-r border-gray-700 pr-2 mr-2" role="presentation">
-                            <TabButton id="duplicate-refs" label="Duplicate Refs" active={activeTab === 'duplicate-refs'} onClick={() => onTabChange('duplicate-refs')} />
+                            <TabButton
+                                id="duplicate-refs"
+                                label="Duplicate Refs"
+                                active={activeTab === 'duplicate-refs'}
+                                onClick={() => onTabChange('duplicate-refs')}
+                            />
                         </li>
                     )}
                     {!hasDuplicates && <li class="shrink-0 border-r border-gray-700 mr-2" role="presentation" />}
                     {importableTags.map(tag => (
-                        <TabButton key={tag} id={tag} label={tag} active={activeTab === tag} onClick={() => onTabChange(tag)} isMono />
+                        <TabButton
+                            key={tag}
+                            id={tag}
+                            label={tag}
+                            active={activeTab === tag}
+                            onClick={() => onTabChange(tag)}
+                            isMono
+                        />
                     ))}
                 </ul>
             </div>
@@ -80,7 +105,10 @@ function TabButton({ id, label, count, active, onClick, isMono }) {
                 onClick={onClick}
                 type="button"
             >
-                {label} {count !== null && count !== undefined && <span class="tab-count ml-1 opacity-60 text-xs">({count})</span>}
+                {label}{' '}
+                {count !== null && count !== undefined && (
+                    <span class="tab-count ml-1 opacity-60 text-xs">({count})</span>
+                )}
             </button>
         </li>
     );

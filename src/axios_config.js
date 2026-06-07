@@ -3,10 +3,10 @@ import axiosRetry from 'axios-retry';
 
 axiosRetry(axios, {
     retries: 4, // 1 original + 4 retries = 5 attempts
-    retryDelay: (retryCount) => {
+    retryDelay: retryCount => {
         return axiosRetry.exponentialDelay(retryCount, 1000);
     },
-    retryCondition: (error) => {
+    retryCondition: error => {
         // Retry on 5xx errors
         const is5xx = error.response && error.response.status >= 500 && error.response.status <= 599;
         // Retry on network errors (e.g., connection reset, DNS issues)

@@ -260,10 +260,13 @@ async function run() {
                     const filename = `${spiderName}_unmapped_${brandSlug}${wikidataPart}.geojson`;
                     filter.geojson = filename;
 
-                    fs.writeFileSync(path.join(spiderDir, filename), JSON.stringify({
-                        type: 'FeatureCollection',
-                        features: filteredFeatures
-                    }));
+                    fs.writeFileSync(
+                        path.join(spiderDir, filename),
+                        JSON.stringify({
+                            type: 'FeatureCollection',
+                            features: filteredFeatures,
+                        })
+                    );
                 });
 
                 allSpiderResults.push({

@@ -14,7 +14,7 @@ export async function getRuns() {
         // We want the last four elements.
         return response.data.slice(-4);
     } catch (error) {
-        throw new Error(`Failed to fetch ATP run history: ${error.message}`);
+        throw new Error(`Failed to fetch ATP run history: ${error.message}`, { cause: error });
     }
 }
 

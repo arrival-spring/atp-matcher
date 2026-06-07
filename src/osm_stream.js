@@ -40,7 +40,7 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
             responseType: 'stream',
         });
     } catch (error) {
-        throw new Error(`Failed to initiate OSM data stream from ${url}: ${error.message}`);
+        throw new Error(`Failed to initiate OSM data stream from ${url}: ${error.message}`, { cause: error });
     }
 
     const refKeys = new Set(['ref']);
@@ -170,7 +170,7 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
             }
         }
     } catch (error) {
-        throw new Error(`Error during OSM data streaming: ${error.message}`);
+        throw new Error(`Error during OSM data streaming: ${error.message}`, { cause: error });
     }
 
     return new Promise((resolve, reject) => {
