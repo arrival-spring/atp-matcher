@@ -284,6 +284,9 @@ async function run() {
                         if (r.status === 'disallowedSourceUri' || r.status === 'notABrandSpider') {
                             return unmappedResults.find(ur => ur.ref === r.ref) || r;
                         }
+                        if (r.matchCount > 1) {
+                            return r;
+                        }
                         return { ...r, allAtpTags: undefined };
                     }),
                     isBrandSpider: data.isBrandSpider,
