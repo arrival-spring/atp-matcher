@@ -2,9 +2,9 @@
   {
     "id": "n999",
     "tags": {
-      "name": "Ghost Shop",
-      "brand": "Stable Brand",
-      "brand:wikidata": "Q1"
+      "brand": "Mock Brand",
+      "brand:wikidata": "Q1",
+      "opening_hours": "Mo-Su 00:00-24:00"
     }
   }
 ]

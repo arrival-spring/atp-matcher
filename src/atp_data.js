@@ -71,8 +71,6 @@ export async function loadAllAtpData(spiders, runs) {
             }
         }
 
-        const latestStatus = runStatuses[3];
-
         // Find effective latest run (most recent non-empty, non-404)
         let effectiveLatestIndex = -1;
         for (let i = 3; i >= 0; i--) {
@@ -82,19 +80,8 @@ export async function loadAllAtpData(spiders, runs) {
             }
         }
 
-        if (latestStatus === '404' || latestStatus === 'error') {
-            spidersData.set(spider.name, {
-                latestRun: null,
-                spiderMaps: spiderRuns.map(() => new Map()),
-                config: spider,
-                loadStatus: 'missing',
-                featureCounts,
-                runStatuses,
-            });
-            continue;
-        }
-
         if (effectiveLatestIndex === -1) {
+            const latestStatus = runStatuses[3];
             spidersData.set(spider.name, {
                 latestRun: null,
                 spiderMaps: spiderRuns.map(() => new Map()),

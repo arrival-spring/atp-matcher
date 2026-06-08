@@ -32,8 +32,8 @@ export function Layout({ title, basePath, atpDate, osmDate, theme = 'auto', chil
             ]),
             h('footer', { class: 'max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-800 text-gray-500 text-sm' }, [
                 h('div', { class: 'flex flex-wrap gap-x-8 gap-y-2' }, [
-                    h('div', null, [h('strong', null, t('footer.atpData')), ' ', atpDate]),
-                    h('div', null, [h('strong', null, t('footer.osmData')), ' ', osmDate]),
+                    h('div', null, [h('strong', { 'data-t': 'footer.atpData' }, t('footer.atpData')), ' ', atpDate]),
+                    h('div', null, [h('strong', { 'data-t': 'footer.osmData' }, t('footer.osmData')), ' ', osmDate]),
                 ]),
             ]),
         ]),

@@ -2,80 +2,44 @@
   {
     "id": "n1",
     "tags": {
-      "ref": "stable-match",
-      "name": "Stable Shop",
-      "brand": "Stable Brand",
+      "brand": "Mock Brand",
       "brand:wikidata": "Q1",
-      "phone": "+44 123 456789",
-      "website": "https://stable.example.com",
-      "opening_hours": "Mo-Fr 09:00-18:00"
+      "ref": "matching",
+      "phone": "+1 000 000 0000"
     }
   },
   {
     "id": "n2",
     "tags": {
-      "ref": "mismatch-phone",
-      "name": "Mismatch Shop",
-      "brand": "Stable Brand",
+      "brand": "Mock Brand",
       "brand:wikidata": "Q1",
-      "phone": "+44 000 000000",
-      "website": "https://mismatch.example.com"
+      "ref": "mismatch",
+      "phone": "+1 888 888 8888"
     }
   },
   {
     "id": "n3",
     "tags": {
-      "ref": "update-website",
-      "name": "Update Shop",
-      "brand": "Stable Brand",
+      "brand": "Mock Brand",
       "brand:wikidata": "Q1",
-      "website": "https://old.example.com"
+      "ref": "updateOsm",
+      "phone": "+1 222 222 2222"
     }
   },
   {
-    "id": "n4",
+    "id": "n41",
     "tags": {
-      "ref": "add-phone",
-      "name": "Add Shop",
-      "brand": "Stable Brand",
-      "brand:wikidata": "Q1"
-    }
-  },
-  {
-    "id": "n5",
-    "tags": {
-      "ref": "duplicate-match",
-      "name": "Duplicate Shop (1)",
-      "brand": "Stable Brand",
-      "brand:wikidata": "Q1"
-    }
-  },
-  {
-    "id": "n6",
-    "tags": {
-      "ref": "duplicate-match",
-      "name": "Duplicate Shop (2)",
-      "brand": "Stable Brand",
+      "brand": "Mock Brand",
       "brand:wikidata": "Q1",
-      "note": "Something else"
+      "ref": "duplicateRef"
     }
   },
   {
-    "id": "n7",
+    "id": "n42",
     "tags": {
-      "ref": "duplicate-match-2",
-      "name": "Duplicate Shop 2 (1)",
-      "brand": "Stable Brand",
-      "brand:wikidata": "Q1"
-    }
-  },
-  {
-    "id": "n8",
-    "tags": {
-      "ref": "duplicate-match-2",
-      "name": "Duplicate Shop 2 (2)",
-      "brand": "Stable Brand",
-      "brand:wikidata": "Q1"
+      "brand": "Mock Brand",
+      "brand:wikidata": "Q1",
+      "ref": "duplicateRef"
     }
   }
 ]

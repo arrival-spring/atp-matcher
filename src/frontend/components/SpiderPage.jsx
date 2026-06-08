@@ -25,7 +25,7 @@ export function SpiderPage({
 
     return h(Layout, { title: name, basePath, atpDate, osmDate, theme }, [
         h('nav', { class: 'mb-8 mt-4' }, [
-            h('a', { href: `../index.html`, class: `${linkColorClass} hover:underline` }, `← ${t('spider.backToDashboard')}`),
+            h('a', { href: `../index.html`, class: `${linkColorClass} hover:underline`, 'data-t': 'spider.backToDashboard' }, t('spider.backToDashboard')),
         ]),
         h('header', { class: 'mb-12' }, [
             h('h1', { class: 'text-4xl font-extrabold mb-2' }, name),
@@ -34,20 +34,20 @@ export function SpiderPage({
                     'div',
                     { class: 'bg-orange-900/20 border border-orange-500/50 text-orange-200 p-4 rounded-lg mb-6 mt-4' },
                     [
-                        h('p', { class: 'font-bold' }, `⚠️ ${t('spider.staleData')}`),
+                        h('p', { class: 'font-bold', 'data-t': 'spider.staleData' }, t('spider.staleData')),
                         h(
                             'p',
-                            { class: 'text-sm' },
+                            { class: 'text-sm', 'data-t': 'spider.staleDataDesc', 'data-t-params': JSON.stringify({ date: staleDate.substring(0, 10) }) },
                             t('spider.staleDataDesc', { date: staleDate.substring(0, 10) })
                         ),
                     ]
                 ),
             (loadStatus === 'missing' || loadStatus === 'empty') &&
                 h('div', { class: 'bg-red-900/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6 mt-4' }, [
-                    h('p', { class: 'font-bold' }, `❌ ${t('spider.noData')}`),
+                    h('p', { class: 'font-bold', 'data-t': 'spider.noData' }, t('spider.noData')),
                     h(
                         'p',
-                        { class: 'text-sm' },
+                        { class: 'text-sm', 'data-t': loadStatus === 'missing' ? 'spider.noData404' : 'spider.noDataEmpty' },
                         loadStatus === 'missing'
                             ? t('spider.noData404')
                             : t('spider.noDataEmpty')
@@ -55,8 +55,8 @@ export function SpiderPage({
                 ]),
             !isBrandSpider &&
                 h('div', { class: 'bg-red-900/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6 mt-4' }, [
-                    h('p', { class: 'font-bold' }, `❌ ${t('spider.notBrandSpider')}`),
-                    h('p', { class: 'text-sm' }, [
+                    h('p', { class: 'font-bold', 'data-t': 'spider.notBrandSpider' }, t('spider.notBrandSpider')),
+                    h('p', { class: 'text-sm', 'data-t': 'spider.notBrandSpiderDesc' }, [
                         t('spider.notBrandSpiderDesc')
                     ]),
                 ]),

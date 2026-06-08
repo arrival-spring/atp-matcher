@@ -15,10 +15,16 @@ export function LandingPage({ autoStats, previewStats, atpDate, osmDate, basePat
             href: link,
             class: `block p-6 bg-gray-900 border-t-4 ${accentClass} ${hoverAccentClass} rounded-lg shadow-lg transition-colors`
         }, [
-            h('h2', { class: 'text-2xl font-bold mb-4' }, title),
-            h('p', { class: 'text-gray-400 mb-6' }, description),
+            h('h2', { class: 'text-2xl font-bold mb-4', 'data-t': `landing.${type}.title` }, title),
+            h('p', { class: 'text-gray-400 mb-6', 'data-t': `landing.${type}.description` }, description),
             h('div', {
                 class: 'text-gray-300',
+                'data-t': `landing.${type}.stats`,
+                'data-t-html': 'true',
+                'data-t-params': JSON.stringify({
+                    x: `<span class="text-4xl font-bold text-white">${stats.places}</span>`,
+                    y: stats.brands
+                }),
                 dangerouslySetInnerHTML: {
                     __html: t(`landing.${type}.stats`, {
                         x: `<span class="text-4xl font-bold text-white">${stats.places}</span>`,
@@ -31,14 +37,15 @@ export function LandingPage({ autoStats, previewStats, atpDate, osmDate, basePat
 
     return h(Layout, { title: t('title'), basePath, atpDate, osmDate }, [
         h('header', { class: 'mb-12' }, [
-            h('h1', { class: 'text-4xl font-extrabold mb-4' }, t('title')),
-            h('p', { class: 'text-xl text-gray-400 max-w-3xl mb-6' }, t('landing.summary')),
+            h('h1', { class: 'text-4xl font-extrabold mb-4', 'data-t': 'title' }, t('title')),
+            h('p', { class: 'text-xl text-gray-400 max-w-3xl mb-6', 'data-t': 'landing.summary' }, t('landing.summary')),
             h('div', { class: 'flex gap-4' }, [
                 h('a', {
                     href: gitHubUrl,
                     target: '_blank',
                     rel: 'noopener noreferrer',
-                    class: 'text-blue-400 hover:text-blue-300 transition-colors'
+                    class: 'text-blue-400 hover:text-blue-300 transition-colors',
+                    'data-t': 'landing.githubLink'
                 }, t('landing.githubLink')),
             ])
         ]),
