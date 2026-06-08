@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useMemo, useState } from 'preact/hooks';
+import { useMemo, useState, useRef, useEffect } from 'preact/hooks';
 import { StatusLabel, TagsWithLinks, Pagination, LoadingIndicator } from './Common';
 import { MismatchModal } from './Modals';
 import { handleJosmLink } from '../utils';
@@ -85,7 +85,7 @@ export function UnmappedTab({
                     <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6">
                         <table class="min-w-full table-auto">
                             <thead
-                                class={`bg-gray-800 text-gray-400 text-left sticky z-10 shadow-sm ${filters && filters.length > 1 ? 'top-[114px] md:top-[122px]' : 'top-[44px] md:top-[52px]'}`}
+                                class={`bg-gray-800 text-gray-400 text-left sticky z-10 shadow-sm ${filters && filters.length > 1 ? 'top-[124px] md:top-[122px]' : 'top-[44px] md:top-[52px]'}`}
                             >
                                 <tr class="hidden md:table-row">
                                     <th class="px-4 py-3">{t('spider.table.ref')}</th>
@@ -159,10 +159,39 @@ export function UnmappedTab({
 
 export function BrandFilters({ filters, currentState, onFilterChange, totalCount }) {
     const { buttonClass } = useTheme();
+    const scrollRef = useRef(null);
+    const [fadeState, setFadeState] = useState('');
+
+    const updateFadeEffect = () => {
+        const container = scrollRef.current;
+        if (!container) return;
+
+        const { scrollLeft, scrollWidth, clientWidth } = container;
+        const isScrollable = scrollWidth > clientWidth;
+        const atStart = scrollLeft <= 1;
+        const atEnd = scrollLeft + clientWidth >= scrollWidth - 1;
+
+        if (!isScrollable) setFadeState('');
+        else if (!atStart && !atEnd) setFadeState('fade-both');
+        else if (!atStart) setFadeState('fade-left');
+        else if (!atEnd) setFadeState('fade-right');
+        else setFadeState('');
+    };
+
+    useEffect(() => {
+        updateFadeEffect();
+        window.addEventListener('resize', updateFadeEffect);
+        return () => window.removeEventListener('resize', updateFadeEffect);
+    }, []);
+
     return (
-        <div class="sticky top-[44px] md:top-[52px] z-20 bg-gray-950 py-4 -mx-4 px-4 md:mx-0 md:px-0">
-            <div class="relative overflow-hidden fade-wrapper">
-                <div class="flex overflow-x-auto no-scrollbar gap-2">
+        <div class="sticky top-[44px] md:top-[52px] z-20 bg-gray-950 -mx-4 px-4 md:mx-0 md:px-0">
+            <div class={`relative overflow-hidden fade-wrapper py-4 ${fadeState}`}>
+                <div
+                    ref={scrollRef}
+                    onScroll={updateFadeEffect}
+                    class="flex overflow-x-auto no-scrollbar gap-2"
+                >
                     <button
                         class={`px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap cursor-pointer ${
                             currentState.brand === null && currentState.wikidata === null

@@ -55,7 +55,7 @@ export function UnmatchedTab({
                     <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6">
                         <table class="min-w-full table-auto">
                             <thead
-                                class={`bg-gray-800 text-gray-400 text-left sticky z-10 shadow-sm ${filters && filters.length > 1 ? 'top-[114px] md:top-[122px]' : 'top-[44px] md:top-[52px]'}`}
+                                class={`bg-gray-800 text-gray-400 text-left sticky z-10 shadow-sm ${filters && filters.length > 1 ? 'top-[124px] md:top-[122px]' : 'top-[44px] md:top-[52px]'}`}
                             >
                                 <tr class="hidden md:table-row">
                                     <th class="px-4 py-3">{t('spider.table.osmId')}</th>

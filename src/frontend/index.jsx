@@ -9,6 +9,31 @@ const PAGE_SIZE = 10;
 
 function Dashboard({ allSpiderResults }) {
     const { linkClass } = useTheme();
+    const scrollRef = useRef(null);
+    const [fadeState, setFadeState] = useState('');
+
+    const updateFadeEffect = () => {
+        const container = scrollRef.current;
+        if (!container) return;
+
+        const { scrollLeft, scrollWidth, clientWidth } = container;
+        const isScrollable = scrollWidth > clientWidth;
+        const atStart = scrollLeft <= 1;
+        const atEnd = scrollLeft + clientWidth >= scrollWidth - 1;
+
+        if (!isScrollable) setFadeState('');
+        else if (!atStart && !atEnd) setFadeState('fade-both');
+        else if (!atStart) setFadeState('fade-left');
+        else if (!atEnd) setFadeState('fade-right');
+        else setFadeState('');
+    };
+
+    useEffect(() => {
+        updateFadeEffect();
+        window.addEventListener('resize', updateFadeEffect);
+        return () => window.removeEventListener('resize', updateFadeEffect);
+    }, []);
+
     const [currentLocale, setCurrentLocale] = useState(null);
 
     useEffect(() => {
@@ -139,8 +164,12 @@ function Dashboard({ allSpiderResults }) {
     return (
         <div class="space-y-6">
             <div class="md:hidden">
-                <div class="relative overflow-hidden fade-wrapper">
-                    <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2">
+                <div class={`relative overflow-hidden fade-wrapper ${fadeState}`}>
+                    <div
+                        ref={scrollRef}
+                        onScroll={updateFadeEffect}
+                        class="flex overflow-x-auto no-scrollbar gap-2 pb-2"
+                    >
                         {sortColumns.map(col => {
                             const active = sort.column === col.key;
                             return (

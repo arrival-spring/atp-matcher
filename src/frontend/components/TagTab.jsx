@@ -30,6 +30,38 @@ export function TagTab({
     onJosmError,
     pageSize,
 }) {
+    const scrollRef = useRef(null);
+    const sortScrollRef = useRef(null);
+    const [fadeState, setFadeState] = useState('');
+    const [sortFadeState, setSortFadeState] = useState('');
+
+    const updateFadeEffect = (ref, setState) => {
+        const container = ref.current;
+        if (!container) return;
+
+        const { scrollLeft, scrollWidth, clientWidth } = container;
+        const isScrollable = scrollWidth > clientWidth;
+        const atStart = scrollLeft <= 1;
+        const atEnd = scrollLeft + clientWidth >= scrollWidth - 1;
+
+        if (!isScrollable) setState('');
+        else if (!atStart && !atEnd) setState('fade-both');
+        else if (!atStart) setState('fade-left');
+        else if (!atEnd) setState('fade-right');
+        else setState('');
+    };
+
+    useEffect(() => {
+        updateFadeEffect(scrollRef, setFadeState);
+        updateFadeEffect(sortScrollRef, setSortFadeState);
+        const handleResize = () => {
+            updateFadeEffect(scrollRef, setFadeState);
+            updateFadeEffect(sortScrollRef, setSortFadeState);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const tagResults = useMemo(
         () =>
             results
@@ -113,9 +145,13 @@ export function TagTab({
 
     return (
         <div>
-            <div class="sticky top-[44px] md:top-[52px] z-20 bg-gray-950 pt-4 -mx-4 px-4 md:mx-0 md:px-0">
-                <div class="relative overflow-hidden fade-wrapper">
-                    <div class="flex overflow-x-auto no-scrollbar gap-2">
+            <div class="sticky top-[44px] md:top-[52px] z-20 bg-gray-950 -mx-4 px-4 md:mx-0 md:px-0">
+                <div class={`relative overflow-hidden fade-wrapper py-4 ${fadeState}`}>
+                    <div
+                        ref={scrollRef}
+                        onScroll={() => updateFadeEffect(scrollRef, setFadeState)}
+                        class="flex overflow-x-auto no-scrollbar gap-2"
+                    >
                         {possibleStatuses.map(status => {
                             const count = tagResults.filter(r => r.tagStatus === status).length;
                             if (count === 0 && status === 'disallowedSourceUri') return null;
@@ -145,9 +181,13 @@ export function TagTab({
                 </div>
             </div>
 
-            <div class="md:hidden mt-2">
-                <div class="relative overflow-hidden fade-wrapper">
-                    <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2">
+            <div class="md:hidden">
+                <div class={`relative overflow-hidden fade-wrapper pb-4 ${sortFadeState}`}>
+                    <div
+                        ref={sortScrollRef}
+                        onScroll={() => updateFadeEffect(sortScrollRef, setSortFadeState)}
+                        class="flex overflow-x-auto no-scrollbar gap-2 pb-2"
+                    >
                         {sortColumns.map(col => {
                             const active = currentState.sort === col.key;
                             return (
@@ -169,9 +209,9 @@ export function TagTab({
                 </div>
             </div>
 
-            <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6 mt-4 md:mt-0">
+            <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6">
                 <table class="min-w-full table-auto">
-                    <thead class="bg-gray-800 text-gray-400 text-left sticky top-[114px] md:top-[122px] z-10 shadow-sm">
+                    <thead class="bg-gray-800 text-gray-400 text-left sticky top-[124px] md:top-[122px] z-10 shadow-sm">
                         <tr class="hidden md:table-row">
                             <th
                                 class="px-4 py-3 cursor-pointer hover:text-white transition-colors"
