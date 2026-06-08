@@ -1,11 +1,13 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { t } from '../i18n';
+import { useTheme } from './ThemeContext';
 
 export function MismatchModal({ title, message, onUnderstand, onBack, showImportBtn }) {
     const [progress, setProgress] = useState(0);
     const [canConfirm, setCanConfirm] = useState(false);
     const [isImport, setIsImport] = useState(false);
+    const { buttonClass } = useTheme();
 
     useEffect(() => {
         const start = Date.now();
@@ -59,7 +61,7 @@ export function MismatchModal({ title, message, onUnderstand, onBack, showImport
                             class="relative px-6 py-3 bg-gray-700 text-white rounded-lg font-medium overflow-hidden group disabled:opacity-100"
                         >
                             <div
-                                class="absolute inset-0 bg-blue-600 transition-all duration-100"
+                                class={`absolute inset-0 ${buttonClass} transition-all duration-100`}
                                 style={{ width: `${progress}%` }}
                             />
                             <span class="relative z-10">{t('spider.modals.understand')}</span>
@@ -68,7 +70,7 @@ export function MismatchModal({ title, message, onUnderstand, onBack, showImport
                     {isImport && (
                         <button
                             onClick={onUnderstand}
-                            class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium cursor-pointer"
+                            class={`px-6 py-3 ${buttonClass} text-white rounded-lg transition-colors font-medium cursor-pointer`}
                         >
                             {t('spider.actions.openUnmapped')}
                         </button>
@@ -80,6 +82,7 @@ export function MismatchModal({ title, message, onUnderstand, onBack, showImport
 }
 
 export function JosmErrorModal({ onClose }) {
+    const { buttonClass } = useTheme();
     return (
         <div
             id="josm-modal"
@@ -103,7 +106,7 @@ export function JosmErrorModal({ onClose }) {
                 <div class="flex justify-end">
                     <button
                         onClick={onClose}
-                        class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors font-medium cursor-pointer"
+                        class={`px-6 py-3 ${buttonClass} text-white rounded-lg transition-colors font-medium cursor-pointer`}
                     >
                         {t('spider.modals.understand')}
                     </button>
