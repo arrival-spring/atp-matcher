@@ -129,8 +129,38 @@ function Dashboard({ allSpiderResults }) {
         setPage(1);
     };
 
+    const sortColumns = [
+        { key: 'status', label: t('index.table.status') },
+        { key: 'name', label: t('index.table.spiderName') },
+        { key: 'issues', label: t('index.table.issuesMapped') },
+        { key: 'mapped', label: t('index.table.mappedTotal') },
+    ];
+
     return (
         <div class="space-y-6">
+            <div class="md:hidden">
+                <div class="relative overflow-hidden fade-wrapper">
+                    <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2">
+                        {sortColumns.map(col => {
+                            const active = sort.column === col.key;
+                            return (
+                                <button
+                                    key={col.key}
+                                    class={`px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap flex items-center gap-1 ${
+                                        active
+                                            ? `${useTheme().theme === 'auto' ? 'bg-blue-600 border-blue-500' : 'bg-amber-600 border-amber-500'} text-white shadow-md`
+                                            : 'border-gray-600 text-gray-300 hover:bg-gray-700 cursor-pointer'
+                                    }`}
+                                    onClick={() => handleSort(col.key)}
+                                >
+                                    {col.label}
+                                    <SortIcon column={col.key} currentSort={sort} />
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -277,9 +307,8 @@ function SpiderRow({ spider, onSort, currentSort }) {
             <td class="md:table-cell md:px-6 md:py-4 mb-2 md:mb-0">
                 <div class="flex items-center gap-2">
                     <div
-                        class={`w-3 h-3 rounded-full ${statusColors[stabilityColor] || 'bg-gray-600'} cursor-pointer`}
+                        class={`w-3 h-3 rounded-full ${statusColors[stabilityColor] || 'bg-gray-600'}`}
                         title={statusTitles[stabilityColor]}
-                        onClick={(e) => { e.stopPropagation(); onSort('status'); }}
                     />
                     <div class="md:hidden flex-grow flex items-center justify-between">
                         <div class="flex items-center">
@@ -293,9 +322,6 @@ function SpiderRow({ spider, onSort, currentSort }) {
                             {loadStatus && (
                                 <span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">{loadStatus}</span>
                             )}
-                        </div>
-                        <div class="cursor-pointer p-2 -m-2" onClick={(e) => { e.stopPropagation(); onSort('name'); }}>
-                            <SortIcon column="name" currentSort={currentSort} />
                         </div>
                     </div>
                 </div>
@@ -314,25 +340,23 @@ function SpiderRow({ spider, onSort, currentSort }) {
             </td>
             <td class="md:table-cell md:px-6 md:py-4 md:text-right">
                 <div class="grid grid-cols-2 md:block">
-                    <div class="flex flex-col md:block cursor-pointer" onClick={(e) => { e.stopPropagation(); onSort('issues'); }}>
+                    <div class="flex flex-col md:block">
                         <div class="text-sm md:text-base">
                             <span class={`${issuesCount > 0 ? 'text-red-400' : 'text-green-400'} font-semibold`}>
                                 {showTotals ? issuesCount : ''}
                             </span>
                             <span class="text-gray-500">{showTotals ? ` / ${mappedCount}` : ''}</span>
                         </div>
-                        <div class="md:hidden text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1 flex items-center gap-1">
+                        <div class="md:hidden text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">
                             (Issues / Mapped)
-                            <SortIcon column="issues" currentSort={currentSort} />
                         </div>
                     </div>
-                    <div class="flex flex-col md:hidden text-right cursor-pointer" onClick={(e) => { e.stopPropagation(); onSort('mapped'); }}>
+                    <div class="flex flex-col md:hidden text-right">
                         <div class="text-sm">
                             <span class="text-gray-200 font-semibold">{showTotals ? mappedCount : ''}</span>
                             <span class="text-gray-500">{showTotals ? ` / ${totalCount}` : ''}</span>
                         </div>
-                        <div class="md:hidden text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1 flex items-center justify-end gap-1">
-                            <SortIcon column="mapped" currentSort={currentSort} />
+                        <div class="md:hidden text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">
                             (Mapped / Total)
                         </div>
                     </div>

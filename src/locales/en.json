@@ -105,7 +105,8 @@
       "josmImport": {
         "message": "This will load and open the unmapped items from ATP into JOSM. This may be useful to match them to existing elements. DO NOT import them, but use conflation and judgement."
       },
-      "understand": "I understand"
+      "understand": "I understand",
+      "takeMeBack": "Take me back"
     },
     "filters": {
       "allBrands": "All brands",

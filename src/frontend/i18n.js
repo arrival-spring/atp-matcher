@@ -11,8 +11,6 @@ const localesMetadata = [
                 return filename.replace('.json', '');
             })
             .filter(code => code && code !== 'locales' && code !== 'en'),
-        // In browser environment, we might not have eager-loaded localeFiles via glob
-        // so we check if there's any other way to discover them or just rely on what's found.
     ]),
 ].sort();
 

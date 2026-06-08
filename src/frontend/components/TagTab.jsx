@@ -102,9 +102,18 @@ export function TagTab({
     const showOsmColumns = currentState.status !== 'addToOsm';
     const { buttonClass } = useTheme();
 
+    const sortColumns = [
+        { key: 'ref', label: t('spider.table.ref') },
+        { key: 'spiderValue', label: t('spider.table.spiderValue') },
+    ];
+    if (showOsmColumns) {
+        sortColumns.push({ key: 'osmValue', label: t('spider.table.osmValue') });
+    }
+    sortColumns.push({ key: 'osm', label: 'OSM' });
+
     return (
         <div>
-            <div class="sticky top-[44px] md:top-[52px] z-20 bg-gray-950 py-4 -mx-4 px-4 md:mx-0 md:px-0">
+            <div class="sticky top-[44px] md:top-[52px] z-20 bg-gray-950 pt-4 -mx-4 px-4 md:mx-0 md:px-0">
                 <div class="relative overflow-hidden fade-wrapper">
                     <div class="flex overflow-x-auto no-scrollbar gap-2">
                         {possibleStatuses.map(status => {
@@ -136,10 +145,34 @@ export function TagTab({
                 </div>
             </div>
 
-            <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6">
+            <div class="md:hidden mt-2">
+                <div class="relative overflow-hidden fade-wrapper">
+                    <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2">
+                        {sortColumns.map(col => {
+                            const active = currentState.sort === col.key;
+                            return (
+                                <button
+                                    key={col.key}
+                                    class={`px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap flex items-center gap-1 ${
+                                        active
+                                            ? `${buttonClass} text-white shadow-md`
+                                            : 'border-gray-600 text-gray-300 hover:bg-gray-700 cursor-pointer'
+                                    }`}
+                                    onClick={() => handleSort(col.key)}
+                                >
+                                    {col.label}
+                                    <SortIcon column={col.key} currentSort={currentState} />
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6 mt-4 md:mt-0">
                 <table class="min-w-full table-auto">
                     <thead class="bg-gray-800 text-gray-400 text-left sticky top-[114px] md:top-[122px] z-10 shadow-sm">
-                        <tr class="md:table-row">
+                        <tr class="hidden md:table-row">
                             <th
                                 class="px-4 py-3 cursor-pointer hover:text-white transition-colors"
                                 onClick={() => handleSort('ref')}
