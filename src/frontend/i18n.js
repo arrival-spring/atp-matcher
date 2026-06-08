@@ -1,6 +1,6 @@
 import en from '../locales/en.json';
 
-const localeFiles = import.meta.glob?.('../locales/*.json', { eager: true }) || {};
+const localeFiles = import.meta.glob('../locales/*.json', { eager: true });
 const localesMetadata = [
     ...new Set([
         'en',

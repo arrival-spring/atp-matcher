@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useMemo } from 'preact/hooks';
+import { useMemo, useRef, useState, useEffect } from 'preact/hooks';
 import { StatusLabel, TagValue, SpiderValue, OsmColumn, Pagination } from './Common';
 import { t } from '../i18n';
 import { useTheme } from './ThemeContext';
