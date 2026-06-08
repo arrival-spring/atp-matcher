@@ -1,5 +1,5 @@
 import { render, h } from 'preact';
-import { useState, useEffect, useMemo } from 'preact/hooks';
+import { useState, useEffect, useMemo, useRef } from 'preact/hooks';
 import { escapeHtml } from './utils';
 import { t, initI18n } from './i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
