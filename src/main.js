@@ -13,25 +13,32 @@ import { processSpiderResults } from './result_processor.js';
 import { generateWebpage } from './web_generator.js';
 
 const CONFIG_FILE = 'config.json';
-const SPIDERS_FILE = 'spiders.json';
+const SPIDERS_AUTO_FILE = 'spiders_auto.json';
+const SPIDERS_PREVIEW_FILE = 'spiders_preview.json';
 
 async function run() {
     if (!fs.existsSync(CONFIG_FILE)) {
         console.error('Config file not found.');
         process.exit(1);
     }
-    if (!fs.existsSync(SPIDERS_FILE)) {
-        console.error('Spiders file not found.');
+    if (!fs.existsSync(SPIDERS_AUTO_FILE)) {
+        console.error('Spiders auto file not found.');
+        process.exit(1);
+    }
+    if (!fs.existsSync(SPIDERS_PREVIEW_FILE)) {
+        console.error('Spiders preview file not found.');
         process.exit(1);
     }
 
-    let config, spiders;
+    let config, spidersAuto, spidersPreview;
     try {
         config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
         if (process.env.MOCK === 'true') {
-            spiders = JSON.parse(fs.readFileSync('mock_data/mock_spiders.json', 'utf8'));
+            spidersAuto = [];
+            spidersPreview = JSON.parse(fs.readFileSync('mock_data/mock_spiders.json', 'utf8'));
         } else {
-            spiders = JSON.parse(fs.readFileSync(SPIDERS_FILE, 'utf8'));
+            spidersAuto = JSON.parse(fs.readFileSync(SPIDERS_AUTO_FILE, 'utf8'));
+            spidersPreview = JSON.parse(fs.readFileSync(SPIDERS_PREVIEW_FILE, 'utf8'));
         }
     } catch (error) {
         console.error(`Error parsing configuration files: ${error.message}`);
@@ -62,9 +69,10 @@ async function run() {
         }
     }
 
+    const allSpiders = [...spidersAuto, ...spidersPreview];
     let spidersData, atpLookup, wikidataToSpiders;
     try {
-        const atpData = await loadAllAtpData(spiders, runs);
+        const atpData = await loadAllAtpData(allSpiders, runs);
         spidersData = atpData.spidersData;
         atpLookup = atpData.atpLookup;
         wikidataToSpiders = atpData.wikidataToSpiders;
@@ -80,19 +88,33 @@ async function run() {
     }
 
     try {
-        await streamOsmData(config.osmExtractUrl, spiders, atpLookup, wikidataToSpiders, allMatches, allUnmatched);
+        await streamOsmData(
+            config.osmExtractUrl,
+            allSpiders,
+            atpLookup,
+            wikidataToSpiders,
+            allMatches,
+            allUnmatched
+        );
     } catch (error) {
         console.error(`Error streaming OSM data: ${error.message}`);
         process.exit(1);
     }
 
-    const safeEdits = {};
-    const allSpiderResults = [];
+    const safeEditsAuto = {};
+    const safeEditsPreview = {};
+    const autoResults = [];
+    const previewResults = [];
+
+    const autoNames = new Set(spidersAuto.map(s => s.name));
 
     for (const [spiderName, data] of spidersData) {
+        const isAuto = autoNames.has(spiderName);
+        const safeEdits = isAuto ? safeEditsAuto : safeEditsPreview;
+        const targetResults = isAuto ? autoResults : previewResults;
         try {
             if (data.loadStatus === 'missing' || data.loadStatus === 'empty') {
-                allSpiderResults.push({
+                targetResults.push({
                     name: spiderName,
                     importableTags: [],
                     results: [],
@@ -277,7 +299,7 @@ async function run() {
                     );
                 });
 
-                allSpiderResults.push({
+                targetResults.push({
                     name: spiderName,
                     importableTags: usedTags,
                     results: results.map(r => {
@@ -315,29 +337,35 @@ async function run() {
     }
 
     try {
-        generateWebpage(allSpiderResults, atpDate, osmDate);
+        generateWebpage(autoResults, previewResults, atpDate, osmDate);
     } catch (error) {
         console.error(`Error generating webpage: ${error.message}`);
     }
 
     // Save safe edits
-    try {
-        const safeEditsDir = 'safe-edits';
-        if (fs.existsSync(safeEditsDir)) {
-            fs.rmSync(safeEditsDir, { recursive: true, force: true });
-        }
-        fs.mkdirSync(safeEditsDir);
-
-        for (const [spiderName, files] of Object.entries(safeEdits)) {
-            const spiderDir = path.join(safeEditsDir, spiderName);
-            fs.mkdirSync(spiderDir, { recursive: true });
-            for (const [fileKey, content] of Object.entries(files)) {
-                fs.writeFileSync(path.join(spiderDir, `${fileKey}.json`), JSON.stringify(content, null, 2));
+    const saveSafeEdits = (safeEdits, subDir) => {
+        try {
+            const safeEditsDir = path.join('safe-edits', subDir);
+            if (!fs.existsSync('safe-edits')) fs.mkdirSync('safe-edits');
+            if (fs.existsSync(safeEditsDir)) {
+                fs.rmSync(safeEditsDir, { recursive: true, force: true });
             }
+            fs.mkdirSync(safeEditsDir, { recursive: true });
+
+            for (const [spiderName, files] of Object.entries(safeEdits)) {
+                const spiderDir = path.join(safeEditsDir, spiderName);
+                fs.mkdirSync(spiderDir, { recursive: true });
+                for (const [fileKey, content] of Object.entries(files)) {
+                    fs.writeFileSync(path.join(spiderDir, `${fileKey}.json`), JSON.stringify(content, null, 2));
+                }
+            }
+        } catch (error) {
+            console.error(`Error saving safe edits for ${subDir}: ${error.message}`);
         }
-    } catch (error) {
-        console.error(`Error saving safe edits: ${error.message}`);
-    }
+    };
+
+    saveSafeEdits(safeEditsAuto, 'auto');
+    saveSafeEdits(safeEditsPreview, 'preview');
 }
 
 run().catch(err => {

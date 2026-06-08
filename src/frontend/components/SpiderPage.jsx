@@ -18,10 +18,14 @@ export function SpiderPage({
     unmappedFilters,
     unmatchedFilters,
     basePath,
+    theme = 'auto'
 }) {
-    return h(Layout, { title: name, basePath: basePath, atpDate: atpDate, osmDate: osmDate }, [
+    const isAuto = theme === 'auto';
+    const linkColorClass = isAuto ? 'text-blue-400' : 'text-amber-600';
+
+    return h(Layout, { title: name, basePath, atpDate, osmDate, theme }, [
         h('nav', { class: 'mb-8 mt-4' }, [
-            h('a', { href: `${basePath}/index.html`, class: 'text-blue-400 hover:underline' }, `← ${t('spider.backToDashboard')}`),
+            h('a', { href: `${basePath}/index.html`, class: `${linkColorClass} hover:underline` }, `← ${t('spider.backToDashboard')}`),
         ]),
         h('header', { class: 'mb-12' }, [
             h('h1', { class: 'text-4xl font-extrabold mb-2' }, name),
@@ -62,7 +66,7 @@ export function SpiderPage({
                     {
                         href: `https://data.alltheplaces.xyz/runs/latest/output/${name}.geojson`,
                         target: '_blank',
-                        class: 'text-blue-400 hover:underline inline-flex items-center',
+                        class: `${linkColorClass} hover:underline inline-flex items-center`,
                     },
                     [
                         'GeoJSON',
@@ -85,7 +89,7 @@ export function SpiderPage({
                     {
                         href: `https://github.com/alltheplaces/alltheplaces/tree/master/locations/spiders/${name}.py`,
                         target: '_blank',
-                        class: 'text-blue-400 hover:underline inline-flex items-center',
+                        class: `${linkColorClass} hover:underline inline-flex items-center`,
                     },
                     [
                         t('spider.links.source'),
@@ -119,7 +123,8 @@ export function SpiderPage({
         unmappedCount: ${unmappedCount || 0},
         unmatchedCount: ${unmatchedCount || 0},
         unmappedFilters: ${JSON.stringify(unmappedFilters || [])},
-        unmatchedFilters: ${JSON.stringify(unmatchedFilters || [])}
+        unmatchedFilters: ${JSON.stringify(unmatchedFilters || [])},
+        theme: ${JSON.stringify(theme)}
     });`,
             },
         }),

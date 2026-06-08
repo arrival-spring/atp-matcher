@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useRef, useState, useEffect } from 'preact/hooks';
 import { t } from '../i18n';
+import { useTheme } from './ThemeContext';
 
 export function TabNavigation({
     activeTab,
@@ -95,12 +96,16 @@ export function TabNavigation({
 }
 
 function TabButton({ id, label, count, active, onClick, isMono }) {
+    const { theme } = useTheme();
+    const isAuto = theme === 'auto';
+    const activeClass = isAuto ? 'text-blue-500 border-blue-500' : 'text-amber-600 border-amber-600';
+
     return (
         <li class="shrink-0" role="presentation">
             <button
                 class={`inline-block p-3 md:p-4 border-b-2 rounded-t-lg transition-colors cursor-pointer whitespace-nowrap ${
                     active
-                        ? 'text-blue-500 border-blue-500'
+                        ? activeClass
                         : 'border-transparent hover:text-gray-300 hover:border-gray-300'
                 } ${isMono ? 'font-mono' : ''}`}
                 onClick={onClick}

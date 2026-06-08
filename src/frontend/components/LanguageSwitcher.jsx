@@ -1,8 +1,11 @@
 import { h } from 'preact';
 import { useState, useEffect, useMemo, useRef } from 'preact/hooks';
 import { t, getAvailableLocales, getLocale, setLocale } from '../i18n';
+import { useTheme } from './ThemeContext';
 
 export function LanguageSwitcher() {
+    const { linkClass, theme } = useTheme();
+    const isAuto = theme === 'auto';
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [search, setSearch] = useState('');
     const [currentLocale, setCurrentLocale] = useState(getLocale());
@@ -52,7 +55,7 @@ export function LanguageSwitcher() {
                 h('input', {
                     ref: searchInputRef,
                     type: 'text',
-                    class: 'w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500',
+                    class: `w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-200 focus:outline-none focus:ring-1 ${isAuto ? 'focus:ring-emerald-500' : 'focus:ring-amber-500'}`,
                     placeholder: t('locales.searchPlaceholder'),
                     value: search,
                     onInput: (e) => setSearch(e.target.value)
@@ -68,7 +71,7 @@ export function LanguageSwitcher() {
                             setIsMenuOpen(false);
                             setSearch('');
                         },
-                        class: `w-full text-left px-4 py-2 hover:bg-gray-800 transition-colors flex items-center justify-between ${currentLocale === meta.code ? 'text-blue-400 font-bold' : 'text-gray-300'}`
+                        class: `w-full text-left px-4 py-2 hover:bg-gray-800 transition-colors flex items-center justify-between ${currentLocale === meta.code ? `${linkClass(false)} font-bold` : 'text-gray-300'}`
                     }, [
                         h('span', null, meta.native),
                         currentLocale === meta.code && h('span', null, '✓')

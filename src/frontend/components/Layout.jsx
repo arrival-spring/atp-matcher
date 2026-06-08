@@ -2,8 +2,9 @@ import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { t, getLocale } from '../i18n';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { ThemeProvider } from './ThemeContext';
 
-export function Layout({ title, basePath, atpDate, osmDate, children }) {
+export function Layout({ title, basePath, atpDate, osmDate, theme = 'auto', children }) {
     const [currentLocale, setCurrentLocale] = useState(getLocale());
 
     useEffect(() => {
@@ -27,7 +28,7 @@ export function Layout({ title, basePath, atpDate, osmDate, children }) {
         h('body', { class: 'bg-gray-950 text-gray-100 min-h-screen p-4 md:p-8 relative' }, [
             h('div', { id: 'language-switcher-root' }),
             h('div', { class: 'max-w-7xl mx-auto relative' }, [
-                children
+                h(ThemeProvider, { theme }, children)
             ]),
             h('footer', { class: 'max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-800 text-gray-500 text-sm' }, [
                 h('div', { class: 'flex flex-wrap gap-x-8 gap-y-2' }, [

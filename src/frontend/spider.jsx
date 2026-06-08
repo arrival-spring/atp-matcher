@@ -10,6 +10,7 @@ import { UnmatchedTab } from './components/UnmatchedTab';
 import { DuplicateRefsTab } from './components/DuplicateRefsTab';
 import { TagTab } from './components/TagTab';
 import { MismatchModal, JosmErrorModal } from './components/Modals';
+import { ThemeProvider } from './components/ThemeContext';
 
 const PAGE_SIZE = 25;
 
@@ -285,7 +286,12 @@ window.initSpiderDashboard = async props => {
     await initI18n();
     const container = document.getElementById('spider-dashboard-root');
     if (container) {
-        render(<SpiderDashboard {...props} />, container);
+        render(
+            <ThemeProvider theme={props.theme || 'auto'}>
+                <SpiderDashboard {...props} />
+            </ThemeProvider>,
+            container
+        );
     }
     const switcherContainer = document.getElementById('language-switcher-root');
     if (switcherContainer) {

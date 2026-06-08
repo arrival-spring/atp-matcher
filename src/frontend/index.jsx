@@ -3,10 +3,12 @@ import { useState, useEffect, useMemo } from 'preact/hooks';
 import { escapeHtml } from './utils';
 import { t, initI18n } from './i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { ThemeProvider, useTheme } from './components/ThemeContext';
 
 const PAGE_SIZE = 10;
 
 function Dashboard({ allSpiderResults }) {
+    const { linkClass } = useTheme();
     const [currentLocale, setCurrentLocale] = useState(null);
 
     useEffect(() => {
@@ -143,7 +145,7 @@ function Dashboard({ allSpiderResults }) {
                 <input
                     type="text"
                     id="search-input"
-                    class="block w-full pl-10 pr-3 py-3 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
+                    class={`block w-full pl-10 pr-3 py-3 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 ${useTheme().theme === 'auto' ? 'focus:ring-blue-500 focus:border-blue-500' : 'focus:ring-amber-500 focus:border-amber-500'} sm:text-sm transition-colors`}
                     placeholder={t('index.searchPlaceholder')}
                     value={search}
                     onInput={handleSearchChange}
@@ -248,6 +250,8 @@ function SortIcon({ column, currentSort }) {
 }
 
 function SpiderRow({ spider }) {
+    const { linkClass, theme } = useTheme();
+    const isAuto = theme === 'auto';
     const {
         name,
         issuesCount,
@@ -289,7 +293,7 @@ function SpiderRow({ spider }) {
                     <div class="md:hidden">
                         <a
                             href={`${name}/`}
-                            class="text-blue-400 hover:underline font-bold text-base"
+                            class={`${linkClass(false)} hover:underline font-bold text-base`}
                             onClick={e => e.stopPropagation()}
                         >
                             {name}
@@ -303,7 +307,7 @@ function SpiderRow({ spider }) {
             <td class="hidden md:table-cell md:px-6 md:py-4">
                 <a
                     href={`${name}/`}
-                    class="text-blue-400 hover:underline font-bold text-lg"
+                    class={`${linkClass(false)} hover:underline font-bold text-lg`}
                     onClick={e => e.stopPropagation()}
                 >
                     {name}
@@ -327,7 +331,7 @@ function SpiderRow({ spider }) {
                     </div>
                     <div class="flex flex-col md:hidden">
                         <div class="text-sm">
-                            <span class="text-blue-400 font-semibold">{showTotals ? automaticUpdatesCount : ''}</span>
+                            <span class={`${isAuto ? 'text-blue-400' : 'text-amber-600'} font-semibold`}>{showTotals ? automaticUpdatesCount : ''}</span>
                         </div>
                         <div class="text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">
                             (Auto Updates)
@@ -346,7 +350,7 @@ function SpiderRow({ spider }) {
             </td>
             <td class="hidden md:table-cell md:px-6 md:py-4 md:text-right">
                 <div class="text-sm md:text-base">
-                    <span class="text-blue-400 font-semibold">{showTotals ? automaticUpdatesCount : ''}</span>
+                    <span class={`${isAuto ? 'text-blue-400' : 'text-amber-600'} font-semibold`}>{showTotals ? automaticUpdatesCount : ''}</span>
                 </div>
             </td>
             <td class="hidden md:table-cell md:px-6 md:py-4 md:text-right">
@@ -359,11 +363,16 @@ function SpiderRow({ spider }) {
     );
 }
 
-window.initDashboard = async allSpiderResults => {
+window.initDashboard = async (allSpiderResults, theme = 'auto') => {
     await initI18n();
     const container = document.getElementById('dashboard-root');
     if (container) {
-        render(<Dashboard allSpiderResults={allSpiderResults} />, container);
+        render(
+            <ThemeProvider theme={theme}>
+                <Dashboard allSpiderResults={allSpiderResults} />
+            </ThemeProvider>,
+            container
+        );
     }
     const switcherContainer = document.getElementById('language-switcher-root');
     if (switcherContainer) {
