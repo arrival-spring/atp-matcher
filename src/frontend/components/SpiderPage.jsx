@@ -25,7 +25,7 @@ export function SpiderPage({
 
     return h(Layout, { title: name, basePath, atpDate, osmDate, theme }, [
         h('nav', { class: 'mb-8 mt-4' }, [
-            h('a', { href: `${basePath}/index.html`, class: `${linkColorClass} hover:underline` }, `← ${t('spider.backToDashboard')}`),
+            h('a', { href: `../index.html`, class: `${linkColorClass} hover:underline` }, `← ${t('spider.backToDashboard')}`),
         ]),
         h('header', { class: 'mb-12' }, [
             h('h1', { class: 'text-4xl font-extrabold mb-2' }, name),

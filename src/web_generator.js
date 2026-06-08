@@ -6,8 +6,10 @@ import render from 'preact-render-to-string';
 import { IndexPage } from './frontend/components/IndexPage.jsx';
 import { SpiderPage } from './frontend/components/SpiderPage.jsx';
 import { LandingPage } from './frontend/components/LandingPage.jsx';
+import { initI18n } from './frontend/i18n.js';
 
-export function generateWebpage(autoResults, previewResults, atpDate, osmDate) {
+export async function generateWebpage(autoResults, previewResults, atpDate, osmDate) {
+    await initI18n();
     const outputDir = 'output';
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir);
@@ -102,7 +104,7 @@ export function generateWebpage(autoResults, previewResults, atpDate, osmDate) {
     // Generate Landing Page
     try {
         const getStats = results => ({
-            places: results.reduce((sum, s) => sum + (s.totalCount || 0), 0),
+            places: results.reduce((sum, s) => sum + (s.mappedCount || 0), 0),
             brands: results.length,
         });
 
@@ -115,7 +117,10 @@ export function generateWebpage(autoResults, previewResults, atpDate, osmDate) {
                 basePath: '.',
             })
         );
-        fs.writeFileSync(path.join(outputDir, 'index.html'), `<!DOCTYPE html>\n${landingHtml}`);
+        const landingWithScript = `<!DOCTYPE html>\n${landingHtml}
+<script type="module" src="./assets/index.js"></script>
+<script type="module">window.initLandingPage();</script>`;
+        fs.writeFileSync(path.join(outputDir, 'index.html'), landingWithScript);
     } catch (error) {
         console.error(`Error generating landing page: ${error.message}`);
     }

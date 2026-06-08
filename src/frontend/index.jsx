@@ -1,5 +1,5 @@
 import { render, h } from 'preact';
-import { useState, useEffect, useMemo } from 'preact/hooks';
+import { useState, useEffect, useMemo, useRef } from 'preact/hooks';
 import { escapeHtml } from './utils';
 import { t, initI18n } from './i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
@@ -9,6 +9,31 @@ const PAGE_SIZE = 10;
 
 function Dashboard({ allSpiderResults }) {
     const { linkClass } = useTheme();
+    const scrollRef = useRef(null);
+    const [fadeState, setFadeState] = useState('');
+
+    const updateFadeEffect = () => {
+        const container = scrollRef.current;
+        if (!container) return;
+
+        const { scrollLeft, scrollWidth, clientWidth } = container;
+        const isScrollable = scrollWidth > clientWidth;
+        const atStart = scrollLeft <= 1;
+        const atEnd = scrollLeft + clientWidth >= scrollWidth - 1;
+
+        if (!isScrollable) setFadeState('');
+        else if (!atStart && !atEnd) setFadeState('fade-both');
+        else if (!atStart) setFadeState('fade-left');
+        else if (!atEnd) setFadeState('fade-right');
+        else setFadeState('');
+    };
+
+    useEffect(() => {
+        updateFadeEffect();
+        window.addEventListener('resize', updateFadeEffect);
+        return () => window.removeEventListener('resize', updateFadeEffect);
+    }, []);
+
     const [currentLocale, setCurrentLocale] = useState(null);
 
     useEffect(() => {
@@ -129,8 +154,42 @@ function Dashboard({ allSpiderResults }) {
         setPage(1);
     };
 
+    const sortColumns = [
+        { key: 'status', label: t('index.table.status') },
+        { key: 'name', label: t('index.table.spiderName') },
+        { key: 'issues', label: t('index.table.issuesMapped') },
+        { key: 'mapped', label: t('index.table.mappedTotal') },
+    ];
+
     return (
         <div class="space-y-6">
+            <div class="md:hidden">
+                <div class={`relative overflow-hidden fade-wrapper ${fadeState}`}>
+                    <div
+                        ref={scrollRef}
+                        onScroll={updateFadeEffect}
+                        class="flex overflow-x-auto no-scrollbar gap-2 pb-2"
+                    >
+                        {sortColumns.map(col => {
+                            const active = sort.column === col.key;
+                            return (
+                                <button
+                                    key={col.key}
+                                    class={`px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap flex items-center gap-1 ${
+                                        active
+                                            ? `${useTheme().theme === 'auto' ? 'bg-blue-600 border-blue-500' : 'bg-amber-600 border-amber-500'} text-white shadow-md`
+                                            : 'border-gray-600 text-gray-300 hover:bg-gray-700 cursor-pointer'
+                                    }`}
+                                    onClick={() => handleSort(col.key)}
+                                >
+                                    {col.label}
+                                    <SortIcon column={col.key} currentSort={sort} />
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,15 +244,6 @@ function Dashboard({ allSpiderResults }) {
                             </th>
                             <th
                                 class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right cursor-pointer hover:text-white transition-colors"
-                                onClick={() => handleSort('updates')}
-                            >
-                                <div class="flex items-center justify-end gap-1">
-                                    {t('index.table.autoUpdates')}
-                                    <SortIcon column="updates" currentSort={sort} />
-                                </div>
-                            </th>
-                            <th
-                                class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right cursor-pointer hover:text-white transition-colors"
                                 onClick={() => handleSort('mapped')}
                             >
                                 <div class="flex items-center justify-end gap-1">
@@ -205,7 +255,7 @@ function Dashboard({ allSpiderResults }) {
                     </thead>
                     <tbody class="divide-y divide-gray-800">
                         {pageData.map(spider => (
-                            <SpiderRow key={spider.name} spider={spider} />
+                            <SpiderRow key={spider.name} spider={spider} onSort={handleSort} currentSort={sort} />
                         ))}
                     </tbody>
                 </table>
@@ -249,7 +299,7 @@ function SortIcon({ column, currentSort }) {
     );
 }
 
-function SpiderRow({ spider }) {
+function SpiderRow({ spider, onSort, currentSort }) {
     const { linkClass, theme } = useTheme();
     const isAuto = theme === 'auto';
     const {
@@ -257,7 +307,6 @@ function SpiderRow({ spider }) {
         issuesCount,
         mappedCount,
         totalCount,
-        automaticUpdatesCount,
         isBrandSpider,
         stabilityColor,
         loadStatus,
@@ -290,17 +339,19 @@ function SpiderRow({ spider }) {
                         class={`w-3 h-3 rounded-full ${statusColors[stabilityColor] || 'bg-gray-600'}`}
                         title={statusTitles[stabilityColor]}
                     />
-                    <div class="md:hidden">
-                        <a
-                            href={`${name}/`}
-                            class={`${linkClass(false)} hover:underline font-bold text-base`}
-                            onClick={e => e.stopPropagation()}
-                        >
-                            {name}
-                        </a>
-                        {loadStatus && (
-                            <span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">{loadStatus}</span>
-                        )}
+                    <div class="md:hidden flex-grow flex items-center justify-between">
+                        <div class="flex items-center">
+                            <a
+                                href={`${name}/`}
+                                class={`${linkClass(false)} hover:underline font-bold text-base`}
+                                onClick={e => e.stopPropagation()}
+                            >
+                                {name}
+                            </a>
+                            {loadStatus && (
+                                <span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">{loadStatus}</span>
+                            )}
+                        </div>
                     </div>
                 </div>
             </td>
@@ -317,7 +368,7 @@ function SpiderRow({ spider }) {
                 )}
             </td>
             <td class="md:table-cell md:px-6 md:py-4 md:text-right">
-                <div class="grid grid-cols-3 md:block">
+                <div class="grid grid-cols-2 md:block">
                     <div class="flex flex-col md:block">
                         <div class="text-sm md:text-base">
                             <span class={`${issuesCount > 0 ? 'text-red-400' : 'text-green-400'} font-semibold`}>
@@ -329,28 +380,15 @@ function SpiderRow({ spider }) {
                             (Issues / Mapped)
                         </div>
                     </div>
-                    <div class="flex flex-col md:hidden">
-                        <div class="text-sm">
-                            <span class={`${isAuto ? 'text-blue-400' : 'text-amber-600'} font-semibold`}>{showTotals ? automaticUpdatesCount : ''}</span>
-                        </div>
-                        <div class="text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">
-                            (Auto Updates)
-                        </div>
-                    </div>
                     <div class="flex flex-col md:hidden text-right">
                         <div class="text-sm">
                             <span class="text-gray-200 font-semibold">{showTotals ? mappedCount : ''}</span>
                             <span class="text-gray-500">{showTotals ? ` / ${totalCount}` : ''}</span>
                         </div>
-                        <div class="text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">
+                        <div class="md:hidden text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">
                             (Mapped / Total)
                         </div>
                     </div>
-                </div>
-            </td>
-            <td class="hidden md:table-cell md:px-6 md:py-4 md:text-right">
-                <div class="text-sm md:text-base">
-                    <span class={`${isAuto ? 'text-blue-400' : 'text-amber-600'} font-semibold`}>{showTotals ? automaticUpdatesCount : ''}</span>
                 </div>
             </td>
             <td class="hidden md:table-cell md:px-6 md:py-4 md:text-right">
@@ -377,5 +415,18 @@ window.initDashboard = async (allSpiderResults, theme = 'auto') => {
     const switcherContainer = document.getElementById('language-switcher-root');
     if (switcherContainer) {
         render(<LanguageSwitcher />, switcherContainer);
+    }
+};
+
+window.initLandingPage = async () => {
+    await initI18n();
+    const switcherContainer = document.getElementById('language-switcher-root');
+    if (switcherContainer) {
+        render(
+            <ThemeProvider theme="auto">
+                <LanguageSwitcher />
+            </ThemeProvider>,
+            switcherContainer
+        );
     }
 };

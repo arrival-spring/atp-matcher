@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useMemo } from 'preact/hooks';
+import { useMemo, useRef, useState, useEffect } from 'preact/hooks';
 import { StatusLabel, TagValue, SpiderValue, OsmColumn, Pagination } from './Common';
 import { t } from '../i18n';
 import { useTheme } from './ThemeContext';
@@ -30,6 +30,38 @@ export function TagTab({
     onJosmError,
     pageSize,
 }) {
+    const scrollRef = useRef(null);
+    const sortScrollRef = useRef(null);
+    const [fadeState, setFadeState] = useState('');
+    const [sortFadeState, setSortFadeState] = useState('');
+
+    const updateFadeEffect = (ref, setState) => {
+        const container = ref.current;
+        if (!container) return;
+
+        const { scrollLeft, scrollWidth, clientWidth } = container;
+        const isScrollable = scrollWidth > clientWidth;
+        const atStart = scrollLeft <= 1;
+        const atEnd = scrollLeft + clientWidth >= scrollWidth - 1;
+
+        if (!isScrollable) setState('');
+        else if (!atStart && !atEnd) setState('fade-both');
+        else if (!atStart) setState('fade-left');
+        else if (!atEnd) setState('fade-right');
+        else setState('');
+    };
+
+    useEffect(() => {
+        updateFadeEffect(scrollRef, setFadeState);
+        updateFadeEffect(sortScrollRef, setSortFadeState);
+        const handleResize = () => {
+            updateFadeEffect(scrollRef, setFadeState);
+            updateFadeEffect(sortScrollRef, setSortFadeState);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const tagResults = useMemo(
         () =>
             results
@@ -71,6 +103,10 @@ export function TagTab({
                         valA = a.osmValue || '';
                         valB = b.osmValue || '';
                         break;
+                    case 'osm':
+                        valA = a.osmId ? a.osmId.toString() : '';
+                        valB = b.osmId ? b.osmId.toString() : '';
+                        break;
                     default:
                         return 0;
                 }
@@ -98,11 +134,24 @@ export function TagTab({
     const showOsmColumns = currentState.status !== 'addToOsm';
     const { buttonClass } = useTheme();
 
+    const sortColumns = [
+        { key: 'ref', label: t('spider.table.ref') },
+        { key: 'spiderValue', label: t('spider.table.spiderValue') },
+    ];
+    if (showOsmColumns) {
+        sortColumns.push({ key: 'osmValue', label: t('spider.table.osmValue') });
+    }
+    sortColumns.push({ key: 'osm', label: 'OSM' });
+
     return (
         <div>
-            <div class="sticky top-[44px] md:top-[52px] z-20 bg-gray-950 py-4 -mx-4 px-4 md:mx-0 md:px-0">
-                <div class="relative overflow-hidden fade-wrapper">
-                    <div class="flex overflow-x-auto no-scrollbar gap-2">
+            <div class="sticky top-[44px] md:top-[52px] z-20 bg-gray-950 -mx-4 px-4 md:mx-0 md:px-0">
+                <div class={`relative overflow-hidden fade-wrapper py-4 ${fadeState}`}>
+                    <div
+                        ref={scrollRef}
+                        onScroll={() => updateFadeEffect(scrollRef, setFadeState)}
+                        class="flex overflow-x-auto no-scrollbar gap-2"
+                    >
                         {possibleStatuses.map(status => {
                             const count = tagResults.filter(r => r.tagStatus === status).length;
                             if (count === 0 && status === 'disallowedSourceUri') return null;
@@ -132,9 +181,37 @@ export function TagTab({
                 </div>
             </div>
 
+            <div class="md:hidden">
+                <div class={`relative overflow-hidden fade-wrapper pb-4 ${sortFadeState}`}>
+                    <div
+                        ref={sortScrollRef}
+                        onScroll={() => updateFadeEffect(sortScrollRef, setSortFadeState)}
+                        class="flex overflow-x-auto no-scrollbar gap-2 pb-2"
+                    >
+                        {sortColumns.map(col => {
+                            const active = currentState.sort === col.key;
+                            return (
+                                <button
+                                    key={col.key}
+                                    class={`px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap flex items-center gap-1 ${
+                                        active
+                                            ? `${buttonClass} text-white shadow-md`
+                                            : 'border-gray-600 text-gray-300 hover:bg-gray-700 cursor-pointer'
+                                    }`}
+                                    onClick={() => handleSort(col.key)}
+                                >
+                                    {col.label}
+                                    <SortIcon column={col.key} currentSort={currentState} />
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+
             <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6">
                 <table class="min-w-full table-auto">
-                    <thead class="bg-gray-800 text-gray-400 text-left sticky top-[114px] md:top-[122px] z-10 shadow-sm">
+                    <thead class="bg-gray-800 text-gray-400 text-left sticky top-[124px] md:top-[122px] z-10 shadow-sm">
                         <tr class="hidden md:table-row">
                             <th
                                 class="px-4 py-3 cursor-pointer hover:text-white transition-colors"
@@ -165,7 +242,15 @@ export function TagTab({
                                     </div>
                                 </th>
                             )}
-                            <th class="px-4 py-3 text-right">OSM</th>
+                            <th
+                                class="px-4 py-3 cursor-pointer hover:text-white transition-colors md:text-right"
+                                onClick={() => handleSort('osm')}
+                            >
+                                <div class="flex items-center md:justify-end gap-1">
+                                    OSM
+                                    <SortIcon column="osm" currentSort={currentState} />
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="text-gray-300 divide-y divide-gray-800">

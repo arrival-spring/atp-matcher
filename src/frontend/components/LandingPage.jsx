@@ -38,15 +38,8 @@ export function LandingPage({ autoStats, previewStats, atpDate, osmDate, basePat
                     href: gitHubUrl,
                     target: '_blank',
                     rel: 'noopener noreferrer',
-                    class: 'text-emerald-500 hover:text-emerald-400 transition-colors'
-                }, t('landing.githubSource')),
-                h('span', { class: 'text-gray-700' }, '|'),
-                h('a', {
-                    href: `${gitHubUrl}/issues`,
-                    target: '_blank',
-                    rel: 'noopener noreferrer',
-                    class: 'text-emerald-500 hover:text-emerald-400 transition-colors'
-                }, t('landing.githubIssues')),
+                    class: 'text-blue-400 hover:text-blue-300 transition-colors'
+                }, t('landing.githubLink')),
             ])
         ]),
         h('div', { class: 'grid grid-cols-1 md:grid-cols-2 gap-8' }, [
