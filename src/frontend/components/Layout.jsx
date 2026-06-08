@@ -8,7 +8,27 @@ export function Layout({ title, basePath, atpDate, osmDate, theme = 'auto', chil
     const [currentLocale, setCurrentLocale] = useState(getLocale());
 
     useEffect(() => {
-        const handleLocaleChange = (e) => setCurrentLocale(e.detail);
+        const handleLocaleChange = (e) => {
+            setCurrentLocale(e.detail);
+            // Update SSR-rendered elements
+            document.querySelectorAll('[data-t]').forEach(el => {
+                const key = el.getAttribute('data-t');
+                const params = JSON.parse(el.getAttribute('data-t-params') || '{}');
+                let translated = t(key, params);
+
+                if (el.getAttribute('dangerouslySetInnerHTML') || el.innerHTML.includes('<span')) {
+                    el.innerHTML = translated;
+                } else {
+                    el.innerText = translated;
+                }
+            });
+            // Update title
+            const titleEl = document.querySelector('title');
+            if (titleEl) {
+                const baseTitle = titleEl.innerText.split(' | ')[0];
+                titleEl.innerText = `${baseTitle} | ${t('title')}`;
+            }
+        };
         window.addEventListener('localeChanged', handleLocaleChange);
         return () => window.removeEventListener('localeChanged', handleLocaleChange);
     }, []);
@@ -32,8 +52,8 @@ export function Layout({ title, basePath, atpDate, osmDate, theme = 'auto', chil
             ]),
             h('footer', { class: 'max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-800 text-gray-500 text-sm' }, [
                 h('div', { class: 'flex flex-wrap gap-x-8 gap-y-2' }, [
-                    h('div', null, [h('strong', null, t('footer.atpData')), ' ', atpDate]),
-                    h('div', null, [h('strong', null, t('footer.osmData')), ' ', osmDate]),
+                    h('div', null, [h('strong', { 'data-t': 'footer.atpData' }, t('footer.atpData')), ' ', atpDate]),
+                    h('div', null, [h('strong', { 'data-t': 'footer.osmData' }, t('footer.osmData')), ' ', osmDate]),
                 ]),
             ]),
         ]),

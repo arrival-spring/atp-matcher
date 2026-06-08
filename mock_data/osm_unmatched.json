@@ -1,10 +1,10 @@
 [
   {
-    "id": "n999",
+    "id": "node/999",
     "tags": {
-      "name": "Ghost Shop",
       "brand": "Stable Brand",
-      "brand:wikidata": "Q1"
+      "brand:wikidata": "Q1",
+      "opening_hours": "Mo-Su 00:00-24:00"
     }
   }
 ]
