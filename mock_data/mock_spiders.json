@@ -2,7 +2,7 @@
   {
     "name": "mock_spider",
     "importableTags": ["phone", "website", "opening_hours"],
-    "categories": [{ "brand": "Stable Brand", "brand:wikidata": "Q1" }],
+    "categories": [{ "brand": "Mock Brand", "brand:wikidata": "Q1" }],
     "source_uri": ["brand.com"],
     "showUnmatched": true
   },

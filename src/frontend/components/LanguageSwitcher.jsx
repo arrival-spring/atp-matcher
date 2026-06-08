@@ -95,6 +95,7 @@ export function LanguageSwitcher() {
                     ref: searchInputRef,
                     type: 'text',
                     class: `w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-200 focus:outline-none focus:ring-1 ${isAuto ? 'focus:ring-emerald-500' : 'focus:ring-amber-500'}`,
+                    'data-t': 'locales.searchPlaceholder',
                     placeholder: t('locales.searchPlaceholder'),
                     value: search,
                     onInput: (e) => setSearch(e.target.value)

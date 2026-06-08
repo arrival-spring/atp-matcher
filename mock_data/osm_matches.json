@@ -1,61 +1,45 @@
 [
   {
-    "id": "node/1",
+    "id": "n1",
     "tags": {
-      "brand": "Stable Brand",
+      "brand": "Mock Brand",
       "brand:wikidata": "Q1",
-      "ref": "1",
-      "phone": "+1 111 111 1111"
+      "ref": "matching",
+      "phone": "+1 000 000 0000"
     }
   },
   {
-    "id": "node/2",
+    "id": "n2",
     "tags": {
-      "brand": "Stable Brand",
+      "brand": "Mock Brand",
       "brand:wikidata": "Q1",
-      "ref": "2",
+      "ref": "mismatch",
+      "phone": "+1 888 888 8888"
+    }
+  },
+  {
+    "id": "n3",
+    "tags": {
+      "brand": "Mock Brand",
+      "brand:wikidata": "Q1",
+      "ref": "updateOsm",
       "phone": "+1 222 222 2222"
     }
   },
   {
-    "id": "node/3",
+    "id": "n41",
     "tags": {
-      "brand": "Stable Brand",
+      "brand": "Mock Brand",
       "brand:wikidata": "Q1",
-      "ref": "3",
-      "phone": "+1 333 333 0000"
+      "ref": "duplicateRef"
     }
   },
   {
-    "id": "node/4",
+    "id": "n42",
     "tags": {
-      "brand": "Stable Brand",
+      "brand": "Mock Brand",
       "brand:wikidata": "Q1",
-      "ref": "4"
-    }
-  },
-  {
-    "id": "node/51",
-    "tags": {
-      "brand": "Stable Brand",
-      "brand:wikidata": "Q1",
-      "ref": "5"
-    }
-  },
-  {
-    "id": "node/52",
-    "tags": {
-      "brand": "Stable Brand",
-      "brand:wikidata": "Q1",
-      "ref": "5"
-    }
-  },
-  {
-    "id": "node/7",
-    "tags": {
-      "brand": "Stable Brand",
-      "brand:wikidata": "Q1",
-      "ref": "7"
+      "ref": "duplicateRef"
     }
   }
 ]

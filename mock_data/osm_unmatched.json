@@ -1,8 +1,8 @@
 [
   {
-    "id": "node/999",
+    "id": "n999",
     "tags": {
-      "brand": "Stable Brand",
+      "brand": "Mock Brand",
       "brand:wikidata": "Q1",
       "opening_hours": "Mo-Su 00:00-24:00"
     }

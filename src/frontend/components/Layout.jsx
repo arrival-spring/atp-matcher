@@ -8,27 +8,7 @@ export function Layout({ title, basePath, atpDate, osmDate, theme = 'auto', chil
     const [currentLocale, setCurrentLocale] = useState(getLocale());
 
     useEffect(() => {
-        const handleLocaleChange = (e) => {
-            setCurrentLocale(e.detail);
-            // Update SSR-rendered elements
-            document.querySelectorAll('[data-t]').forEach(el => {
-                const key = el.getAttribute('data-t');
-                const params = JSON.parse(el.getAttribute('data-t-params') || '{}');
-                let translated = t(key, params);
-
-                if (el.getAttribute('dangerouslySetInnerHTML') || el.innerHTML.includes('<span')) {
-                    el.innerHTML = translated;
-                } else {
-                    el.innerText = translated;
-                }
-            });
-            // Update title
-            const titleEl = document.querySelector('title');
-            if (titleEl) {
-                const baseTitle = titleEl.innerText.split(' | ')[0];
-                titleEl.innerText = `${baseTitle} | ${t('title')}`;
-            }
-        };
+        const handleLocaleChange = (e) => setCurrentLocale(e.detail);
         window.addEventListener('localeChanged', handleLocaleChange);
         return () => window.removeEventListener('localeChanged', handleLocaleChange);
     }, []);

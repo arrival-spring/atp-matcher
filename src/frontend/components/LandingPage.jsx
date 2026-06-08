@@ -20,6 +20,7 @@ export function LandingPage({ autoStats, previewStats, atpDate, osmDate, basePat
             h('div', {
                 class: 'text-gray-300',
                 'data-t': `landing.${type}.stats`,
+                'data-t-html': 'true',
                 'data-t-params': JSON.stringify({
                     x: `<span class="text-4xl font-bold text-white">${stats.places}</span>`,
                     y: stats.brands
