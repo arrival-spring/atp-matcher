@@ -253,7 +253,8 @@ async function run() {
 
                 // Write separate JSON and GeoJSON files
                 const outputDir = 'output';
-                const spiderDir = path.join(outputDir, spiderName);
+                const subDir = isAuto ? 'auto' : 'preview';
+                const spiderDir = path.join(outputDir, subDir, spiderName);
                 if (!fs.existsSync(spiderDir)) {
                     fs.mkdirSync(spiderDir, { recursive: true });
                 }

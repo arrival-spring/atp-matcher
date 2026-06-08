@@ -5,10 +5,15 @@ import { t } from '../i18n';
 export function IndexPage({ indexData, atpDate, osmDate, basePath, theme = 'auto' }) {
     const isAuto = theme === 'auto';
     const gradientClass = isAuto
-        ? 'from-emerald-400 to-teal-400'
+        ? 'from-blue-400 to-teal-400'
         : 'from-amber-400 to-orange-400';
 
+    const linkColorClass = isAuto ? 'text-blue-400' : 'text-amber-600';
+
     return h(Layout, { title: t('index.dashboard'), basePath, atpDate, osmDate, theme }, [
+        h('nav', { class: 'mb-8 mt-4' }, [
+            h('a', { href: `../index.html`, class: `${linkColorClass} hover:underline` }, `← ${t('index.backToIndex')}`),
+        ]),
         h('header', { class: 'mb-12 mt-4' }, [
             h(
                 'h1',

@@ -71,6 +71,10 @@ export function TagTab({
                         valA = a.osmValue || '';
                         valB = b.osmValue || '';
                         break;
+                    case 'osm':
+                        valA = a.osmId ? a.osmId.toString() : '';
+                        valB = b.osmId ? b.osmId.toString() : '';
+                        break;
                     default:
                         return 0;
                 }
@@ -135,7 +139,7 @@ export function TagTab({
             <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6">
                 <table class="min-w-full table-auto">
                     <thead class="bg-gray-800 text-gray-400 text-left sticky top-[114px] md:top-[122px] z-10 shadow-sm">
-                        <tr class="hidden md:table-row">
+                        <tr class="md:table-row">
                             <th
                                 class="px-4 py-3 cursor-pointer hover:text-white transition-colors"
                                 onClick={() => handleSort('ref')}
@@ -165,7 +169,15 @@ export function TagTab({
                                     </div>
                                 </th>
                             )}
-                            <th class="px-4 py-3 text-right">OSM</th>
+                            <th
+                                class="px-4 py-3 cursor-pointer hover:text-white transition-colors md:text-right"
+                                onClick={() => handleSort('osm')}
+                            >
+                                <div class="flex items-center md:justify-end gap-1">
+                                    OSM
+                                    <SortIcon column="osm" currentSort={currentState} />
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="text-gray-300 divide-y divide-gray-800">

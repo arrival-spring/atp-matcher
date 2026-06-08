@@ -102,7 +102,7 @@ export function generateWebpage(autoResults, previewResults, atpDate, osmDate) {
     // Generate Landing Page
     try {
         const getStats = results => ({
-            places: results.reduce((sum, s) => sum + (s.totalCount || 0), 0),
+            places: results.reduce((sum, s) => sum + (s.mappedCount || 0), 0),
             brands: results.length,
         });
 

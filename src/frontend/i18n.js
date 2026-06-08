@@ -11,6 +11,8 @@ const localesMetadata = [
                 return filename.replace('.json', '');
             })
             .filter(code => code && code !== 'locales' && code !== 'en'),
+        // In browser environment, we might not have eager-loaded localeFiles via glob
+        // so we check if there's any other way to discover them or just rely on what's found.
     ]),
 ].sort();
 
@@ -83,7 +85,25 @@ export const setLocale = async (locale) => {
         try {
             const response = await fetch(`${window.basePath || ''}/locales/${locale}.json`);
             if (!response.ok) throw new Error('Failed to load locale');
-            translations[locale] = await response.json();
+            const data = await response.json();
+
+            if (locale.includes('-')) {
+                const baseLang = locale.split('-')[0];
+                if (!translations[baseLang] && baseLang !== 'en') {
+                    try {
+                        const baseResponse = await fetch(`${window.basePath || ''}/locales/${baseLang}.json`);
+                        if (baseResponse.ok) {
+                            translations[baseLang] = await baseResponse.json();
+                        }
+                    } catch (e) {
+                        // Ignore
+                    }
+                }
+                const baseTranslations = translations[baseLang] || translations['en'];
+                translations[locale] = { ...baseTranslations, ...data };
+            } else {
+                translations[locale] = { ...translations['en'], ...data };
+            }
         } catch (err) {
             console.error(`Could not load locale ${locale}, falling back to en`, err);
             locale = 'en';

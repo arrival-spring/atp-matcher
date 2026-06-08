@@ -185,15 +185,6 @@ function Dashboard({ allSpiderResults }) {
                             </th>
                             <th
                                 class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right cursor-pointer hover:text-white transition-colors"
-                                onClick={() => handleSort('updates')}
-                            >
-                                <div class="flex items-center justify-end gap-1">
-                                    {t('index.table.autoUpdates')}
-                                    <SortIcon column="updates" currentSort={sort} />
-                                </div>
-                            </th>
-                            <th
-                                class="px-6 py-3 text-xs font-medium uppercase tracking-wider text-right cursor-pointer hover:text-white transition-colors"
                                 onClick={() => handleSort('mapped')}
                             >
                                 <div class="flex items-center justify-end gap-1">
@@ -205,7 +196,7 @@ function Dashboard({ allSpiderResults }) {
                     </thead>
                     <tbody class="divide-y divide-gray-800">
                         {pageData.map(spider => (
-                            <SpiderRow key={spider.name} spider={spider} />
+                            <SpiderRow key={spider.name} spider={spider} onSort={handleSort} currentSort={sort} />
                         ))}
                     </tbody>
                 </table>
@@ -249,7 +240,7 @@ function SortIcon({ column, currentSort }) {
     );
 }
 
-function SpiderRow({ spider }) {
+function SpiderRow({ spider, onSort, currentSort }) {
     const { linkClass, theme } = useTheme();
     const isAuto = theme === 'auto';
     const {
@@ -257,7 +248,6 @@ function SpiderRow({ spider }) {
         issuesCount,
         mappedCount,
         totalCount,
-        automaticUpdatesCount,
         isBrandSpider,
         stabilityColor,
         loadStatus,
@@ -287,20 +277,26 @@ function SpiderRow({ spider }) {
             <td class="md:table-cell md:px-6 md:py-4 mb-2 md:mb-0">
                 <div class="flex items-center gap-2">
                     <div
-                        class={`w-3 h-3 rounded-full ${statusColors[stabilityColor] || 'bg-gray-600'}`}
+                        class={`w-3 h-3 rounded-full ${statusColors[stabilityColor] || 'bg-gray-600'} cursor-pointer`}
                         title={statusTitles[stabilityColor]}
+                        onClick={(e) => { e.stopPropagation(); onSort('status'); }}
                     />
-                    <div class="md:hidden">
-                        <a
-                            href={`${name}/`}
-                            class={`${linkClass(false)} hover:underline font-bold text-base`}
-                            onClick={e => e.stopPropagation()}
-                        >
-                            {name}
-                        </a>
-                        {loadStatus && (
-                            <span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">{loadStatus}</span>
-                        )}
+                    <div class="md:hidden flex-grow flex items-center justify-between">
+                        <div class="flex items-center">
+                            <a
+                                href={`${name}/`}
+                                class={`${linkClass(false)} hover:underline font-bold text-base`}
+                                onClick={e => e.stopPropagation()}
+                            >
+                                {name}
+                            </a>
+                            {loadStatus && (
+                                <span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">{loadStatus}</span>
+                            )}
+                        </div>
+                        <div class="cursor-pointer p-2 -m-2" onClick={(e) => { e.stopPropagation(); onSort('name'); }}>
+                            <SortIcon column="name" currentSort={currentSort} />
+                        </div>
                     </div>
                 </div>
             </td>
@@ -317,40 +313,29 @@ function SpiderRow({ spider }) {
                 )}
             </td>
             <td class="md:table-cell md:px-6 md:py-4 md:text-right">
-                <div class="grid grid-cols-3 md:block">
-                    <div class="flex flex-col md:block">
+                <div class="grid grid-cols-2 md:block">
+                    <div class="flex flex-col md:block cursor-pointer" onClick={(e) => { e.stopPropagation(); onSort('issues'); }}>
                         <div class="text-sm md:text-base">
                             <span class={`${issuesCount > 0 ? 'text-red-400' : 'text-green-400'} font-semibold`}>
                                 {showTotals ? issuesCount : ''}
                             </span>
                             <span class="text-gray-500">{showTotals ? ` / ${mappedCount}` : ''}</span>
                         </div>
-                        <div class="md:hidden text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">
+                        <div class="md:hidden text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1 flex items-center gap-1">
                             (Issues / Mapped)
+                            <SortIcon column="issues" currentSort={currentSort} />
                         </div>
                     </div>
-                    <div class="flex flex-col md:hidden">
-                        <div class="text-sm">
-                            <span class={`${isAuto ? 'text-blue-400' : 'text-amber-600'} font-semibold`}>{showTotals ? automaticUpdatesCount : ''}</span>
-                        </div>
-                        <div class="text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">
-                            (Auto Updates)
-                        </div>
-                    </div>
-                    <div class="flex flex-col md:hidden text-right">
+                    <div class="flex flex-col md:hidden text-right cursor-pointer" onClick={(e) => { e.stopPropagation(); onSort('mapped'); }}>
                         <div class="text-sm">
                             <span class="text-gray-200 font-semibold">{showTotals ? mappedCount : ''}</span>
                             <span class="text-gray-500">{showTotals ? ` / ${totalCount}` : ''}</span>
                         </div>
-                        <div class="text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">
+                        <div class="md:hidden text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1 flex items-center justify-end gap-1">
+                            <SortIcon column="mapped" currentSort={currentSort} />
                             (Mapped / Total)
                         </div>
                     </div>
-                </div>
-            </td>
-            <td class="hidden md:table-cell md:px-6 md:py-4 md:text-right">
-                <div class="text-sm md:text-base">
-                    <span class={`${isAuto ? 'text-blue-400' : 'text-amber-600'} font-semibold`}>{showTotals ? automaticUpdatesCount : ''}</span>
                 </div>
             </td>
             <td class="hidden md:table-cell md:px-6 md:py-4 md:text-right">
