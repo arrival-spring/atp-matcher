@@ -5,71 +5,119 @@ import { h } from 'preact';
 import render from 'preact-render-to-string';
 import { IndexPage } from './frontend/components/IndexPage.jsx';
 import { SpiderPage } from './frontend/components/SpiderPage.jsx';
+import { LandingPage } from './frontend/components/LandingPage.jsx';
 
-export function generateWebpage(allSpiderResults, atpDate, osmDate) {
+export function generateWebpage(autoResults, previewResults, atpDate, osmDate) {
     const outputDir = 'output';
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir);
     }
 
-    // Generate Spider Pages
-    allSpiderResults.forEach(spider => {
-        try {
-            const spiderDir = path.join(outputDir, spider.name);
-            if (!fs.existsSync(spiderDir)) {
-                fs.mkdirSync(spiderDir, { recursive: true });
-            }
+    const autoNames = new Set(autoResults.map(s => s.name));
+    const previewNames = new Set(previewResults.map(s => s.name));
 
-            const spiderHtml = render(
-                h(SpiderPage, {
-                    name: spider.name,
-                    importableTags: spider.importableTags,
+    const generateSpiderPages = (results, subDir, theme) => {
+        const subDirPath = path.join(outputDir, subDir);
+        if (!fs.existsSync(subDirPath)) {
+            fs.mkdirSync(subDirPath, { recursive: true });
+        }
+
+        results.forEach(spider => {
+            try {
+                const spiderDir = path.join(subDirPath, spider.name);
+                if (!fs.existsSync(spiderDir)) {
+                    fs.mkdirSync(spiderDir, { recursive: true });
+                }
+
+                const spiderHtml = render(
+                    h(SpiderPage, {
+                        ...spider,
+                        atpDate,
+                        osmDate,
+                        basePath: '../..',
+                        theme,
+                    })
+                );
+                fs.writeFileSync(path.join(spiderDir, 'index.html'), `<!DOCTYPE html>\n${spiderHtml}`);
+
+                // Generate redirect in the OTHER directory to point to THIS one
+                const otherSubDir = subDir === 'auto' ? 'preview' : 'auto';
+                const otherSpiderDir = path.join(outputDir, otherSubDir, spider.name);
+
+                // Only create redirect if the other directory doesn't already contain a real spider page
+                // (which it shouldn't, as they are mutually exclusive, but this is safer)
+                if ((subDir === 'auto' && !previewNames.has(spider.name)) ||
+                    (subDir === 'preview' && !autoNames.has(spider.name))) {
+                    if (!fs.existsSync(otherSpiderDir)) {
+                        fs.mkdirSync(otherSpiderDir, { recursive: true });
+                    }
+                    // Only write if index.html doesn't exist OR if we are sure it's not a real spider
+                    if (!fs.existsSync(path.join(otherSpiderDir, 'index.html'))) {
+                        const redirectHtml = `<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=../../${subDir}/${spider.name}/"></head></html>`;
+                        fs.writeFileSync(path.join(otherSpiderDir, 'index.html'), redirectHtml);
+                    }
+                }
+
+            } catch (error) {
+                console.error(`Error generating spider page for ${spider.name} in ${subDir}: ${error.message}`);
+            }
+        });
+    };
+
+    generateSpiderPages(autoResults, 'auto', 'auto');
+    generateSpiderPages(previewResults, 'preview', 'preview');
+
+    const generateDashboard = (results, subDir, theme) => {
+        try {
+            const indexData = results.map(s => ({
+                name: s.name,
+                stabilityColor: s.stabilityColor,
+                stabilityScore: s.stabilityScore,
+                loadStatus: s.loadStatus,
+                isBrandSpider: s.isBrandSpider,
+                totalCount: s.totalCount,
+                mappedCount: s.mappedCount,
+                issuesCount: s.issuesCount,
+                automaticUpdatesCount: s.automaticUpdatesCount,
+            }));
+
+            const indexHtml = render(
+                h(IndexPage, {
+                    indexData,
                     atpDate,
                     osmDate,
-                    results: spider.results,
-                    isBrandSpider: spider.isBrandSpider,
-                    isStale: spider.isStale,
-                    staleDate: spider.staleDate,
-                    loadStatus: spider.loadStatus,
-                    showUnmatched: spider.showUnmatched,
-                    unmappedCount: spider.unmappedCount,
-                    unmatchedCount: spider.unmatchedCount,
-                    unmappedFilters: spider.unmappedFilters,
-                    unmatchedFilters: spider.unmatchedFilters,
                     basePath: '..',
+                    theme,
                 })
             );
-            fs.writeFileSync(path.join(spiderDir, 'index.html'), `<!DOCTYPE html>\n${spiderHtml}`);
+            fs.writeFileSync(path.join(outputDir, subDir, 'index.html'), `<!DOCTYPE html>\n${indexHtml}`);
         } catch (error) {
-            console.error(`Error generating spider page for ${spider.name}: ${error.message}`);
+            console.error(`Error generating dashboard for ${subDir}: ${error.message}`);
         }
-    });
+    };
 
-    // Generate Index Page
+    generateDashboard(autoResults, 'auto', 'auto');
+    generateDashboard(previewResults, 'preview', 'preview');
+
+    // Generate Landing Page
     try {
-        const indexData = allSpiderResults.map(s => ({
-            name: s.name,
-            stabilityColor: s.stabilityColor,
-            stabilityScore: s.stabilityScore,
-            loadStatus: s.loadStatus,
-            isBrandSpider: s.isBrandSpider,
-            totalCount: s.totalCount,
-            mappedCount: s.mappedCount,
-            issuesCount: s.issuesCount,
-            automaticUpdatesCount: s.automaticUpdatesCount,
-        }));
+        const getStats = results => ({
+            places: results.reduce((sum, s) => sum + (s.totalCount || 0), 0),
+            brands: results.length,
+        });
 
-        const indexHtml = render(
-            h(IndexPage, {
-                indexData,
+        const landingHtml = render(
+            h(LandingPage, {
+                autoStats: getStats(autoResults),
+                previewStats: getStats(previewResults),
                 atpDate,
                 osmDate,
                 basePath: '.',
             })
         );
-        fs.writeFileSync(path.join(outputDir, 'index.html'), `<!DOCTYPE html>\n${indexHtml}`);
+        fs.writeFileSync(path.join(outputDir, 'index.html'), `<!DOCTYPE html>\n${landingHtml}`);
     } catch (error) {
-        console.error(`Error generating index page: ${error.message}`);
+        console.error(`Error generating landing page: ${error.message}`);
     }
 
     // Build frontend assets

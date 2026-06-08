@@ -1,6 +1,7 @@
 import { h, Fragment } from 'preact';
 import { markLinkVisited, handleJosmLink } from '../utils';
 import { t } from '../i18n';
+import { useTheme } from './ThemeContext';
 
 export function StatusLabel({ status }) {
     if (!status) return null;
@@ -20,6 +21,7 @@ export function StatusLabel({ status }) {
 }
 
 export function TagValue({ value, tag, visitedSet }) {
+    const { linkClass } = useTheme();
     if (!value) return null;
     if ((tag === 'website' || tag === 'contact:website') && value) {
         const isVisited = visitedSet.has(value);
@@ -27,7 +29,7 @@ export function TagValue({ value, tag, visitedSet }) {
             <a
                 href={value}
                 target="_blank"
-                class={`${isVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline break-all`}
+                class={`${linkClass(isVisited)} hover:underline break-all`}
                 onClick={e => e.stopPropagation()}
             >
                 {value}
@@ -92,6 +94,7 @@ export function SpiderValue({ value, history, tag, visitedSet }) {
 }
 
 export function OsmColumn({ osmId, suggestedFixes = {}, visitedSet, atpDate, onVisited, onJosmError }) {
+    const { linkClass } = useTheme();
     if (!osmId) return null;
     const typeMap = { n: 'node', w: 'way', r: 'relation' };
     const typeChar = osmId.toString()[0];
@@ -124,7 +127,7 @@ export function OsmColumn({ osmId, suggestedFixes = {}, visitedSet, atpDate, onV
                 <a
                     href={osmUrl}
                     target="_blank"
-                    class={`inline-flex items-center ${isOsmVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline`}
+                    class={`inline-flex items-center ${linkClass(isOsmVisited)} hover:underline`}
                     onClick={() => {
                         markLinkVisited(osmUrl, atpDate);
                         if (onVisited) onVisited();
@@ -144,7 +147,7 @@ export function OsmColumn({ osmId, suggestedFixes = {}, visitedSet, atpDate, onV
                     <a
                         href="javascript:void(0)"
                         onClick={() => handleJosmLink(josmEditUrl, atpDate, onVisited, onJosmError)}
-                        class={`${isJosmEditVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline`}
+                        class={`${linkClass(isJosmEditVisited)} hover:underline`}
                     >
                         {t('spider.actions.edit')}
                     </a>
@@ -152,7 +155,7 @@ export function OsmColumn({ osmId, suggestedFixes = {}, visitedSet, atpDate, onV
                         <a
                             href="javascript:void(0)"
                             onClick={() => handleJosmLink(josmUpdateUrl, atpDate, onVisited, onJosmError)}
-                            class={`${isJosmUpdateVisited ? 'text-gray-600' : 'text-blue-400'} hover:underline ml-1`}
+                            class={`${linkClass(isJosmUpdateVisited)} hover:underline ml-1`}
                         >
                             {t('spider.actions.update')}
                         </a>
@@ -164,6 +167,7 @@ export function OsmColumn({ osmId, suggestedFixes = {}, visitedSet, atpDate, onV
 }
 
 export function BulkJosmLinks({ items, atpDate, onVisited, onJosmError }) {
+    const { linkClass } = useTheme();
     if (items.length === 0) return null;
     const BATCH_SIZE = 100;
 
@@ -174,7 +178,7 @@ export function BulkJosmLinks({ items, atpDate, onVisited, onJosmError }) {
             <a
                 href="javascript:void(0)"
                 onClick={() => handleJosmLink(josmUrl, atpDate, onVisited, onJosmError)}
-                class="text-blue-400 hover:underline text-sm"
+                class={`${linkClass(false)} hover:underline text-sm`}
             >
                 {t('spider.actions.openUnmatched')}
             </a>
@@ -192,7 +196,7 @@ export function BulkJosmLinks({ items, atpDate, onVisited, onJosmError }) {
                 key={label}
                 href="javascript:void(0)"
                 onClick={() => handleJosmLink(josmUrl, atpDate, onVisited, onJosmError)}
-                class="text-blue-400 hover:underline text-sm"
+                class={`${linkClass(false)} hover:underline text-sm`}
             >
                 {label}
             </a>
@@ -232,9 +236,12 @@ export function Pagination({ page, totalPages, onPageChange, totalItems }) {
 }
 
 export function LoadingIndicator({ message }) {
+    const { spinnerClass } = useTheme();
     return (
         <div class="py-12 flex flex-col items-center justify-center gap-4">
-            <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <div
+                class={`w-12 h-12 border-4 ${spinnerClass} border-t-transparent rounded-full animate-spin`}
+            ></div>
             <p class="text-gray-400 animate-pulse">{message}</p>
         </div>
     );

@@ -4,6 +4,7 @@ import { StatusLabel, TagsWithLinks, Pagination, LoadingIndicator } from './Comm
 import { MismatchModal } from './Modals';
 import { handleJosmLink } from '../utils';
 import { t } from '../i18n';
+import { useTheme } from './ThemeContext';
 
 export function UnmappedTab({
     results,
@@ -45,6 +46,7 @@ export function UnmappedTab({
     const pageData = allUnmapped.slice((effectivePage - 1) * pageSize, effectivePage * pageSize);
 
     const [showJosmWarning, setShowJosmWarning] = useState(false);
+    const { linkClass } = useTheme();
 
     const handleImport = () => {
         let geojsonFile = `${spiderName}_unmapped.geojson`;
@@ -128,7 +130,7 @@ export function UnmappedTab({
                     <div class="mt-8 text-center">
                         <button
                             onClick={() => setShowJosmWarning(true)}
-                            class="text-blue-400 hover:underline text-sm cursor-pointer bg-transparent border-none"
+                            class={`${linkClass(false)} hover:underline text-sm cursor-pointer bg-transparent border-none`}
                         >
                             {t('spider.actions.openUnmapped')}
                         </button>
@@ -156,6 +158,7 @@ export function UnmappedTab({
 }
 
 export function BrandFilters({ filters, currentState, onFilterChange, totalCount }) {
+    const { buttonClass } = useTheme();
     return (
         <div class="sticky top-[44px] md:top-[52px] z-20 bg-gray-950 py-4 -mx-4 px-4 md:mx-0 md:px-0">
             <div class="relative overflow-hidden fade-wrapper">
@@ -163,7 +166,7 @@ export function BrandFilters({ filters, currentState, onFilterChange, totalCount
                     <button
                         class={`px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap cursor-pointer ${
                             currentState.brand === null && currentState.wikidata === null
-                                ? 'bg-blue-600 border-blue-500 text-white'
+                                ? `${buttonClass} border-transparent text-white shadow-md`
                                 : 'border-gray-600 text-gray-300 hover:bg-gray-700'
                         }`}
                         onClick={() => onFilterChange(null, null)}
@@ -180,7 +183,7 @@ export function BrandFilters({ filters, currentState, onFilterChange, totalCount
                                 key={filter.label}
                                 class={`px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap cursor-pointer ${
                                     active
-                                        ? 'bg-blue-600 border-blue-500 text-white'
+                                        ? `${buttonClass} border-transparent text-white shadow-md`
                                         : 'border-gray-600 text-gray-300 hover:bg-gray-700'
                                 }`}
                                 onClick={() => onFilterChange(filter.brand || null, filter.wikidata || null)}

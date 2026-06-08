@@ -2,7 +2,8 @@ import fs from 'fs';
 import { getDomain } from 'tldts';
 
 const CONFIG_FILE = 'config.json';
-const SPIDERS_FILE = 'spiders.json';
+const SPIDERS_AUTO_FILE = 'spiders_auto.json';
+const SPIDERS_PREVIEW_FILE = 'spiders_preview.json';
 
 describe('Spiders Integrity Check', () => {
     let config;
@@ -11,8 +12,9 @@ describe('Spiders Integrity Check', () => {
     beforeAll(() => {
         const configContent = fs.readFileSync(CONFIG_FILE, 'utf8');
         config = JSON.parse(configContent);
-        const spidersContent = fs.readFileSync(SPIDERS_FILE, 'utf8');
-        spiders = JSON.parse(spidersContent);
+        const autoContent = fs.readFileSync(SPIDERS_AUTO_FILE, 'utf8');
+        const previewContent = fs.readFileSync(SPIDERS_PREVIEW_FILE, 'utf8');
+        spiders = [...JSON.parse(autoContent), ...JSON.parse(previewContent)];
     });
 
     test('all spiders should have valid structure', () => {
