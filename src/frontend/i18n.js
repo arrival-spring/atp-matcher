@@ -1,18 +1,44 @@
 import en from '../locales/en.json';
 
-const localeFiles = import.meta.glob('../locales/*.json', { eager: true });
-const localesMetadata = [
-    ...new Set([
-        'en',
-        ...Object.keys(localeFiles)
-            .map(path => {
-                const parts = path.split('/');
-                const filename = parts[parts.length - 1];
-                return filename.replace('.json', '');
-            })
-            .filter(code => code && code !== 'locales' && code !== 'en'),
-    ]),
-].sort();
+const localeFiles = import.meta.glob?.('../locales/*.json', { eager: true }) || {};
+
+// We need a stable list of locales for both Node.js (backend) and Browser (frontend).
+// In the browser, Vite's glob import will populate localesMetadata.
+// In Node.js, we don't have glob but we can rely on a hardcoded list or discover it.
+let localesMetadata = [
+    'en',
+    ...Object.keys(localeFiles)
+        .map(path => {
+            const parts = path.split('/');
+            const filename = parts[parts.length - 1];
+            return filename.replace('.json', '');
+        })
+        .filter(code => code && code !== 'locales' && code !== 'en'),
+];
+
+// Special case for Node.js backend generation where glob doesn't work.
+if (typeof process !== 'undefined' && process.versions?.node && localesMetadata.length === 1) {
+    try {
+        const fs = await import('fs');
+        const path = await import('path');
+        const localesDir = path.join(process.cwd(), 'src', 'locales');
+        if (fs.existsSync(localesDir)) {
+            const files = fs.readdirSync(localesDir);
+            files.forEach(f => {
+                if (f.endsWith('.json')) {
+                    const code = f.replace('.json', '');
+                    if (code !== 'en' && !localesMetadata.includes(code)) {
+                        localesMetadata.push(code);
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        // Fallback to minimal list
+    }
+}
+
+localesMetadata = [...new Set(localesMetadata)].sort();
 
 let currentLocale = 'en';
 let translations = { en };
