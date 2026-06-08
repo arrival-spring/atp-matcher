@@ -417,3 +417,16 @@ window.initDashboard = async (allSpiderResults, theme = 'auto') => {
         render(<LanguageSwitcher />, switcherContainer);
     }
 };
+
+window.initLandingPage = async () => {
+    await initI18n();
+    const switcherContainer = document.getElementById('language-switcher-root');
+    if (switcherContainer) {
+        render(
+            <ThemeProvider theme="auto">
+                <LanguageSwitcher />
+            </ThemeProvider>,
+            switcherContainer
+        );
+    }
+};

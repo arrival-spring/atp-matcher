@@ -338,7 +338,7 @@ async function run() {
     }
 
     try {
-        generateWebpage(autoResults, previewResults, atpDate, osmDate);
+        await generateWebpage(autoResults, previewResults, atpDate, osmDate);
     } catch (error) {
         console.error(`Error generating webpage: ${error.message}`);
     }
