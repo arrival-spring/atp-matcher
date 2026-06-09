@@ -49,23 +49,30 @@ export function TagsWithLinks({ tags, visitedSet }) {
     ));
 }
 
-export function SpiderValue({ value, history, tag, visitedSet }) {
+export function SpiderValue({ value, history, tag, visitedSet, isStable, isNewValue }) {
     if (!value) return null;
-    const nonNullValues = history ? history.filter(h => h.value !== null) : [];
-    const isStableValue = nonNullValues.length <= 1 || nonNullValues.every(v => v.value === value);
 
-    if (isStableValue) {
+    let indicator = null;
+    if (isStable) {
+        indicator = (
+            <svg class="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <title>{t('spider.tooltips.stableValue')}</title>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
+        );
+    } else if (isNewValue) {
+        indicator = (
+            <svg class="w-4 h-4 text-blue-400 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                <title>{t('spider.tooltips.newValue')}</title>
+                <path d="M12 2l1.5 4.5H18l-3.75 2.75L15.75 14 12 11.25 8.25 14l1.5-4.75L6 6.5h4.5L12 2z" />
+            </svg>
+        );
+    }
+
+    if (indicator) {
         return (
             <div class="flex items-center gap-2">
-                <svg
-                    class="w-4 h-4 text-green-500 shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <title>{t('spider.tooltips.stableValue')}</title>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                </svg>
+                {indicator}
                 <TagValue value={value} tag={tag} visitedSet={visitedSet} />
             </div>
         );
@@ -76,19 +83,21 @@ export function SpiderValue({ value, history, tag, visitedSet }) {
             <div class="font-bold text-white">
                 <TagValue value={value} tag={tag} visitedSet={visitedSet} />
             </div>
-            <div class="pl-2 border-l border-gray-700">
-                {[...history]
-                    .reverse()
-                    .filter(h => h.value)
-                    .map(h => (
-                        <div key={h.date} class="text-xs text-gray-400">
-                            <span class="font-mono">{h.date}</span>:{' '}
-                            <span class="text-gray-300">
-                                <TagValue value={h.value} tag={tag} visitedSet={visitedSet} />
-                            </span>
-                        </div>
-                    ))}
-            </div>
+            {history && (
+                <div class="pl-2 border-l border-gray-700">
+                    {[...history]
+                        .reverse()
+                        .filter(h => h.value)
+                        .map(h => (
+                            <div key={h.date} class="text-xs text-gray-400">
+                                <span class="font-mono">{h.date}</span>:{' '}
+                                <span class="text-gray-300">
+                                    <TagValue value={h.value} tag={tag} visitedSet={visitedSet} />
+                                </span>
+                            </div>
+                        ))}
+                </div>
+            )}
         </div>
     );
 }

@@ -63,12 +63,22 @@ describe('processSpiderResults Status Logic', () => {
         expect(websiteTag.status).toBe('mismatch');
     });
 
-    test('should identify "addToOsm" when OSM value is missing and ATP is stable', async () => {
+    test('should identify "addToOsm" when OSM value is missing even if ATP is NOT stable', async () => {
+        const unstableSpiderData = {
+            ...spiderData,
+            spiderMaps: [
+                new Map([['123', { website: 'https://old.com' }]]),
+                new Map([['123', { website: 'https://other.com' }]]),
+                new Map([['123', { website: 'https://other.com' }]]),
+                new Map([['123', { website: 'https://new.com' }]]), // only latest
+            ],
+        };
         const spiderMatches = new Map([['123', [{ id: 'n1', tags: {} }]]]);
 
-        const { results } = await processSpiderResults(spiderData, spiderMatches, runs);
+        const { results } = await processSpiderResults(unstableSpiderData, spiderMatches, runs);
         const websiteTag = results[0].tags.find(t => t.tag === 'website');
         expect(websiteTag.status).toBe('addToOsm');
+        expect(websiteTag.isStable).toBe(false);
     });
 
     test('should identify "matching" when values are equal', async () => {
