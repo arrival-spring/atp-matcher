@@ -87,7 +87,8 @@
       "duplicateRef": "Duplicate Ref"
     },
     "tooltips": {
-      "stableValue": "stable value"
+      "stableValue": "Stable value",
+      "newValue": "New value"
     },
     "actions": {
       "edit": "edit",
