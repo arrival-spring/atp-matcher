@@ -81,6 +81,8 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
                 mappedCount: s.mappedCount,
                 issuesCount: s.issuesCount,
                 automaticUpdatesCount: s.automaticUpdatesCount,
+                brands: s.brands,
+                countries: s.countries,
             }));
 
             const indexHtml = render(

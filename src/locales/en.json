@@ -23,7 +23,7 @@
     "dashboard": "Dashboard",
     "backToIndex": "Back to Index",
     "searchPlaceholder": "Search spiders or brands...",
-    "countryFilterPlaceholder": "Search countries...",
+    "countryFilterPlaceholder": "Search country name or code...",
     "showAllCountries": "Show all",
     "table": {
       "status": "Status",

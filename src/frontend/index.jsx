@@ -61,6 +61,10 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
         }
     }, [isOpen]);
 
+    useEffect(() => {
+        setSelectedIndex(0);
+    }, [search]);
+
     const handleKeyDown = (e) => {
         if (e.key === 'ArrowDown') {
             e.preventDefault();
@@ -86,7 +90,7 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                class="w-full flex items-center justify-between px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                class={`w-full flex items-center justify-between px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 focus:outline-none focus:ring-1 ${theme === 'auto' ? 'focus:ring-blue-500' : 'focus:ring-amber-500'} transition-colors`}
             >
                 <span class="truncate">{selectedName}</span>
                 <svg class={`w-4 h-4 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,7 +104,7 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
                         <input
                             ref={inputRef}
                             type="text"
-                            class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            class={`w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 ${theme === 'auto' ? 'focus:ring-blue-500' : 'focus:ring-amber-500'}`}
                             placeholder={t('index.countryFilterPlaceholder')}
                             value={search}
                             onInput={(e) => setSearch(e.target.value)}
@@ -615,23 +619,25 @@ function SpiderRow({ spider, onSort, currentSort }) {
                 </div>
             </td>
             <td class="hidden md:table-cell md:px-6 md:py-4">
-                <div class="flex items-baseline gap-2">
-                    <a
-                        href={`${name}/`}
-                        class={`${linkClass(false)} hover:underline font-bold text-lg`}
-                        onClick={e => e.stopPropagation()}
-                    >
-                        {name}
-                    </a>
+                <div class="flex flex-col">
+                    <div class="flex items-baseline gap-2">
+                        <a
+                            href={`${name}/`}
+                            class={`${linkClass(false)} hover:underline font-bold text-lg`}
+                            onClick={e => e.stopPropagation()}
+                        >
+                            {name}
+                        </a>
+                        {loadStatus && (
+                            <span class="px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">{loadStatus}</span>
+                        )}
+                    </div>
                     {brands && brands.length > 0 && (
-                        <span class="text-sm text-gray-500 font-normal">
+                        <div class="text-sm text-gray-500 font-normal mt-0.5">
                             {brands.join(', ')}
-                        </span>
+                        </div>
                     )}
                 </div>
-                {loadStatus && (
-                    <span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">{loadStatus}</span>
-                )}
             </td>
             <td class="md:table-cell md:px-6 md:py-4 md:text-right">
                 <div class="grid grid-cols-2 md:block">

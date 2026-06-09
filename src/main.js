@@ -134,19 +134,8 @@ async function run() {
             );
 
             if (results) {
-                // Extract unique brands and countries
-                const brandsSet = new Set();
-                const countriesSet = new Set();
-                if (data.latestRun && data.latestRun.features) {
-                    data.latestRun.features.forEach(f => {
-                        const b = f.properties.brand;
-                        if (b) brandsSet.add(b);
-                        const c = f.properties['addr:country'];
-                        if (c && /^[A-Z]{2}$/.test(c)) countriesSet.add(c);
-                    });
-                }
-                const brands = Array.from(brandsSet).sort();
-                const countries = Array.from(countriesSet).sort();
+                const brands = data.brands || [];
+                const countries = data.countries || [];
 
                 // For unmapped items in results (disallowedSourceUri, notABrandSpider),
                 // we need to make sure they have allAtpTags for the brand filters to work.

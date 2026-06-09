@@ -38,11 +38,8 @@ export function LandingPage({ autoStats, previewStats, atpDate, osmDate, basePat
     return h(Layout, { title: t('title'), basePath, atpDate, osmDate }, [
         h('header', { class: 'mb-12' }, [
             h('h1', { class: 'text-4xl font-extrabold mb-4', 'data-t': 'title' }, t('title')),
-            h('p', { class: 'text-xl text-gray-400 max-w-3xl mb-12', 'data-t': 'landing.summary' }, t('landing.summary')),
-
-            h('div', { id: 'global-search-root', class: 'mb-12' }),
-
-            h('div', { class: 'flex gap-4' }, [
+            h('p', { class: 'text-xl text-gray-400 max-w-3xl mb-6', 'data-t': 'landing.summary' }, t('landing.summary')),
+            h('div', { class: 'flex gap-4 mb-12' }, [
                 h('a', {
                     href: gitHubUrl,
                     target: '_blank',
@@ -50,7 +47,9 @@ export function LandingPage({ autoStats, previewStats, atpDate, osmDate, basePat
                     class: 'text-blue-400 hover:text-blue-300 transition-colors',
                     'data-t': 'landing.githubLink'
                 }, t('landing.githubLink')),
-            ])
+            ]),
+
+            h('div', { id: 'global-search-root', class: 'mb-12' }),
         ]),
         h('div', { class: 'grid grid-cols-1 md:grid-cols-2 gap-8' }, [
             h(Card, {
