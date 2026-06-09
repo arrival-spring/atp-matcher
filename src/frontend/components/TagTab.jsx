@@ -132,9 +132,12 @@ export function TagTab({
     const effectivePage = Math.min(currentState.page, totalPages);
     const pageData = filtered.slice((effectivePage - 1) * pageSize, effectivePage * pageSize);
 
-    const possibleStatuses = ['disallowedSourceUri', 'mismatch', 'updateOsm', 'addToOsm', 'matching'];
+    const { theme, buttonClass } = useTheme();
+    const isAuto = theme === 'auto';
+    const possibleStatuses = isAuto
+        ? ['editMade', 'disallowedSourceUri', 'mismatch', 'updateOsm', 'addToOsm', 'matching']
+        : ['disallowedSourceUri', 'mismatch', 'updateOsm', 'addToOsm', 'matching'];
     const showOsmColumns = currentState.status !== 'addToOsm';
-    const { buttonClass } = useTheme();
 
     const sortColumns = [
         { key: 'ref', label: t('spider.table.ref') },
@@ -164,7 +167,7 @@ export function TagTab({
                                     class={`px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
                                         count > 0
                                             ? active
-                                                ? `${buttonClass} border-transparent text-white cursor-pointer shadow-md`
+                                                ? `${status === 'editMade' ? 'bg-emerald-600 border-emerald-500' : buttonClass} border-transparent text-white cursor-pointer shadow-md`
                                                 : 'border-gray-600 text-gray-300 hover:bg-gray-700 cursor-pointer'
                                             : 'border-gray-800 text-gray-600 cursor-not-allowed'
                                     }`}
@@ -261,6 +264,7 @@ export function TagTab({
                             if (
                                 r.tagStatus === 'addToOsm' ||
                                 r.tagStatus === 'updateOsm' ||
+                                r.tagStatus === 'editMade' ||
                                 (r.tagStatus === 'mismatch' && currentState.status === 'mismatch')
                             ) {
                                 suggestedFixes[tag] = r.spiderValue;

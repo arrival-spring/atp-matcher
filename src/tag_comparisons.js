@@ -14,6 +14,7 @@ export const STATUS_PRIORITY = [
     'updateOsm',
     'notMapped',
     'addToOsm',
+    'editMade',
     'matching',
 ];
 

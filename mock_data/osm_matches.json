@@ -1,45 +1,12 @@
 [
   {
-    "id": "n1",
-    "tags": {
-      "brand": "Mock Brand",
-      "brand:wikidata": "Q1",
-      "ref": "matching",
-      "phone": "+1 000 000 0000"
-    }
-  },
-  {
     "id": "n2",
     "tags": {
-      "brand": "Mock Brand",
-      "brand:wikidata": "Q1",
-      "ref": "mismatch",
-      "phone": "+1 888 888 8888"
-    }
-  },
-  {
-    "id": "n3",
-    "tags": {
-      "brand": "Mock Brand",
-      "brand:wikidata": "Q1",
-      "ref": "updateOsm",
-      "phone": "+1 222 222 2222"
-    }
-  },
-  {
-    "id": "n41",
-    "tags": {
-      "brand": "Mock Brand",
-      "brand:wikidata": "Q1",
-      "ref": "duplicateRef"
-    }
-  },
-  {
-    "id": "n42",
-    "tags": {
-      "brand": "Mock Brand",
-      "brand:wikidata": "Q1",
-      "ref": "duplicateRef"
+      "brand": "Update Brand",
+      "brand:wikidata": "Q2",
+      "ref": "2",
+      "opening_hours": "Mo-Su 09:00-18:00",
+      "check_date:opening_hours": "2024-01-01"
     }
   }
 ]

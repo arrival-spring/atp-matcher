@@ -1,29 +1,14 @@
 [
   {
     "name": "mock_spider",
-    "importableTags": ["phone", "website", "opening_hours"],
+    "importableTags": ["opening_hours"],
     "categories": [{ "brand": "Mock Brand", "brand:wikidata": "Q1" }],
-    "source_uri": ["brand.com"],
-    "showUnmatched": true
+    "source_uri": ["brand.com"]
   },
   {
-    "name": "stale_spider",
-    "importableTags": ["phone"],
-    "categories": [{ "brand": "Stale Brand", "brand:wikidata": "Q2" }],
-    "source_uri": ["stale.com"],
-    "showUnmatched": false
-  },
-  {
-    "name": "non_brand_spider",
-    "importableTags": ["website"],
-    "categories": [{ "brand": "Non Brand", "brand:wikidata": "Q3" }],
-    "showUnmatched": false
-  },
-  {
-    "name": "disallowed_spider",
-    "importableTags": ["phone"],
-    "categories": [{ "brand": "Disallowed Brand", "brand:wikidata": "Q4" }],
-    "source_uri": ["allowed.com"],
-    "showUnmatched": false
+    "name": "update_spider",
+    "importableTags": ["opening_hours"],
+    "categories": [{ "brand": "Update Brand", "brand:wikidata": "Q2" }],
+    "source_uri": ["update.com"]
   }
 ]

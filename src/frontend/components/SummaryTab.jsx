@@ -39,6 +39,7 @@ export function SummaryTab({ results, importableTags, showUnmatched, unmappedCou
                         });
                         const sortedStatuses = Object.keys(stats).sort((a, b) => {
                             const priorities = [
+                                'editMade',
                                 'disallowedSourceUri',
                                 'mismatch',
                                 'updateOsm',
