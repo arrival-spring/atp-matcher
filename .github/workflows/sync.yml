@@ -32,6 +32,7 @@ jobs:
               run: npm install
 
             - name: Install Osmium Tool
+              if: github.event.inputs.mock != 'true' && env.MOCK != 'true'
               run: |
                   sudo apt-get update
                   sudo apt-get install -y osmium-tool

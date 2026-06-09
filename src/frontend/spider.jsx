@@ -1,5 +1,5 @@
 import { render, h } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { escapeHtml, getVisitedLinks, markLinkVisited } from './utils';
 import { t, initI18n } from './i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
@@ -42,6 +42,7 @@ function SpiderDashboard({
         sort: null,
         dir: 'asc',
     });
+    const isFirstRender = useRef(true);
 
     const [unmappedCache, setUnmappedCache] = useState(null);
     const [unmatchedCache, setUnmatchedCache] = useState(null);
@@ -88,8 +89,10 @@ function SpiderDashboard({
 
         const newHash = params.toString();
         if (window.location.hash.substring(1) !== newHash) {
-            window.history.pushState({}, '', `${window.location.pathname}${window.location.search}#${newHash}`);
+            const method = isFirstRender.current ? 'replaceState' : 'pushState';
+            window.history[method]({}, '', `${window.location.pathname}${window.location.search}${newHash ? '#' + newHash : ''}`);
         }
+        isFirstRender.current = false;
     }, [currentState]);
 
     // Fetch Unmapped Data

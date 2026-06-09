@@ -287,6 +287,7 @@ function Dashboard({ allSpiderResults }) {
     const [page, setPage] = useState(1);
     const [sort, setSort] = useState({ column: null, direction: 'desc' });
     const [selectedCountry, setSelectedCountry] = useState(null);
+    const isFirstRender = useRef(true);
 
     // Load state from URL hash
     useEffect(() => {
@@ -323,8 +324,10 @@ function Dashboard({ allSpiderResults }) {
 
         const newHash = params.toString();
         if (window.location.hash.substring(1) !== newHash) {
-            window.history.pushState({}, '', `${url.pathname}${url.search}${newHash ? '#' + newHash : ''}`);
+            const method = isFirstRender.current ? 'replaceState' : 'pushState';
+            window.history[method]({}, '', `${url.pathname}${url.search}${newHash ? '#' + newHash : ''}`);
         }
+        isFirstRender.current = false;
     }, [search, page, sort, selectedCountry]);
 
     const handleSort = (column) => {
