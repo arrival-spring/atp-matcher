@@ -86,13 +86,13 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
         : t('index.showAllCountries');
 
     return (
-        <div class="relative w-48 shrink-0" ref={containerRef}>
+        <div class="relative md:w-48 shrink-0" ref={containerRef}>
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 class={`w-full flex items-center justify-between px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 focus:outline-none focus:ring-1 ${theme === 'auto' ? 'focus:ring-blue-500' : 'focus:ring-amber-500'} transition-colors`}
             >
-                <span class="truncate">{selectedName}</span>
+                <span class="truncate">{selectedName === t('index.showAllCountries') ? t('index.showAllCountries') : selectedName}</span>
                 <svg class={`w-4 h-4 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
@@ -204,13 +204,23 @@ function GlobalSearch({ basePath }) {
                 </div>
                 <input
                     type="text"
-                    class="block w-full pl-12 pr-4 py-4 bg-gray-900 border border-gray-700 rounded-xl text-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-lg"
+                    class="block w-full pl-12 pr-12 py-4 bg-gray-900 border border-gray-700 rounded-xl text-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-lg"
                     placeholder={t('index.searchPlaceholder')}
                     value={search}
                     onInput={(e) => setSearch(e.target.value)}
                     onKeyDown={handleKeyDown}
                     onFocus={() => search.trim() && setIsOpen(true)}
                 />
+                {search && (
+                    <button
+                        onClick={() => setSearch('')}
+                        class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-white"
+                    >
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                )}
             </div>
 
             {isOpen && results.length > 0 && (
@@ -412,6 +422,44 @@ function Dashboard({ allSpiderResults }) {
 
     return (
         <div class="space-y-6">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="relative flex-grow">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                            />
+                        </svg>
+                    </div>
+                    <input
+                        type="text"
+                        id="search-input"
+                        class={`block w-full pl-10 pr-10 py-3 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 ${useTheme().theme === 'auto' ? 'focus:ring-blue-500 focus:border-blue-500' : 'focus:ring-amber-500 focus:border-amber-500'} sm:text-sm transition-colors`}
+                        placeholder={t('index.searchPlaceholder')}
+                        value={search}
+                        onInput={handleSearchChange}
+                        onKeyDown={handleSearchKeyDown}
+                    />
+                    {search && (
+                        <button
+                            onClick={() => setSearch('')}
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-white"
+                        >
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    )}
+                </div>
+                <CountryFilter
+                    allSpiderResults={allSpiderResults}
+                    selectedCountry={selectedCountry}
+                    onSelect={(c) => { setSelectedCountry(c); setPage(1); }}
+                />
+            </div>
             <div class="md:hidden">
                 <div class={`relative overflow-hidden fade-wrapper ${fadeState}`}>
                     <div
@@ -438,34 +486,6 @@ function Dashboard({ allSpiderResults }) {
                         })}
                     </div>
                 </div>
-            </div>
-            <div class="flex gap-4">
-                <div class="relative flex-grow">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                            />
-                        </svg>
-                    </div>
-                    <input
-                        type="text"
-                        id="search-input"
-                        class={`block w-full pl-10 pr-3 py-3 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 ${useTheme().theme === 'auto' ? 'focus:ring-blue-500 focus:border-blue-500' : 'focus:ring-amber-500 focus:border-amber-500'} sm:text-sm transition-colors`}
-                        placeholder={t('index.searchPlaceholder')}
-                        value={search}
-                        onInput={handleSearchChange}
-                        onKeyDown={handleSearchKeyDown}
-                    />
-                </div>
-                <CountryFilter
-                    allSpiderResults={allSpiderResults}
-                    selectedCountry={selectedCountry}
-                    onSelect={(c) => { setSelectedCountry(c); setPage(1); }}
-                />
             </div>
 
             <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow">
@@ -594,7 +614,7 @@ function SpiderRow({ spider, onSort, currentSort }) {
             <td class="md:table-cell md:px-6 md:py-4 mb-2 md:mb-0">
                 <div class="flex items-center gap-2">
                     <div
-                        class={`w-3 h-3 rounded-full ${statusColors[stabilityColor] || 'bg-gray-600'}`}
+                        class={`w-3 h-3 rounded-full shrink-0 ${statusColors[stabilityColor] || 'bg-gray-600'}`}
                         title={statusTitles[stabilityColor]}
                     />
                     <div class="md:hidden flex-grow flex items-center justify-between">
