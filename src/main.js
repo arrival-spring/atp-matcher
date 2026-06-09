@@ -131,7 +131,8 @@ async function run() {
                 data,
                 allMatches.get(spiderName),
                 runs,
-                safeEdits
+                safeEdits,
+                isAuto
             );
 
             if (thresholdViolations && thresholdViolations.length > 0) {
@@ -164,9 +165,6 @@ async function run() {
                 const mappedResults = results.filter(isMapped);
                 const mappedCount = mappedResults.length;
                 const issuesCount = mappedResults.filter(r => r.status !== 'matching').length;
-                const automaticUpdatesCount = mappedResults.filter(
-                    r => r.status === 'updateOsm' || r.status === 'addToOsm'
-                ).length;
 
                 const unmatchedMap = allUnmatched.get(spiderName);
                 const unmatched = unmatchedMap ? Array.from(unmatchedMap.values()) : [];
@@ -338,7 +336,6 @@ async function run() {
                     totalCount: results.length + unmapped.length,
                     mappedCount,
                     issuesCount,
-                    automaticUpdatesCount,
                 });
             }
         } catch (error) {

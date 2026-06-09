@@ -71,6 +71,87 @@ describe('processSpiderResults Status Logic', () => {
         expect(websiteTag.status).toBe('addToOsm');
     });
 
+    test('should identify "editMade" when in auto and included in safe edits', async () => {
+        const spiderMatches = new Map([['123', [{ id: 'n1', tags: { website: 'https://old.com' } }]]]);
+        const safeEdits = {};
+
+        const { results } = await processSpiderResults(spiderData, spiderMatches, runs, safeEdits, true);
+        const websiteTag = results[0].tags.find(t => t.tag === 'website');
+        expect(websiteTag.status).toBe('editMade');
+        expect(results[0].status).toBe('editMade');
+    });
+
+    test('should validate opening_hours days before updateOsm', async () => {
+        const ohSpiderData = {
+            ...spiderData,
+            latestRun: {
+                features: [
+                    {
+                        properties: {
+                            ref: '123',
+                            opening_hours: 'Sa 09:00-12:00', // Missing days
+                            'addr:country': 'US',
+                            '@source_uri': 'https://allowed.com/data',
+                        },
+                    },
+                ],
+            },
+            spiderMaps: Array(4).fill(new Map([['123', { opening_hours: 'Sa 09:00-12:00' }]])),
+            config: { ...spiderData.config, importableTags: ['opening_hours'] },
+        };
+        const spiderMatches = new Map([['123', [{ id: 'n1', tags: { opening_hours: 'Mo-Su 09:00-18:00' } }]]]);
+
+        const { results } = await processSpiderResults(ohSpiderData, spiderMatches, runs);
+        const ohTag = results[0].tags.find(t => t.tag === 'opening_hours');
+        expect(ohTag.status).toBe('mismatch');
+    });
+
+    test('should NOT identify "editMade" when threshold is exceeded', async () => {
+        // Create a spider with many features to trigger threshold (10% of mapped)
+        const manyFeatures = [];
+        const spiderMaps = [new Map(), new Map(), new Map(), new Map()];
+        const spiderMatches = new Map();
+
+        for (let i = 0; i < 100; i++) {
+            const ref = i.toString();
+            manyFeatures.push({
+                properties: {
+                    ref,
+                    website: 'https://new.com',
+                    '@source_uri': 'https://allowed.com/data',
+                    'addr:country': 'US',
+                },
+            });
+            spiderMaps[0].set(ref, { website: 'https://old.com' });
+            spiderMaps[1].set(ref, { website: 'https://old.com' });
+            spiderMaps[2].set(ref, { website: 'https://new.com' });
+            spiderMaps[3].set(ref, { website: 'https://new.com' });
+            spiderMatches.set(ref, [{ id: `n${i}`, tags: { website: 'https://old.com' } }]);
+        }
+
+        const largeSpiderData = {
+            name: 'large-spider',
+            latestRun: { features: manyFeatures },
+            spiderMaps,
+            config: {
+                name: 'large-spider',
+                source_uri: ['allowed.com'],
+                importableTags: ['website'],
+            },
+            isBrandSpider: true,
+            lineage: 'S_ATP_BRANDS',
+        };
+
+        // If we have 100 mapped items, and 100 updates, that's 100% which is > 10% threshold.
+        const safeEdits = {};
+        const { results, thresholdViolations } = await processSpiderResults(largeSpiderData, spiderMatches, runs, safeEdits, true);
+
+        expect(thresholdViolations.length).toBeGreaterThan(0);
+        const websiteTag = results[0].tags.find(t => t.tag === 'website');
+        // It should remain updateOsm, NOT editMade
+        expect(websiteTag.status).toBe('updateOsm');
+    });
+
     test('should identify "matching" when values are equal', async () => {
         const matchingSpiderData = {
             ...spiderData,

@@ -22,3 +22,53 @@ export function matchesCategories(featureProps, categories) {
         });
     });
 }
+
+export function areAllDaysDefined(oh) {
+    if (!oh) return false;
+    const normalized = oh.replace(/\s+/g, ' ').trim();
+    if (normalized === '24/7') return true;
+
+    const days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+    const definedDays = new Set();
+
+    // Check for unexpected words
+    // We split by common separators and check if each token is allowed
+    const tokens = normalized.split(/[ ,;]+/);
+    const allowedWords = new Set(['closed', 'off', '24/7']);
+    const dayNameRegex = /^(Mo|Tu|We|Th|Fr|Sa|Su)$/;
+    const dayRangeRegex = /^(Mo|Tu|We|Th|Fr|Sa|Su)-(Mo|Tu|We|Th|Fr|Sa|Su)$/;
+    const timeRegex = /^\d{1,2}:\d{2}$/;
+    const timeRangeRegex = /^\d{1,2}:\d{2}-\d{1,2}:\d{2}$/;
+
+    for (const token of tokens) {
+        if (!token) continue;
+        if (allowedWords.has(token)) continue;
+        if (timeRegex.test(token)) continue;
+        if (timeRangeRegex.test(token)) continue;
+
+        const rangeMatch = token.match(dayRangeRegex);
+        if (rangeMatch) {
+            const startDay = rangeMatch[1];
+            const endDay = rangeMatch[2];
+            const startIndex = days.indexOf(startDay);
+            const endIndex = days.indexOf(endDay);
+            let i = startIndex;
+            while (true) {
+                definedDays.add(days[i]);
+                if (i === endIndex) break;
+                i = (i + 1) % 7;
+            }
+            continue;
+        }
+
+        if (dayNameRegex.test(token)) {
+            definedDays.add(token);
+            continue;
+        }
+
+        // If it's none of the above, it's an unexpected word
+        return false;
+    }
+
+    return definedDays.size === 7;
+}

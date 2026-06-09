@@ -1,13 +1,13 @@
 import slugify from 'slugify';
 import { countries as countriesList } from 'countries-list';
-import { isAllowedSourceUri } from './utils.js';
+import { isAllowedSourceUri, areAllDaysDefined } from './utils.js';
 import { areTagsEqual, formatPhone, getOverallStatus } from './tag_comparisons.js';
 
 function isValidIsoDate(date) {
     return date && /^\d{4}-\d{2}-\d{2}$/.test(date);
 }
 
-export async function processSpiderResults(spiderData, spiderMatches, runs, safeEdits = {}) {
+export async function processSpiderResults(spiderData, spiderMatches, runs, safeEdits = {}, isAuto = false) {
     const { latestRun, spiderMaps, config: spider, isBrandSpider } = spiderData;
     console.log(`Processing spider results: ${spider.name}`);
 
@@ -141,7 +141,11 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                             areTagsEqual(tag, v3, v4, country) &&
                             areTagsEqual(tag, v4, spiderValue, country)
                         ) {
-                            status = 'addToOsm';
+                            if (tag === 'opening_hours' && !areAllDaysDefined(spiderValue)) {
+                                status = 'mismatch';
+                            } else {
+                                status = 'addToOsm';
+                            }
                         } else {
                             status = 'mismatch';
                         }
@@ -170,10 +174,10 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
 
                             if (canUpdate) {
                                 if (tag === 'opening_hours') {
-                                    if (osmTagValue.includes('PH')) {
+                                    if (osmTagValue.includes('PH') || !areAllDaysDefined(spiderValue)) {
                                         status = 'mismatch';
                                     } else {
-                                        // Check date logic
+                                        // Check logic
                                         const proposedCheckDate = history.length >= 3 ? history[2].date : null;
                                         if (proposedCheckDate && osmCheckDate && proposedCheckDate <= osmCheckDate) {
                                             status = 'mismatch';
@@ -326,6 +330,19 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
         }
 
         if (finalTags.length > 0) {
+            if (isAuto) {
+                const result = results.find(r => r.ref === pending.ref);
+                if (result) {
+                    finalTags.forEach(tag => {
+                        const tagData = result.tags.find(t => t.tag === tag);
+                        if (tagData && !brokenTags.has(tag)) {
+                            tagData.status = 'editMade';
+                        }
+                    });
+                    result.status = getOverallStatus(result.tags.map(t => t.status));
+                }
+            }
+
             const { type, id, countryCode, state } = pending;
             const edit = {
                 type,

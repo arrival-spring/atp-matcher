@@ -80,6 +80,7 @@
       "notMapped": "Unmapped",
       "addToOsm": "Add to OSM",
       "updateOsm": "Update OSM",
+      "editMade": "Edit Made",
       "mismatch": "Mismatch",
       "matching": "Matching",
       "disallowedSourceUri": "Disallowed Source URI",
