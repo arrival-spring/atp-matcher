@@ -74,6 +74,8 @@ export function TagTab({
                               osmValue: tagData.osmValue,
                               spiderValue: tagData.spiderValue,
                               history: tagData.history,
+                              isStable: tagData.isStable,
+                              isNewValue: tagData.isNewValue,
                           }
                         : null;
                 })
@@ -289,6 +291,8 @@ export function TagTab({
                                                     history={r.history}
                                                     tag={tag}
                                                     visitedSet={visitedSet}
+                                                    isStable={r.isStable}
+                                                    isNewValue={r.isNewValue}
                                                 />
                                             </div>
                                         </div>

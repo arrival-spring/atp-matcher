@@ -103,9 +103,18 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                     };
                 });
 
-                const nonNullValues = history.map(h => h.value).filter(v => v !== null);
+                const lastIdx = spiderData.runStatuses ? spiderData.runStatuses.lastIndexOf('ok') : history.length - 1;
                 const isStable =
-                    nonNullValues.length <= 1 || nonNullValues.every(v => areTagsEqual(tag, v, spiderValue, country));
+                    lastIdx > 0 &&
+                    (spiderData.runStatuses ? spiderData.runStatuses[lastIdx - 1] === 'ok' : true) &&
+                    history[lastIdx].value !== null &&
+                    history[lastIdx - 1].value !== null &&
+                    areTagsEqual(tag, history[lastIdx].value, history[lastIdx - 1].value, country) &&
+                    areTagsEqual(tag, history[lastIdx].value, spiderValue, country);
+
+                const nonNullValues = history.map(h => h.value).filter(v => v !== null);
+                const countOfSpiderValue = nonNullValues.filter(v => areTagsEqual(tag, v, spiderValue, country)).length;
+                const isNewValue = countOfSpiderValue === 1;
 
                 if (matchEntries.length > 1) {
                     status = 'duplicateRef';
@@ -133,22 +142,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                     osmValue = osmTagValue;
 
                     if (!osmTagValue) {
-                        const v3 = history.length >= 3 ? history[2].value : null;
-                        const v4 = history.length >= 4 ? history[3].value : null;
-                        if (
-                            v3 !== null &&
-                            v4 !== null &&
-                            areTagsEqual(tag, v3, v4, country) &&
-                            areTagsEqual(tag, v4, spiderValue, country)
-                        ) {
-                            if (tag === 'opening_hours' && !areAllDaysDefined(spiderValue)) {
-                                status = 'mismatch';
-                            } else {
-                                status = 'addToOsm';
-                            }
-                        } else {
-                            status = 'mismatch';
-                        }
+                        status = 'addToOsm';
                     } else {
                         if (areTagsEqual(tag, osmTagValue, spiderValue, country)) {
                             status = 'matching';
@@ -204,6 +198,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                     spiderValue,
                     history,
                     isStable,
+                    isNewValue,
                 });
             }
             itemStatus = getOverallStatus(itemTags.map(t => t.status));
@@ -259,7 +254,9 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
             const osmType = osmId.startsWith('n') ? 'node' : osmId.startsWith('w') ? 'way' : 'relation';
             const osmNumericId = osmId.replace(/^[nwr]/, '');
 
-            const tagsToEdit = itemTags.filter(t => t.status === 'updateOsm' || t.status === 'addToOsm');
+            const tagsToEdit = itemTags.filter(
+                t => (t.status === 'updateOsm' || t.status === 'addToOsm') && t.isStable
+            );
             if (tagsToEdit.length > 0) {
                 const originalValues = {};
                 const newValues = {};
