@@ -15,7 +15,7 @@ describe('processSpiderResults - check_date:opening_hours logic', () => {
                 {
                     properties: {
                         ref: '123',
-                        opening_hours: 'Mo-Fr 09:00-18:00',
+                        opening_hours: 'Mo-Su 09:00-18:00',
                         'addr:country': 'US',
                         '@source_uri': 'https://allowed.com/data',
                     },
@@ -23,10 +23,10 @@ describe('processSpiderResults - check_date:opening_hours logic', () => {
             ],
         },
         spiderMaps: [
-            new Map([['123', { opening_hours: 'Mo-Fr 10:00-20:00' }]]),
-            new Map([['123', { opening_hours: 'Mo-Fr 10:00-20:00' }]]),
-            new Map([['123', { opening_hours: 'Mo-Fr 09:00-18:00' }]]),
-            new Map([['123', { opening_hours: 'Mo-Fr 09:00-18:00' }]]),
+            new Map([['123', { opening_hours: 'Mo-Su 10:00-20:00' }]]),
+            new Map([['123', { opening_hours: 'Mo-Su 10:00-20:00' }]]),
+            new Map([['123', { opening_hours: 'Mo-Su 09:00-18:00' }]]),
+            new Map([['123', { opening_hours: 'Mo-Su 09:00-18:00' }]]),
         ],
         config: {
             name: 'test-spider',
@@ -38,7 +38,7 @@ describe('processSpiderResults - check_date:opening_hours logic', () => {
 
     test('should add check_date:opening_hours for updateOsm when none exists', async () => {
         const spiderMatches = new Map([
-            ['123', [{ id: 'n1', tags: { opening_hours: 'Mo-Fr 10:00-20:00' } }]]
+            ['123', [{ id: 'n1', tags: { opening_hours: 'Mo-Su 10:00-20:00' } }]]
         ]);
         const safeEdits = {};
 
@@ -47,7 +47,7 @@ describe('processSpiderResults - check_date:opening_hours logic', () => {
         expect(results[0].tags.find(t => t.tag === 'opening_hours').status).toBe('updateOsm');
 
         const edit = safeEdits['test-spider']['US'].edits[0];
-        expect(edit.newValues.opening_hours).toBe('Mo-Fr 09:00-18:00');
+        expect(edit.newValues.opening_hours).toBe('Mo-Su 09:00-18:00');
         expect(edit.newValues['check_date:opening_hours']).toBe('2024-01-15');
         expect(edit.originalValues['check_date:opening_hours']).toBeNull();
     });
@@ -57,7 +57,7 @@ describe('processSpiderResults - check_date:opening_hours logic', () => {
             ['123', [{
                 id: 'n1',
                 tags: {
-                    opening_hours: 'Mo-Fr 10:00-20:00',
+                    opening_hours: 'Mo-Su 10:00-20:00',
                     'check_date:opening_hours': '2023-12-01'
                 }
             }]]
@@ -78,7 +78,7 @@ describe('processSpiderResults - check_date:opening_hours logic', () => {
             ['123', [{
                 id: 'n1',
                 tags: {
-                    opening_hours: 'Mo-Fr 10:00-20:00',
+                    opening_hours: 'Mo-Su 10:00-20:00',
                     'check_date:opening_hours': '2024-01-22'
                 }
             }]]
@@ -102,7 +102,7 @@ describe('processSpiderResults - check_date:opening_hours logic', () => {
         expect(results[0].tags.find(t => t.tag === 'opening_hours').status).toBe('addToOsm');
 
         const edit = safeEdits['test-spider']['US'].edits[0];
-        expect(edit.newValues.opening_hours).toBe('Mo-Fr 09:00-18:00');
+        expect(edit.newValues.opening_hours).toBe('Mo-Su 09:00-18:00');
         expect(edit.newValues['check_date:opening_hours']).toBeUndefined();
     });
 });
@@ -188,19 +188,19 @@ describe('processSpiderResults - Threshold Logic', () => {
         // Change website to opening_hours in data
         data.config.importableTags = ['opening_hours'];
         data.latestRun.features.forEach(f => {
-            f.properties.opening_hours = 'Mo-Fr 09:00-18:00';
+            f.properties.opening_hours = 'Mo-Su 09:00-18:00';
             delete f.properties.website;
         });
         data.spiderMaps.forEach((map, idx) => {
             for (const [ref, props] of map) {
-                props.opening_hours = idx < 2 ? 'Mo-Fr 10:00-20:00' : 'Mo-Fr 09:00-18:00';
+                props.opening_hours = idx < 2 ? 'Mo-Su 10:00-20:00' : 'Mo-Su 09:00-18:00';
                 delete props.website;
             }
         });
 
         const spiderMatches = new Map();
         for (let i = 0; i < count; i++) {
-            spiderMatches.set(`ref${i}`, [{ id: `n${i}`, tags: { opening_hours: 'Mo-Fr 10:00-20:00' } }]);
+            spiderMatches.set(`ref${i}`, [{ id: `n${i}`, tags: { opening_hours: 'Mo-Su 10:00-20:00' } }]);
         }
         const safeEdits = {};
 
