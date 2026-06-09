@@ -134,6 +134,20 @@ async function run() {
             );
 
             if (results) {
+                // Extract unique brands and countries
+                const brandsSet = new Set();
+                const countriesSet = new Set();
+                if (data.latestRun && data.latestRun.features) {
+                    data.latestRun.features.forEach(f => {
+                        const b = f.properties.brand;
+                        if (b) brandsSet.add(b);
+                        const c = f.properties['addr:country'];
+                        if (c && /^[A-Z]{2}$/.test(c)) countriesSet.add(c);
+                    });
+                }
+                const brands = Array.from(brandsSet).sort();
+                const countries = Array.from(countriesSet).sort();
+
                 // For unmapped items in results (disallowedSourceUri, notABrandSpider),
                 // we need to make sure they have allAtpTags for the brand filters to work.
                 const unmappedResults = results
@@ -324,6 +338,8 @@ async function run() {
                     unmatchedCount: unmatched.length,
                     unmappedFilters,
                     unmatchedFilters,
+                    brands,
+                    countries,
                     // Totals for index page
                     totalCount: results.length + unmapped.length,
                     mappedCount,
@@ -339,6 +355,13 @@ async function run() {
 
     try {
         await generateWebpage(autoResults, previewResults, atpDate, osmDate);
+
+        // Generate global index for landing page search
+        const globalIndex = [
+            ...autoResults.map(s => ({ name: s.name, brands: s.brands, tier: 'auto' })),
+            ...previewResults.map(s => ({ name: s.name, brands: s.brands, tier: 'preview' })),
+        ];
+        fs.writeFileSync(path.join('output', 'global_index.json'), JSON.stringify(globalIndex));
     } catch (error) {
         console.error(`Error generating webpage: ${error.message}`);
     }

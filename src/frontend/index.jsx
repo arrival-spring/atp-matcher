@@ -1,11 +1,238 @@
-import { render, h } from 'preact';
+import { render, h, Fragment } from 'preact';
 import { useState, useEffect, useMemo, useRef } from 'preact/hooks';
 import { escapeHtml } from './utils';
-import { t, initI18n } from './i18n';
+import { t, initI18n, getLocale } from './i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { ThemeProvider, useTheme } from './components/ThemeContext';
 
 const PAGE_SIZE = 10;
+
+function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
+    const { theme } = useTheme();
+    const [isOpen, setIsOpen] = useState(false);
+    const [search, setSearch] = useState('');
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const containerRef = useRef(null);
+    const inputRef = useRef(null);
+
+    const countries = useMemo(() => {
+        const codes = new Set();
+        allSpiderResults.forEach(s => {
+            if (s.countries) s.countries.forEach(c => codes.add(c));
+        });
+
+        const locale = getLocale();
+        const displayNames = new Intl.DisplayNames([locale], { type: 'region' });
+
+        return Array.from(codes).map(code => {
+            let name = code;
+            try {
+                name = displayNames.of(code);
+            } catch (e) {}
+            return { code, name };
+        }).sort((a, b) => a.name.localeCompare(b.name, locale));
+    }, [allSpiderResults]);
+
+    const filteredCountries = useMemo(() => {
+        const searchLower = search.toLowerCase();
+        return countries.filter(c =>
+            c.name.toLowerCase().includes(searchLower) ||
+            c.code.toLowerCase().includes(searchLower)
+        );
+    }, [countries, search]);
+
+    const items = [{ code: null, name: t('index.showAllCountries') }, ...filteredCountries];
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (containerRef.current && !containerRef.current.contains(e.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        if (isOpen && inputRef.current) {
+            inputRef.current.focus();
+            setSelectedIndex(0);
+            setSearch('');
+        }
+    }, [isOpen]);
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setSelectedIndex(prev => Math.min(prev + 1, items.length - 1));
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setSelectedIndex(prev => Math.max(prev - 1, 0));
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            onSelect(items[selectedIndex].code);
+            setIsOpen(false);
+        } else if (e.key === 'Escape') {
+            setIsOpen(false);
+        }
+    };
+
+    const selectedName = selectedCountry
+        ? countries.find(c => c.code === selectedCountry)?.name || selectedCountry
+        : t('index.showAllCountries');
+
+    return (
+        <div class="relative w-48 shrink-0" ref={containerRef}>
+            <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                class="w-full flex items-center justify-between px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+            >
+                <span class="truncate">{selectedName}</span>
+                <svg class={`w-4 h-4 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+
+            {isOpen && (
+                <div class="absolute z-50 w-full mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-xl overflow-hidden">
+                    <div class="p-2 border-b border-gray-800">
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            placeholder={t('index.countryFilterPlaceholder')}
+                            value={search}
+                            onInput={(e) => setSearch(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
+                    </div>
+                    <div class="max-h-64 overflow-y-auto no-scrollbar">
+                        {items.map((item, index) => (
+                            <button
+                                key={item.code}
+                                class={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                                    index === selectedIndex ? 'bg-gray-800 text-white' : 'text-gray-400 hover:bg-gray-800'
+                                }`}
+                                onClick={() => {
+                                    onSelect(item.code);
+                                    setIsOpen(false);
+                                }}
+                                onMouseEnter={() => setSelectedIndex(index)}
+                            >
+                                {item.name}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function GlobalSearch({ basePath }) {
+    const [search, setSearch] = useState('');
+    const [results, setResults] = useState([]);
+    const [isOpen, setIsOpen] = useState(false);
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [globalIndex, setGlobalIndex] = useState([]);
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+        fetch(`${basePath}/global_index.json`)
+            .then(res => res.json())
+            .then(data => setGlobalIndex(data))
+            .catch(err => console.error('Failed to load global index:', err));
+    }, [basePath]);
+
+    useEffect(() => {
+        if (!search.trim()) {
+            setResults([]);
+            setIsOpen(false);
+            return;
+        }
+
+        const searchLower = search.toLowerCase();
+        const filtered = globalIndex.filter(s =>
+            s.name.toLowerCase().includes(searchLower) ||
+            (s.brands && s.brands.some(b => b.toLowerCase().includes(searchLower)))
+        ).slice(0, 10);
+
+        setResults(filtered);
+        setIsOpen(true);
+        setSelectedIndex(0);
+    }, [search, globalIndex]);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (containerRef.current && !containerRef.current.contains(e.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setSelectedIndex(prev => Math.min(prev + 1, results.length - 1));
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setSelectedIndex(prev => Math.max(prev - 1, 0));
+        } else if (e.key === 'Enter') {
+            if (results[selectedIndex]) {
+                const res = results[selectedIndex];
+                window.location.href = `${basePath}/${res.tier}/${res.name}/`;
+            }
+        } else if (e.key === 'Escape') {
+            setIsOpen(false);
+        }
+    };
+
+    return (
+        <div class="relative max-w-2xl" ref={containerRef}>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="h-6 w-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input
+                    type="text"
+                    class="block w-full pl-12 pr-4 py-4 bg-gray-900 border border-gray-700 rounded-xl text-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-lg"
+                    placeholder={t('index.searchPlaceholder')}
+                    value={search}
+                    onInput={(e) => setSearch(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    onFocus={() => search.trim() && setIsOpen(true)}
+                />
+            </div>
+
+            {isOpen && results.length > 0 && (
+                <div class="absolute z-50 w-full mt-2 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl overflow-hidden">
+                    {results.map((res, index) => (
+                        <a
+                            key={`${res.tier}-${res.name}`}
+                            href={`${basePath}/${res.tier}/${res.name}/`}
+                            class={`block px-6 py-4 transition-colors relative border-l-4 ${
+                                res.tier === 'auto' ? 'border-emerald-500' : 'border-amber-500'
+                            } ${index === selectedIndex ? 'bg-gray-800' : 'hover:bg-gray-800'}`}
+                            onMouseEnter={() => setSelectedIndex(index)}
+                        >
+                            <div class="text-white font-bold text-lg">{res.name}</div>
+                            {res.brands && res.brands.length > 0 && (
+                                <div class="text-gray-400 text-sm mt-1 truncate">
+                                    {res.brands.join(', ')}
+                                </div>
+                            )}
+                        </a>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
 
 function Dashboard({ allSpiderResults }) {
     const { linkClass } = useTheme();
@@ -45,6 +272,7 @@ function Dashboard({ allSpiderResults }) {
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
     const [sort, setSort] = useState({ column: null, direction: 'desc' });
+    const [selectedCountry, setSelectedCountry] = useState(null);
 
     // Load state from URL hash
     useEffect(() => {
@@ -55,9 +283,11 @@ function Dashboard({ allSpiderResults }) {
             const p = parseInt(params.get('page')) || 1;
             const sortCol = params.get('sort');
             const sortDir = params.get('dir') || 'desc';
+            const country = params.get('country');
             setSearch(s);
             setPage(p);
             if (sortCol) setSort({ column: sortCol, direction: sortDir });
+            setSelectedCountry(country);
         };
 
         loadState();
@@ -75,12 +305,13 @@ function Dashboard({ allSpiderResults }) {
             params.set('sort', sort.column);
             params.set('dir', sort.direction);
         }
+        if (selectedCountry) params.set('country', selectedCountry);
 
         const newHash = params.toString();
         if (window.location.hash.substring(1) !== newHash) {
             window.history.pushState({}, '', `${url.pathname}${url.search}${newHash ? '#' + newHash : ''}`);
         }
-    }, [search, page, sort]);
+    }, [search, page, sort, selectedCountry]);
 
     const handleSort = (column) => {
         let direction = column === 'name' ? 'asc' : 'desc';
@@ -92,7 +323,13 @@ function Dashboard({ allSpiderResults }) {
     };
 
     const filtered = useMemo(() => {
-        let data = allSpiderResults.filter(spider => spider.name.toLowerCase().includes(search.toLowerCase()));
+        let data = allSpiderResults.filter(spider => {
+            const searchLower = search.toLowerCase();
+            const matchesSearch = spider.name.toLowerCase().includes(searchLower) ||
+                                (spider.brands && spider.brands.some(b => b.toLowerCase().includes(searchLower)));
+            const matchesCountry = !selectedCountry || (spider.countries && spider.countries.includes(selectedCountry));
+            return matchesSearch && matchesCountry;
+        });
 
         if (sort.column) {
             data.sort((a, b) => {
@@ -139,7 +376,7 @@ function Dashboard({ allSpiderResults }) {
         }
 
         return data;
-    }, [allSpiderResults, search, sort]);
+    }, [allSpiderResults, search, sort, selectedCountry]);
 
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
     const effectivePage = Math.min(page, totalPages);
@@ -152,6 +389,14 @@ function Dashboard({ allSpiderResults }) {
     const handleSearchChange = e => {
         setSearch(e.target.value);
         setPage(1);
+    };
+
+    const handleSearchKeyDown = e => {
+        if (e.key === 'Enter') {
+            if (filtered.length === 1) {
+                window.location.href = `${filtered[0].name}/`;
+            }
+        }
     };
 
     const sortColumns = [
@@ -190,24 +435,32 @@ function Dashboard({ allSpiderResults }) {
                     </div>
                 </div>
             </div>
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        />
-                    </svg>
+            <div class="flex gap-4">
+                <div class="relative flex-grow">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                            />
+                        </svg>
+                    </div>
+                    <input
+                        type="text"
+                        id="search-input"
+                        class={`block w-full pl-10 pr-3 py-3 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 ${useTheme().theme === 'auto' ? 'focus:ring-blue-500 focus:border-blue-500' : 'focus:ring-amber-500 focus:border-amber-500'} sm:text-sm transition-colors`}
+                        placeholder={t('index.searchPlaceholder')}
+                        value={search}
+                        onInput={handleSearchChange}
+                        onKeyDown={handleSearchKeyDown}
+                    />
                 </div>
-                <input
-                    type="text"
-                    id="search-input"
-                    class={`block w-full pl-10 pr-3 py-3 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 ${useTheme().theme === 'auto' ? 'focus:ring-blue-500 focus:border-blue-500' : 'focus:ring-amber-500 focus:border-amber-500'} sm:text-sm transition-colors`}
-                    placeholder={t('index.searchPlaceholder')}
-                    value={search}
-                    onInput={handleSearchChange}
+                <CountryFilter
+                    allSpiderResults={allSpiderResults}
+                    selectedCountry={selectedCountry}
+                    onSelect={(c) => { setSelectedCountry(c); setPage(1); }}
                 />
             </div>
 
@@ -310,6 +563,7 @@ function SpiderRow({ spider, onSort, currentSort }) {
         isBrandSpider,
         stabilityColor,
         loadStatus,
+        brands,
     } = spider;
 
     const statusColors = {
@@ -348,6 +602,11 @@ function SpiderRow({ spider, onSort, currentSort }) {
                             >
                                 {name}
                             </a>
+                            {brands && brands.length > 0 && (
+                                <span class="ml-2 text-xs text-gray-500 font-normal">
+                                    {brands.join(', ')}
+                                </span>
+                            )}
                             {loadStatus && (
                                 <span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">{loadStatus}</span>
                             )}
@@ -356,13 +615,20 @@ function SpiderRow({ spider, onSort, currentSort }) {
                 </div>
             </td>
             <td class="hidden md:table-cell md:px-6 md:py-4">
-                <a
-                    href={`${name}/`}
-                    class={`${linkClass(false)} hover:underline font-bold text-lg`}
-                    onClick={e => e.stopPropagation()}
-                >
-                    {name}
-                </a>
+                <div class="flex items-baseline gap-2">
+                    <a
+                        href={`${name}/`}
+                        class={`${linkClass(false)} hover:underline font-bold text-lg`}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {name}
+                    </a>
+                    {brands && brands.length > 0 && (
+                        <span class="text-sm text-gray-500 font-normal">
+                            {brands.join(', ')}
+                        </span>
+                    )}
+                </div>
                 {loadStatus && (
                     <span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">{loadStatus}</span>
                 )}
@@ -420,6 +686,10 @@ window.initDashboard = async (allSpiderResults, theme = 'auto') => {
 
 window.initLandingPage = async () => {
     await initI18n();
+    const searchContainer = document.getElementById('global-search-root');
+    if (searchContainer) {
+        render(<GlobalSearch basePath="." />, searchContainer);
+    }
     const switcherContainer = document.getElementById('language-switcher-root');
     if (switcherContainer) {
         render(
