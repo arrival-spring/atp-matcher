@@ -3,6 +3,10 @@ import { countries as countriesList } from 'countries-list';
 import { isAllowedSourceUri } from './utils.js';
 import { areTagsEqual, formatPhone, getOverallStatus } from './tag_comparisons.js';
 
+function isValidIsoDate(date) {
+    return date && /^\d{4}-\d{2}-\d{2}$/.test(date);
+}
+
 export async function processSpiderResults(spiderData, spiderMatches, runs, safeEdits = {}) {
     const { latestRun, spiderMaps, config: spider, isBrandSpider } = spiderData;
     console.log(`Processing spider results: ${spider.name}`);
@@ -10,6 +14,9 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
     const results = [];
     const unmapped = [];
     const usedTags = new Set();
+    const pendingEdits = [];
+    const tagEditCounts = {};
+    let mappedCount = 0;
 
     // Expand wildcard tags
     const expandedImportableTags = new Set();
@@ -40,6 +47,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
         let osmId = null;
 
         const isAllowed = isAllowedSourceUri(props['@source_uri'], spider.source_uri);
+        const matchEntries = spiderMatches.get(matchingValue) || [];
 
         if (!isBrandSpider || !isAllowed) {
             itemStatus = !isBrandSpider ? 'notABrandSpider' : 'disallowedSourceUri';
@@ -58,7 +66,6 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
             }
         } else {
             const allPossibleTags = new Set([...expandedImportableTags, 'opening_hours', 'website']);
-            const matchEntries = spiderMatches.get(matchingValue) || [];
             if (matchEntries.length === 1) {
                 const osm = matchEntries[0];
                 for (const tag of Object.keys(osm.tags)) {
@@ -106,6 +113,14 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                     const osm = matchEntries[0];
                     osmId = osm.id;
                     let osmTagValue = osm.tags[tag] || null;
+                    let osmCheckDate = null;
+                    if (tag === 'opening_hours') {
+                        osmCheckDate = osm.tags['check_date:opening_hours'] || null;
+                        if (!isValidIsoDate(osmCheckDate)) {
+                            osmCheckDate = null;
+                        }
+                    }
+
                     if (!osmTagValue) {
                         if (tag === 'phone') {
                             osmTagValue = osm.tags['contact:phone'] || null;
@@ -154,8 +169,18 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                             }
 
                             if (canUpdate) {
-                                if (tag === 'opening_hours' && osmTagValue.includes('PH')) {
-                                    status = 'mismatch';
+                                if (tag === 'opening_hours') {
+                                    if (osmTagValue.includes('PH')) {
+                                        status = 'mismatch';
+                                    } else {
+                                        // Check date logic
+                                        const proposedCheckDate = history.length >= 3 ? history[2].date : null;
+                                        if (proposedCheckDate && osmCheckDate && proposedCheckDate <= osmCheckDate) {
+                                            status = 'mismatch';
+                                        } else {
+                                            status = 'updateOsm';
+                                        }
+                                    }
                                 } else {
                                     status = 'updateOsm';
                                 }
@@ -194,6 +219,8 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
         const isMapped = allMatchesForRef.length > 0;
         const matchCount = allMatchesForRef.length;
 
+        if (isMapped) mappedCount++;
+
         if (matchCount > 1) {
             itemStatus = 'duplicateRef';
         }
@@ -228,99 +255,148 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
             const osmType = osmId.startsWith('n') ? 'node' : osmId.startsWith('w') ? 'way' : 'relation';
             const osmNumericId = osmId.replace(/^[nwr]/, '');
 
-            if (countryCode && /^[A-Z]{2}$/.test(countryCode)) {
-                const countryInfo = countriesList[countryCode];
-                if (countryInfo) {
-                    const countryName = countryInfo.native;
-                    const tagsToEdit = itemTags.filter(t => t.status === 'updateOsm' || t.status === 'addToOsm');
+            const tagsToEdit = itemTags.filter(t => t.status === 'updateOsm' || t.status === 'addToOsm');
+            if (tagsToEdit.length > 0) {
+                const originalValues = {};
+                const newValues = {};
+                tagsToEdit.forEach(t => {
+                    originalValues[t.tag] = t.osmValue;
+                    newValues[t.tag] = t.spiderValue;
+                    tagEditCounts[t.tag] = (tagEditCounts[t.tag] || 0) + 1;
 
-                    if (tagsToEdit.length > 0) {
-                        const originalValues = {};
-                        const newValues = {};
-                        tagsToEdit.forEach(t => {
-                            originalValues[t.tag] = t.osmValue;
-                            newValues[t.tag] = t.spiderValue;
-                        });
-
-                        const edit = {
-                            type: osmType,
-                            id: osmNumericId,
-                            originalValues,
-                            newValues,
-                        };
-
-                        if (!safeEdits[spider.name]) safeEdits[spider.name] = {};
-
-                        const stateSlug = state ? slugify(state, { lower: true, remove: /[*+~.()'"!:@]/g }) : null;
-                        const fileKey = stateSlug ? `${countryCode}_${stateSlug}` : countryCode;
-
-                        if (!safeEdits[spider.name][fileKey]) {
-                            safeEdits[spider.name][fileKey] = {
-                                metadata: {
-                                    spider: spider.name,
-                                    country: countryName,
-                                    countryCode,
-                                    tags: [],
-                                },
-                                edits: [],
-                            };
-                            if (state) {
-                                safeEdits[spider.name][fileKey].metadata.state = state;
+                    if (t.tag === 'opening_hours' && t.status === 'updateOsm') {
+                        const proposedCheckDate = t.history.length >= 3 ? t.history[2].date : null;
+                        if (proposedCheckDate) {
+                            const osm = matchEntries[0];
+                            let existingCheckDate = osm.tags['check_date:opening_hours'] || null;
+                            if (!isValidIsoDate(existingCheckDate)) {
+                                existingCheckDate = null;
                             }
+                            originalValues['check_date:opening_hours'] = existingCheckDate;
+                            newValues['check_date:opening_hours'] = proposedCheckDate;
+                            tagEditCounts['check_date:opening_hours'] =
+                                (tagEditCounts['check_date:opening_hours'] || 0) + 1;
                         }
-
-                        const currentFile = safeEdits[spider.name][fileKey];
-                        currentFile.edits.push(edit);
-                        tagsToEdit.forEach(t => {
-                            if (!currentFile.metadata.tags.includes(t.tag)) {
-                                currentFile.metadata.tags.push(t.tag);
-                            }
-                        });
                     }
-                }
-            } else if (countryCode) {
-                console.warn(`Spider ${spider.name} has invalid country code: ${countryCode} for ref ${matchingValue}`);
-            } else {
-                // Countryless
-                const tagsToEdit = itemTags.filter(t => t.status === 'updateOsm' || t.status === 'addToOsm');
-                if (tagsToEdit.length > 0) {
-                    const originalValues = {};
-                    const newValues = {};
-                    tagsToEdit.forEach(t => {
-                        originalValues[t.tag] = t.osmValue;
-                        newValues[t.tag] = t.spiderValue;
-                    });
+                });
 
-                    const edit = {
-                        type: osmType,
-                        id: osmNumericId,
-                        originalValues,
-                        newValues,
-                    };
-
-                    if (!safeEdits[spider.name]) safeEdits[spider.name] = {};
-                    const fileKey = 'countryless';
-                    if (!safeEdits[spider.name][fileKey]) {
-                        safeEdits[spider.name][fileKey] = {
-                            metadata: {
-                                spider: spider.name,
-                                country: 'Countryless',
-                                tags: [],
-                            },
-                            edits: [],
-                        };
-                    }
-                    const currentFile = safeEdits[spider.name][fileKey];
-                    currentFile.edits.push(edit);
-                    tagsToEdit.forEach(t => {
-                        if (!currentFile.metadata.tags.includes(t.tag)) {
-                            currentFile.metadata.tags.push(t.tag);
-                        }
-                    });
-                }
+                const edit = {
+                    type: osmType,
+                    id: osmNumericId,
+                    originalValues,
+                    newValues,
+                    countryCode,
+                    state,
+                    ref: matchingValue,
+                };
+                pendingEdits.push(edit);
             }
         }
     }
 
-    return { results, unmapped, usedTags: Array.from(usedTags).sort() };
+    const threshold = Math.max(5, Math.ceil(mappedCount * 0.1));
+    const thresholdViolations = [];
+    const brokenTags = new Set();
+    for (const [tag, count] of Object.entries(tagEditCounts)) {
+        if (count > threshold) {
+            brokenTags.add(tag);
+            thresholdViolations.push({ tag, count, mappedCount });
+        }
+    }
+
+    for (const pending of pendingEdits) {
+        const filteredOriginalValues = {};
+        const filteredNewValues = {};
+        const finalTags = [];
+
+        for (const tag of Object.keys(pending.newValues)) {
+            if (brokenTags.has(tag)) continue;
+
+            // If it is a check_date, only include if its parent tag is also included
+            if (tag.startsWith('check_date:')) {
+                const parentTag = tag.split(':')[1];
+                if (brokenTags.has(parentTag)) continue;
+            }
+
+            filteredOriginalValues[tag] = pending.originalValues[tag];
+            filteredNewValues[tag] = pending.newValues[tag];
+            if (!tag.startsWith('check_date:')) {
+                finalTags.push(tag);
+            }
+        }
+
+        if (finalTags.length > 0) {
+            const { type, id, countryCode, state } = pending;
+            const edit = {
+                type,
+                id,
+                originalValues: filteredOriginalValues,
+                newValues: filteredNewValues,
+            };
+
+            if (countryCode && /^[A-Z]{2}$/.test(countryCode)) {
+                const countryInfo = countriesList[countryCode];
+                if (countryInfo) {
+                    const countryName = countryInfo.native;
+                    if (!safeEdits[spider.name]) safeEdits[spider.name] = {};
+                    const stateSlug = state ? slugify(state, { lower: true, remove: /[*+~.()'"!:@]/g }) : null;
+                    const fileKey = stateSlug ? `${countryCode}_${stateSlug}` : countryCode;
+
+                    if (!safeEdits[spider.name][fileKey]) {
+                        safeEdits[spider.name][fileKey] = {
+                            metadata: {
+                                spider: spider.name,
+                                country: countryName,
+                                countryCode,
+                                tags: [],
+                            },
+                            edits: [],
+                        };
+                        if (state) {
+                            safeEdits[spider.name][fileKey].metadata.state = state;
+                        }
+                    }
+                    const currentFile = safeEdits[spider.name][fileKey];
+                    currentFile.edits.push(edit);
+                    finalTags.forEach(t => {
+                        if (!currentFile.metadata.tags.includes(t)) {
+                            currentFile.metadata.tags.push(t);
+                        }
+                    });
+                } else {
+                    // Fallback for unknown country code but valid format
+                    addToCountryless(safeEdits, spider.name, edit, finalTags);
+                }
+            } else {
+                if (countryCode) {
+                    console.warn(`Spider ${spider.name} has invalid country code: ${countryCode} for ref ${pending.ref}`);
+                }
+                addToCountryless(safeEdits, spider.name, edit, finalTags);
+            }
+        }
+    }
+
+    return { results, unmapped, usedTags: Array.from(usedTags).sort(), thresholdViolations };
+}
+
+function addToCountryless(safeEdits, spiderName, edit, finalTags) {
+    if (!safeEdits[spiderName]) safeEdits[spiderName] = {};
+    const fileKey = 'countryless';
+    if (!safeEdits[spiderName][fileKey]) {
+        safeEdits[spiderName][fileKey] = {
+            metadata: {
+                spider: spiderName,
+                country: 'Countryless',
+                tags: [],
+            },
+            edits: [],
+        };
+    }
+    const currentFile = safeEdits[spiderName][fileKey];
+    currentFile.edits.push(edit);
+    finalTags.forEach(t => {
+        if (!currentFile.metadata.tags.includes(t)) {
+            currentFile.metadata.tags.push(t);
+        }
+    });
 }

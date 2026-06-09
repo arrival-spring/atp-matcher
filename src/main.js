@@ -11,6 +11,7 @@ import { getRuns, loadAllAtpData } from './atp_data.js';
 import { streamOsmData } from './osm_stream.js';
 import { processSpiderResults } from './result_processor.js';
 import { generateWebpage } from './web_generator.js';
+import { reportThresholdViolations } from './github_utils.js';
 
 const CONFIG_FILE = 'config.json';
 const SPIDERS_AUTO_FILE = 'spiders_auto.json';
@@ -126,12 +127,16 @@ async function run() {
                 continue;
             }
 
-            const { results, unmapped, usedTags } = await processSpiderResults(
+            const { results, unmapped, usedTags, thresholdViolations } = await processSpiderResults(
                 data,
                 allMatches.get(spiderName),
                 runs,
                 safeEdits
             );
+
+            if (thresholdViolations && thresholdViolations.length > 0) {
+                await reportThresholdViolations(spiderName, thresholdViolations, isAuto);
+            }
 
             if (results) {
                 const brands = data.brands || [];
