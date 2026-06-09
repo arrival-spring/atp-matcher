@@ -142,6 +142,18 @@ export async function loadAllAtpData(spiders, runs) {
             stabilityScore = 0.0;
         }
 
+        const brandsSet = new Set();
+        const countriesSet = new Set();
+        if (latestRun && latestRun.features) {
+            latestRun.features.forEach(f => {
+                const props = f.properties;
+                const b = props.brand;
+                if (b) brandsSet.add(b);
+                const c = props['addr:country'];
+                if (c && /^[A-Z]{2}$/.test(c)) countriesSet.add(c);
+            });
+        }
+
         spidersData.set(spider.name, {
             latestRun,
             spiderMaps,
@@ -154,6 +166,8 @@ export async function loadAllAtpData(spiders, runs) {
             stabilityScore,
             featureCounts,
             runStatuses,
+            brands: Array.from(brandsSet).sort(),
+            countries: Array.from(countriesSet).sort(),
         });
 
         // Build lookup
