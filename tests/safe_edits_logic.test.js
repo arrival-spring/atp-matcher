@@ -3,9 +3,9 @@ import { processSpiderResults } from '../src/result_processor.js';
 describe('processSpiderResults - check_date:opening_hours logic', () => {
     const runs = [
         { run_id: '2024-01-01T00:00:00Z' },
-        { run_id: '2024-01-02T00:00:00Z' },
-        { run_id: '2024-01-03T00:00:00Z' }, // History index 2: 2024-01-03
-        { run_id: '2024-01-04T00:00:00Z' },
+        { run_id: '2024-01-08T00:00:00Z' },
+        { run_id: '2024-01-15T00:00:00Z' }, // History index 2: 2024-01-15
+        { run_id: '2024-01-22T00:00:00Z' },
     ];
 
     const spiderData = {
@@ -48,7 +48,7 @@ describe('processSpiderResults - check_date:opening_hours logic', () => {
 
         const edit = safeEdits['test-spider']['US'].edits[0];
         expect(edit.newValues.opening_hours).toBe('Mo-Fr 09:00-18:00');
-        expect(edit.newValues['check_date:opening_hours']).toBe('2024-01-03');
+        expect(edit.newValues['check_date:opening_hours']).toBe('2024-01-15');
         expect(edit.originalValues['check_date:opening_hours']).toBeNull();
     });
 
@@ -69,7 +69,7 @@ describe('processSpiderResults - check_date:opening_hours logic', () => {
         expect(results[0].tags.find(t => t.tag === 'opening_hours').status).toBe('updateOsm');
 
         const edit = safeEdits['test-spider']['US'].edits[0];
-        expect(edit.newValues['check_date:opening_hours']).toBe('2024-01-03');
+        expect(edit.newValues['check_date:opening_hours']).toBe('2024-01-15');
         expect(edit.originalValues['check_date:opening_hours']).toBe('2023-12-01');
     });
 
@@ -79,7 +79,7 @@ describe('processSpiderResults - check_date:opening_hours logic', () => {
                 id: 'n1',
                 tags: {
                     opening_hours: 'Mo-Fr 10:00-20:00',
-                    'check_date:opening_hours': '2024-01-04'
+                    'check_date:opening_hours': '2024-01-22'
                 }
             }]]
         ]);
@@ -110,9 +110,9 @@ describe('processSpiderResults - check_date:opening_hours logic', () => {
 describe('processSpiderResults - Threshold Logic', () => {
     const runs = [
         { run_id: '2024-01-01' },
-        { run_id: '2024-01-02' },
-        { run_id: '2024-01-03' },
-        { run_id: '2024-01-04' },
+        { run_id: '2024-01-08' },
+        { run_id: '2024-01-15' },
+        { run_id: '2024-01-22' },
     ];
 
     const generateSpiderData = (count) => {

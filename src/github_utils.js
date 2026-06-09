@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 export async function reportThresholdViolations(spiderName, violations, isAuto) {
-    const tier = isAuto ? 'auto' : 'preview';
+    if (!isAuto) return;
+
+    const tier = 'auto';
     const title = `Threshold exceeded for spider: ${spiderName}`;
     const body = `Threshold exceeded for spider **${spiderName}** in the **${tier}** tier.
 
@@ -39,7 +41,17 @@ View the spider report here: https://example.com/${tier}/${spiderName}
 
         const existingIssue = searchResponse.data.find(issue => issue.title === title);
         if (existingIssue) {
-            console.log(`Issue already exists for ${spiderName}: ${existingIssue.html_url}`);
+            console.log(`Open issue already exists for ${spiderName}, adding comment: ${existingIssue.html_url}`);
+            await axios.post(
+                `https://api.github.com/repos/${repo}/issues/${existingIssue.number}/comments`,
+                { body },
+                {
+                    headers: {
+                        Authorization: `token ${token}`,
+                        Accept: 'application/vnd.github.v3+json',
+                    },
+                }
+            );
             return;
         }
 
