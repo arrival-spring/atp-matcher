@@ -214,6 +214,16 @@ async function validate(accumulatedComments = '') {
             if (JSON.stringify(s) !== JSON.stringify(base)) {
                 errors.push(`Error: Spider \`${s.name}\` was modified while being moved to auto. It must retain the exact same properties.`);
             }
+            if (base.rejected) {
+                errors.push(`Error: Spider \`${s.name}\` cannot be moved to auto because it is marked as rejected in the base branch.`);
+            }
+        }
+    }
+
+    // Rule: 'rejected' property only allowed in preview
+    for (const s of spidersAuto) {
+        if (s.rejected) {
+            errors.push(`Error: Spider \`${s.name}\` in auto cannot have a \`rejected\` property.`);
         }
     }
 

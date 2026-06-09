@@ -123,6 +123,7 @@ async function run() {
                     lineage: null,
                     loadStatus: data.loadStatus,
                     stabilityColor: 'gray',
+                    rejected: data.config.rejected,
                 });
                 continue;
             }
@@ -336,6 +337,7 @@ async function run() {
                     totalCount: results.length + unmapped.length,
                     mappedCount,
                     issuesCount,
+                    rejected: data.config.rejected,
                 });
             }
         } catch (error) {

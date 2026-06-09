@@ -11,6 +11,7 @@ export function SpiderPage({
     isBrandSpider,
     isStale,
     staleDate,
+    rejected,
     loadStatus,
     showUnmatched,
     unmappedCount,
@@ -29,6 +30,24 @@ export function SpiderPage({
         ]),
         h('header', { class: 'mb-12' }, [
             h('h1', { class: 'text-4xl font-extrabold mb-2' }, name),
+            rejected &&
+                h(
+                    'div',
+                    { class: 'bg-red-900/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6 mt-4' },
+                    [
+                        h('p', { class: 'font-bold', 'data-t': 'spider.rejected' }, t('spider.rejected')),
+                        h(
+                            'p',
+                            { class: 'text-sm mt-1', 'data-t': 'spider.rejectedDesc' },
+                            t('spider.rejectedDesc')
+                        ),
+                        h(
+                            'p',
+                            { class: 'text-sm mt-2 font-mono italic' },
+                            `"${rejected}"`
+                        ),
+                    ]
+                ),
             isStale &&
                 h(
                     'div',
@@ -124,7 +143,8 @@ export function SpiderPage({
         unmatchedCount: ${unmatchedCount || 0},
         unmappedFilters: ${JSON.stringify(unmappedFilters || [])},
         unmatchedFilters: ${JSON.stringify(unmatchedFilters || [])},
-        theme: ${JSON.stringify(theme)}
+        theme: ${JSON.stringify(theme)},
+        rejected: ${JSON.stringify(rejected)}
     });`,
             },
         }),

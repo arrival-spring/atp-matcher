@@ -48,6 +48,8 @@
     "backToDashboard": "← Back to Dashboard",
     "staleData": "⚠️ Stale Data",
     "staleDataDesc": "The latest ATP run was empty. Showing data from {{ date }} instead.",
+    "rejected": "Rejected for automatic updates",
+    "rejectedDesc": "This spider has been rejected from being included in the automatic updates. It may still be useful for other reasons. The following reason was given:",
     "noData": "❌ No Data Available",
     "noData404": "The latest ATP run for this spider could not be found (404).",
     "noDataEmpty": "All recent ATP runs for this spider were empty.",
