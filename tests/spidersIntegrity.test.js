@@ -9,12 +9,16 @@ describe('Spiders Integrity Check', () => {
     let config;
     let spiders;
 
+    let spidersAuto, spidersPreview;
+
     beforeAll(() => {
         const configContent = fs.readFileSync(CONFIG_FILE, 'utf8');
         config = JSON.parse(configContent);
         const autoContent = fs.readFileSync(SPIDERS_AUTO_FILE, 'utf8');
         const previewContent = fs.readFileSync(SPIDERS_PREVIEW_FILE, 'utf8');
-        spiders = [...JSON.parse(autoContent), ...JSON.parse(previewContent)];
+        spidersAuto = JSON.parse(autoContent);
+        spidersPreview = JSON.parse(previewContent);
+        spiders = [...spidersAuto, ...spidersPreview];
     });
 
     test('all spiders should have valid structure', () => {
@@ -74,5 +78,18 @@ describe('Spiders Integrity Check', () => {
         const names = spiders.map(s => s.name);
         const uniqueNames = new Set(names);
         expect(uniqueNames.size).toBe(names.length);
+    });
+
+    test('rejected property should only be in preview spiders', () => {
+        spidersAuto.forEach(spider => {
+            expect(spider.rejected).toBeUndefined();
+        });
+
+        spidersPreview.forEach(spider => {
+            if (spider.rejected) {
+                expect(typeof spider.rejected).toBe('string');
+                expect(spider.rejected.length).toBeGreaterThan(0);
+            }
+        });
     });
 });
