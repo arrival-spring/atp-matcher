@@ -41,6 +41,7 @@ jobs:
               run: npm run sync
               env:
                   MOCK: ${{ github.event.inputs.mock }}
+                  IS_WEEKLY_RUN: ${{ github.event_name == 'schedule' }}
 
             - name: Build CSS
               run: npm run build:css
@@ -58,3 +59,14 @@ jobs:
                   name: safe-edits
                   path: |
                       safe-edits/
+
+            - name: Dummy Deployment
+              if: github.ref == 'refs/heads/main'
+              run: echo "Deploying to Cloudflare Pages... (Dummy Step)"
+
+            - name: Run feedback bot
+              if: github.event_name == 'schedule' && github.ref == 'refs/heads/main'
+              run: node src/feedback_bot.js
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_REPOSITORY: ${{ github.repository }}

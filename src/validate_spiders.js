@@ -230,6 +230,7 @@ async function validate(accumulatedComments = '') {
     let combinedComment = infoComments + autoMoveComment;
     let hasGlobalErrors = errors.length > 0;
 
+    let addedToAutoInThisPr = false;
     for (const change of allChanges) {
         const { spider, type, isAuto } = change;
         const result = await validateSpider(spider, type, config);
@@ -238,6 +239,25 @@ async function validate(accumulatedComments = '') {
 
         if (isAuto && type === 'added to auto' && !result.hasErrors) {
             combinedComment += `\n> ℹ️ **Waiting Period:** This spider has been moved to auto. There will be a waiting period of at least two weeks for community feedback before it can be merged.\n\n`;
+            addedToAutoInThisPr = true;
+        }
+    }
+
+    if (addedToAutoInThisPr && process.env.GITHUB_TOKEN && process.env.PR_NUMBER) {
+        try {
+            await axios.post(
+                `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/issues/${process.env.PR_NUMBER}/labels`,
+                { labels: ['auto-request'] },
+                {
+                    headers: {
+                        Authorization: `token ${process.env.GITHUB_TOKEN}`,
+                        Accept: 'application/vnd.github.v3+json',
+                    },
+                }
+            );
+            console.log('Added auto-request label to PR');
+        } catch (error) {
+            console.error(`Failed to add auto-request label: ${error.message}`);
         }
     }
 

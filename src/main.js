@@ -383,6 +383,16 @@ async function run() {
 
     saveSafeEdits(safeEditsAuto, 'auto');
     saveSafeEdits(safeEditsPreview, 'preview');
+
+    // Save sync summary for feedback bot
+    const syncSummary = [...autoResults, ...previewResults].map(s => ({
+        name: s.name,
+        mappedCount: s.mappedCount,
+        importableTags: s.importableTags,
+        tier: autoNames.has(s.name) ? 'auto' : 'preview',
+    }));
+    if (!fs.existsSync('output')) fs.mkdirSync('output');
+    fs.writeFileSync(path.join('output', 'sync_summary.json'), JSON.stringify(syncSummary, null, 2));
 }
 
 run().catch(err => {
