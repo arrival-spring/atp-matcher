@@ -35,7 +35,7 @@ async function run() {
     try {
         config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
         if (process.env.MOCK === 'true') {
-            spidersAuto = [];
+            spidersAuto = {};
             spidersPreview = JSON.parse(fs.readFileSync('mock_data/mock_spiders.json', 'utf8'));
         } else {
             spidersAuto = JSON.parse(fs.readFileSync(SPIDERS_AUTO_FILE, 'utf8'));
@@ -70,7 +70,7 @@ async function run() {
         }
     }
 
-    const allSpiders = [...spidersAuto, ...spidersPreview];
+    const allSpiders = { ...spidersAuto, ...spidersPreview };
     let spidersData, atpLookup, wikidataToSpiders;
     try {
         const atpData = await loadAllAtpData(allSpiders, runs);
@@ -107,7 +107,7 @@ async function run() {
     const autoResults = [];
     const previewResults = [];
 
-    const autoNames = new Set(spidersAuto.map(s => s.name));
+    const autoNames = new Set(Object.keys(spidersAuto));
 
     for (const [spiderName, data] of spidersData) {
         const isAuto = autoNames.has(spiderName);

@@ -186,9 +186,13 @@ async function getSpiderNamesFromPr(prNumber) {
         const names = new Set();
         for (const file of spiderFiles) {
             if (file.patch) {
-                const addedLines = file.patch.split('\n').filter(line => line.startsWith('+') && !line.startsWith('+++'));
+                const addedLines = file.patch
+                    .split('\n')
+                    .filter(line => line.startsWith('+') && !line.startsWith('+++'));
                 for (const line of addedLines) {
-                    const match = line.match(/"name":\s*"([^"]+)"/);
+                    // Match "spider_name": { ...
+                    // Looking for the first quoted string followed by a colon and then an opening brace
+                    const match = line.match(/^\+\s*"([^"]+)"\s*:\s*\{/);
                     if (match) names.add(match[1]);
                 }
             }
