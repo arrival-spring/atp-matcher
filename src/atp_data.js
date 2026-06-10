@@ -185,7 +185,7 @@ export async function loadAllAtpData(spiders, runs) {
             const nsiId = props.nsi_id;
             const wikidata = props['brand:wikidata'];
 
-            if (!atpRef) return;
+            if (!atpRef && !website) return;
 
             const effectiveNsiId = nsiId && getNsiIdExists(nsiId) ? nsiId : null;
             const identity = effectiveNsiId ? `nsi:${effectiveNsiId}` : wikidata ? `wd:${wikidata}` : null;
@@ -244,7 +244,7 @@ export async function loadAllAtpData(spiders, runs) {
             const website = props.website;
             const nsiId = props.nsi_id;
 
-            if (!atpRef) return;
+            if (!atpRef && !website) return;
 
             let effectiveNsiId = null;
             if (nsiId && getNsiIdExists(nsiId)) {
@@ -265,14 +265,16 @@ export async function loadAllAtpData(spiders, runs) {
             const identity = effectiveNsiId ? `nsi:${effectiveNsiId}` : wikidata ? `wd:${wikidata}` : null;
 
             if (brand && wikidata && identity) {
-                const refKeyName = spider.ref_key || 'ref';
-                const matchingRef = refKeyName === 'branch' ? atpRef.toLowerCase() : atpRef;
-                const refKey = `${identity}|${refKeyName}|${matchingRef}`;
+                if (atpRef) {
+                    const refKeyName = spider.ref_key || 'ref';
+                    const matchingRef = refKeyName === 'branch' ? atpRef.toLowerCase() : atpRef;
+                    const refKey = `${identity}|${refKeyName}|${matchingRef}`;
 
-                if (!duplicateRefKeys.has(refKey)) {
-                    const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}`;
-                    if (!atpLookup.has(key)) atpLookup.set(key, []);
-                    atpLookup.get(key).push({ spiderName, atpRef, nsiId: effectiveNsiId });
+                    if (!duplicateRefKeys.has(refKey)) {
+                        const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}`;
+                        if (!atpLookup.has(key)) atpLookup.set(key, []);
+                        atpLookup.get(key).push({ spiderName, atpRef, nsiId: effectiveNsiId });
+                    }
                 }
 
                 if (website) {
