@@ -169,51 +169,124 @@ export async function loadAllAtpData(spiders, runs) {
             brands: Array.from(brandsSet).sort(),
             countries: Array.from(countriesSet).sort(),
         });
+    }
 
-        // Build lookup
-        if (isBrandSpider && latestRun && latestRun.features) {
-            latestRun.features.forEach(f => {
-                const props = f.properties;
-                let brand = props.brand;
-                let wikidata = props['brand:wikidata'];
-                const atpRef = props.ref;
-                const website = props.website;
-                const nsiId = props.nsi_id;
+    // Identify duplicate refs and websites across all brand spiders
+    const refCounts = new Map();
+    const webCounts = new Map();
 
-                let effectiveNsiId = null;
-                if (nsiId && getNsiIdExists(nsiId)) {
-                    effectiveNsiId = nsiId;
-                    const nsiEntry = getNsiItem(nsiId);
-                    brand = nsiEntry.originalTags.brand || nsiEntry.originalTags.name || brand;
-                    wikidata =
-                        nsiEntry.originalTags['brand:wikidata'] ||
-                        nsiEntry.originalTags['operator:wikidata'] ||
-                        wikidata;
+    for (const [spiderName, data] of spidersData) {
+        if (!data.isBrandSpider || !data.latestRun) continue;
+        const spider = data.config;
+        data.latestRun.features.forEach(f => {
+            const props = f.properties;
+            const atpRef = props.ref;
+            const website = props.website;
+            const nsiId = props.nsi_id;
+            const wikidata = props['brand:wikidata'];
+
+            if (!atpRef) return;
+
+            const effectiveNsiId = nsiId && getNsiIdExists(nsiId) ? nsiId : null;
+            const identity = effectiveNsiId ? `nsi:${effectiveNsiId}` : wikidata ? `wd:${wikidata}` : null;
+
+            if (identity) {
+                const refKeyName = spider.ref_key || 'ref';
+                const matchingRef = refKeyName === 'branch' ? atpRef.toLowerCase() : atpRef;
+                const refKey = `${identity}|${refKeyName}|${matchingRef}`;
+                if (!refCounts.has(refKey)) refCounts.set(refKey, []);
+                refCounts.get(refKey).push({ spiderName, atpRef });
+
+                if (website) {
+                    const normalizedWeb = normalizeWebsite(website);
+                    const webKey = `${identity}|${normalizedWeb}`;
+                    if (!webCounts.has(webKey)) webCounts.set(webKey, []);
+                    webCounts.get(webKey).push({ spiderName, atpRef });
                 }
+            }
+        });
+    }
 
-                if (wikidata) {
-                    if (!wikidataToSpiders.has(wikidata)) wikidataToSpiders.set(wikidata, new Set());
-                    wikidataToSpiders.get(wikidata).add(spider.name);
-                }
-
-                if (brand && wikidata && atpRef) {
-                    // Match by ref (using the spider's custom ref_key if provided)
-                    const refKeyName = spider.ref_key || 'ref';
-                    const matchingRef = refKeyName === 'branch' ? atpRef.toLowerCase() : atpRef;
-                    const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}`;
-                    if (!atpLookup.has(key)) atpLookup.set(key, []);
-                    atpLookup.get(key).push({ spiderName: spider.name, atpRef, nsiId: effectiveNsiId });
-
-                    // Match by website
-                    if (website) {
-                        const normalizedWeb = normalizeWebsite(website);
-                        const key = `web|${brand}|${wikidata}|${normalizedWeb}`;
-                        if (!atpLookup.has(key)) atpLookup.set(key, []);
-                        atpLookup.get(key).push({ spiderName: spider.name, atpRef, nsiId: effectiveNsiId });
-                    }
-                }
-            });
+    const duplicateRefKeys = new Set();
+    for (const [key, occurrences] of refCounts) {
+        if (occurrences.length > 1) {
+            const spiderNames = [...new Set(occurrences.map(o => o.spiderName))].join(', ');
+            console.log(
+                `Duplicate ATP ref found for ${key.split('|')[0]}: ${key
+                    .split('|')
+                    .slice(1)
+                    .join('|')} (found in: ${spiderNames})`
+            );
+            duplicateRefKeys.add(key);
         }
     }
+
+    const duplicateWebKeys = new Set();
+    for (const [key, occurrences] of webCounts) {
+        if (occurrences.length > 1) {
+            const spiderNames = [...new Set(occurrences.map(o => o.spiderName))].join(', ');
+            console.log(
+                `Duplicate ATP website found for ${key.split('|')[0]}: ${key.split('|')[1]} (found in: ${spiderNames})`
+            );
+            duplicateWebKeys.add(key);
+        }
+    }
+
+    // Build lookup and wikidataToSpiders
+    for (const [spiderName, data] of spidersData) {
+        if (!data.isBrandSpider || !data.latestRun) continue;
+        const spider = data.config;
+        data.latestRun.features.forEach(f => {
+            const props = f.properties;
+            let brand = props.brand;
+            let wikidata = props['brand:wikidata'];
+            const atpRef = props.ref;
+            const website = props.website;
+            const nsiId = props.nsi_id;
+
+            if (!atpRef) return;
+
+            let effectiveNsiId = null;
+            if (nsiId && getNsiIdExists(nsiId)) {
+                effectiveNsiId = nsiId;
+                const nsiEntry = getNsiItem(nsiId);
+                brand = nsiEntry.originalTags.brand || nsiEntry.originalTags.name || brand;
+                wikidata =
+                    nsiEntry.originalTags['brand:wikidata'] ||
+                    nsiEntry.originalTags['operator:wikidata'] ||
+                    wikidata;
+            }
+
+            if (wikidata) {
+                if (!wikidataToSpiders.has(wikidata)) wikidataToSpiders.set(wikidata, new Set());
+                wikidataToSpiders.get(wikidata).add(spiderName);
+            }
+
+            const identity = effectiveNsiId ? `nsi:${effectiveNsiId}` : wikidata ? `wd:${wikidata}` : null;
+
+            if (brand && wikidata && identity) {
+                const refKeyName = spider.ref_key || 'ref';
+                const matchingRef = refKeyName === 'branch' ? atpRef.toLowerCase() : atpRef;
+                const refKey = `${identity}|${refKeyName}|${matchingRef}`;
+
+                if (!duplicateRefKeys.has(refKey)) {
+                    const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}`;
+                    if (!atpLookup.has(key)) atpLookup.set(key, []);
+                    atpLookup.get(key).push({ spiderName, atpRef, nsiId: effectiveNsiId });
+                }
+
+                if (website) {
+                    const normalizedWeb = normalizeWebsite(website);
+                    const webKey = `${identity}|${normalizedWeb}`;
+                    if (!duplicateWebKeys.has(webKey)) {
+                        const key = `web|${brand}|${wikidata}|${normalizedWeb}`;
+                        if (!atpLookup.has(key)) atpLookup.set(key, []);
+                        atpLookup.get(key).push({ spiderName, atpRef, nsiId: effectiveNsiId });
+                    }
+                }
+            }
+        });
+    }
+
     return { spidersData, atpLookup, wikidataToSpiders };
 }
