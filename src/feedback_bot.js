@@ -10,8 +10,11 @@ const SUMMARY_FILE = 'output/sync_summary.json';
 const COMMENT_1_TAG = '<!-- atp-bot-comment-1 -->';
 const COMMENT_2_TAG = '<!-- atp-bot-comment-2 -->';
 const COMMENT_PENDING_TAG = '<!-- atp-bot-comment-pending -->';
+const COMMENT_PREVIEW_LIVE_TAG = '<!-- atp-bot-comment-preview-live -->';
 
 const AUTO_REQUEST_LABEL = 'auto-request';
+const PREVIEW_REQUEST_LABEL = 'preview-request';
+const AWAITING_PREVIEW_RUN_LABEL = 'awaiting-preview-run';
 const COMMUNITY_BLOCKED_LABEL = 'community-blocked';
 
 async function run() {
@@ -29,70 +32,11 @@ async function run() {
     const summaryMap = new Map(syncSummary.map(s => [s.name, s]));
 
     try {
-        // Fetch open PRs with auto-request label
-        const prsResponse = await axios.get(`https://api.github.com/repos/${REPO}/pulls`, {
-            params: {
-                state: 'open',
-                sort: 'created',
-                direction: 'asc',
-            },
-            headers: {
-                Authorization: `token ${GITHUB_TOKEN}`,
-                Accept: 'application/vnd.github.v3+json',
-            },
-        });
+        // Handle open PRs for auto-request
+        await handleAutoRequestPrs(summaryMap);
 
-        const allPrs = prsResponse.data;
-        const autoRequestPrs = allPrs.filter(pr =>
-            pr.labels.some(l => l.name === AUTO_REQUEST_LABEL) &&
-            !pr.labels.some(l => l.name === COMMUNITY_BLOCKED_LABEL)
-        );
-
-        console.log(`Found ${autoRequestPrs.length} active auto-request PRs.`);
-
-        const spidersForForumPost = [];
-        let newSpiderCount = 0;
-
-        for (const pr of autoRequestPrs) {
-            const commentsResponse = await axios.get(`https://api.github.com/repos/${REPO}/issues/${pr.number}/comments`, {
-                headers: {
-                    Authorization: `token ${GITHUB_TOKEN}`,
-                    Accept: 'application/vnd.github.v3+json',
-                },
-            });
-
-            const comments = commentsResponse.data;
-            const hasComment1 = comments.some(c => c.body.includes(COMMENT_1_TAG));
-            const hasComment2 = comments.some(c => c.body.includes(COMMENT_2_TAG));
-            const hasPendingComment = comments.some(c => c.body.includes(COMMENT_PENDING_TAG));
-
-            const prSpiderNames = await getSpiderNamesFromPr(pr);
-            if (prSpiderNames.length === 0) {
-                console.log(`Could not determine spider name for PR #${pr.number}`);
-                continue;
-            }
-            const spiderName = prSpiderNames[0]; // Assuming one spider per PR as per validation rules
-            const spiderData = summaryMap.get(spiderName);
-
-            if (!hasComment1 && !hasComment2) {
-                if (newSpiderCount < 5) {
-                    // Post Comment 1
-                    await postComment1(pr, spiderName, spiderData);
-                    spidersForForumPost.push({ pr, spiderName, spiderData });
-                    newSpiderCount++;
-                } else if (!hasPendingComment) {
-                    // Post Pending Comment
-                    await postPendingComment(pr);
-                }
-            } else if (hasComment1 && !hasComment2) {
-                // Post Comment 2
-                await postComment2(pr, spiderName);
-            }
-        }
-
-        if (spidersForForumPost.length > 0) {
-            await createForumPostIssue(spidersForForumPost);
-        }
+        // Handle merged PRs for preview-request
+        await handleMergedPreviewPrs(summaryMap);
 
     } catch (error) {
         console.error(`Error in feedback bot: ${error.message}`);
@@ -102,9 +46,134 @@ async function run() {
     }
 }
 
-async function getSpiderNamesFromPr(pr) {
+async function handleAutoRequestPrs(summaryMap) {
+    const prsResponse = await axios.get(`https://api.github.com/repos/${REPO}/pulls`, {
+        params: {
+            state: 'open',
+            sort: 'created',
+            direction: 'asc',
+        },
+        headers: {
+            Authorization: `token ${GITHUB_TOKEN}`,
+            Accept: 'application/vnd.github.v3+json',
+        },
+    });
+
+    const allPrs = prsResponse.data;
+    const autoRequestPrs = allPrs.filter(pr =>
+        pr.labels.some(l => l.name === AUTO_REQUEST_LABEL) &&
+        !pr.labels.some(l => l.name === COMMUNITY_BLOCKED_LABEL)
+    );
+
+    console.log(`Found ${autoRequestPrs.length} active auto-request PRs.`);
+
+    const spidersForForumPost = [];
+    let newSpiderCount = 0;
+
+    for (const pr of autoRequestPrs) {
+        const comments = await getPrComments(pr.number);
+        const hasComment1 = comments.some(c => c.body.includes(COMMENT_1_TAG));
+        const hasComment2 = comments.some(c => c.body.includes(COMMENT_2_TAG));
+        const hasPendingComment = comments.some(c => c.body.includes(COMMENT_PENDING_TAG));
+
+        const prSpiderNames = await getSpiderNamesFromPr(pr.number);
+        if (prSpiderNames.length === 0) {
+            console.log(`Could not determine spider name for PR #${pr.number}`);
+            continue;
+        }
+        const spiderName = prSpiderNames[0]; // Assuming one spider per PR as per validation rules
+        const spiderData = summaryMap.get(spiderName);
+
+        if (!hasComment1 && !hasComment2) {
+            if (newSpiderCount < 5) {
+                // Post Comment 1
+                await postComment1(pr, spiderName, spiderData);
+                spidersForForumPost.push({ pr, spiderName, spiderData });
+                newSpiderCount++;
+            } else if (!hasPendingComment) {
+                // Post Pending Comment
+                await postPendingComment(pr);
+            }
+        } else if (hasComment1 && !hasComment2) {
+            // Post Comment 2
+            await postComment2(pr, spiderName);
+        }
+    }
+
+    if (spidersForForumPost.length > 0) {
+        await createForumPostIssue(spidersForForumPost);
+    }
+}
+
+async function handleMergedPreviewPrs(summaryMap) {
+    const prsResponse = await axios.get(`https://api.github.com/repos/${REPO}/pulls`, {
+        params: {
+            state: 'closed',
+            sort: 'updated',
+            direction: 'desc',
+            per_page: 100,
+        },
+        headers: {
+            Authorization: `token ${GITHUB_TOKEN}`,
+            Accept: 'application/vnd.github.v3+json',
+        },
+    });
+
+    const mergedPrsWithLabel = prsResponse.data.filter(pr =>
+        pr.merged_at && pr.labels.some(l => l.name === AWAITING_PREVIEW_RUN_LABEL)
+    );
+
+    console.log(`Found ${mergedPrsWithLabel.length} merged PRs awaiting preview run notification.`);
+
+    for (const pr of mergedPrsWithLabel) {
+        const prSpiderNames = await getSpiderNamesFromPr(pr.number);
+        if (prSpiderNames.length === 0) {
+            console.log(`Could not determine spider name for merged PR #${pr.number}`);
+            continue;
+        }
+
+        const notificationResults = [];
+        for (const spiderName of prSpiderNames) {
+            const spiderData = summaryMap.get(spiderName);
+            if (spiderData) {
+                notificationResults.push({ spiderName, spiderData });
+            } else {
+                console.log(`Spider ${spiderName} from PR #${pr.number} not found in current sync summary.`);
+            }
+        }
+
+        if (notificationResults.length > 0) {
+            await postPreviewLiveComment(pr, notificationResults);
+        }
+
+        // Remove the label after processing
+        try {
+            await axios.delete(`https://api.github.com/repos/${REPO}/issues/${pr.number}/labels/${AWAITING_PREVIEW_RUN_LABEL}`, {
+                headers: {
+                    Authorization: `token ${GITHUB_TOKEN}`,
+                    Accept: 'application/vnd.github.v3+json',
+                },
+            });
+            console.log(`Removed ${AWAITING_PREVIEW_RUN_LABEL} from PR #${pr.number}`);
+        } catch (error) {
+            console.error(`Failed to remove label from PR #${pr.number}: ${error.message}`);
+        }
+    }
+}
+
+async function getPrComments(prNumber) {
+    const response = await axios.get(`https://api.github.com/repos/${REPO}/issues/${prNumber}/comments`, {
+        headers: {
+            Authorization: `token ${GITHUB_TOKEN}`,
+            Accept: 'application/vnd.github.v3+json',
+        },
+    });
+    return response.data;
+}
+
+async function getSpiderNamesFromPr(prNumber) {
     try {
-        const filesResponse = await axios.get(`https://api.github.com/repos/${REPO}/pulls/${pr.number}/files`, {
+        const filesResponse = await axios.get(`https://api.github.com/repos/${REPO}/pulls/${prNumber}/files`, {
             headers: {
                 Authorization: `token ${GITHUB_TOKEN}`,
                 Accept: 'application/vnd.github.v3+json',
@@ -112,20 +181,21 @@ async function getSpiderNamesFromPr(pr) {
         });
 
         const changedFiles = filesResponse.data;
-        const autoFile = changedFiles.find(f => f.filename === 'spiders_auto.json');
+        const spiderFiles = changedFiles.filter(f => f.filename === 'spiders_auto.json' || f.filename === 'spiders_preview.json');
 
-        if (autoFile && autoFile.patch) {
-            // Extract added spider name from patch
-            const addedLines = autoFile.patch.split('\n').filter(line => line.startsWith('+') && !line.startsWith('+++'));
-            const names = [];
-            for (const line of addedLines) {
-                const match = line.match(/"name":\s*"([^"]+)"/);
-                if (match) names.push(match[1]);
+        const names = new Set();
+        for (const file of spiderFiles) {
+            if (file.patch) {
+                const addedLines = file.patch.split('\n').filter(line => line.startsWith('+') && !line.startsWith('+++'));
+                for (const line of addedLines) {
+                    const match = line.match(/"name":\s*"([^"]+)"/);
+                    if (match) names.add(match[1]);
+                }
             }
-            return names;
         }
+        return Array.from(names);
     } catch (error) {
-        console.error(`Failed to get spider names for PR #${pr.number}: ${error.message}`);
+        console.error(`Failed to get spider names for PR #${prNumber}: ${error.message}`);
     }
     return [];
 }
@@ -199,6 +269,33 @@ ${COMMENT_2_TAG}`;
     console.log(`Posted Comment 2 and assigned PR #${pr.number} to ${repoOwner}`);
 }
 
+async function postPreviewLiveComment(pr, results) {
+    const author = pr.user.login;
+    let body = `@${author}, thank you for your contribution! The following spiders are now live and can be previewed:\n\n`;
+
+    for (const { spiderName, spiderData } of results) {
+        const tier = spiderData.tier || 'preview';
+        // TODO: Use real host for preview link
+        const previewLink = `https://example.com/${tier}/${spiderName}`;
+        const mappedCount = spiderData.mappedCount || 0;
+        const issuesCount = spiderData.issuesCount || 0;
+
+        body += `### [${spiderName}](${previewLink})\n`;
+        body += `- **Currently mapped items:** ${mappedCount}\n`;
+        body += `- **Issues detected:** ${issuesCount}\n\n`;
+    }
+
+    body += COMMENT_PREVIEW_LIVE_TAG;
+
+    await axios.post(`https://api.github.com/repos/${REPO}/issues/${pr.number}/comments`, { body }, {
+        headers: {
+            Authorization: `token ${GITHUB_TOKEN}`,
+            Accept: 'application/vnd.github.v3+json',
+        },
+    });
+    console.log(`Posted Preview Live Comment to PR #${pr.number} for spider ${spiderName}`);
+}
+
 async function createForumPostIssue(spiders) {
     const repoOwner = REPO.split('/')[0];
     // TODO: Use real forum thread link
@@ -209,11 +306,13 @@ async function createForumPostIssue(spiders) {
         // TODO: Use real host for preview link
         const previewLink = `https://example.com/preview/${spiderName}`;
         const mappedCount = spiderData ? spiderData.mappedCount : 'unknown';
+        const issuesCount = spiderData ? spiderData.issuesCount : 'unknown';
         const tags = spiderData ? spiderData.importableTags || [] : [];
         const displayTags = [...new Set([...tags, 'opening_hours', 'website'])].sort().join(', ');
 
         spidersList += `- [${spiderName}](${previewLink}) ([GitHub PR](${pr.html_url}))
   - Currently mapped items: ${mappedCount}
+  - Issues detected: ${issuesCount}
   - Included tags: ${displayTags}\n`;
     }
 

@@ -1,0 +1,33 @@
+name: PR Merged
+
+on:
+    pull_request_target:
+        types: [closed]
+
+jobs:
+    on-merge:
+        if: github.event.pull_request.merged == true
+        runs-on: ubuntu-latest
+        permissions:
+            pull-requests: write
+        steps:
+            - name: Check for preview-request label
+              id: check-label
+              run: |
+                  if echo '${{ toJson(github.event.pull_request.labels) }}' | jq -e '.[] | select(.name == "preview-request")' > /dev/null; then
+                    echo "has_label=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "has_label=false" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Add awaiting-preview-run label
+              if: steps.check-label.outputs.has_label == 'true'
+              uses: actions/github-script@v9
+              with:
+                  script: |
+                      github.rest.issues.addLabels({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        labels: ['awaiting-preview-run']
+                      })

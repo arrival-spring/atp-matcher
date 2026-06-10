@@ -231,6 +231,7 @@ async function validate(accumulatedComments = '') {
     let hasGlobalErrors = errors.length > 0;
 
     let addedToAutoInThisPr = false;
+    let addedToPreviewInThisPr = false;
     for (const change of allChanges) {
         const { spider, type, isAuto } = change;
         const result = await validateSpider(spider, type, config);
@@ -241,13 +242,20 @@ async function validate(accumulatedComments = '') {
             combinedComment += `\n> ℹ️ **Waiting Period:** This spider has been moved to auto. There will be a waiting period of at least two weeks for community feedback before it can be merged.\n\n`;
             addedToAutoInThisPr = true;
         }
+        if (!isAuto && type === 'added to preview' && !result.hasErrors) {
+            addedToPreviewInThisPr = true;
+        }
     }
 
-    if (addedToAutoInThisPr && process.env.GITHUB_TOKEN && process.env.PR_NUMBER) {
+    if ((addedToAutoInThisPr || addedToPreviewInThisPr) && process.env.GITHUB_TOKEN && process.env.PR_NUMBER) {
         try {
+            const labels = [];
+            if (addedToAutoInThisPr) labels.push('auto-request');
+            if (addedToPreviewInThisPr) labels.push('preview-request');
+
             await axios.post(
                 `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/issues/${process.env.PR_NUMBER}/labels`,
-                { labels: ['auto-request'] },
+                { labels },
                 {
                     headers: {
                         Authorization: `token ${process.env.GITHUB_TOKEN}`,
@@ -255,9 +263,9 @@ async function validate(accumulatedComments = '') {
                     },
                 }
             );
-            console.log('Added auto-request label to PR');
+            console.log(`Added labels to PR: ${labels.join(', ')}`);
         } catch (error) {
-            console.error(`Failed to add auto-request label: ${error.message}`);
+            console.error(`Failed to add labels: ${error.message}`);
         }
     }
 
