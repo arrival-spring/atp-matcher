@@ -9,7 +9,7 @@ export async function reportThresholdViolations(spiderName, violations, isAuto) 
 
 The following tags had too many changes and were excluded from safe edits:
 
-${violations.map(v => `- **${v.tag}**: ${v.count} edits proposed out of ${v.mappedCount} mapped items`).join('\n')}
+${violations.map(v => `- **${v.tag}** (${v.type === 'add' ? 'Add new values' : 'Update existing values'}): ${v.count} edits proposed out of ${v.mappedCount} mapped items`).join('\n')}
 
 View the spider report here: https://example.com/${tier}/${spiderName}
 `;
