@@ -18,16 +18,16 @@ describe('Spiders Integrity Check', () => {
         const previewContent = fs.readFileSync(SPIDERS_PREVIEW_FILE, 'utf8');
         spidersAuto = JSON.parse(autoContent);
         spidersPreview = JSON.parse(previewContent);
-        spiders = [...spidersAuto, ...spidersPreview];
+        spiders = { ...spidersAuto, ...spidersPreview };
     });
 
     test('all spiders should have valid structure', () => {
-        expect(Array.isArray(spiders)).toBe(true);
+        expect(typeof spiders).toBe('object');
 
-        spiders.forEach(spider => {
+        Object.entries(spiders).forEach(([spiderName, spider]) => {
             // Check name
-            expect(typeof spider.name).toBe('string');
-            expect(spider.name.length).toBeGreaterThan(0);
+            expect(typeof spiderName).toBe('string');
+            expect(spiderName.length).toBeGreaterThan(0);
 
             // Check ref_key
             if (spider.ref_key) {
@@ -75,17 +75,19 @@ describe('Spiders Integrity Check', () => {
     });
 
     test('spider names should be unique', () => {
-        const names = spiders.map(s => s.name);
-        const uniqueNames = new Set(names);
-        expect(uniqueNames.size).toBe(names.length);
+        const namesAuto = Object.keys(spidersAuto);
+        const namesPreview = Object.keys(spidersPreview);
+        const allNames = [...namesAuto, ...namesPreview];
+        const uniqueNames = new Set(allNames);
+        expect(uniqueNames.size).toBe(allNames.length);
     });
 
     test('rejected property should only be in preview spiders', () => {
-        spidersAuto.forEach(spider => {
+        Object.values(spidersAuto).forEach(spider => {
             expect(spider.rejected).toBeUndefined();
         });
 
-        spidersPreview.forEach(spider => {
+        Object.values(spidersPreview).forEach(spider => {
             if (spider.rejected) {
                 expect(typeof spider.rejected).toBe('string');
                 expect(spider.rejected.length).toBeGreaterThan(0);

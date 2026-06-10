@@ -43,15 +43,15 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
             const website = props.website || props['contact:website'];
 
             // Simplified matching for mock
-            for (const spider of spiders) {
-                const refKeyName = spider.ref_key || 'ref';
+            for (const [spiderName, spiderConfig] of Object.entries(spiders)) {
+                const refKeyName = spiderConfig.ref_key || 'ref';
                 const osmRefValue = props[refKeyName];
                 if (osmRefValue) {
                     const matchingRef = refKeyName === 'branch' ? osmRefValue.toLowerCase() : osmRefValue;
                     const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}`;
                     if (atpLookup.has(key)) {
                         for (const match of atpLookup.get(key)) {
-                            if (match.spiderName !== spider.name) continue;
+                            if (match.spiderName !== spiderName) continue;
                             const spiderMatches = allMatches.get(match.spiderName);
                             if (!spiderMatches.has(match.atpRef)) {
                                 spiderMatches.set(match.atpRef, []);
@@ -90,9 +90,9 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
     }
 
     const refKeys = new Set(['ref']);
-    for (const spider of spiders) {
-        if (spider.ref_key) {
-            refKeys.add(spider.ref_key);
+    for (const spiderConfig of Object.values(spiders)) {
+        if (spiderConfig.ref_key) {
+            refKeys.add(spiderConfig.ref_key);
         }
     }
 
@@ -169,8 +169,8 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
             }
 
             // 2. Try matching by ref/ref_key
-            for (const spider of spiders) {
-                const refKeyName = spider.ref_key || 'ref';
+            for (const [spiderName, spiderConfig] of Object.entries(spiders)) {
+                const refKeyName = spiderConfig.ref_key || 'ref';
                 const osmRefValue = props[refKeyName];
                 if (osmRefValue) {
                     const matchingRef = refKeyName === 'branch' ? osmRefValue.toLowerCase() : osmRefValue;
@@ -178,7 +178,7 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
                     if (atpLookup.has(key)) {
                         for (const match of atpLookup.get(key)) {
                             // Ensure we are matching the correct spider
-                            if (match.spiderName !== spider.name) continue;
+                            if (match.spiderName !== spiderName) continue;
 
                             const matchId = `${match.spiderName}|${match.atpRef}`;
                             if (!matchedAtpFeatures.has(matchId)) {
@@ -207,8 +207,12 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
                 for (const spiderName of wikidataToSpiders.get(wikidata)) {
                     if (matchedSpiders.has(spiderName)) continue;
 
-                    const spider = spiders.find(s => s.name === spiderName);
-                    if (spider && spider.showUnmatched && matchesCategories(props, spider.categories)) {
+                    const spiderConfig = spiders[spiderName];
+                    if (
+                        spiderConfig &&
+                        spiderConfig.showUnmatched &&
+                        matchesCategories(props, spiderConfig.categories)
+                    ) {
                         if (!allUnmatched.has(spiderName)) allUnmatched.set(spiderName, new Map());
                         allUnmatched.get(spiderName).set(id, entry);
                     }

@@ -28,18 +28,18 @@ export async function loadAllAtpData(spiders, runs) {
     const atpLookup = new Map();
     const wikidataToSpiders = new Map();
 
-    for (const spider of spiders) {
-        console.log(`Loading ATP data for spider: ${spider.name}`);
+    for (const [spiderName, spiderConfig] of Object.entries(spiders)) {
+        console.log(`Loading ATP data for spider: ${spiderName}`);
         const spiderRuns = [];
         const runStatuses = []; // 'ok', '404', 'empty'
         const featureCounts = [];
 
         for (const runId of runIds) {
-            const url = `${ATP_BASE_URL}/${runId}/output/${spider.name}.geojson`;
+            const url = `${ATP_BASE_URL}/${runId}/output/${spiderName}.geojson`;
             try {
                 let data;
                 if (process.env.MOCK === 'true') {
-                    const mockFile = `mock_data/runs/${runId.substring(0, 10)}/output/${spider.name}.geojson`;
+                    const mockFile = `mock_data/runs/${runId.substring(0, 10)}/output/${spiderName}.geojson`;
                     if (fs.existsSync(mockFile)) {
                         data = JSON.parse(fs.readFileSync(mockFile, 'utf8'));
                     } else {
@@ -81,11 +81,10 @@ export async function loadAllAtpData(spiders, runs) {
         }
 
         if (effectiveLatestIndex === -1) {
-            const latestStatus = runStatuses[3];
-            spidersData.set(spider.name, {
+            spidersData.set(spiderName, {
                 latestRun: null,
                 spiderMaps: spiderRuns.map(() => new Map()),
-                config: spider,
+                config: { name: spiderName, ...spiderConfig },
                 loadStatus: 'empty',
                 featureCounts,
                 runStatuses,
@@ -101,7 +100,7 @@ export async function loadAllAtpData(spiders, runs) {
         if (latestRun && latestRun.features) {
             latestRun.features = latestRun.features.filter(f => {
                 if ('end_date' in f.properties) return false;
-                if (!matchesCategories(f.properties, spider.categories)) return false;
+                if (!matchesCategories(f.properties, spiderConfig.categories)) return false;
                 return true;
             });
         }
@@ -154,10 +153,10 @@ export async function loadAllAtpData(spiders, runs) {
             });
         }
 
-        spidersData.set(spider.name, {
+        spidersData.set(spiderName, {
             latestRun,
             spiderMaps,
-            config: spider,
+            config: { name: spiderName, ...spiderConfig },
             lineage,
             isBrandSpider,
             isStale,
@@ -177,7 +176,7 @@ export async function loadAllAtpData(spiders, runs) {
 
     for (const [spiderName, data] of spidersData) {
         if (!data.isBrandSpider || !data.latestRun) continue;
-        const spider = data.config;
+        const spiderConfig = data.config;
         data.latestRun.features.forEach(f => {
             const props = f.properties;
             const atpRef = props.ref;
@@ -191,7 +190,7 @@ export async function loadAllAtpData(spiders, runs) {
             const identity = effectiveNsiId ? `nsi:${effectiveNsiId}` : wikidata ? `wd:${wikidata}` : null;
 
             if (identity) {
-                const refKeyName = spider.ref_key || 'ref';
+                const refKeyName = spiderConfig.ref_key || 'ref';
                 const matchingRef = refKeyName === 'branch' ? atpRef.toLowerCase() : atpRef;
                 const refKey = `${identity}|${refKeyName}|${matchingRef}`;
                 if (!refCounts.has(refKey)) refCounts.set(refKey, []);
@@ -235,7 +234,7 @@ export async function loadAllAtpData(spiders, runs) {
     // Build lookup and wikidataToSpiders
     for (const [spiderName, data] of spidersData) {
         if (!data.isBrandSpider || !data.latestRun) continue;
-        const spider = data.config;
+        const spiderConfig = data.config;
         data.latestRun.features.forEach(f => {
             const props = f.properties;
             let brand = props.brand;
@@ -266,7 +265,7 @@ export async function loadAllAtpData(spiders, runs) {
 
             if (brand && wikidata && identity) {
                 if (atpRef) {
-                    const refKeyName = spider.ref_key || 'ref';
+                    const refKeyName = spiderConfig.ref_key || 'ref';
                     const matchingRef = refKeyName === 'branch' ? atpRef.toLowerCase() : atpRef;
                     const refKey = `${identity}|${refKeyName}|${matchingRef}`;
 

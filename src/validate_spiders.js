@@ -12,12 +12,17 @@ const SPIDERS_AUTO_FILE = 'spiders_auto.json';
 const SPIDERS_PREVIEW_FILE = 'spiders_preview.json';
 
 async function cleanAndSort(filepath) {
-    if (!fs.existsSync(filepath)) return { spiders: [], reordered: false, autoRemovedTags: false };
+    if (!fs.existsSync(filepath)) return { spiders: {}, reordered: false, autoRemovedTags: false };
     const content = fs.readFileSync(filepath, 'utf8');
     const spiders = JSON.parse(content);
 
     let autoRemovedTags = false;
-    const cleanedSpiders = spiders.map(s => {
+    const cleanedSpiders = {};
+
+    const sortedNames = Object.keys(spiders).sort();
+
+    for (const name of sortedNames) {
+        const s = spiders[name];
         const originalTags = s.importableTags ? [...s.importableTags] : [];
         const filteredTags = originalTags.filter(tag => tag !== 'opening_hours' && tag !== 'website');
         if (originalTags.length !== filteredTags.length) {
@@ -32,32 +37,48 @@ async function cleanAndSort(filepath) {
         } else {
             delete cleanedSpider.importableTags;
         }
-        return cleanedSpider;
-    });
-
-    const sortedSpiders = [...cleanedSpiders].sort((a, b) => a.name.localeCompare(b.name));
-    const isSorted = JSON.stringify(cleanedSpiders) === JSON.stringify(sortedSpiders);
-
-    let reordered = false;
-    if (!isSorted || autoRemovedTags) {
-        const prettierConfig = await prettier.resolveConfig(filepath);
-        const formatted = await prettier.format(JSON.stringify(sortedSpiders), {
-            ...prettierConfig,
-            filepath: filepath,
-        });
-        fs.writeFileSync(filepath, formatted);
-        reordered = !isSorted;
+        cleanedSpiders[name] = cleanedSpider;
     }
 
-    return { spiders: sortedSpiders, reordered, autoRemovedTags };
+    const isSortedAndCleaned = JSON.stringify(spiders) === JSON.stringify(cleanedSpiders);
+
+    let reordered = false;
+    if (!isSortedAndCleaned || autoRemovedTags) {
+        let json = '{\n';
+        const keys = Object.keys(cleanedSpiders).sort();
+        keys.forEach((k, i) => {
+            json += '    "' + k + '": ' + JSON.stringify(cleanedSpiders[k]) + (i < keys.length - 1 ? ',' : '') + '\n';
+        });
+        json += '}';
+
+        const prettierConfig = await prettier.resolveConfig(filepath);
+        const formatted = await prettier.format(json, {
+            ...prettierConfig,
+            filepath: filepath,
+            printWidth: 1000,
+        });
+        fs.writeFileSync(filepath, formatted);
+        reordered = !isSortedAndCleaned;
+    }
+
+    return { spiders: cleanedSpiders, reordered, autoRemovedTags };
 }
 
 function getBaseSpiders(filepath) {
     try {
         const content = execSync(`git show origin/main:${filepath}`, { encoding: 'utf8' });
-        return JSON.parse(content);
+        const data = JSON.parse(content);
+        if (Array.isArray(data)) {
+            const obj = {};
+            data.forEach(s => {
+                const { name, ...rest } = s;
+                obj[name] = rest;
+            });
+            return obj;
+        }
+        return data;
     } catch {
-        return [];
+        return {};
     }
 }
 
@@ -70,8 +91,10 @@ async function validate(accumulatedComments = '') {
     const spidersAuto = autoData.spiders;
     const spidersPreview = previewData.spiders;
 
-    const allSpiderNames = [...spidersAuto.map(s => s.name), ...spidersPreview.map(s => s.name)];
-    const duplicateNames = allSpiderNames.filter((name, index) => allSpiderNames.indexOf(name) !== index);
+    const autoNames = Object.keys(spidersAuto);
+    const previewNames = Object.keys(spidersPreview);
+
+    const duplicateNames = autoNames.filter(name => previewNames.includes(name));
     if (duplicateNames.length > 0) {
         outputComment(`Error: Duplicate spider names found across both files: ${[...new Set(duplicateNames)].join(', ')}`);
         process.exit(1);
@@ -79,9 +102,6 @@ async function validate(accumulatedComments = '') {
 
     const baseAuto = getBaseSpiders(SPIDERS_AUTO_FILE);
     const basePreview = getBaseSpiders(SPIDERS_PREVIEW_FILE);
-
-    const baseAutoMap = new Map(baseAuto.map(s => [s.name, s]));
-    const basePreviewMap = new Map(basePreview.map(s => [s.name, s]));
 
     let infoComments = accumulatedComments;
     if (autoData.reordered || previewData.reordered) {
@@ -100,23 +120,23 @@ async function validate(accumulatedComments = '') {
     const removedFromPreviewNames = new Set();
 
     // Check Auto changes
-    for (const s of spidersAuto) {
-        const base = baseAutoMap.get(s.name);
-        if (!base) addedToAuto.push(s);
-        else if (JSON.stringify(s) !== JSON.stringify(base)) modifiedInAuto.push(s);
+    for (const [name, s] of Object.entries(spidersAuto)) {
+        const base = baseAuto[name];
+        if (!base) addedToAuto.push({ name, ...s });
+        else if (JSON.stringify(s) !== JSON.stringify(base)) modifiedInAuto.push({ name, ...s });
     }
 
     // Check Preview changes
-    for (const s of spidersPreview) {
-        const base = basePreviewMap.get(s.name);
-        if (!base) addedToPreview.push(s);
-        else if (JSON.stringify(s) !== JSON.stringify(base)) modifiedInPreview.push(s);
+    for (const [name, s] of Object.entries(spidersPreview)) {
+        const base = basePreview[name];
+        if (!base) addedToPreview.push({ name, ...s });
+        else if (JSON.stringify(s) !== JSON.stringify(base)) modifiedInPreview.push({ name, ...s });
     }
 
     // Check Preview removals (for moves)
-    for (const s of basePreview) {
-        if (!spidersPreview.some(curr => curr.name === s.name)) {
-            removedFromPreviewNames.add(s.name);
+    for (const name of Object.keys(basePreview)) {
+        if (!spidersPreview[name]) {
+            removedFromPreviewNames.add(name);
         }
     }
 
@@ -128,11 +148,11 @@ async function validate(accumulatedComments = '') {
     if (directToAuto.length > 0) {
         for (const s of directToAuto) {
             // Remove from auto
-            const idx = spidersAuto.findIndex(curr => curr.name === s.name);
-            spidersAuto.splice(idx, 1);
+            delete spidersAuto[s.name];
             // Add to preview if not already there
-            if (!spidersPreview.some(curr => curr.name === s.name)) {
-                spidersPreview.push(s);
+            if (!spidersPreview[s.name]) {
+                const { name, ...rest } = s;
+                spidersPreview[name] = rest;
             }
             autoMoveComment += `> ℹ️ Spider \`${s.name}\` was added directly to auto. I have moved it to preview instead.\n\n`;
             filesChanged = true;
@@ -140,25 +160,39 @@ async function validate(accumulatedComments = '') {
     }
 
     // Rule: If added to auto that is in preview and not removed from preview, remove from preview.
-    const moveWithoutRemoval = addedToAuto.filter(s => removedFromPreviewNames.has(s.name) === false && spidersPreview.some(curr => curr.name === s.name));
-    // Actually, any spider in addedToAuto that is STILL in spidersPreview should be removed from preview.
-    const stillInPreview = addedToAuto.filter(s => spidersPreview.some(curr => curr.name === s.name));
+    const stillInPreview = addedToAuto.filter(s => spidersPreview[s.name]);
     if (stillInPreview.length > 0) {
         for (const s of stillInPreview) {
-            const idx = spidersPreview.findIndex(curr => curr.name === s.name);
-            spidersPreview.splice(idx, 1);
+            delete spidersPreview[s.name];
             autoMoveComment += `> ℹ️ Spider \`${s.name}\` was added to auto but was still in preview. I have removed it from preview.\n\n`;
             filesChanged = true;
         }
     }
 
     if (filesChanged) {
-        spidersAuto.sort((a, b) => a.name.localeCompare(b.name));
-        spidersPreview.sort((a, b) => a.name.localeCompare(b.name));
-        const prettierConfigAuto = await prettier.resolveConfig(SPIDERS_AUTO_FILE);
-        fs.writeFileSync(SPIDERS_AUTO_FILE, await prettier.format(JSON.stringify(spidersAuto), { ...prettierConfigAuto, filepath: SPIDERS_AUTO_FILE }));
-        const prettierConfigPreview = await prettier.resolveConfig(SPIDERS_PREVIEW_FILE);
-        fs.writeFileSync(SPIDERS_PREVIEW_FILE, await prettier.format(JSON.stringify(spidersPreview), { ...prettierConfigPreview, filepath: SPIDERS_PREVIEW_FILE }));
+        const sortedAuto = {};
+        Object.keys(spidersAuto).sort().forEach(k => sortedAuto[k] = spidersAuto[k]);
+        const sortedPreview = {};
+        Object.keys(spidersPreview).sort().forEach(k => sortedPreview[k] = spidersPreview[k]);
+
+        for (const [file, data] of [[SPIDERS_AUTO_FILE, sortedAuto], [SPIDERS_PREVIEW_FILE, sortedPreview]]) {
+            let json = '{\n';
+            const keys = Object.keys(data).sort();
+            keys.forEach((k, i) => {
+                json += '    "' + k + '": ' + JSON.stringify(data[k]) + (i < keys.length - 1 ? ',' : '') + '\n';
+            });
+            json += '}';
+
+            const prettierConfig = await prettier.resolveConfig(file);
+            fs.writeFileSync(
+                file,
+                await prettier.format(json, {
+                    ...prettierConfig,
+                    filepath: file,
+                    printWidth: 1000,
+                })
+            );
+        }
 
         // Re-evaluate changes after automatic move, preserving comments
         return validate(infoComments + autoMoveComment);
@@ -170,15 +204,15 @@ async function validate(accumulatedComments = '') {
     const finalAddedToPreview = [];
     const finalModifiedInPreview = [];
 
-    for (const s of spidersAuto) {
-        const base = baseAutoMap.get(s.name);
-        if (!base) finalAddedToAuto.push(s);
-        else if (JSON.stringify(s) !== JSON.stringify(base)) finalModifiedInAuto.push(s);
+    for (const [name, s] of Object.entries(spidersAuto)) {
+        const base = baseAuto[name];
+        if (!base) finalAddedToAuto.push({ name, ...s });
+        else if (JSON.stringify(s) !== JSON.stringify(base)) finalModifiedInAuto.push({ name, ...s });
     }
-    for (const s of spidersPreview) {
-        const base = basePreviewMap.get(s.name);
-        if (!base) finalAddedToPreview.push(s);
-        else if (JSON.stringify(s) !== JSON.stringify(base)) finalModifiedInPreview.push(s);
+    for (const [name, s] of Object.entries(spidersPreview)) {
+        const base = basePreview[name];
+        if (!base) finalAddedToPreview.push({ name, ...s });
+        else if (JSON.stringify(s) !== JSON.stringify(base)) finalModifiedInPreview.push({ name, ...s });
     }
 
     const allChanges = [
@@ -209,9 +243,10 @@ async function validate(accumulatedComments = '') {
 
     // Rule: Ensure exact same properties when moving from preview to auto.
     for (const s of finalAddedToAuto) {
-        const base = basePreviewMap.get(s.name);
+        const base = basePreview[s.name];
         if (base) {
-            if (JSON.stringify(s) !== JSON.stringify(base)) {
+            const { name, ...rest } = s;
+            if (JSON.stringify(rest) !== JSON.stringify(base)) {
                 errors.push(`Error: Spider \`${s.name}\` was modified while being moved to auto. It must retain the exact same properties.`);
             }
             if (base.rejected) {
@@ -221,9 +256,9 @@ async function validate(accumulatedComments = '') {
     }
 
     // Rule: 'rejected' property only allowed in preview
-    for (const s of spidersAuto) {
+    for (const [name, s] of Object.entries(spidersAuto)) {
         if (s.rejected) {
-            errors.push(`Error: Spider \`${s.name}\` in auto cannot have a \`rejected\` property.`);
+            errors.push(`Error: Spider \`${name}\` in auto cannot have a \`rejected\` property.`);
         }
     }
 

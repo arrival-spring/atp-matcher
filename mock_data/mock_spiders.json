@@ -1,33 +1,4 @@
-[
-  {
-    "name": "mock_spider",
-    "importableTags": [
-      "opening_hours"
-    ],
-    "categories": [
-      {
-        "brand": "Mock Brand",
-        "brand:wikidata": "Q1"
-      }
-    ],
-    "source_uri": [
-      "brand.com"
-    ],
-    "rejected": "This is a test rejection reason."
-  },
-  {
-    "name": "update_spider",
-    "importableTags": [
-      "opening_hours"
-    ],
-    "categories": [
-      {
-        "brand": "Update Brand",
-        "brand:wikidata": "Q2"
-      }
-    ],
-    "source_uri": [
-      "update.com"
-    ]
-  }
-]
+{
+    "mock_spider": { "importableTags": ["opening_hours"], "categories": [{ "brand": "Mock Brand", "brand:wikidata": "Q1" }], "source_uri": ["brand.com"], "rejected": "This is a test rejection reason." },
+    "update_spider": { "importableTags": ["opening_hours"], "categories": [{ "brand": "Update Brand", "brand:wikidata": "Q2" }], "source_uri": ["update.com"] }
+}
