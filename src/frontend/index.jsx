@@ -104,6 +104,7 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
                         <input
                             ref={inputRef}
                             type="text"
+                            autocomplate="off"
                             class={`w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 ${theme === 'auto' ? 'focus:ring-blue-500' : 'focus:ring-amber-500'}`}
                             placeholder={t('index.countryFilterPlaceholder')}
                             value={search}
@@ -204,6 +205,7 @@ function GlobalSearch({ basePath }) {
                 </div>
                 <input
                     type="text"
+                    autocomplate="off"
                     class="block w-full pl-12 pr-12 py-4 bg-gray-900 border border-gray-700 rounded-xl text-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-lg"
                     placeholder={t('index.searchPlaceholder')}
                     value={search}
@@ -440,6 +442,7 @@ function Dashboard({ allSpiderResults }) {
                     <input
                         type="text"
                         id="search-input"
+                        autocomplate="off"
                         class={`block w-full pl-10 pr-10 py-3 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 ${useTheme().theme === 'auto' ? 'focus:ring-blue-500 focus:border-blue-500' : 'focus:ring-amber-500 focus:border-amber-500'} sm:text-sm transition-colors`}
                         placeholder={t('index.searchPlaceholder')}
                         value={search}
