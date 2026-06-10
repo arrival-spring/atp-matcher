@@ -1,12 +1,11 @@
 [
   {
-    "id": "n2",
+    "id": "n1",
     "tags": {
       "brand": "Update Brand",
       "brand:wikidata": "Q2",
-      "ref": "2",
-      "opening_hours": "Mo-Su 09:00-18:00",
-      "check_date:opening_hours": "2024-01-01"
+      "ref": "U1",
+      "opening_hours": "Mo-Su 08:00-20:00"
     }
   }
 ]

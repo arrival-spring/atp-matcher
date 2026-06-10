@@ -69,25 +69,20 @@ export function SpiderValue({ value, history, tag, visitedSet, isStable, isNewVa
         );
     }
 
-    if (indicator) {
-        return (
-            <div class="flex items-center gap-2">
-                {indicator}
-                <TagValue value={value} tag={tag} visitedSet={visitedSet} />
-            </div>
-        );
-    }
+    const validHistory = history ? history.filter(h => h.value !== null) : [];
+    const hasVariation = validHistory.some(h => h.value !== value);
+    const showHistory = validHistory.length > 0 && hasVariation;
 
     return (
         <div class="space-y-1">
-            <div class="font-bold text-white">
+            <div class={`flex items-center gap-2 ${!indicator ? 'font-bold text-white' : ''}`}>
+                {indicator}
                 <TagValue value={value} tag={tag} visitedSet={visitedSet} />
             </div>
-            {history && (
+            {showHistory && (
                 <div class="pl-2 border-l border-gray-700">
-                    {[...history]
+                    {[...validHistory]
                         .reverse()
-                        .filter(h => h.value)
                         .map(h => (
                             <div key={h.date} class="text-xs text-gray-400">
                                 <span class="font-mono">{h.date}</span>:{' '}
