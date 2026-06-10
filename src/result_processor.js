@@ -15,7 +15,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
     const unmapped = [];
     const usedTags = new Set();
     const pendingEdits = [];
-    const tagEditCounts = {};
+    const tagEditCounts = {}; // { tag: { add: 0, update: 0 } }
     let mappedCount = 0;
 
     // Expand wildcard tags
@@ -122,12 +122,9 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                     const osm = matchEntries[0];
                     osmId = osm.id;
                     let osmTagValue = osm.tags[tag] || null;
-                    let osmCheckDate = null;
-                    if (tag === 'opening_hours') {
-                        osmCheckDate = osm.tags['check_date:opening_hours'] || null;
-                        if (!isValidIsoDate(osmCheckDate)) {
-                            osmCheckDate = null;
-                        }
+                    let osmCheckDate = osm.tags[`check_date:${tag}`] || null;
+                    if (!isValidIsoDate(osmCheckDate)) {
+                        osmCheckDate = null;
                     }
 
                     if (!osmTagValue) {
@@ -143,48 +140,45 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
 
                     if (!osmTagValue) {
                         status = 'addToOsm';
+                    } else if (areTagsEqual(tag, osmTagValue, spiderValue, country)) {
+                        status = 'matching';
                     } else {
-                        if (areTagsEqual(tag, osmTagValue, spiderValue, country)) {
-                            status = 'matching';
-                        } else {
-                            // Check for updateOsm
-                            let canUpdate = false;
-                            const v1 = history.length >= 1 ? history[0].value : null;
-                            const v2 = history.length >= 2 ? history[1].value : null;
-                            const v3 = history.length >= 3 ? history[2].value : null;
-                            const v4 = history.length >= 4 ? history[3].value : null;
+                        // Check for updateOsm
+                        let canUpdate = false;
+                        const v1 = history.length >= 1 ? history[0].value : null;
+                        const v2 = history.length >= 2 ? history[1].value : null;
+                        const v3 = history.length >= 3 ? history[2].value : null;
+                        const v4 = history.length >= 4 ? history[3].value : null;
 
-                            if (v1 !== null && v2 !== null && v3 !== null && v4 !== null) {
-                                if (
-                                    areTagsEqual(tag, v1, v2, country) &&
-                                    areTagsEqual(tag, v3, v4, country) &&
-                                    areTagsEqual(tag, osmTagValue, v1, country) &&
-                                    !areTagsEqual(tag, osmTagValue, v4, country) &&
-                                    areTagsEqual(tag, v4, spiderValue, country)
-                                ) {
-                                    canUpdate = true;
-                                }
+                        if (v1 !== null && v2 !== null && v3 !== null && v4 !== null) {
+                            if (
+                                areTagsEqual(tag, v1, v2, country) &&
+                                areTagsEqual(tag, v3, v4, country) &&
+                                areTagsEqual(tag, osmTagValue, v1, country) &&
+                                !areTagsEqual(tag, osmTagValue, v4, country) &&
+                                areTagsEqual(tag, v4, spiderValue, country)
+                            ) {
+                                canUpdate = true;
                             }
+                        }
+                        status = canUpdate ? 'updateOsm' : 'mismatch';
+                    }
 
-                            if (canUpdate) {
-                                if (tag === 'opening_hours') {
-                                    if (osmTagValue.includes('PH') || !areAllDaysDefined(spiderValue)) {
-                                        status = 'mismatch';
-                                    } else {
-                                        // Check logic
-                                        const proposedCheckDate = history.length >= 3 ? history[2].date : null;
-                                        if (proposedCheckDate && osmCheckDate && proposedCheckDate <= osmCheckDate) {
-                                            status = 'mismatch';
-                                        } else {
-                                            status = 'updateOsm';
-                                        }
-                                    }
-                                } else {
-                                    status = 'updateOsm';
-                                }
-                            } else {
-                                status = 'mismatch';
+                    if (status === 'updateOsm' || status === 'addToOsm') {
+                        let isMismatch = false;
+                        if (tag === 'opening_hours' && status === 'updateOsm') {
+                            if (osmTagValue.includes('PH') || !areAllDaysDefined(spiderValue)) {
+                                isMismatch = true;
                             }
+                        }
+
+                        const proposedCheckDate = history.length >= 3 ? history[2].date : null;
+                        if (!isMismatch && proposedCheckDate && osmCheckDate && proposedCheckDate <= osmCheckDate) {
+                            isMismatch = true;
+                        }
+
+                        if (isMismatch) {
+                            status = 'mismatch';
                         }
                     }
                 } else {
@@ -263,20 +257,37 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                 tagsToEdit.forEach(t => {
                     originalValues[t.tag] = t.osmValue;
                     newValues[t.tag] = t.spiderValue;
-                    tagEditCounts[t.tag] = (tagEditCounts[t.tag] || 0) + 1;
 
-                    if (t.tag === 'opening_hours' && t.status === 'updateOsm') {
+                    if (!tagEditCounts[t.tag]) tagEditCounts[t.tag] = { add: 0, update: 0 };
+                    if (t.status === 'addToOsm') {
+                        tagEditCounts[t.tag].add++;
+                    } else {
+                        tagEditCounts[t.tag].update++;
+                    }
+
+                    const checkDateTag = `check_date:${t.tag}`;
+                    const osm = matchEntries[0];
+                    let existingCheckDate = osm.tags[checkDateTag] || null;
+                    if (!isValidIsoDate(existingCheckDate)) {
+                        existingCheckDate = null;
+                    }
+
+                    const shouldUpdateCheckDate =
+                        (t.status === 'updateOsm' && t.tag === 'opening_hours') ||
+                        ((t.status === 'updateOsm' || t.status === 'addToOsm') && existingCheckDate);
+
+                    if (shouldUpdateCheckDate) {
                         const proposedCheckDate = t.history.length >= 3 ? t.history[2].date : null;
                         if (proposedCheckDate) {
-                            const osm = matchEntries[0];
-                            let existingCheckDate = osm.tags['check_date:opening_hours'] || null;
-                            if (!isValidIsoDate(existingCheckDate)) {
-                                existingCheckDate = null;
+                            originalValues[checkDateTag] = existingCheckDate;
+                            newValues[checkDateTag] = proposedCheckDate;
+
+                            if (!tagEditCounts[checkDateTag]) tagEditCounts[checkDateTag] = { add: 0, update: 0 };
+                            if (existingCheckDate === null) {
+                                tagEditCounts[checkDateTag].add++;
+                            } else {
+                                tagEditCounts[checkDateTag].update++;
                             }
-                            originalValues['check_date:opening_hours'] = existingCheckDate;
-                            newValues['check_date:opening_hours'] = proposedCheckDate;
-                            tagEditCounts['check_date:opening_hours'] =
-                                (tagEditCounts['check_date:opening_hours'] || 0) + 1;
                         }
                     }
                 });
@@ -297,11 +308,18 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
 
     const threshold = Math.max(5, Math.ceil(mappedCount * 0.1));
     const thresholdViolations = [];
-    const brokenTags = new Set();
-    for (const [tag, count] of Object.entries(tagEditCounts)) {
-        if (count > threshold) {
-            brokenTags.add(tag);
-            thresholdViolations.push({ tag, count, mappedCount });
+    const brokenTags = {
+        add: new Set(),
+        update: new Set(),
+    };
+    for (const [tag, counts] of Object.entries(tagEditCounts)) {
+        if (counts.add > threshold) {
+            brokenTags.add.add(tag);
+            thresholdViolations.push({ tag, count: counts.add, mappedCount, type: 'add' });
+        }
+        if (counts.update > threshold) {
+            brokenTags.update.add(tag);
+            thresholdViolations.push({ tag, count: counts.update, mappedCount, type: 'update' });
         }
     }
 
@@ -311,12 +329,16 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
         const finalTags = [];
 
         for (const tag of Object.keys(pending.newValues)) {
-            if (brokenTags.has(tag)) continue;
+            const isAdd = pending.originalValues[tag] === null;
+            if (isAdd && brokenTags.add.has(tag)) continue;
+            if (!isAdd && brokenTags.update.has(tag)) continue;
 
             // If it is a check_date, only include if its parent tag is also included
             if (tag.startsWith('check_date:')) {
                 const parentTag = tag.split(':')[1];
-                if (brokenTags.has(parentTag)) continue;
+                const parentIsAdd = pending.originalValues[parentTag] === null;
+                if (parentIsAdd && brokenTags.add.has(parentTag)) continue;
+                if (!parentIsAdd && brokenTags.update.has(parentTag)) continue;
             }
 
             filteredOriginalValues[tag] = pending.originalValues[tag];
@@ -332,7 +354,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                 if (result) {
                     finalTags.forEach(tag => {
                         const tagData = result.tags.find(t => t.tag === tag);
-                        if (tagData && !brokenTags.has(tag)) {
+                        if (tagData) {
                             tagData.status = 'editMade';
                         }
                     });

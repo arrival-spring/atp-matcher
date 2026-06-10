@@ -325,6 +325,138 @@ describe('processSpiderResults Safe Edits', () => {
         expect(metadata.state).toBe('California');
         expect(metadata.tags).toContain('website');
     });
+
+    test('should include check_date:* in safe edits if already on OSM', async () => {
+        const spiderMatches = new Map([
+            [
+                '123',
+                [
+                    {
+                        id: 'n1',
+                        tags: {
+                            website: 'https://old.com',
+                            'check_date:website': '2023-01-01',
+                        },
+                    },
+                ],
+            ],
+        ]);
+        const safeEdits = {};
+
+        await processSpiderResults(spiderData, spiderMatches, runs, safeEdits);
+
+        const edit = safeEdits['test-spider']['US_california'].edits[0];
+        expect(edit.newValues.website).toBe('https://new.com');
+        expect(edit.newValues['check_date:website']).toBe('2024-01-03'); // history[2].date
+    });
+
+    test('should NOT include check_date:* if NOT on OSM (except for opening_hours)', async () => {
+        const spiderMatches = new Map([
+            [
+                '123',
+                [
+                    {
+                        id: 'n1',
+                        tags: {
+                            website: 'https://old.com',
+                        },
+                    },
+                ],
+            ],
+        ]);
+        const safeEdits = {};
+
+        await processSpiderResults(spiderData, spiderMatches, runs, safeEdits);
+
+        const edit = safeEdits['test-spider']['US_california'].edits[0];
+        expect(edit.newValues.website).toBe('https://new.com');
+        expect(edit.newValues['check_date:website']).toBeUndefined();
+    });
+
+    test('should identify mismatch if existing check_date is newer', async () => {
+        const spiderMatches = new Map([
+            [
+                '123',
+                [
+                    {
+                        id: 'n1',
+                        tags: {
+                            website: 'https://old.com',
+                            'check_date:website': '2024-05-01', // newer than 2024-01-03
+                        },
+                    },
+                ],
+            ],
+        ]);
+
+        const { results } = await processSpiderResults(spiderData, spiderMatches, runs);
+        const websiteTag = results[0].tags.find(t => t.tag === 'website');
+        expect(websiteTag.status).toBe('mismatch');
+    });
+
+    test('should separate threshold for adds and updates', async () => {
+        const manyFeatures = [];
+        const spiderMaps = [new Map(), new Map(), new Map(), new Map()];
+        const spiderMatches = new Map();
+
+        // 11 updates (will exceed 10% of 100)
+        for (let i = 0; i < 11; i++) {
+            const ref = i.toString();
+            manyFeatures.push({
+                properties: { ref, website: 'https://new.com', '@source_uri': 'https://allowed.com/data', 'addr:country': 'US' },
+            });
+            spiderMaps[0].set(ref, { website: 'https://old.com' });
+            spiderMaps[1].set(ref, { website: 'https://old.com' });
+            spiderMaps[2].set(ref, { website: 'https://new.com' });
+            spiderMaps[3].set(ref, { website: 'https://new.com' });
+            spiderMatches.set(ref, [{ id: `n${i}`, tags: { website: 'https://old.com' } }]);
+        }
+
+        // 2 adds (will NOT exceed 10% of 100)
+        for (let i = 11; i < 13; i++) {
+            const ref = i.toString();
+            manyFeatures.push({
+                properties: { ref, website: 'https://new.com', '@source_uri': 'https://allowed.com/data', 'addr:country': 'US' },
+            });
+            spiderMaps[0].set(ref, { website: 'https://new.com' });
+            spiderMaps[1].set(ref, { website: 'https://new.com' });
+            spiderMaps[2].set(ref, { website: 'https://new.com' });
+            spiderMaps[3].set(ref, { website: 'https://new.com' });
+            spiderMatches.set(ref, [{ id: `n${i}`, tags: {} }]);
+        }
+
+        // Add more matching features to reach 100 mapped items
+        for (let i = 13; i < 100; i++) {
+            const ref = i.toString();
+            manyFeatures.push({
+                properties: { ref, website: 'https://ok.com', '@source_uri': 'https://allowed.com/data', 'addr:country': 'US' },
+            });
+            spiderMaps.forEach(m => m.set(ref, { website: 'https://ok.com' }));
+            spiderMatches.set(ref, [{ id: `n${i}`, tags: { website: 'https://ok.com' } }]);
+        }
+
+        const largeSpiderData = {
+            name: 'large-spider',
+            latestRun: { features: manyFeatures },
+            spiderMaps,
+            config: { name: 'large-spider', source_uri: ['allowed.com'], importableTags: ['website'] },
+            isBrandSpider: true,
+            lineage: 'S_ATP_BRANDS',
+        };
+
+        const safeEdits = {};
+        const { results, thresholdViolations } = await processSpiderResults(largeSpiderData, spiderMatches, runs, safeEdits, true);
+
+        // Updates should be blocked, adds should be allowed
+        expect(thresholdViolations).toContainEqual(expect.objectContaining({ type: 'update', tag: 'website' }));
+        expect(thresholdViolations).not.toContainEqual(expect.objectContaining({ type: 'add', tag: 'website' }));
+
+        const updateTag = results.find(r => r.ref === '0').tags.find(t => t.tag === 'website');
+        const addTag = results.find(r => r.ref === '11').tags.find(t => t.tag === 'website');
+
+        expect(updateTag.status).toBe('updateOsm');
+        expect(addTag.status).toBe('editMade');
+    });
 });
 
 describe('Importable Tags Logic', () => {
