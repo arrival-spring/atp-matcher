@@ -65,7 +65,8 @@
     },
     "pedros": {
         "importableTags": ["phone"],
-        "source_uri": ["pedroschicken.co.za"]
+        "source_uri": ["pedroschicken.co.za"],
+        "showUnmatched": true
     },
     "pick_n_pay": {
         "importableTags": ["phone"],
