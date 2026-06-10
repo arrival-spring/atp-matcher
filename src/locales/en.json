@@ -76,6 +76,7 @@
       "osmMatches": "OSM Matches",
       "spiderValue": "Spider Value",
       "osmValue": "OSM Value",
+      "noValue": "no value",
       "osmId": "OSM ID"
     },
     "status": {
