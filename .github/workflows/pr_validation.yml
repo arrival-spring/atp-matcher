@@ -3,7 +3,8 @@ name: PR Validation
 on:
     pull_request_target:
         paths:
-            - 'spiders.json'
+            - 'spiders_auto.json'
+            - 'spiders_preview.json'
 
 jobs:
     validate:
@@ -31,6 +32,8 @@ jobs:
               run: node src/validate_spiders.js
               env:
                   GITHUB_REPOSITORY: ${{ github.repository }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
 
             - name: Check for pr_comment.md
               if: always()
@@ -42,11 +45,11 @@ jobs:
                     echo "exists=false" >> $GITHUB_OUTPUT
                   fi
 
-            - name: Check for changes in spiders.json
+            - name: Check for changes in spiders files
               if: always()
               id: git-check
               run: |
-                  if [ -n "$(git status --porcelain spiders.json)" ]; then
+                  if [ -n "$(git status --porcelain spiders_auto.json spiders_preview.json)" ]; then
                     echo "changed=true" >> $GITHUB_OUTPUT
                   else
                     echo "changed=false" >> $GITHUB_OUTPUT
@@ -57,8 +60,8 @@ jobs:
               run: |
                   git config --global user.name 'github-actions[bot]'
                   git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-                  git add spiders.json
-                  git commit -m "Auto-sort spiders.json"
+                  git add spiders_auto.json spiders_preview.json
+                  git commit -m "Auto-sort spiders files"
                   git push origin HEAD:${{ github.event.pull_request.head.ref }}
 
             - name: Post PR comment

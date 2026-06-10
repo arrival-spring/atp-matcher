@@ -12,6 +12,7 @@ The following tags had too many changes and were excluded from safe edits:
 ${violations.map(v => `- **${v.tag}** (${v.type === 'add' ? 'Add new values' : 'Update existing values'}): ${v.count} edits proposed out of ${v.mappedCount} mapped items`).join('\n')}
 
 View the spider report here: https://example.com/${tier}/${spiderName}
+<!-- TODO: Use real host for spider report link -->
 `;
 
     const token = process.env.GITHUB_TOKEN;
