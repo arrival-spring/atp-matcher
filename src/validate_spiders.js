@@ -67,16 +67,7 @@ async function cleanAndSort(filepath) {
 function getBaseSpiders(filepath) {
     try {
         const content = execSync(`git show origin/main:${filepath}`, { encoding: 'utf8' });
-        const data = JSON.parse(content);
-        if (Array.isArray(data)) {
-            const obj = {};
-            data.forEach(s => {
-                const { name, ...rest } = s;
-                obj[name] = rest;
-            });
-            return obj;
-        }
-        return data;
+        return JSON.parse(content);
     } catch {
         return {};
     }
