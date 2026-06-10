@@ -388,6 +388,7 @@ async function run() {
     const syncSummary = [...autoResults, ...previewResults].map(s => ({
         name: s.name,
         mappedCount: s.mappedCount,
+        issuesCount: s.issuesCount,
         importableTags: s.importableTags,
         tier: autoNames.has(s.name) ? 'auto' : 'preview',
     }));
