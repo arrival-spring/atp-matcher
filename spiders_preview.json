@@ -1,28 +1,127 @@
 {
-    "astron_energy_za": { "importableTags": ["phone"], "source_uri": ["astronenergy.co.za"], "showUnmatched": true },
-    "bargain_books_za": { "importableTags": ["email", "phone"], "source_uri": ["bargainbooks.co.za"], "showUnmatched": true },
-    "bash": { "source_uri": ["bash.com"], "showUnmatched": true },
-    "bradlows": { "importableTags": ["phone"], "source_uri": ["bradlows.co.za"], "showUnmatched": true },
-    "clicks": { "importableTags": ["phone"], "source_uri": ["clicks.co.za"], "showUnmatched": true },
-    "debonairs_pizza": { "importableTags": ["phone"], "source_uri": ["debonairspizza.africa", "debonairspizza.co.za"], "showUnmatched": true },
-    "fishaways_za": { "importableTags": ["phone"], "source_uri": ["fishaways.co.za"], "showUnmatched": true },
-    "footgear_za": { "importableTags": ["phone"], "source_uri": ["footgear.co.za"], "showUnmatched": true },
-    "kfc_za": { "importableTags": ["phone"], "source_uri": ["yum.com"] },
-    "lewis_stores": { "importableTags": ["phone"], "source_uri": ["lewisstores.co.za"], "showUnmatched": true },
-    "mica_hardware": { "importableTags": ["phone"], "source_uri": ["mica.co.za"], "showUnmatched": true },
-    "nedbank_za": { "source_uri": ["nedsecure.co.za"], "categories": [{ "amenity": "bank" }], "importableTags": ["email"], "showUnmatched": true },
-    "ok_foods": { "importableTags": ["phone"], "source_uri": ["okfoods.co.za"], "showUnmatched": true },
-    "pedros": { "importableTags": ["phone"], "source_uri": ["pedroschicken.co.za"] },
-    "pick_n_pay": { "importableTags": ["phone"], "source_uri": ["pnp.co.za"], "showUnmatched": true },
-    "postnet_za": { "importableTags": ["email", "phone"], "source_uri": ["postnet.co.za"], "showUnmatched": true },
-    "rocomamas": { "importableTags": ["email", "phone"], "source_uri": ["rocomamas.com"], "showUnmatched": true },
-    "russells_za": { "importableTags": ["phone"], "source_uri": ["russells.co.za"], "showUnmatched": true },
-    "sasol_za": { "importableTags": ["fuel:*", "phone"], "source_uri": ["sasol.com"], "showUnmatched": true },
-    "seattle_coffee_company": { "source_uri": ["seattlecoffeecompany.co.za"], "showUnmatched": true },
-    "spar_bw_mz_na_sz_za": { "importableTags": ["phone"], "source_uri": ["spar.co.za"], "showUnmatched": true },
-    "standard_bank_za": { "source_uri": ["standardbank.co.za"], "categories": [{ "amenity": "bank" }], "showUnmatched": true },
-    "topt_za": { "importableTags": ["phone"], "source_uri": ["topt.co.za"], "showUnmatched": true },
-    "virgin_active_bw_na_za": { "importableTags": ["phone"], "source_uri": ["virginactive.co.za"] },
-    "wimpy_za": { "importableTags": ["phone"], "source_uri": ["wimpy.co.za"], "showUnmatched": true },
-    "woolworths_za": { "source_uri": ["woolworths.co.za"], "showUnmatched": true }
+    "astron_energy_za": {
+        "importableTags": ["phone"],
+        "source_uri": ["astronenergy.co.za"],
+        "showUnmatched": true
+    },
+    "bargain_books_za": {
+        "importableTags": ["email", "phone"],
+        "source_uri": ["bargainbooks.co.za"],
+        "showUnmatched": true
+    },
+    "bash": {
+        "source_uri": ["bash.com"],
+        "showUnmatched": true
+    },
+    "bradlows": {
+        "importableTags": ["phone"],
+        "source_uri": ["bradlows.co.za"],
+        "showUnmatched": true
+    },
+    "clicks": {
+        "importableTags": ["phone"],
+        "source_uri": ["clicks.co.za"],
+        "showUnmatched": true
+    },
+    "debonairs_pizza": {
+        "importableTags": ["phone"],
+        "source_uri": ["debonairspizza.africa", "debonairspizza.co.za"],
+        "showUnmatched": true
+    },
+    "fishaways_za": {
+        "importableTags": ["phone"],
+        "source_uri": ["fishaways.co.za"],
+        "showUnmatched": true
+    },
+    "footgear_za": {
+        "importableTags": ["phone"],
+        "source_uri": ["footgear.co.za"],
+        "showUnmatched": true
+    },
+    "kfc_za": {
+        "importableTags": ["phone"],
+        "source_uri": ["yum.com"]
+    },
+    "lewis_stores": {
+        "importableTags": ["phone"],
+        "source_uri": ["lewisstores.co.za"],
+        "showUnmatched": true
+    },
+    "mica_hardware": {
+        "importableTags": ["phone"],
+        "source_uri": ["mica.co.za"],
+        "showUnmatched": true
+    },
+    "nedbank_za": {
+        "source_uri": ["nedsecure.co.za"],
+        "categories": [{ "amenity": "bank" }],
+        "importableTags": ["email"],
+        "showUnmatched": true
+    },
+    "ok_foods": {
+        "importableTags": ["phone"],
+        "source_uri": ["okfoods.co.za"],
+        "showUnmatched": true
+    },
+    "pedros": {
+        "importableTags": ["phone"],
+        "source_uri": ["pedroschicken.co.za"]
+    },
+    "pick_n_pay": {
+        "importableTags": ["phone"],
+        "source_uri": ["pnp.co.za"],
+        "showUnmatched": true
+    },
+    "postnet_za": {
+        "importableTags": ["email", "phone"],
+        "source_uri": ["postnet.co.za"],
+        "showUnmatched": true
+    },
+    "rocomamas": {
+        "importableTags": ["email", "phone"],
+        "source_uri": ["rocomamas.com"],
+        "showUnmatched": true
+    },
+    "russells_za": {
+        "importableTags": ["phone"],
+        "source_uri": ["russells.co.za"],
+        "showUnmatched": true
+    },
+    "sasol_za": {
+        "importableTags": ["fuel:*", "phone"],
+        "source_uri": ["sasol.com"],
+        "showUnmatched": true
+    },
+    "seattle_coffee_company": {
+        "source_uri": ["seattlecoffeecompany.co.za"],
+        "showUnmatched": true
+    },
+    "spar_bw_mz_na_sz_za": {
+        "importableTags": ["phone"],
+        "source_uri": ["spar.co.za"],
+        "showUnmatched": true
+    },
+    "standard_bank_za": {
+        "source_uri": ["standardbank.co.za"],
+        "categories": [{ "amenity": "bank" }],
+        "showUnmatched": true
+    },
+    "topt_za": {
+        "importableTags": ["phone"],
+        "source_uri": ["topt.co.za"],
+        "showUnmatched": true
+    },
+    "virgin_active_bw_na_za": {
+        "importableTags": ["phone"],
+        "source_uri": ["virginactive.co.za"]
+    },
+    "wimpy_za": {
+        "importableTags": ["phone"],
+        "source_uri": ["wimpy.co.za"],
+        "showUnmatched": true
+    },
+    "woolworths_za": {
+        "source_uri": ["woolworths.co.za"],
+        "showUnmatched": true
+    }
 }

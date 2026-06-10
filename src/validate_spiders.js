@@ -46,8 +46,14 @@ async function cleanAndSort(filepath) {
     if (!isSortedAndCleaned || autoRemovedTags) {
         let json = '{\n';
         const keys = Object.keys(cleanedSpiders).sort();
-        keys.forEach((k, i) => {
-            json += '    "' + k + '": ' + JSON.stringify(cleanedSpiders[k]) + (i < keys.length - 1 ? ',' : '') + '\n';
+        keys.forEach((name, i) => {
+            const spider = cleanedSpiders[name];
+            json += `    "${name}": {\n`;
+            const propKeys = Object.keys(spider);
+            propKeys.forEach((prop, j) => {
+                json += `        "${prop}": ${JSON.stringify(spider[prop])}${j < propKeys.length - 1 ? ',' : ''}\n`;
+            });
+            json += `    }${i < keys.length - 1 ? ',' : ''}\n`;
         });
         json += '}';
 
@@ -166,11 +172,20 @@ async function validate(accumulatedComments = '') {
         const sortedPreview = {};
         Object.keys(spidersPreview).sort().forEach(k => sortedPreview[k] = spidersPreview[k]);
 
-        for (const [file, data] of [[SPIDERS_AUTO_FILE, sortedAuto], [SPIDERS_PREVIEW_FILE, sortedPreview]]) {
+        for (const [file, data] of [
+            [SPIDERS_AUTO_FILE, sortedAuto],
+            [SPIDERS_PREVIEW_FILE, sortedPreview],
+        ]) {
             let json = '{\n';
             const keys = Object.keys(data).sort();
-            keys.forEach((k, i) => {
-                json += '    "' + k + '": ' + JSON.stringify(data[k]) + (i < keys.length - 1 ? ',' : '') + '\n';
+            keys.forEach((name, i) => {
+                const spider = data[name];
+                json += `    "${name}": {\n`;
+                const propKeys = Object.keys(spider);
+                propKeys.forEach((prop, j) => {
+                    json += `        "${prop}": ${JSON.stringify(spider[prop])}${j < propKeys.length - 1 ? ',' : ''}\n`;
+                });
+                json += `    }${i < keys.length - 1 ? ',' : ''}\n`;
             });
             json += '}';
 
