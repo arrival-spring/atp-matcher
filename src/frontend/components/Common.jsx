@@ -69,30 +69,30 @@ export function SpiderValue({ value, history, tag, visitedSet, isStable, isNewVa
         );
     }
 
-    if (indicator) {
-        return (
-            <div class="flex items-center gap-2">
-                {indicator}
-                <TagValue value={value} tag={tag} visitedSet={visitedSet} />
-            </div>
-        );
-    }
+    // Include runs where item exists but value might be missing
+    const relevantHistory = history ? history.filter(h => h.itemExists) : [];
+    const hasVariation = relevantHistory.some(h => h.value !== value);
+    const showHistory = relevantHistory.length > 0 && hasVariation;
 
     return (
         <div class="space-y-1">
-            <div class="font-bold text-white">
+            <div class="flex items-center gap-2 font-bold text-white">
+                {indicator}
                 <TagValue value={value} tag={tag} visitedSet={visitedSet} />
             </div>
-            {history && (
+            {showHistory && (
                 <div class="pl-2 border-l border-gray-700">
-                    {[...history]
+                    {[...relevantHistory]
                         .reverse()
-                        .filter(h => h.value)
                         .map(h => (
                             <div key={h.date} class="text-xs text-gray-400">
                                 <span class="font-mono">{h.date}</span>:{' '}
                                 <span class="text-gray-300">
-                                    <TagValue value={h.value} tag={tag} visitedSet={visitedSet} />
+                                    {h.value ? (
+                                        <TagValue value={h.value} tag={tag} visitedSet={visitedSet} />
+                                    ) : (
+                                        <i class="opacity-50">{t('spider.table.noValue')}</i>
+                                    )}
                                 </span>
                             </div>
                         ))}

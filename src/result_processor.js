@@ -93,13 +93,15 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                 usedTags.add(tag);
 
                 const history = runs.map((run, idx) => {
-                    let val = spiderMaps[idx].get(matchingValue)?.[tag] || null;
+                    const itemProps = spiderMaps[idx].get(matchingValue);
+                    let val = itemProps?.[tag] || null;
                     if (tag === 'phone' && val) {
                         val = formatPhone(val, country);
                     }
                     return {
                         date: run.run_id.substring(0, 10),
                         value: val,
+                        itemExists: !!itemProps,
                     };
                 });
 
