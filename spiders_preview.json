@@ -1,5 +1,4 @@
 [
-    { "name": "pedros", "importableTags": ["phone"], "source_uri": ["pedroschicken.co.za"] },
     {
         "name": "astron_energy_za",
         "importableTags": ["phone"],
@@ -34,6 +33,7 @@
         "showUnmatched": true
     },
     { "name": "ok_foods", "importableTags": ["phone"], "source_uri": ["okfoods.co.za"], "showUnmatched": true },
+    { "name": "pedros", "importableTags": ["phone"], "source_uri": ["pedroschicken.co.za"] },
     { "name": "pick_n_pay", "importableTags": ["phone"], "source_uri": ["pnp.co.za"], "showUnmatched": true },
     {
         "name": "postnet_za",
