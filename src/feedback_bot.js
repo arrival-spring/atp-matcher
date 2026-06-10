@@ -103,9 +103,6 @@ async function run() {
 }
 
 async function getSpiderNamesFromPr(pr) {
-    // In a real scenario, we'd fetch the PR files and look for changes in spiders_auto.json.
-    // For now, we'll try to find a spider name in the PR title or branch name,
-    // or better, fetch the files changed in the PR.
     try {
         const filesResponse = await axios.get(`https://api.github.com/repos/${REPO}/pulls/${pr.number}/files`, {
             headers: {
