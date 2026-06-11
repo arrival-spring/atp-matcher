@@ -40,13 +40,11 @@ export function UnmatchedTab({
                 .map(r => {
                     let weight = 0;
                     if (r.tags) {
-                        const uniqueMatchedTags = new Set();
                         Object.values(r.tags).forEach(val => {
                             if (val && val.toLowerCase().includes(searchLower)) {
-                                uniqueMatchedTags.add(val);
+                                weight++;
                             }
                         });
-                        weight = uniqueMatchedTags.size;
                     }
                     return { ...r, weight };
                 })
