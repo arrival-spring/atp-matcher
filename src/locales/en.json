@@ -119,7 +119,8 @@
       "allBrands": "All brands",
       "noBrand": "No brand"
     },
-    "loading": "Loading items..."
+    "loading": "Loading items...",
+    "searchTags": "Search tags..."
   },
   "locales": {
     "searchPlaceholder": "Search languages...",
