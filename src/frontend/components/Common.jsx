@@ -82,20 +82,27 @@ export function SpiderValue({ value, history, tag, visitedSet, isStable, isNewVa
             </div>
             {showHistory && (
                 <div class="pl-2 border-l border-gray-700">
-                    {[...relevantHistory]
-                        .reverse()
-                        .map(h => (
-                            <div key={h.date} class="text-xs text-gray-400">
-                                <span class="font-mono">{h.date}</span>:{' '}
-                                <span class="text-gray-300">
-                                    {h.value ? (
-                                        <TagValue value={h.value} tag={tag} visitedSet={visitedSet} />
-                                    ) : (
-                                        <i class="opacity-50">{t('spider.table.noValue')}</i>
-                                    )}
-                                </span>
-                            </div>
-                        ))}
+                    {(() => {
+                        const reversed = [...relevantHistory].reverse();
+                        return reversed.map((h, i) => {
+                            const next = reversed[i + 1];
+                            const isSameAsNext = next && h.value === next.value;
+                            return (
+                                <div key={h.date} class="text-xs text-gray-400">
+                                    <span class="font-mono">{h.date}</span>:{' '}
+                                    <span class="text-gray-300">
+                                        {isSameAsNext ? (
+                                            '|'
+                                        ) : h.value ? (
+                                            <TagValue value={h.value} tag={tag} visitedSet={visitedSet} />
+                                        ) : (
+                                            <i class="opacity-50">{t('spider.table.noValue')}</i>
+                                        )}
+                                    </span>
+                                </div>
+                            );
+                        });
+                    })()}
                 </div>
             )}
         </div>
