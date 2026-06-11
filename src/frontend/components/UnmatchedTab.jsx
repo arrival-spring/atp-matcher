@@ -3,6 +3,7 @@ import { useMemo } from 'preact/hooks';
 import { TagsWithLinks, OsmColumn, Pagination, BulkJosmLinks, LoadingIndicator } from './Common';
 import { t } from '../i18n';
 import { BrandFilters } from './UnmappedTab';
+import { useTheme } from './ThemeContext';
 
 export function UnmatchedTab({
     unmatchedCache,
@@ -16,9 +17,11 @@ export function UnmatchedTab({
     onJosmError,
     pageSize,
 }) {
+    const { theme } = useTheme();
     const filteredUnmatched = useMemo(() => {
         if (!unmatchedCache) return [];
         let filtered = unmatchedCache;
+
         if (currentState.brand !== null || currentState.wikidata !== null) {
             filtered = filtered.filter(r => {
                 const props = r.tags;
@@ -30,8 +33,27 @@ export function UnmatchedTab({
                 return b === currentState.brand && w === currentState.wikidata;
             });
         }
+
+        if (currentState.search) {
+            const searchLower = currentState.search.toLowerCase();
+            filtered = filtered
+                .map(r => {
+                    let weight = 0;
+                    if (r.tags) {
+                        Object.values(r.tags).forEach(val => {
+                            if (val && val.toLowerCase().includes(searchLower)) {
+                                weight++;
+                            }
+                        });
+                    }
+                    return { ...r, weight };
+                })
+                .filter(r => r.weight > 0)
+                .sort((a, b) => b.weight - a.weight || a.id.localeCompare(b.id));
+        }
+
         return filtered;
-    }, [unmatchedCache, currentState.brand, currentState.wikidata]);
+    }, [unmatchedCache, currentState.brand, currentState.wikidata, currentState.search]);
 
     const totalPages = Math.ceil(filteredUnmatched.length / pageSize) || 1;
     const effectivePage = Math.min(currentState.page, totalPages);
@@ -39,6 +61,39 @@ export function UnmatchedTab({
 
     return (
         <div>
+            <div class="mb-6">
+                <div class="relative max-w-xl">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                            />
+                        </svg>
+                    </div>
+                    <input
+                        type="text"
+                        autocomplete="off"
+                        class={`block w-full pl-10 pr-10 py-3 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 ${theme === 'auto' ? 'focus:ring-blue-500' : 'focus:ring-amber-500'} transition-colors sm:text-sm`}
+                        placeholder={t('spider.searchTags')}
+                        value={currentState.search}
+                        onInput={e => setCurrentState(prev => ({ ...prev, search: e.target.value, page: 1 }))}
+                    />
+                    {currentState.search && (
+                        <button
+                            onClick={() => setCurrentState(prev => ({ ...prev, search: '', page: 1 }))}
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-white"
+                        >
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    )}
+                </div>
+            </div>
+
             {filters && filters.length > 1 && (
                 <BrandFilters
                     filters={filters}

@@ -41,6 +41,7 @@ function SpiderDashboard({
         wikidata: null,
         sort: null,
         dir: 'asc',
+        search: '',
     });
     const isFirstRender = useRef(true);
 
@@ -66,6 +67,7 @@ function SpiderDashboard({
                 wikidata: params.get('wikidata'),
                 sort: params.get('sort'),
                 dir: params.get('dir') || 'asc',
+                search: params.get('search') || '',
             });
         };
 
@@ -82,6 +84,7 @@ function SpiderDashboard({
         if (currentState.page > 1) params.set('page', currentState.page);
         if (currentState.brand !== null) params.set('brand', currentState.brand);
         if (currentState.wikidata !== null) params.set('wikidata', currentState.wikidata);
+        if (currentState.search) params.set('search', currentState.search);
         if (currentState.sort) {
             params.set('sort', currentState.sort);
             params.set('dir', currentState.dir);
@@ -177,6 +180,7 @@ function SpiderDashboard({
             page: 1,
             brand: null,
             wikidata: null,
+            search: '',
         });
     };
 
