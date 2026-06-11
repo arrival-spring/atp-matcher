@@ -237,15 +237,19 @@ async function validate(accumulatedComments = '') {
 
     // Rule: Max 1 spider change for auto.
     const autoChangesCount = finalAddedToAuto.length + finalModifiedInAuto.length;
-    if (autoChangesCount > 1) {
+    const tooManyAuto = autoChangesCount > 1;
+    if (tooManyAuto) {
         errors.push(`Error: Only one spider should be added or modified in auto per PR. Found: ${autoChangesCount}`);
     }
 
     // Rule: Max 5 spider changes for preview.
     const previewChangesCount = finalAddedToPreview.length + finalModifiedInPreview.length;
-    if (previewChangesCount > 5) {
+    const tooManyPreview = previewChangesCount > 5;
+    if (tooManyPreview) {
         errors.push(`Error: Up to five spiders can be added or modified in preview per PR. Found: ${previewChangesCount}`);
     }
+
+    const tooManySpiders = tooManyAuto || tooManyPreview;
 
     // Rule: Ensure exact same properties when moving from preview to auto.
     for (const s of finalAddedToAuto) {
@@ -271,24 +275,38 @@ async function validate(accumulatedComments = '') {
     let combinedComment = infoComments + autoMoveComment;
     let hasGlobalErrors = errors.length > 0;
 
-    let addedToAutoInThisPr = false;
-    let addedToPreviewInThisPr = false;
-    for (const change of allChanges) {
-        const { spider, type, isAuto } = change;
-        const result = await validateSpider(spider, type, config);
-        combinedComment += result.comment;
-        if (result.hasErrors) hasGlobalErrors = true;
-
-        if (isAuto && type === 'added to auto' && !result.hasErrors) {
-            combinedComment += `\n> ℹ️ **Waiting Period:** This spider has been moved to auto. There will be a waiting period of at least two weeks for community feedback before it can be merged.\n\n`;
-            addedToAutoInThisPr = true;
-        }
-        if (!isAuto && type === 'added to preview' && !result.hasErrors) {
-            addedToPreviewInThisPr = true;
+    const validationResults = [];
+    if (!tooManySpiders) {
+        for (const change of allChanges) {
+            const result = await validateSpider(change.spider, change.type, config);
+            validationResults.push({ ...change, ...result });
+            if (result.hasErrors) hasGlobalErrors = true;
         }
     }
 
-    if ((addedToAutoInThisPr || addedToPreviewInThisPr) && process.env.GITHUB_TOKEN && process.env.PR_NUMBER) {
+    let addedToAutoInThisPr = false;
+    let addedToPreviewInThisPr = false;
+
+    if (tooManySpiders) {
+        for (const change of allChanges) {
+            combinedComment += `### Spider: ${change.spider.name} (${change.type})\n\n`;
+        }
+    } else {
+        for (const res of validationResults) {
+            combinedComment += res.comment;
+            if (!hasGlobalErrors) {
+                if (res.isAuto && res.type === 'added to auto') {
+                    combinedComment += `\n> ℹ️ **Waiting Period:** This spider has been moved to auto. There will be a waiting period of at least two weeks for community feedback before it can be merged.\n\n`;
+                    addedToAutoInThisPr = true;
+                }
+                if (!res.isAuto && res.type === 'added to preview') {
+                    addedToPreviewInThisPr = true;
+                }
+            }
+        }
+    }
+
+    if (!hasGlobalErrors && (addedToAutoInThisPr || addedToPreviewInThisPr) && process.env.GITHUB_TOKEN && process.env.PR_NUMBER) {
         try {
             const labels = [];
             if (addedToAutoInThisPr) labels.push('auto-request');
