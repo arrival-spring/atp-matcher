@@ -154,7 +154,13 @@ describe('processSpiderResults Status Logic', () => {
 
         // If we have 100 mapped items, and 100 updates, that's 100% which is > 10% threshold.
         const safeEdits = {};
-        const { results, thresholdViolations } = await processSpiderResults(largeSpiderData, spiderMatches, runs, safeEdits, true);
+        const { results, thresholdViolations } = await processSpiderResults(
+            largeSpiderData,
+            spiderMatches,
+            runs,
+            safeEdits,
+            true
+        );
 
         expect(thresholdViolations.length).toBeGreaterThan(0);
         const websiteTag = results[0].tags.find(t => t.tag === 'website');
@@ -403,7 +409,12 @@ describe('processSpiderResults Safe Edits', () => {
         for (let i = 0; i < 11; i++) {
             const ref = i.toString();
             manyFeatures.push({
-                properties: { ref, website: 'https://new.com', '@source_uri': 'https://allowed.com/data', 'addr:country': 'US' },
+                properties: {
+                    ref,
+                    website: 'https://new.com',
+                    '@source_uri': 'https://allowed.com/data',
+                    'addr:country': 'US',
+                },
             });
             spiderMaps[0].set(ref, { website: 'https://old.com' });
             spiderMaps[1].set(ref, { website: 'https://old.com' });
@@ -416,7 +427,12 @@ describe('processSpiderResults Safe Edits', () => {
         for (let i = 11; i < 13; i++) {
             const ref = i.toString();
             manyFeatures.push({
-                properties: { ref, website: 'https://new.com', '@source_uri': 'https://allowed.com/data', 'addr:country': 'US' },
+                properties: {
+                    ref,
+                    website: 'https://new.com',
+                    '@source_uri': 'https://allowed.com/data',
+                    'addr:country': 'US',
+                },
             });
             spiderMaps[0].set(ref, { website: 'https://new.com' });
             spiderMaps[1].set(ref, { website: 'https://new.com' });
@@ -429,7 +445,12 @@ describe('processSpiderResults Safe Edits', () => {
         for (let i = 13; i < 100; i++) {
             const ref = i.toString();
             manyFeatures.push({
-                properties: { ref, website: 'https://ok.com', '@source_uri': 'https://allowed.com/data', 'addr:country': 'US' },
+                properties: {
+                    ref,
+                    website: 'https://ok.com',
+                    '@source_uri': 'https://allowed.com/data',
+                    'addr:country': 'US',
+                },
             });
             spiderMaps.forEach(m => m.set(ref, { website: 'https://ok.com' }));
             spiderMatches.set(ref, [{ id: `n${i}`, tags: { website: 'https://ok.com' } }]);
@@ -445,7 +466,13 @@ describe('processSpiderResults Safe Edits', () => {
         };
 
         const safeEdits = {};
-        const { results, thresholdViolations } = await processSpiderResults(largeSpiderData, spiderMatches, runs, safeEdits, true);
+        const { results, thresholdViolations } = await processSpiderResults(
+            largeSpiderData,
+            spiderMatches,
+            runs,
+            safeEdits,
+            true
+        );
 
         // Updates should be blocked, adds should be allowed
         expect(thresholdViolations).toContainEqual(expect.objectContaining({ type: 'update', tag: 'website' }));

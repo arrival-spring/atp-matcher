@@ -2,15 +2,20 @@ import { h } from 'preact';
 import { t } from '../i18n';
 
 export function SummaryTab({ results, importableTags, showUnmatched, unmappedCount, unmatchedCount, onTabChange }) {
-    const isUniquelyMatched = r =>
-        r.matchCount === 1 && !['disallowedSourceUri', 'notABrandSpider'].includes(r.status);
+    const isUniquelyMatched = r => r.matchCount === 1 && !['disallowedSourceUri', 'notABrandSpider'].includes(r.status);
 
     return (
         <div class="space-y-12">
             <section>
-                <h2 class="font-bold mb-6 text-gray-400 uppercase tracking-widest text-xs">{t('spider.summary.overview')}</h2>
+                <h2 class="font-bold mb-6 text-gray-400 uppercase tracking-widest text-xs">
+                    {t('spider.summary.overview')}
+                </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <SummaryCard title={t('spider.tabs.unmapped')} value={unmappedCount} onClick={() => onTabChange('unmapped')} />
+                    <SummaryCard
+                        title={t('spider.tabs.unmapped')}
+                        value={unmappedCount}
+                        onClick={() => onTabChange('unmapped')}
+                    />
                     {showUnmatched && (
                         <SummaryCard
                             title={t('spider.tabs.unmatched')}
@@ -29,7 +34,9 @@ export function SummaryTab({ results, importableTags, showUnmatched, unmappedCou
             </section>
 
             <section>
-                <h2 class="font-bold mb-6 text-gray-400 uppercase tracking-widest text-xs">{t('spider.summary.tagDetails')}</h2>
+                <h2 class="font-bold mb-6 text-gray-400 uppercase tracking-widest text-xs">
+                    {t('spider.summary.tagDetails')}
+                </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {importableTags.map(tag => {
                         const stats = {};

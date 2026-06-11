@@ -37,9 +37,7 @@ describe('processSpiderResults - check_date:opening_hours logic', () => {
     };
 
     test('should add check_date:opening_hours for updateOsm when none exists', async () => {
-        const spiderMatches = new Map([
-            ['123', [{ id: 'n1', tags: { opening_hours: 'Mo-Su 10:00-20:00' } }]]
-        ]);
+        const spiderMatches = new Map([['123', [{ id: 'n1', tags: { opening_hours: 'Mo-Su 10:00-20:00' } }]]]);
         const safeEdits = {};
 
         const { results } = await processSpiderResults(spiderData, spiderMatches, runs, safeEdits);
@@ -54,13 +52,18 @@ describe('processSpiderResults - check_date:opening_hours logic', () => {
 
     test('should update check_date:opening_hours when proposed date is newer', async () => {
         const spiderMatches = new Map([
-            ['123', [{
-                id: 'n1',
-                tags: {
-                    opening_hours: 'Mo-Su 10:00-20:00',
-                    'check_date:opening_hours': '2023-12-01'
-                }
-            }]]
+            [
+                '123',
+                [
+                    {
+                        id: 'n1',
+                        tags: {
+                            opening_hours: 'Mo-Su 10:00-20:00',
+                            'check_date:opening_hours': '2023-12-01',
+                        },
+                    },
+                ],
+            ],
         ]);
         const safeEdits = {};
 
@@ -75,13 +78,18 @@ describe('processSpiderResults - check_date:opening_hours logic', () => {
 
     test('should NOT update opening_hours if proposed check_date is older or equal', async () => {
         const spiderMatches = new Map([
-            ['123', [{
-                id: 'n1',
-                tags: {
-                    opening_hours: 'Mo-Su 10:00-20:00',
-                    'check_date:opening_hours': '2024-01-22'
-                }
-            }]]
+            [
+                '123',
+                [
+                    {
+                        id: 'n1',
+                        tags: {
+                            opening_hours: 'Mo-Su 10:00-20:00',
+                            'check_date:opening_hours': '2024-01-22',
+                        },
+                    },
+                ],
+            ],
         ]);
         const safeEdits = {};
 
@@ -92,9 +100,7 @@ describe('processSpiderResults - check_date:opening_hours logic', () => {
     });
 
     test('should NOT add check_date:opening_hours for addToOsm', async () => {
-        const spiderMatches = new Map([
-            ['123', [{ id: 'n1', tags: {} }]]
-        ]);
+        const spiderMatches = new Map([['123', [{ id: 'n1', tags: {} }]]]);
         const safeEdits = {};
 
         const { results } = await processSpiderResults(spiderData, spiderMatches, runs, safeEdits);
@@ -115,7 +121,7 @@ describe('processSpiderResults - Threshold Logic', () => {
         { run_id: '2024-01-22' },
     ];
 
-    const generateSpiderData = (count) => {
+    const generateSpiderData = count => {
         const features = [];
         const spiderMaps = [new Map(), new Map(), new Map(), new Map()];
 
@@ -127,7 +133,7 @@ describe('processSpiderResults - Threshold Logic', () => {
                     website: 'https://new.com',
                     'addr:country': 'US',
                     '@source_uri': 'https://allowed.com/data',
-                }
+                },
             });
             spiderMaps[0].set(ref, { website: 'https://old.com' });
             spiderMaps[1].set(ref, { website: 'https://old.com' });
@@ -178,7 +184,9 @@ describe('processSpiderResults - Threshold Logic', () => {
 
         const { thresholdViolations } = await processSpiderResults(data, spiderMatches, runs, safeEdits);
 
-        expect(thresholdViolations).toContainEqual(expect.objectContaining({ tag: 'website', count: 11, mappedCount: 100 }));
+        expect(thresholdViolations).toContainEqual(
+            expect.objectContaining({ tag: 'website', count: 11, mappedCount: 100 })
+        );
         expect(safeEdits['threshold-spider']).toBeUndefined();
     });
 

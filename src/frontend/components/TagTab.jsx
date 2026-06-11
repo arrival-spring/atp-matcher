@@ -120,7 +120,7 @@ export function TagTab({
         return data;
     }, [tagResults, currentState.status, currentState.sort, currentState.dir]);
 
-    const handleSort = (column) => {
+    const handleSort = column => {
         let direction = 'asc';
         if (currentState.sort === column && currentState.dir === 'asc') {
             direction = 'desc';

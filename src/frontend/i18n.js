@@ -51,7 +51,7 @@ const LOCAL_STORAGE_KEY = 'atp_osm_sync_locale';
 
 export const getAvailableLocales = () => {
     return localesMetadata.map(code => {
-        const getDisplayName = (locale) => {
+        const getDisplayName = locale => {
             try {
                 const langNames = new Intl.DisplayNames([locale], { type: 'language' });
                 const baseName = langNames.of(code);
@@ -75,7 +75,7 @@ export const getAvailableLocales = () => {
             code,
             native: getDisplayName(code),
             localized: getDisplayName(currentLocale),
-            english: getDisplayName('en')
+            english: getDisplayName('en'),
         };
     });
 };
@@ -83,11 +83,11 @@ export const getAvailableLocales = () => {
 export const initI18n = async () => {
     const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
     const savedLocale = isBrowser ? localStorage.getItem(LOCAL_STORAGE_KEY) : null;
-    const browserLocales = isBrowser ? (navigator.languages || [navigator.language]) : [];
+    const browserLocales = isBrowser ? navigator.languages || [navigator.language] : [];
 
     let localeToUse = 'en';
 
-    const findSupportedLocale = (loc) => {
+    const findSupportedLocale = loc => {
         if (localesMetadata.includes(loc)) return loc;
         const short = loc.split('-')[0];
         if (localesMetadata.includes(short)) return short;
@@ -127,7 +127,7 @@ const deepMerge = (target, source) => {
     return output;
 };
 
-export const setLocale = async (locale) => {
+export const setLocale = async locale => {
     const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
 
     if (!translations[locale]) {
@@ -175,7 +175,11 @@ export const setLocale = async (locale) => {
             const params = paramsAttr ? JSON.parse(paramsAttr) : {};
             const translated = t(key, params);
 
-            if (el.getAttribute('data-t-html') === 'true' || el.innerHTML.includes('<span') || el.innerHTML.includes('<strong')) {
+            if (
+                el.getAttribute('data-t-html') === 'true' ||
+                el.innerHTML.includes('<span') ||
+                el.innerHTML.includes('<strong')
+            ) {
                 el.innerHTML = translated;
             } else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
                 el.placeholder = translated;

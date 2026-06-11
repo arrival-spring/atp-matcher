@@ -237,9 +237,7 @@ export function Pagination({ page, totalPages, onPageChange, totalItems }) {
             >
                 {t('index.pagination.previous')}
             </button>
-            <span class="text-gray-400 font-medium text-sm">
-                {t('index.pagination.pageOf', { page, totalPages })}
-            </span>
+            <span class="text-gray-400 font-medium text-sm">{t('index.pagination.pageOf', { page, totalPages })}</span>
             <button
                 onClick={() => onPageChange(page + 1)}
                 disabled={page === totalPages || totalItems === 0}
@@ -255,9 +253,7 @@ export function LoadingIndicator({ message }) {
     const { spinnerClass } = useTheme();
     return (
         <div class="py-12 flex flex-col items-center justify-center gap-4">
-            <div
-                class={`w-12 h-12 border-4 ${spinnerClass} border-t-transparent rounded-full animate-spin`}
-            ></div>
+            <div class={`w-12 h-12 border-4 ${spinnerClass} border-t-transparent rounded-full animate-spin`}></div>
             <p class="text-gray-400 animate-pulse">{message}</p>
         </div>
     );

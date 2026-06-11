@@ -3,7 +3,7 @@ import { useContext } from 'preact/hooks';
 
 export const ThemeContext = createContext({
     theme: 'auto',
-    linkClass: (isVisited) => isVisited ? 'text-gray-600' : 'text-emerald-500',
+    linkClass: isVisited => (isVisited ? 'text-gray-600' : 'text-emerald-500'),
     hoverLinkClass: 'hover:text-emerald-400',
     buttonClass: 'bg-emerald-600 hover:bg-emerald-700',
     borderClass: 'border-emerald-500',
@@ -18,7 +18,7 @@ export function ThemeProvider({ theme, children }) {
     const isAuto = theme === 'auto';
     const value = {
         theme,
-        linkClass: (isVisited) => {
+        linkClass: isVisited => {
             if (isVisited) return 'text-gray-600';
             return isAuto ? 'text-emerald-500' : 'text-amber-600';
         },

@@ -5,7 +5,8 @@ describe('Spider name safety check', () => {
     const spidersAuto = JSON.parse(fs.readFileSync('spiders_auto.json', 'utf8'));
     const spidersPreview = JSON.parse(fs.readFileSync('spiders_preview.json', 'utf8'));
     const spiderNames = [...Object.keys(spidersAuto), ...Object.keys(spidersPreview)];
-    const reservedNames = fs.readdirSync('.')
+    const reservedNames = fs
+        .readdirSync('.')
         .filter(f => fs.statSync(f).isDirectory() && !f.startsWith('.'))
         .concat(['assets', 'locales']); // Explicitly including these as they are subdirectories in output/
 

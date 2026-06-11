@@ -37,7 +37,6 @@ async function run() {
 
         // Handle merged PRs for preview-request
         await handleMergedPreviewPrs(summaryMap);
-
     } catch (error) {
         console.error(`Error in feedback bot: ${error.message}`);
         if (error.response) {
@@ -60,9 +59,10 @@ async function handleAutoRequestPrs(summaryMap) {
     });
 
     const allPrs = prsResponse.data;
-    const autoRequestPrs = allPrs.filter(pr =>
-        pr.labels.some(l => l.name === AUTO_REQUEST_LABEL) &&
-        !pr.labels.some(l => l.name === COMMUNITY_BLOCKED_LABEL)
+    const autoRequestPrs = allPrs.filter(
+        pr =>
+            pr.labels.some(l => l.name === AUTO_REQUEST_LABEL) &&
+            !pr.labels.some(l => l.name === COMMUNITY_BLOCKED_LABEL)
     );
 
     console.log(`Found ${autoRequestPrs.length} active auto-request PRs.`);
@@ -119,8 +119,8 @@ async function handleMergedPreviewPrs(summaryMap) {
         },
     });
 
-    const mergedPrsWithLabel = prsResponse.data.filter(pr =>
-        pr.merged_at && pr.labels.some(l => l.name === AWAITING_PREVIEW_RUN_LABEL)
+    const mergedPrsWithLabel = prsResponse.data.filter(
+        pr => pr.merged_at && pr.labels.some(l => l.name === AWAITING_PREVIEW_RUN_LABEL)
     );
 
     console.log(`Found ${mergedPrsWithLabel.length} merged PRs awaiting preview run notification.`);
@@ -148,12 +148,15 @@ async function handleMergedPreviewPrs(summaryMap) {
 
         // Remove the label after processing
         try {
-            await axios.delete(`https://api.github.com/repos/${REPO}/issues/${pr.number}/labels/${AWAITING_PREVIEW_RUN_LABEL}`, {
-                headers: {
-                    Authorization: `token ${GITHUB_TOKEN}`,
-                    Accept: 'application/vnd.github.v3+json',
-                },
-            });
+            await axios.delete(
+                `https://api.github.com/repos/${REPO}/issues/${pr.number}/labels/${AWAITING_PREVIEW_RUN_LABEL}`,
+                {
+                    headers: {
+                        Authorization: `token ${GITHUB_TOKEN}`,
+                        Accept: 'application/vnd.github.v3+json',
+                    },
+                }
+            );
             console.log(`Removed ${AWAITING_PREVIEW_RUN_LABEL} from PR #${pr.number}`);
         } catch (error) {
             console.error(`Failed to remove label from PR #${pr.number}: ${error.message}`);
@@ -181,7 +184,9 @@ async function getSpiderNamesFromPr(prNumber) {
         });
 
         const changedFiles = filesResponse.data;
-        const spiderFiles = changedFiles.filter(f => f.filename === 'spiders_auto.json' || f.filename === 'spiders_preview.json');
+        const spiderFiles = changedFiles.filter(
+            f => f.filename === 'spiders_auto.json' || f.filename === 'spiders_preview.json'
+        );
 
         const names = new Set();
         for (const file of spiderFiles) {
@@ -217,12 +222,16 @@ We have also initiated a community review process on the OSM forum. If there are
 
 ${COMMENT_1_TAG}`;
 
-    await axios.post(`https://api.github.com/repos/${REPO}/issues/${pr.number}/comments`, { body }, {
-        headers: {
-            Authorization: `token ${GITHUB_TOKEN}`,
-            Accept: 'application/vnd.github.v3+json',
-        },
-    });
+    await axios.post(
+        `https://api.github.com/repos/${REPO}/issues/${pr.number}/comments`,
+        { body },
+        {
+            headers: {
+                Authorization: `token ${GITHUB_TOKEN}`,
+                Accept: 'application/vnd.github.v3+json',
+            },
+        }
+    );
     console.log(`Posted Comment 1 to PR #${pr.number}`);
 }
 
@@ -233,12 +242,16 @@ This pull request will remain pending until the current batch of reviews is comp
 
 ${COMMENT_PENDING_TAG}`;
 
-    await axios.post(`https://api.github.com/repos/${REPO}/issues/${pr.number}/comments`, { body }, {
-        headers: {
-            Authorization: `token ${GITHUB_TOKEN}`,
-            Accept: 'application/vnd.github.v3+json',
-        },
-    });
+    await axios.post(
+        `https://api.github.com/repos/${REPO}/issues/${pr.number}/comments`,
+        { body },
+        {
+            headers: {
+                Authorization: `token ${GITHUB_TOKEN}`,
+                Accept: 'application/vnd.github.v3+json',
+            },
+        }
+    );
     console.log(`Posted Pending Comment to PR #${pr.number}`);
 }
 
@@ -255,20 +268,28 @@ View the latest preview here: [${spiderName} Preview](${previewLink})
 
 ${COMMENT_2_TAG}`;
 
-    await axios.post(`https://api.github.com/repos/${REPO}/issues/${pr.number}/comments`, { body }, {
-        headers: {
-            Authorization: `token ${GITHUB_TOKEN}`,
-            Accept: 'application/vnd.github.v3+json',
-        },
-    });
+    await axios.post(
+        `https://api.github.com/repos/${REPO}/issues/${pr.number}/comments`,
+        { body },
+        {
+            headers: {
+                Authorization: `token ${GITHUB_TOKEN}`,
+                Accept: 'application/vnd.github.v3+json',
+            },
+        }
+    );
 
     // Assign to owner
-    await axios.post(`https://api.github.com/repos/${REPO}/issues/${pr.number}/assignees`, { assignees: [repoOwner] }, {
-        headers: {
-            Authorization: `token ${GITHUB_TOKEN}`,
-            Accept: 'application/vnd.github.v3+json',
-        },
-    });
+    await axios.post(
+        `https://api.github.com/repos/${REPO}/issues/${pr.number}/assignees`,
+        { assignees: [repoOwner] },
+        {
+            headers: {
+                Authorization: `token ${GITHUB_TOKEN}`,
+                Accept: 'application/vnd.github.v3+json',
+            },
+        }
+    );
 
     console.log(`Posted Comment 2 and assigned PR #${pr.number} to ${repoOwner}`);
 }
@@ -291,12 +312,16 @@ async function postPreviewLiveComment(pr, results) {
 
     body += COMMENT_PREVIEW_LIVE_TAG;
 
-    await axios.post(`https://api.github.com/repos/${REPO}/issues/${pr.number}/comments`, { body }, {
-        headers: {
-            Authorization: `token ${GITHUB_TOKEN}`,
-            Accept: 'application/vnd.github.v3+json',
-        },
-    });
+    await axios.post(
+        `https://api.github.com/repos/${REPO}/issues/${pr.number}/comments`,
+        { body },
+        {
+            headers: {
+                Authorization: `token ${GITHUB_TOKEN}`,
+                Accept: 'application/vnd.github.v3+json',
+            },
+        }
+    );
     console.log(`Posted Preview Live Comment to PR #${pr.number} for spider ${spiderName}`);
 }
 
@@ -332,17 +357,21 @@ Please review these spiders, if there are no issues raised then automatic edits 
 
 This issue tracks the community notification for this week's batch of spiders.`;
 
-    await axios.post(`https://api.github.com/repos/${REPO}/issues`, {
-        title: `Community Forum Notification - ${new Date().toISOString().split('T')[0]}`,
-        body: issueBody,
-        assignees: [repoOwner],
-        labels: ['community-review'],
-    }, {
-        headers: {
-            Authorization: `token ${GITHUB_TOKEN}`,
-            Accept: 'application/vnd.github.v3+json',
+    await axios.post(
+        `https://api.github.com/repos/${REPO}/issues`,
+        {
+            title: `Community Forum Notification - ${new Date().toISOString().split('T')[0]}`,
+            body: issueBody,
+            assignees: [repoOwner],
+            labels: ['community-review'],
         },
-    });
+        {
+            headers: {
+                Authorization: `token ${GITHUB_TOKEN}`,
+                Accept: 'application/vnd.github.v3+json',
+            },
+        }
+    );
 
     console.log('Created Forum Notification Issue');
 }

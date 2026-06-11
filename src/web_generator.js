@@ -48,8 +48,10 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
 
                 // Only create redirect if the other directory doesn't already contain a real spider page
                 // (which it shouldn't, as they are mutually exclusive, but this is safer)
-                if ((subDir === 'auto' && !previewNames.has(spider.name)) ||
-                    (subDir === 'preview' && !autoNames.has(spider.name))) {
+                if (
+                    (subDir === 'auto' && !previewNames.has(spider.name)) ||
+                    (subDir === 'preview' && !autoNames.has(spider.name))
+                ) {
                     if (!fs.existsSync(otherSpiderDir)) {
                         fs.mkdirSync(otherSpiderDir, { recursive: true });
                     }
@@ -59,7 +61,6 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
                         fs.writeFileSync(path.join(otherSpiderDir, 'index.html'), redirectHtml);
                     }
                 }
-
             } catch (error) {
                 console.error(`Error generating spider page for ${spider.name} in ${subDir}: ${error.message}`);
             }

@@ -3,7 +3,8 @@ import path from 'path';
 
 const localesDir = 'src/locales';
 const en = JSON.parse(fs.readFileSync(path.join(localesDir, 'en.json'), 'utf8'));
-const localesMetadata = fs.readdirSync(localesDir)
+const localesMetadata = fs
+    .readdirSync(localesDir)
     .filter(file => file.endsWith('.json'))
     .map(file => file.replace('.json', ''));
 
@@ -21,7 +22,7 @@ describe('i18n Integrity Tests', () => {
         return keys;
     };
 
-    const getPlaceholders = (str) => {
+    const getPlaceholders = str => {
         if (typeof str !== 'string') return [];
         const matches = str.match(/{{\s*\w+\s*}}/g) || [];
         return matches.map(m => m.replace(/{{\s*|\s*}}/g, '')).sort();

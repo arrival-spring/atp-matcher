@@ -93,7 +93,9 @@ async function validate(accumulatedComments = '') {
 
     const duplicateNames = autoNames.filter(name => previewNames.includes(name));
     if (duplicateNames.length > 0) {
-        outputComment(`Error: Duplicate spider names found across both files: ${[...new Set(duplicateNames)].join(', ')}`);
+        outputComment(
+            `Error: Duplicate spider names found across both files: ${[...new Set(duplicateNames)].join(', ')}`
+        );
         process.exit(1);
     }
 
@@ -102,11 +104,13 @@ async function validate(accumulatedComments = '') {
 
     let infoComments = accumulatedComments;
     if (autoData.reordered || previewData.reordered) {
-        const msg = '> ℹ️ **Spiders were not in alphabetical order.** I have reordered them and committed the change.\n\n';
+        const msg =
+            '> ℹ️ **Spiders were not in alphabetical order.** I have reordered them and committed the change.\n\n';
         if (!infoComments.includes(msg)) infoComments += msg;
     }
     if (autoData.autoRemovedTags || previewData.autoRemovedTags) {
-        const msg = '> ℹ️ **`opening_hours` and `website` are now automatically included.** I have removed them from `importableTags` and committed the change.\n\n';
+        const msg =
+            '> ℹ️ **`opening_hours` and `website` are now automatically included.** I have removed them from `importableTags` and committed the change.\n\n';
         if (!infoComments.includes(msg)) infoComments += msg;
     }
 
@@ -168,9 +172,13 @@ async function validate(accumulatedComments = '') {
 
     if (filesChanged) {
         const sortedAuto = {};
-        Object.keys(spidersAuto).sort().forEach(k => sortedAuto[k] = spidersAuto[k]);
+        Object.keys(spidersAuto)
+            .sort()
+            .forEach(k => (sortedAuto[k] = spidersAuto[k]));
         const sortedPreview = {};
-        Object.keys(spidersPreview).sort().forEach(k => sortedPreview[k] = spidersPreview[k]);
+        Object.keys(spidersPreview)
+            .sort()
+            .forEach(k => (sortedPreview[k] = spidersPreview[k]));
 
         for (const [file, data] of [
             [SPIDERS_AUTO_FILE, sortedAuto],
@@ -246,7 +254,9 @@ async function validate(accumulatedComments = '') {
     const previewChangesCount = finalAddedToPreview.length + finalModifiedInPreview.length;
     const tooManyPreview = previewChangesCount > 5;
     if (tooManyPreview) {
-        errors.push(`Error: Up to five spiders can be added or modified in preview per PR. Found: ${previewChangesCount}`);
+        errors.push(
+            `Error: Up to five spiders can be added or modified in preview per PR. Found: ${previewChangesCount}`
+        );
     }
 
     const tooManySpiders = tooManyAuto || tooManyPreview;
@@ -257,10 +267,14 @@ async function validate(accumulatedComments = '') {
         if (base) {
             const { name, ...rest } = s;
             if (JSON.stringify(rest) !== JSON.stringify(base)) {
-                errors.push(`Error: Spider \`${s.name}\` was modified while being moved to auto. It must retain the exact same properties.`);
+                errors.push(
+                    `Error: Spider \`${s.name}\` was modified while being moved to auto. It must retain the exact same properties.`
+                );
             }
             if (base.rejected) {
-                errors.push(`Error: Spider \`${s.name}\` cannot be moved to auto because it is marked as rejected in the base branch.`);
+                errors.push(
+                    `Error: Spider \`${s.name}\` cannot be moved to auto because it is marked as rejected in the base branch.`
+                );
             }
         }
     }
@@ -306,7 +320,12 @@ async function validate(accumulatedComments = '') {
         }
     }
 
-    if (!hasGlobalErrors && (addedToAutoInThisPr || addedToPreviewInThisPr) && process.env.GITHUB_TOKEN && process.env.PR_NUMBER) {
+    if (
+        !hasGlobalErrors &&
+        (addedToAutoInThisPr || addedToPreviewInThisPr) &&
+        process.env.GITHUB_TOKEN &&
+        process.env.PR_NUMBER
+    ) {
         try {
             const labels = [];
             if (addedToAutoInThisPr) labels.push('auto-request');
@@ -330,7 +349,7 @@ async function validate(accumulatedComments = '') {
 
     if (errors.length > 0) {
         combinedComment += `### ❌ Global Validation Errors\n`;
-        errors.forEach(e => combinedComment += `- ${e}\n`);
+        errors.forEach(e => (combinedComment += `- ${e}\n`));
     }
 
     outputComment(combinedComment);
@@ -377,7 +396,9 @@ async function validateSpider(spider, type, config) {
         }
 
         const tagsToTrack = [...new Set([...expandedImportableTags, 'opening_hours', 'website'])];
-        tagsToTrack.forEach(tag => { tagStats[tag] = { count: 0, unique: new Set() }; });
+        tagsToTrack.forEach(tag => {
+            tagStats[tag] = { count: 0, unique: new Set() };
+        });
 
         const domainStats = {};
         data.features.forEach(f => {
@@ -420,37 +441,47 @@ async function validateSpider(spider, type, config) {
             if (!Array.isArray(spider.categories)) errors.push('Error: `categories` must be an array.');
             else {
                 spider.categories.forEach((cat, idx) => {
-                    if (typeof cat !== 'object' || cat === null || Array.isArray(cat)) errors.push(`Error: \`categories[${idx}]\` must be a dictionary.`);
-                    else if (Object.keys(cat).length !== 1) errors.push(`Error: \`categories[${idx}]\` must have exactly one key-value pair.`);
+                    if (typeof cat !== 'object' || cat === null || Array.isArray(cat))
+                        errors.push(`Error: \`categories[${idx}]\` must be a dictionary.`);
+                    else if (Object.keys(cat).length !== 1)
+                        errors.push(`Error: \`categories[${idx}]\` must have exactly one key-value pair.`);
                 });
             }
         }
 
-        if (Object.prototype.hasOwnProperty.call(spider, 'showUnmatched') && typeof spider.showUnmatched !== 'boolean') {
+        if (
+            Object.prototype.hasOwnProperty.call(spider, 'showUnmatched') &&
+            typeof spider.showUnmatched !== 'boolean'
+        ) {
             errors.push('Error: `showUnmatched` must be a boolean.');
         }
 
         const lineage = data.dataset_attributes?.['spider:lineage'];
-        if (lineage !== 'S_ATP_BRANDS') errors.push(`Error: Not a brand spider. Lineage: \`${lineage || 'not found'}\``);
+        if (lineage !== 'S_ATP_BRANDS')
+            errors.push(`Error: Not a brand spider. Lineage: \`${lineage || 'not found'}\``);
 
-        if (nsiOverlapTags.size > 0) errors.push(`Error: Tags provided by NSI: ${Array.from(nsiOverlapTags).join(', ')}`);
+        if (nsiOverlapTags.size > 0)
+            errors.push(`Error: Tags provided by NSI: ${Array.from(nsiOverlapTags).join(', ')}`);
 
         if (errors.length > 0) {
             comment += `#### ❌ Validation Failed\n`;
-            errors.forEach(e => comment += `- ${e}\n`);
+            errors.forEach(e => (comment += `- ${e}\n`));
             comment += `\n`;
         }
 
         comment += `**Total features:** ${totalFeatures}\n\n`;
         comment += `#### Importable Tags\n`;
-        tagsToTrack.filter(tag => (tag === 'opening_hours' || tag === 'website') ? tagStats[tag].count > 0 : true).sort().forEach(tag => {
-            const isAllowed = config.allowedImportableTags.includes(tag);
-            const count = tagStats[tag].count;
-            const uniqueCount = tagStats[tag].unique.size;
-            const percent = totalFeatures > 0 ? ((count / totalFeatures) * 100).toFixed(1) : 0;
-            const uniquePercent = count > 0 ? ((uniqueCount / count) * 100).toFixed(1) : 0;
-            comment += `- \`${tag}\`: ${count} (${percent}%) | Unique: ${uniqueCount}/${count} (${uniquePercent}%)${isAllowed ? '' : ' ❌ **(Disallowed Tag)**'}\n`;
-        });
+        tagsToTrack
+            .filter(tag => (tag === 'opening_hours' || tag === 'website' ? tagStats[tag].count > 0 : true))
+            .sort()
+            .forEach(tag => {
+                const isAllowed = config.allowedImportableTags.includes(tag);
+                const count = tagStats[tag].count;
+                const uniqueCount = tagStats[tag].unique.size;
+                const percent = totalFeatures > 0 ? ((count / totalFeatures) * 100).toFixed(1) : 0;
+                const uniquePercent = count > 0 ? ((uniqueCount / count) * 100).toFixed(1) : 0;
+                comment += `- \`${tag}\`: ${count} (${percent}%) | Unique: ${uniqueCount}/${count} (${uniquePercent}%)${isAllowed ? '' : ' ❌ **(Disallowed Tag)**'}\n`;
+            });
         comment += `\n#### Source URIs\n`;
         Object.entries(domainStats).forEach(([domain, stats]) => {
             comment += `- \`${domain}\`: ${stats.count} (${stats.allowed ? '✅ Allowed' : '❌ Disallowed'})\n`;
@@ -460,7 +491,10 @@ async function validateSpider(spider, type, config) {
 
         return { comment, hasErrors: errors.length > 0 };
     } catch (error) {
-        const msg = error.response && error.response.status === 404 ? `Error: Spider \`${spiderName}\` not found in the latest ATP run.` : `Error fetching spider data for \`${spiderName}\`: ${error.message}`;
+        const msg =
+            error.response && error.response.status === 404
+                ? `Error: Spider \`${spiderName}\` not found in the latest ATP run.`
+                : `Error fetching spider data for \`${spiderName}\`: ${error.message}`;
         return { comment: comment + msg + '\n\n', hasErrors: true };
     }
 }
