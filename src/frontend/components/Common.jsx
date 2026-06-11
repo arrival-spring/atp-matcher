@@ -88,16 +88,18 @@ export function SpiderValue({ value, history, tag, visitedSet, isStable, isNewVa
                             const next = reversed[i + 1];
                             const isSameAsNext = next && h.value === next.value;
                             return (
-                                <div key={h.date} class="text-xs text-gray-400">
-                                    <span class="font-mono">{h.date}</span>:{' '}
-                                    <span class="text-gray-300">
-                                        {isSameAsNext ? (
-                                            '|'
-                                        ) : h.value ? (
-                                            <TagValue value={h.value} tag={tag} visitedSet={visitedSet} />
-                                        ) : (
-                                            <i class="opacity-50">{t('spider.table.noValue')}</i>
-                                        )}
+                                <div key={h.date} class="text-xs text-gray-400 flex items-start">
+                                    <span class="font-mono w-20 shrink-0">
+                                        {h.date}
+                                        {isSameAsNext ? ',' : ':'}
+                                    </span>
+                                    <span class="text-gray-300 flex-grow">
+                                        {!isSameAsNext &&
+                                            (h.value ? (
+                                                <TagValue value={h.value} tag={tag} visitedSet={visitedSet} />
+                                            ) : (
+                                                <i class="opacity-50">{t('spider.table.noValue')}</i>
+                                            ))}
                                     </span>
                                 </div>
                             );
