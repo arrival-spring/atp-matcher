@@ -104,9 +104,7 @@ function TabButton({ id, label, count, active, onClick, isMono }) {
         <li class="shrink-0" role="presentation">
             <button
                 class={`inline-block p-3 md:p-4 border-b-2 rounded-t-lg transition-colors cursor-pointer whitespace-nowrap ${
-                    active
-                        ? activeClass
-                        : 'border-transparent hover:text-gray-300 hover:border-gray-300'
+                    active ? activeClass : 'border-transparent hover:text-gray-300 hover:border-gray-300'
                 } ${isMono ? 'font-mono' : ''}`}
                 onClick={onClick}
                 type="button"

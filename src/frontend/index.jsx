@@ -24,27 +24,28 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
         const locale = getLocale();
         const displayNames = new Intl.DisplayNames([locale], { type: 'region' });
 
-        return Array.from(codes).map(code => {
-            let name = code;
-            try {
-                name = displayNames.of(code);
-            } catch (e) {}
-            return { code, name };
-        }).sort((a, b) => a.name.localeCompare(b.name, locale));
+        return Array.from(codes)
+            .map(code => {
+                let name = code;
+                try {
+                    name = displayNames.of(code);
+                } catch (e) {}
+                return { code, name };
+            })
+            .sort((a, b) => a.name.localeCompare(b.name, locale));
     }, [allSpiderResults]);
 
     const filteredCountries = useMemo(() => {
         const searchLower = search.toLowerCase();
-        return countries.filter(c =>
-            c.name.toLowerCase().includes(searchLower) ||
-            c.code.toLowerCase().includes(searchLower)
+        return countries.filter(
+            c => c.name.toLowerCase().includes(searchLower) || c.code.toLowerCase().includes(searchLower)
         );
     }, [countries, search]);
 
     const items = [{ code: null, name: t('index.showAllCountries') }, ...filteredCountries];
 
     useEffect(() => {
-        const handleClickOutside = (e) => {
+        const handleClickOutside = e => {
             if (containerRef.current && !containerRef.current.contains(e.target)) {
                 setIsOpen(false);
             }
@@ -65,7 +66,7 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
         setSelectedIndex(0);
     }, [search]);
 
-    const handleKeyDown = (e) => {
+    const handleKeyDown = e => {
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             setSelectedIndex(prev => Math.min(prev + 1, items.length - 1));
@@ -92,8 +93,15 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
                 onClick={() => setIsOpen(!isOpen)}
                 class={`w-full flex items-center justify-between px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 focus:outline-none focus:ring-1 ${theme === 'auto' ? 'focus:ring-blue-500' : 'focus:ring-amber-500'} transition-colors`}
             >
-                <span class="truncate">{selectedName === t('index.showAllCountries') ? t('index.showAllCountries') : selectedName}</span>
-                <svg class={`w-4 h-4 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span class="truncate">
+                    {selectedName === t('index.showAllCountries') ? t('index.showAllCountries') : selectedName}
+                </span>
+                <svg
+                    class={`w-4 h-4 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
             </button>
@@ -108,7 +116,7 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
                             class={`w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 ${theme === 'auto' ? 'focus:ring-blue-500' : 'focus:ring-amber-500'}`}
                             placeholder={t('index.countryFilterPlaceholder')}
                             value={search}
-                            onInput={(e) => setSearch(e.target.value)}
+                            onInput={e => setSearch(e.target.value)}
                             onKeyDown={handleKeyDown}
                         />
                     </div>
@@ -117,7 +125,9 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
                             <button
                                 key={item.code}
                                 class={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                                    index === selectedIndex ? 'bg-gray-800 text-white' : 'text-gray-400 hover:bg-gray-800'
+                                    index === selectedIndex
+                                        ? 'bg-gray-800 text-white'
+                                        : 'text-gray-400 hover:bg-gray-800'
                                 }`}
                                 onClick={() => {
                                     onSelect(item.code);
@@ -158,10 +168,13 @@ function GlobalSearch({ basePath }) {
         }
 
         const searchLower = search.toLowerCase();
-        const filtered = globalIndex.filter(s =>
-            s.name.toLowerCase().includes(searchLower) ||
-            (s.brands && s.brands.some(b => b.toLowerCase().includes(searchLower)))
-        ).slice(0, 10);
+        const filtered = globalIndex
+            .filter(
+                s =>
+                    s.name.toLowerCase().includes(searchLower) ||
+                    (s.brands && s.brands.some(b => b.toLowerCase().includes(searchLower)))
+            )
+            .slice(0, 10);
 
         setResults(filtered);
         setIsOpen(true);
@@ -169,7 +182,7 @@ function GlobalSearch({ basePath }) {
     }, [search, globalIndex]);
 
     useEffect(() => {
-        const handleClickOutside = (e) => {
+        const handleClickOutside = e => {
             if (containerRef.current && !containerRef.current.contains(e.target)) {
                 setIsOpen(false);
             }
@@ -178,7 +191,7 @@ function GlobalSearch({ basePath }) {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleKeyDown = (e) => {
+    const handleKeyDown = e => {
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             setSelectedIndex(prev => Math.min(prev + 1, results.length - 1));
@@ -200,7 +213,12 @@ function GlobalSearch({ basePath }) {
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg class="h-6 w-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
                     </svg>
                 </div>
                 <input
@@ -209,7 +227,7 @@ function GlobalSearch({ basePath }) {
                     class="block w-full pl-12 pr-12 py-4 bg-gray-900 border border-gray-700 rounded-xl text-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-lg"
                     placeholder={t('index.searchPlaceholder')}
                     value={search}
-                    onInput={(e) => setSearch(e.target.value)}
+                    onInput={e => setSearch(e.target.value)}
                     onKeyDown={handleKeyDown}
                     onFocus={() => search.trim() && setIsOpen(true)}
                 />
@@ -219,7 +237,12 @@ function GlobalSearch({ basePath }) {
                         class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-white"
                     >
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"
+                            />
                         </svg>
                     </button>
                 )}
@@ -238,9 +261,7 @@ function GlobalSearch({ basePath }) {
                         >
                             <div class="text-white font-bold text-lg">{res.name}</div>
                             {res.brands && res.brands.length > 0 && (
-                                <div class="text-gray-400 text-sm mt-1 truncate">
-                                    {res.brands.join(', ')}
-                                </div>
+                                <div class="text-gray-400 text-sm mt-1 truncate">{res.brands.join(', ')}</div>
                             )}
                         </a>
                     ))}
@@ -280,7 +301,7 @@ function Dashboard({ allSpiderResults }) {
     const [currentLocale, setCurrentLocale] = useState(null);
 
     useEffect(() => {
-        const handleLocaleChange = (e) => setCurrentLocale(e.detail);
+        const handleLocaleChange = e => setCurrentLocale(e.detail);
         window.addEventListener('localeChanged', handleLocaleChange);
         return () => window.removeEventListener('localeChanged', handleLocaleChange);
     }, []);
@@ -332,7 +353,7 @@ function Dashboard({ allSpiderResults }) {
         isFirstRender.current = false;
     }, [search, page, sort, selectedCountry]);
 
-    const handleSort = (column) => {
+    const handleSort = column => {
         let direction = column === 'name' ? 'asc' : 'desc';
         if (sort.column === column) {
             direction = sort.direction === 'desc' ? 'asc' : 'desc';
@@ -344,8 +365,9 @@ function Dashboard({ allSpiderResults }) {
     const filtered = useMemo(() => {
         let data = allSpiderResults.filter(spider => {
             const searchLower = search.toLowerCase();
-            const matchesSearch = spider.name.toLowerCase().includes(searchLower) ||
-                                (spider.brands && spider.brands.some(b => b.toLowerCase().includes(searchLower)));
+            const matchesSearch =
+                spider.name.toLowerCase().includes(searchLower) ||
+                (spider.brands && spider.brands.some(b => b.toLowerCase().includes(searchLower)));
             const matchesCountry = !selectedCountry || (spider.countries && spider.countries.includes(selectedCountry));
             return matchesSearch && matchesCountry;
         });
@@ -455,7 +477,12 @@ function Dashboard({ allSpiderResults }) {
                             class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-white"
                         >
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
                             </svg>
                         </button>
                     )}
@@ -463,7 +490,10 @@ function Dashboard({ allSpiderResults }) {
                 <CountryFilter
                     allSpiderResults={allSpiderResults}
                     selectedCountry={selectedCountry}
-                    onSelect={(c) => { setSelectedCountry(c); setPage(1); }}
+                    onSelect={c => {
+                        setSelectedCountry(c);
+                        setPage(1);
+                    }}
                 />
             </div>
             <div class="md:hidden">
@@ -576,7 +606,11 @@ function SortIcon({ column, currentSort }) {
         );
     }
     return (
-        <svg class={`w-3 h-3 ${currentSort.direction === 'asc' ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+        <svg
+            class={`w-3 h-3 ${currentSort.direction === 'asc' ? 'rotate-180' : ''}`}
+            fill="currentColor"
+            viewBox="0 0 20 20"
+        >
             <path d="M5 15l5 5 5-5H5z" />
         </svg>
     );
@@ -585,16 +619,7 @@ function SortIcon({ column, currentSort }) {
 function SpiderRow({ spider, onSort, currentSort }) {
     const { linkClass, theme } = useTheme();
     const isAuto = theme === 'auto';
-    const {
-        name,
-        issuesCount,
-        mappedCount,
-        totalCount,
-        isBrandSpider,
-        stabilityColor,
-        loadStatus,
-        brands,
-    } = spider;
+    const { name, issuesCount, mappedCount, totalCount, isBrandSpider, stabilityColor, loadStatus, brands } = spider;
 
     const statusColors = {
         green: 'bg-green-500',
@@ -633,12 +658,12 @@ function SpiderRow({ spider, onSort, currentSort }) {
                                 {name}
                             </a>
                             {brands && brands.length > 0 && (
-                                <span class="ml-2 text-xs text-gray-500 font-normal">
-                                    {brands.join(', ')}
-                                </span>
+                                <span class="ml-2 text-xs text-gray-500 font-normal">{brands.join(', ')}</span>
                             )}
                             {loadStatus && (
-                                <span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">{loadStatus}</span>
+                                <span class="ml-2 px-2 py-0.5 text-xs rounded bg-gray-800 text-gray-400">
+                                    {loadStatus}
+                                </span>
                             )}
                         </div>
                     </div>
@@ -659,9 +684,7 @@ function SpiderRow({ spider, onSort, currentSort }) {
                         )}
                     </div>
                     {brands && brands.length > 0 && (
-                        <div class="text-sm text-gray-500 font-normal mt-0.5">
-                            {brands.join(', ')}
-                        </div>
+                        <div class="text-sm text-gray-500 font-normal mt-0.5">{brands.join(', ')}</div>
                     )}
                 </div>
             </td>

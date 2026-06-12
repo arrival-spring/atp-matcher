@@ -407,7 +407,9 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                 }
             } else {
                 if (countryCode) {
-                    console.warn(`Spider ${spider.name} has invalid country code: ${countryCode} for ref ${pending.ref}`);
+                    console.warn(
+                        `Spider ${spider.name} has invalid country code: ${countryCode} for ref ${pending.ref}`
+                    );
                 }
                 addToCountryless(safeEdits, spider.name, edit, finalTags);
             }

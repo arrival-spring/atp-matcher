@@ -100,9 +100,7 @@ export function JosmErrorModal({ onClose }) {
                     </svg>
                     <h3 class="text-2xl font-bold">{t('spider.modals.josmError.title')}</h3>
                 </div>
-                <p class="text-lg text-gray-200 mb-8 leading-relaxed">
-                    {t('spider.modals.josmError.message')}
-                </p>
+                <p class="text-lg text-gray-200 mb-8 leading-relaxed">{t('spider.modals.josmError.message')}</p>
                 <div class="flex justify-end">
                     <button
                         onClick={onClose}

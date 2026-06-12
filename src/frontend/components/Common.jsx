@@ -82,20 +82,29 @@ export function SpiderValue({ value, history, tag, visitedSet, isStable, isNewVa
             </div>
             {showHistory && (
                 <div class="pl-2 border-l border-gray-700">
-                    {[...relevantHistory]
-                        .reverse()
-                        .map(h => (
-                            <div key={h.date} class="text-xs text-gray-400">
-                                <span class="font-mono">{h.date}</span>:{' '}
-                                <span class="text-gray-300">
-                                    {h.value ? (
-                                        <TagValue value={h.value} tag={tag} visitedSet={visitedSet} />
-                                    ) : (
-                                        <i class="opacity-50">{t('spider.table.noValue')}</i>
-                                    )}
-                                </span>
-                            </div>
-                        ))}
+                    {(() => {
+                        const reversed = [...relevantHistory].reverse();
+                        return reversed.map((h, i) => {
+                            const next = reversed[i + 1];
+                            const isSameAsNext = next && h.value === next.value;
+                            return (
+                                <div key={h.date} class="text-xs text-gray-400 flex items-start">
+                                    <span class="font-mono w-20 shrink-0">
+                                        {h.date}
+                                        {isSameAsNext ? ',' : ':'}
+                                    </span>
+                                    <span class="text-gray-300 flex-grow">
+                                        {!isSameAsNext &&
+                                            (h.value ? (
+                                                <TagValue value={h.value} tag={tag} visitedSet={visitedSet} />
+                                            ) : (
+                                                <i class="opacity-50">{t('spider.table.noValue')}</i>
+                                            ))}
+                                    </span>
+                                </div>
+                            );
+                        });
+                    })()}
                 </div>
             )}
         </div>
@@ -230,9 +239,7 @@ export function Pagination({ page, totalPages, onPageChange, totalItems }) {
             >
                 {t('index.pagination.previous')}
             </button>
-            <span class="text-gray-400 font-medium text-sm">
-                {t('index.pagination.pageOf', { page, totalPages })}
-            </span>
+            <span class="text-gray-400 font-medium text-sm">{t('index.pagination.pageOf', { page, totalPages })}</span>
             <button
                 onClick={() => onPageChange(page + 1)}
                 disabled={page === totalPages || totalItems === 0}
@@ -248,9 +255,7 @@ export function LoadingIndicator({ message }) {
     const { spinnerClass } = useTheme();
     return (
         <div class="py-12 flex flex-col items-center justify-center gap-4">
-            <div
-                class={`w-12 h-12 border-4 ${spinnerClass} border-t-transparent rounded-full animate-spin`}
-            ></div>
+            <div class={`w-12 h-12 border-4 ${spinnerClass} border-t-transparent rounded-full animate-spin`}></div>
             <p class="text-gray-400 animate-pulse">{message}</p>
         </div>
     );

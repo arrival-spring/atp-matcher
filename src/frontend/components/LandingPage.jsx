@@ -11,42 +11,54 @@ export function LandingPage({ autoStats, previewStats, atpDate, osmDate, basePat
         const hoverAccentClass = isAuto ? 'hover:border-emerald-400' : 'hover:border-amber-400';
         const link = isAuto ? `${basePath}/auto/` : `${basePath}/preview/`;
 
-        return h('a', {
-            href: link,
-            class: `block p-6 bg-gray-900 border-t-4 ${accentClass} ${hoverAccentClass} rounded-lg shadow-lg transition-colors`
-        }, [
-            h('h2', { class: 'text-2xl font-bold mb-4', 'data-t': `landing.${type}.title` }, title),
-            h('p', { class: 'text-gray-400 mb-6', 'data-t': `landing.${type}.description` }, description),
-            h('div', {
-                class: 'text-gray-300',
-                'data-t': `landing.${type}.stats`,
-                'data-t-html': 'true',
-                'data-t-params': JSON.stringify({
-                    x: `<span class="text-4xl font-bold text-white">${stats.places}</span>`,
-                    y: stats.brands
-                }),
-                dangerouslySetInnerHTML: {
-                    __html: t(`landing.${type}.stats`, {
+        return h(
+            'a',
+            {
+                href: link,
+                class: `block p-6 bg-gray-900 border-t-4 ${accentClass} ${hoverAccentClass} rounded-lg shadow-lg transition-colors`,
+            },
+            [
+                h('h2', { class: 'text-2xl font-bold mb-4', 'data-t': `landing.${type}.title` }, title),
+                h('p', { class: 'text-gray-400 mb-6', 'data-t': `landing.${type}.description` }, description),
+                h('div', {
+                    class: 'text-gray-300',
+                    'data-t': `landing.${type}.stats`,
+                    'data-t-html': 'true',
+                    'data-t-params': JSON.stringify({
                         x: `<span class="text-4xl font-bold text-white">${stats.places}</span>`,
-                        y: stats.brands
-                    })
-                }
-            })
-        ]);
+                        y: stats.brands,
+                    }),
+                    dangerouslySetInnerHTML: {
+                        __html: t(`landing.${type}.stats`, {
+                            x: `<span class="text-4xl font-bold text-white">${stats.places}</span>`,
+                            y: stats.brands,
+                        }),
+                    },
+                }),
+            ]
+        );
     };
 
     return h(Layout, { title: t('title'), basePath, atpDate, osmDate }, [
         h('header', { class: 'mb-12' }, [
             h('h1', { class: 'text-4xl font-extrabold mb-4', 'data-t': 'title' }, t('title')),
-            h('p', { class: 'text-xl text-gray-400 max-w-3xl mb-6', 'data-t': 'landing.summary' }, t('landing.summary')),
+            h(
+                'p',
+                { class: 'text-xl text-gray-400 max-w-3xl mb-6', 'data-t': 'landing.summary' },
+                t('landing.summary')
+            ),
             h('div', { class: 'flex gap-4 mb-12' }, [
-                h('a', {
-                    href: gitHubUrl,
-                    target: '_blank',
-                    rel: 'noopener noreferrer',
-                    class: 'text-blue-400 hover:text-blue-300 transition-colors',
-                    'data-t': 'landing.githubLink'
-                }, t('landing.githubLink')),
+                h(
+                    'a',
+                    {
+                        href: gitHubUrl,
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                        class: 'text-blue-400 hover:text-blue-300 transition-colors',
+                        'data-t': 'landing.githubLink',
+                    },
+                    t('landing.githubLink')
+                ),
             ]),
 
             h('div', { id: 'global-search-root', class: 'mb-12' }),
@@ -56,14 +68,14 @@ export function LandingPage({ autoStats, previewStats, atpDate, osmDate, basePat
                 type: 'auto',
                 title: t('landing.auto.title'),
                 description: t('landing.auto.description'),
-                stats: autoStats
+                stats: autoStats,
             }),
             h(Card, {
                 type: 'preview',
                 title: t('landing.preview.title'),
                 description: t('landing.preview.description'),
-                stats: previewStats
-            })
-        ])
+                stats: previewStats,
+            }),
+        ]),
     ]);
 }

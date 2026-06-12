@@ -89,14 +89,7 @@ async function run() {
     }
 
     try {
-        await streamOsmData(
-            config.osmExtractUrl,
-            allSpiders,
-            atpLookup,
-            wikidataToSpiders,
-            allMatches,
-            allUnmatched
-        );
+        await streamOsmData(config.osmExtractUrl, allSpiders, atpLookup, wikidataToSpiders, allMatches, allUnmatched);
     } catch (error) {
         console.error(`Error streaming OSM data: ${error.message}`);
         process.exit(1);

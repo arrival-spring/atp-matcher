@@ -28,7 +28,7 @@ function SpiderDashboard({
     const [currentLocale, setCurrentLocale] = useState(null);
 
     useEffect(() => {
-        const handleLocaleChange = (e) => setCurrentLocale(e.detail);
+        const handleLocaleChange = e => setCurrentLocale(e.detail);
         window.addEventListener('localeChanged', handleLocaleChange);
         return () => window.removeEventListener('localeChanged', handleLocaleChange);
     }, []);
@@ -93,7 +93,11 @@ function SpiderDashboard({
         const newHash = params.toString();
         if (window.location.hash.substring(1) !== newHash) {
             const method = isFirstRender.current ? 'replaceState' : 'pushState';
-            window.history[method]({}, '', `${window.location.pathname}${window.location.search}${newHash ? '#' + newHash : ''}`);
+            window.history[method](
+                {},
+                '',
+                `${window.location.pathname}${window.location.search}${newHash ? '#' + newHash : ''}`
+            );
         }
         isFirstRender.current = false;
     }, [currentState]);
@@ -141,7 +145,9 @@ function SpiderDashboard({
             if (!warnedTags.includes(currentState.tag)) {
                 setMismatchModalConfig({
                     title: t('spider.modals.mismatch.title'),
-                    message: t('spider.modals.mismatch.message', { tag: `<strong class="text-white">${escapeHtml(currentState.tag)}</strong>` }),
+                    message: t('spider.modals.mismatch.message', {
+                        tag: `<strong class="text-white">${escapeHtml(currentState.tag)}</strong>`,
+                    }),
                     onUnderstand: () => {
                         const warnedTags = JSON.parse(
                             sessionStorage.getItem(`mismatch_warned_tags_${spiderName}`) || '[]'
@@ -170,8 +176,7 @@ function SpiderDashboard({
         setShowJosmErrorModal(true);
     };
 
-    const isUniquelyMatched = r =>
-        r.matchCount === 1 && !['disallowedSourceUri', 'notABrandSpider'].includes(r.status);
+    const isUniquelyMatched = r => r.matchCount === 1 && !['disallowedSourceUri', 'notABrandSpider'].includes(r.status);
 
     const switchTab = tag => {
         setCurrentState({
@@ -186,7 +191,8 @@ function SpiderDashboard({
 
     const finalUnmappedCount =
         unmappedCache !== null
-            ? unmappedCache.length + results.filter(r => ['disallowedSourceUri', 'notABrandSpider'].includes(r.status)).length
+            ? unmappedCache.length +
+              results.filter(r => ['disallowedSourceUri', 'notABrandSpider'].includes(r.status)).length
             : unmappedCount;
 
     const finalUnmatchedCount = unmatchedCache !== null ? unmatchedCache.length : unmatchedCount;

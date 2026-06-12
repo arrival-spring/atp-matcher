@@ -116,7 +116,12 @@ export function UnmappedTab({
                             class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-white"
                         >
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
                             </svg>
                         </button>
                     )}
@@ -241,11 +246,7 @@ export function BrandFilters({ filters, currentState, onFilterChange, totalCount
     return (
         <div class="sticky top-[44px] md:top-[52px] z-20 bg-gray-950 -mx-4 px-4 md:mx-0 md:px-0">
             <div class={`relative overflow-hidden fade-wrapper py-4 ${fadeState}`}>
-                <div
-                    ref={scrollRef}
-                    onScroll={updateFadeEffect}
-                    class="flex overflow-x-auto no-scrollbar gap-2"
-                >
+                <div ref={scrollRef} onScroll={updateFadeEffect} class="flex overflow-x-auto no-scrollbar gap-2">
                     <button
                         class={`px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap cursor-pointer ${
                             currentState.brand === null && currentState.wikidata === null
