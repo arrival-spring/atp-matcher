@@ -31,7 +31,7 @@ export function TagValue({ value, tag, visitedSet, showOpeningHoursWarning }) {
         if (missing && missing.length > 0) {
             const formatted = formatMissingDays(missing);
             warning = (
-                <span class="ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-900/50 border border-amber-700 text-amber-200 inline-block align-middle">
+                <span class="mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-900/50 border border-amber-700 text-amber-200 inline-block">
                     {t('spider.table.missingDaysWarning', { days: formatted })}
                 </span>
             );
@@ -51,12 +51,17 @@ export function TagValue({ value, tag, visitedSet, showOpeningHoursWarning }) {
             </a>
         );
     }
-    return (
-        <Fragment>
-            <code class="text-sm break-all">{value}</code>
-            {warning}
-        </Fragment>
-    );
+
+    if (warning) {
+        return (
+            <div class="flex flex-col items-start">
+                <code class="text-sm break-all">{value}</code>
+                {warning}
+            </div>
+        );
+    }
+
+    return <code class="text-sm break-all">{value}</code>;
 }
 
 export function TagsWithLinks({ tags, visitedSet, showOpeningHoursWarning }) {
@@ -101,8 +106,8 @@ export function SpiderValue({ value, history, tag, visitedSet, isStable, isNewVa
 
     return (
         <div class="space-y-1">
-            <div class="flex items-center gap-2 font-bold text-white">
-                {indicator}
+            <div class="flex items-start gap-2 font-bold text-white">
+                {indicator && <div class="mt-0.5">{indicator}</div>}
                 <TagValue
                     value={value}
                     tag={tag}
