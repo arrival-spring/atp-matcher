@@ -346,9 +346,10 @@ async function createForumPostIssue(spiders) {
                   .join('\n')
             : '';
 
-        spidersList += `- [${spiderName}](${previewLink}) ([GitHub PR](${pr.html_url}))
+        spidersList += `## [${spiderName}](${previewLink})
+  - ([GitHub PR](${pr.html_url}))
   - Currently mapped items: ${mappedCount}
-  - Issues detected: ${issuesCount}
+  - Current number of issues detected: ${issuesCount}
   - Included tags: ${displayTags}
 
 ${quotedBody}\n\n`;
@@ -361,7 +362,7 @@ The following spiders are being proposed to have automatic updates enabled:
 
 ${spidersList}
 
-Please review these spiders, if there are no issues raised then automatic edits will be enabled for them in two weeks' time.
+Please review these spiders, if there are no issues raised then automatic edits will be enabled for them in approximately two weeks' time.
 \`\`\`
 
 This issue tracks the community notification for this week's batch of spiders.`;
