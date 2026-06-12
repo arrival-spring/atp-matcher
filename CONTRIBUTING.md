@@ -20,7 +20,7 @@ All new spiders must first be added to [spiders_preview.json](/spiders_preview.j
 
 Go to [spiders_preview.json](/spiders_preview.json) and then click the pencil icon to edit. Add your spider anywhere in the file.
 
-**Don't worry about formatting or sorting:** You don't need to worry about precise indentation or alphabetical order. An automated scripts will handle all the formatting and sorting for you when you submit your contribution.
+**Don't worry about formatting or sorting:** You don't need to worry about precise indentation or alphabetical order. An automated script will handle all the formatting and sorting for you when you submit your contribution.
 
 #### Configuration Structure
 
@@ -48,13 +48,13 @@ Your contribution will be reviewed and once it has been merged you will be able 
 
 ## Moving a Spider to "Auto"
 
-After a spider has been in the "Preview" stage and you have confirmed that the data is accurate and matching correctly, it can be moved to `spiders_auto.json`. This enables automated updates by a bot when changes are detected. Edits with the status of "Add to OSM" and "Update OSM" will be made in the OSM database.
+After a spider has been in the "Preview" stage and you have confirmed that the data is accurate and matching correctly, it can be moved to [spiders_auto.json](/spiders_auto.json). This enables automated updates by a bot when changes are detected. Edits with the status of "Add to OSM" and "Update OSM" will be made in the OSM database.
 
 To move a spider to auto:
-1. Create a pull request moving the spider's configuration from `spiders_preview.json` to `spiders_auto.json`.
-2. **Provide evidence of verification:** In your pull request description, you **must** state what you have done to verify the accuracy of the spider. For example, mention that you surveyed several locations to verify the opening hours and that the existing matching between ATP items and OSM objects appears to be accurate.
+1. Create a pull request moving the spider's configuration from [spiders_preview.json](/spiders_preview.json) to [spiders_auto.json](/spiders_auto.json) (or just copy the configuration to the auto file and a script on the pull request will remove it from preview automatically).
+2. **Provide evidence of verification:** In your pull request description, you **must** state what you have done to verify the accuracy of the spider. For example, mention that you surveyed several locations to verify the opening hours and that the matching between ATP items and OSM objects appears to be accurate.
 
-**Review Process:** When a spider is proposed for "Auto", a notification is posted on the OpenStreetMap community forum. There is a mandatory two-week waiting period to allow the community to review the data before the spider is merged and automated updates begin.
+**Review Process:** When a spider is proposed for "Auto", a comment will need to be posted on the OpenStreetMap community forum thread. This is usually done once per week for any spiders being proposed for automatic updates. There is a mandatory two-week waiting period to allow the community to review the data before the spider is merged and automated updates begin.
 
 ## Other Contributions
 
