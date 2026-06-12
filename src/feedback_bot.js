@@ -339,10 +339,19 @@ async function createForumPostIssue(spiders) {
         const tags = spiderData ? spiderData.importableTags || [] : [];
         const displayTags = [...new Set([...tags, 'opening_hours', 'website'])].sort().join(', ');
 
+        const quotedBody = pr.body
+            ? pr.body
+                  .split('\n')
+                  .map(line => `> ${line}`)
+                  .join('\n')
+            : '';
+
         spidersList += `- [${spiderName}](${previewLink}) ([GitHub PR](${pr.html_url}))
   - Currently mapped items: ${mappedCount}
   - Issues detected: ${issuesCount}
-  - Included tags: ${displayTags}\n`;
+  - Included tags: ${displayTags}
+
+${quotedBody}\n\n`;
     }
 
     const issueBody = `@${repoOwner}, please post the following on the [OSM forum](${forumThread}):
