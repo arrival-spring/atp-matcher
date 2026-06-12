@@ -81,29 +81,35 @@ export function SpiderValue({ value, history, tag, visitedSet, isStable, isNewVa
                 <TagValue value={value} tag={tag} visitedSet={visitedSet} />
             </div>
             {showHistory && (
-                <div class="pl-2 border-l border-gray-700">
+                <div class="pl-2 border-l border-gray-700 space-y-2">
                     {(() => {
                         const reversed = [...relevantHistory].reverse();
-                        return reversed.map((h, i) => {
-                            const next = reversed[i + 1];
-                            const isSameAsNext = next && h.value === next.value;
-                            return (
-                                <div key={h.date} class="text-xs text-gray-400 flex items-start">
-                                    <span class="font-mono w-20 shrink-0">
-                                        {h.date}
-                                        {isSameAsNext ? ',' : ':'}
-                                    </span>
-                                    <span class="text-gray-300 flex-grow">
-                                        {!isSameAsNext &&
-                                            (h.value ? (
-                                                <TagValue value={h.value} tag={tag} visitedSet={visitedSet} />
-                                            ) : (
-                                                <i class="opacity-50">{t('spider.table.noValue')}</i>
-                                            ))}
-                                    </span>
-                                </div>
-                            );
+                        const groups = [];
+                        reversed.forEach(h => {
+                            const lastGroup = groups[groups.length - 1];
+                            if (lastGroup && lastGroup.value === h.value) {
+                                lastGroup.dates.push(h.date);
+                            } else {
+                                groups.push({ value: h.value, dates: [h.date] });
+                            }
                         });
+
+                        return groups.map((group, i) => (
+                            <div key={i} class="text-xs text-gray-400 flex items-center gap-3">
+                                <div class="font-mono shrink-0 flex flex-col">
+                                    {group.dates.map(date => (
+                                        <span key={date}>{date}</span>
+                                    ))}
+                                </div>
+                                <div class="text-gray-300 flex-grow">
+                                    {group.value ? (
+                                        <TagValue value={group.value} tag={tag} visitedSet={visitedSet} />
+                                    ) : (
+                                        <i class="opacity-50">{t('spider.table.noValue')}</i>
+                                    )}
+                                </div>
+                            </div>
+                        ));
                     })()}
                 </div>
             )}
