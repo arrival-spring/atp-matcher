@@ -30,10 +30,9 @@ export function SpiderPage({
                 'a',
                 {
                     href: `../index.html`,
-                    class: `${linkColorClass} hover:underline`,
-                    'data-t': 'spider.backToDashboard',
+                    class: `${linkColorClass} hover:underline font-bold text-xl`,
                 },
-                t('spider.backToDashboard')
+                '←'
             ),
         ]),
         h('header', { class: 'mb-12' }, [

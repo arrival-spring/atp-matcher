@@ -12,8 +12,8 @@ export function IndexPage({ indexData, atpDate, osmDate, basePath, theme = 'auto
         h('nav', { class: 'mb-8 mt-4' }, [
             h(
                 'a',
-                { href: `../index.html`, class: `${linkColorClass} hover:underline`, 'data-t': 'index.backToIndex' },
-                `← ${t('index.backToIndex')}`
+                { href: `../index.html`, class: `${linkColorClass} hover:underline font-bold text-xl` },
+                '←'
             ),
         ]),
         h('header', { class: 'mb-12 mt-4' }, [

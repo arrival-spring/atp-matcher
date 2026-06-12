@@ -21,7 +21,6 @@
     },
     "index": {
         "dashboard": "Dashboard",
-        "backToIndex": "Back to Index",
         "searchPlaceholder": "Search spiders or brands...",
         "countryFilterPlaceholder": "Search country name or code...",
         "showAllCountries": "All countries",
@@ -45,7 +44,6 @@
         }
     },
     "spider": {
-        "backToDashboard": "← Back to Dashboard",
         "staleData": "⚠️ Stale Data",
         "staleDataDesc": "The latest ATP run was empty. Showing data from {{ date }} instead.",
         "rejected": "Rejected for automatic updates",
