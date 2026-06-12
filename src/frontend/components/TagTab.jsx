@@ -303,7 +303,7 @@ export function TagTab({
                                                 <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">
                                                     {t('spider.table.osmValue')}:
                                                 </span>
-                                                <div class="flex-grow">
+                                                <div class="flex-grow font-bold text-white">
                                                     <TagValue value={r.osmValue} tag={tag} visitedSet={visitedSet} />
                                                 </div>
                                             </div>
