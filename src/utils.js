@@ -23,10 +23,10 @@ export function matchesCategories(featureProps, categories) {
     });
 }
 
-export function areAllDaysDefined(oh) {
-    if (!oh) return false;
+export function getMissingDays(oh) {
+    if (!oh) return ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
     const normalized = oh.replace(/\s+/g, ' ').trim();
-    if (normalized === '24/7') return true;
+    if (normalized === '24/7') return [];
 
     const days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
     const definedDays = new Set();
@@ -67,8 +67,39 @@ export function areAllDaysDefined(oh) {
         }
 
         // If it's none of the above, it's an unexpected word
-        return false;
+        return null;
     }
 
-    return definedDays.size === 7;
+    return days.filter(d => !definedDays.has(d));
+}
+
+export function areAllDaysDefined(oh) {
+    const missing = getMissingDays(oh);
+    return missing !== null && missing.length === 0;
+}
+
+export function formatMissingDays(missingDays) {
+    if (!missingDays || missingDays.length === 0) return '';
+    const days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+
+    const ranges = [];
+    let start = 0;
+    while (start < missingDays.length) {
+        let end = start;
+        while (
+            end + 1 < missingDays.length &&
+            days.indexOf(missingDays[end + 1]) === days.indexOf(missingDays[end]) + 1
+        ) {
+            end++;
+        }
+
+        if (start === end) {
+            ranges.push(missingDays[start]);
+        } else {
+            ranges.push(`${missingDays[start]}-${missingDays[end]}`);
+        }
+        start = end + 1;
+    }
+
+    return ranges.join(', ');
 }

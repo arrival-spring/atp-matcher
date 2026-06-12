@@ -47,7 +47,11 @@ export function DuplicateRefsTab({
                                             {t('spider.table.atpTags')}:
                                         </span>
                                         <div class="text-xs font-mono whitespace-pre-wrap flex-grow">
-                                            <TagsWithLinks tags={r.allAtpTags} visitedSet={visitedSet} />
+                                            <TagsWithLinks
+                                                tags={r.allAtpTags}
+                                                visitedSet={visitedSet}
+                                                showOpeningHoursWarning={true}
+                                            />
                                         </div>
                                     </div>
                                 </td>

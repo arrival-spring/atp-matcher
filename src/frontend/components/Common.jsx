@@ -2,6 +2,7 @@ import { h, Fragment } from 'preact';
 import { markLinkVisited, handleJosmLink } from '../utils';
 import { t } from '../i18n';
 import { useTheme } from './ThemeContext';
+import { getMissingDays, formatMissingDays } from '../../utils';
 
 export function StatusLabel({ status }) {
     if (!status) return null;
@@ -20,9 +21,23 @@ export function StatusLabel({ status }) {
     );
 }
 
-export function TagValue({ value, tag, visitedSet }) {
+export function TagValue({ value, tag, visitedSet, showOpeningHoursWarning }) {
     const { linkClass } = useTheme();
     if (!value) return null;
+
+    let warning = null;
+    if (showOpeningHoursWarning && tag === 'opening_hours') {
+        const missing = getMissingDays(value);
+        if (missing && missing.length > 0) {
+            const formatted = formatMissingDays(missing);
+            warning = (
+                <span class="mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-900/50 border border-amber-700 text-amber-200 inline-block">
+                    {t('spider.table.missingDaysWarning', { days: formatted })}
+                </span>
+            );
+        }
+    }
+
     if ((tag === 'website' || tag === 'contact:website') && value) {
         const isVisited = visitedSet.has(value);
         return (
@@ -36,15 +51,30 @@ export function TagValue({ value, tag, visitedSet }) {
             </a>
         );
     }
+
+    if (warning) {
+        return (
+            <div class="flex flex-col items-start">
+                <code class="text-sm break-all">{value}</code>
+                {warning}
+            </div>
+        );
+    }
+
     return <code class="text-sm break-all">{value}</code>;
 }
 
-export function TagsWithLinks({ tags, visitedSet }) {
+export function TagsWithLinks({ tags, visitedSet, showOpeningHoursWarning }) {
     if (!tags) return null;
     return Object.entries(tags).map(([k, v]) => (
         <div key={k}>
             <span class="text-gray-500">{k}=</span>
-            <TagValue value={v} tag={k} visitedSet={visitedSet} />
+            <TagValue
+                value={v}
+                tag={k}
+                visitedSet={visitedSet}
+                showOpeningHoursWarning={showOpeningHoursWarning}
+            />
         </div>
     ));
 }
@@ -76,9 +106,14 @@ export function SpiderValue({ value, history, tag, visitedSet, isStable, isNewVa
 
     return (
         <div class="space-y-1">
-            <div class="flex items-center gap-2 font-bold text-white">
-                {indicator}
-                <TagValue value={value} tag={tag} visitedSet={visitedSet} />
+            <div class="flex items-start gap-2 font-bold text-white">
+                {indicator && <div class="mt-0.5">{indicator}</div>}
+                <TagValue
+                    value={value}
+                    tag={tag}
+                    visitedSet={visitedSet}
+                    showOpeningHoursWarning={true}
+                />
             </div>
             {showHistory && (
                 <div class="pl-2 border-l border-gray-700 space-y-2">
@@ -103,7 +138,12 @@ export function SpiderValue({ value, history, tag, visitedSet, isStable, isNewVa
                                 </div>
                                 <div class="text-gray-300 flex-grow">
                                     {group.value ? (
-                                        <TagValue value={group.value} tag={tag} visitedSet={visitedSet} />
+                                        <TagValue
+                                            value={group.value}
+                                            tag={tag}
+                                            visitedSet={visitedSet}
+                                            showOpeningHoursWarning={true}
+                                        />
                                     ) : (
                                         <i class="opacity-50">{t('spider.table.noValue')}</i>
                                     )}

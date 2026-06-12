@@ -169,7 +169,11 @@ export function UnmappedTab({
                                                     {t('spider.table.tags')}:
                                                 </span>
                                                 <div class="text-xs font-mono whitespace-pre-wrap flex-grow">
-                                                    <TagsWithLinks tags={r.allAtpTags} visitedSet={visitedSet} />
+                                                    <TagsWithLinks
+                                                        tags={r.allAtpTags}
+                                                        visitedSet={visitedSet}
+                                                        showOpeningHoursWarning={true}
+                                                    />
                                                 </div>
                                             </div>
                                         </td>
