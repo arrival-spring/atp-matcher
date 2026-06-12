@@ -138,7 +138,11 @@ export function UnmatchedTab({
                                                     {t('spider.table.tags')}:
                                                 </span>
                                                 <div class="text-xs font-mono whitespace-pre-wrap flex-grow">
-                                                    <TagsWithLinks tags={r.tags} visitedSet={visitedSet} />
+                                                    <TagsWithLinks
+                                                        tags={r.tags}
+                                                        visitedSet={visitedSet}
+                                                        showOpeningHoursWarning={true}
+                                                    />
                                                 </div>
                                             </div>
                                         </td>
