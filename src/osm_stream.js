@@ -6,6 +6,13 @@ import { getNsiEffectiveTags } from './nsi_utils.js';
 import { normalizeWebsite } from './tag_comparisons.js';
 import { matchesCategories } from './utils.js';
 
+const decodeOpl = str => {
+    // OPL format uses %HEX% encoding for characters.
+    return str.replace(/%([0-9A-Fa-f]{1,6})%/g, (match, hex) => {
+        return String.fromCodePoint(parseInt(hex, 16));
+    });
+};
+
 export function parseOplTags(tagsStr) {
     const tags = {};
     if (!tagsStr || tagsStr === 'T') return tags;
@@ -17,20 +24,20 @@ export function parseOplTags(tagsStr) {
             const encodedKey = part.substring(0, eqIdx);
             const encodedVal = part.substring(eqIdx + 1);
 
-            const decode = str => {
-                // OPL format uses %HEX% encoding for characters.
-                return str.replace(/%([0-9A-Fa-f]{1,6})%/g, (match, hex) => {
-                    return String.fromCodePoint(parseInt(hex, 16));
-                });
-            };
-
-            tags[decode(encodedKey)] = decode(encodedVal);
+            tags[decodeOpl(encodedKey)] = decodeOpl(encodedVal);
         }
     }
     return tags;
 }
 
 export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, allMatches, allUnmatched) {
+    const refKeyMap = new Map(); // refKey -> Set of spider names
+    for (const [spiderName, spiderConfig] of Object.entries(spiders)) {
+        const refKey = spiderConfig.ref_key || 'ref';
+        if (!refKeyMap.has(refKey)) refKeyMap.set(refKey, new Set());
+        refKeyMap.get(refKey).add(spiderName);
+    }
+
     if (process.env.MOCK === 'true') {
         console.log('Using mock OSM data...');
         const mockMatches = JSON.parse(fs.readFileSync('mock_data/osm_matches.json', 'utf8'));
@@ -40,18 +47,16 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
             const props = entry.tags;
             const brand = props.brand;
             const wikidata = props['brand:wikidata'];
-            const website = props.website || props['contact:website'];
 
             // Simplified matching for mock
-            for (const [spiderName, spiderConfig] of Object.entries(spiders)) {
-                const refKeyName = spiderConfig.ref_key || 'ref';
+            for (const [refKeyName, spiderNames] of refKeyMap.entries()) {
                 const osmRefValue = props[refKeyName];
                 if (osmRefValue) {
                     const matchingRef = refKeyName === 'branch' ? osmRefValue.toLowerCase() : osmRefValue;
                     const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}`;
                     if (atpLookup.has(key)) {
                         for (const match of atpLookup.get(key)) {
-                            if (match.spiderName !== spiderName) continue;
+                            if (!spiderNames.has(match.spiderName)) continue;
                             const spiderMatches = allMatches.get(match.spiderName);
                             if (!spiderMatches.has(match.atpRef)) {
                                 spiderMatches.set(match.atpRef, []);
@@ -89,15 +94,8 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
         throw new Error(`Failed to initiate OSM data stream from ${url}: ${error.message}`, { cause: error });
     }
 
-    const refKeys = new Set(['ref']);
-    for (const spiderConfig of Object.values(spiders)) {
-        if (spiderConfig.ref_key) {
-            refKeys.add(spiderConfig.ref_key);
-        }
-    }
-
     const filterArgs = ['tags-filter', '-', 'nwr/brand', 'nwr/brand:wikidata', 'nwr/website', 'nwr/contact:website'];
-    for (const key of refKeys) {
+    for (const key of refKeyMap.keys()) {
         filterArgs.push(`nwr/${key}`);
     }
 
@@ -169,8 +167,7 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
             }
 
             // 2. Try matching by ref/ref_key
-            for (const [spiderName, spiderConfig] of Object.entries(spiders)) {
-                const refKeyName = spiderConfig.ref_key || 'ref';
+            for (const [refKeyName, spiderNames] of refKeyMap.entries()) {
                 const osmRefValue = props[refKeyName];
                 if (osmRefValue) {
                     const matchingRef = refKeyName === 'branch' ? osmRefValue.toLowerCase() : osmRefValue;
@@ -178,7 +175,7 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
                     if (atpLookup.has(key)) {
                         for (const match of atpLookup.get(key)) {
                             // Ensure we are matching the correct spider
-                            if (match.spiderName !== spiderName) continue;
+                            if (!spiderNames.has(match.spiderName)) continue;
 
                             const matchId = `${match.spiderName}|${match.atpRef}`;
                             if (!matchedAtpFeatures.has(matchId)) {

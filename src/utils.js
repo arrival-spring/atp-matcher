@@ -23,22 +23,23 @@ export function matchesCategories(featureProps, categories) {
     });
 }
 
+const days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+const allowedWords = new Set(['closed', 'off', '24/7']);
+const dayNameRegex = /^(Mo|Tu|We|Th|Fr|Sa|Su)$/;
+const dayRangeRegex = /^(Mo|Tu|We|Th|Fr|Sa|Su)-(Mo|Tu|We|Th|Fr|Sa|Su)$/;
+const timeRegex = /^\d{1,2}:\d{2}$/;
+const timeRangeRegex = /^\d{1,2}:\d{2}-\d{1,2}:\d{2}$/;
+
 export function getMissingDays(oh) {
-    if (!oh) return ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+    if (!oh) return [...days];
     const normalized = oh.replace(/\s+/g, ' ').trim();
     if (normalized === '24/7') return [];
 
-    const days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
     const definedDays = new Set();
 
     // Check for unexpected words
     // We split by common separators and check if each token is allowed
     const tokens = normalized.split(/[ ,;]+/);
-    const allowedWords = new Set(['closed', 'off', '24/7']);
-    const dayNameRegex = /^(Mo|Tu|We|Th|Fr|Sa|Su)$/;
-    const dayRangeRegex = /^(Mo|Tu|We|Th|Fr|Sa|Su)-(Mo|Tu|We|Th|Fr|Sa|Su)$/;
-    const timeRegex = /^\d{1,2}:\d{2}$/;
-    const timeRangeRegex = /^\d{1,2}:\d{2}-\d{1,2}:\d{2}$/;
 
     for (const token of tokens) {
         if (!token) continue;
@@ -80,7 +81,6 @@ export function areAllDaysDefined(oh) {
 
 export function formatMissingDays(missingDays) {
     if (!missingDays || missingDays.length === 0) return '';
-    const days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
     const ranges = [];
     let start = 0;
