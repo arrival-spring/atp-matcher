@@ -1,5 +1,14 @@
 import axios from 'axios';
 
+/**
+ * Reports threshold violations (too many changes for a tag) by creating or updating a GitHub issue.
+ * Only applicable for spiders in the 'auto' tier.
+ *
+ * @param {string} spiderName - The name of the spider.
+ * @param {Object[]} violations - An array of violation objects.
+ * @param {boolean} isAuto - Whether the spider is in the 'auto' tier.
+ * @returns {Promise<void>}
+ */
 export async function reportThresholdViolations(spiderName, violations, isAuto) {
     if (!isAuto) return;
 

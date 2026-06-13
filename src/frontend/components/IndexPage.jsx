@@ -2,6 +2,17 @@ import { h } from 'preact';
 import { Layout } from './Layout';
 import { t } from '../i18n';
 
+/**
+ * The static shell for the tier index pages (Auto or Preview dashboard).
+ * Renders the layout and scripts required to initialize the interactive dashboard.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object[]} props.indexData - Summary data for all spiders in the tier.
+ * @param {string} props.atpDate - The date of the latest ATP run.
+ * @param {string} props.osmDate - The date of the latest OSM extract.
+ * @param {string} props.basePath - The base path for links and assets.
+ * @param {string} [props.theme='auto'] - The tier theme ('auto' or 'preview').
+ */
 export function IndexPage({ indexData, atpDate, osmDate, basePath, theme = 'auto' }) {
     const isAuto = theme === 'auto';
     const gradientClass = isAuto ? 'from-blue-400 to-teal-400' : 'from-amber-400 to-orange-400';

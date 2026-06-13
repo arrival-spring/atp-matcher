@@ -4,6 +4,18 @@ import { t, getLocale } from '../i18n';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ThemeProvider } from './ThemeContext';
 
+/**
+ * The base layout component for all pages in the application.
+ * Includes the HTML head, localized footer with data dates, and initializes the theme.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.title - The page title (displayed in the browser tab).
+ * @param {string} props.basePath - The base path for links and assets.
+ * @param {string} props.atpDate - The date of the latest ATP run.
+ * @param {string} props.osmDate - The date of the latest OSM extract.
+ * @param {string} [props.theme='auto'] - The tier theme ('auto' or 'preview').
+ * @param {import('preact').ComponentChildren} props.children - Child components to be rendered within the layout.
+ */
 export function Layout({ title, basePath, atpDate, osmDate, theme = 'auto', children }) {
     const [currentLocale, setCurrentLocale] = useState(getLocale());
 

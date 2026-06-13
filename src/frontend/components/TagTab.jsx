@@ -4,6 +4,13 @@ import { StatusLabel, TagValue, SpiderValue, OsmColumn, Pagination } from './Com
 import { t } from '../i18n';
 import { useTheme } from './ThemeContext';
 
+/**
+ * An icon component indicating the current sort direction for a table column.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.column - The column key.
+ * @param {Object} props.currentSort - The current sort state (sort key and direction).
+ */
 function SortIcon({ column, currentSort }) {
     if (currentSort.sort !== column) {
         return (
@@ -19,6 +26,22 @@ function SortIcon({ column, currentSort }) {
     );
 }
 
+/**
+ * A tab component that displays results for a specific tag.
+ * Shows a table comparing ATP and OSM values, with filters for different statuses.
+ * Supports sorting and pagination.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.tag - The tag name.
+ * @param {Object[]} props.results - Matching results between ATP and OSM.
+ * @param {Object} props.currentState - Current state of the dashboard (status filter, page, sort).
+ * @param {Function} props.setCurrentState - Callback to update the state.
+ * @param {Set<string>} props.visitedSet - A set of visited URLs.
+ * @param {string} props.atpDate - The date of the ATP run.
+ * @param {Function} props.onLinkClick - Callback when a link is clicked.
+ * @param {Function} props.onJosmError - Callback if JOSM remote control fails.
+ * @param {number} props.pageSize - The number of items to display per page.
+ */
 export function TagTab({
     tag,
     results,

@@ -8,6 +8,17 @@ import { SpiderPage } from './frontend/components/SpiderPage.jsx';
 import { LandingPage } from './frontend/components/LandingPage.jsx';
 import { initI18n } from './frontend/i18n.js';
 
+/**
+ * Generates the static HTML dashboard and spider detail pages.
+ * Handles server-side rendering of Preact components, redirects for mutually exclusive tiers,
+ * and asset building with Vite.
+ *
+ * @param {Object[]} autoResults - Results for spiders in the 'auto' tier.
+ * @param {Object[]} previewResults - Results for spiders in the 'preview' tier.
+ * @param {string} atpDate - The date of the latest ATP run.
+ * @param {string} osmDate - The date of the latest OSM extract.
+ * @returns {Promise<void>}
+ */
 export async function generateWebpage(autoResults, previewResults, atpDate, osmDate) {
     await initI18n();
     const outputDir = 'output';

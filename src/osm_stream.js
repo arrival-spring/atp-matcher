@@ -13,6 +13,13 @@ const decodeOpl = str => {
     });
 };
 
+/**
+ * Parses an OPL format tags string into a JavaScript object.
+ * Handles %HEX% decoding for keys and values.
+ *
+ * @param {string} tagsStr - The OPL tags string (e.g., 'Tkey=val,key2=val2').
+ * @returns {Object} An object containing the parsed tags.
+ */
 export function parseOplTags(tagsStr) {
     const tags = {};
     if (!tagsStr || tagsStr === 'T') return tags;
@@ -30,6 +37,18 @@ export function parseOplTags(tagsStr) {
     return tags;
 }
 
+/**
+ * Streams OSM data from a PBF file (via osmium) and matches it against ATP data.
+ * Populates allMatches and allUnmatched maps.
+ *
+ * @param {string} url - The URL or path to the OSM PBF extract.
+ * @param {Object} spiders - The spider configuration object.
+ * @param {Map} atpLookup - The lookup map for ATP features.
+ * @param {Map} wikidataToSpiders - Map of Wikidata IDs to spider names.
+ * @param {Map} allMatches - Map to be populated with matched features per spider.
+ * @param {Map} allUnmatched - Map to be populated with unmatched OSM features per spider.
+ * @returns {Promise<void>} A promise that resolves when streaming and matching is complete.
+ */
 export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, allMatches, allUnmatched) {
     const refKeyMap = new Map(); // refKey -> Set of spider names
     for (const [spiderName, spiderConfig] of Object.entries(spiders)) {

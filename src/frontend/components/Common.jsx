@@ -4,6 +4,12 @@ import { t } from '../i18n';
 import { useTheme } from './ThemeContext';
 import { getMissingDays, formatMissingDays } from '../../utils';
 
+/**
+ * A label component that displays the status of a tag or item.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.status - The status string (e.g., 'matching', 'mismatch').
+ */
 export function StatusLabel({ status }) {
     if (!status) return null;
     const isSpecial = status.includes('(');
@@ -21,6 +27,16 @@ export function StatusLabel({ status }) {
     );
 }
 
+/**
+ * Displays a tag value. Websites are rendered as links.
+ * Shows a warning for opening_hours if missing days are detected.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.value - The value of the tag.
+ * @param {string} props.tag - The key of the tag.
+ * @param {Set<string>} props.visitedSet - A set of visited URLs.
+ * @param {boolean} [props.showOpeningHoursWarning=false] - Whether to show missing days warnings.
+ */
 export function TagValue({ value, tag, visitedSet, showOpeningHoursWarning }) {
     const { linkClass } = useTheme();
     if (!value) return null;
@@ -64,6 +80,14 @@ export function TagValue({ value, tag, visitedSet, showOpeningHoursWarning }) {
     return <code class="text-sm break-all">{value}</code>;
 }
 
+/**
+ * Renders a list of tag key-value pairs with links for website tags.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object} props.tags - An object containing tag key-value pairs.
+ * @param {Set<string>} props.visitedSet - A set of visited URLs.
+ * @param {boolean} [props.showOpeningHoursWarning=false] - Whether to show missing days warnings.
+ */
 export function TagsWithLinks({ tags, visitedSet, showOpeningHoursWarning }) {
     if (!tags) return null;
     return Object.entries(tags).map(([k, v]) => (
@@ -74,6 +98,18 @@ export function TagsWithLinks({ tags, visitedSet, showOpeningHoursWarning }) {
     ));
 }
 
+/**
+ * Displays the current value for a spider tag, along with stability indicators
+ * and a history of previous values if they differ from the current one.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.value - The current value.
+ * @param {Object[]} [props.history=[]] - Array of historical values and dates.
+ * @param {string} props.tag - The tag name.
+ * @param {Set<string>} props.visitedSet - A set of visited URLs.
+ * @param {boolean} [props.isStable=false] - Whether the value is considered stable.
+ * @param {boolean} [props.isNewValue=false] - Whether the value is new in this run.
+ */
 export function SpiderValue({ value, history, tag, visitedSet, isStable, isNewValue }) {
     if (!value) return null;
 
@@ -147,6 +183,17 @@ export function SpiderValue({ value, history, tag, visitedSet, isStable, isNewVa
     );
 }
 
+/**
+ * Displays OSM identification and provides links to OpenStreetMap and JOSM remote control.
+ *
+ * @param {Object} props - The component props.
+ * @param {string|number} props.osmId - The OSM ID (with type prefix, e.g., 'n123').
+ * @param {Object} [props.suggestedFixes={}] - An object of tag fixes to be applied via JOSM.
+ * @param {Set<string>} props.visitedSet - A set of visited URLs.
+ * @param {string} props.atpDate - The date of the ATP run.
+ * @param {Function} [props.onVisited] - Callback when a link is clicked.
+ * @param {Function} [props.onJosmError] - Callback if JOSM remote control fails.
+ */
 export function OsmColumn({ osmId, suggestedFixes = {}, visitedSet, atpDate, onVisited, onJosmError }) {
     const { linkClass } = useTheme();
     if (!osmId) return null;
@@ -220,6 +267,15 @@ export function OsmColumn({ osmId, suggestedFixes = {}, visitedSet, atpDate, onV
     );
 }
 
+/**
+ * Renders one or more JOSM links to open multiple OSM features at once.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object[]} props.items - Array of objects with an 'id' property.
+ * @param {string} props.atpDate - The date of the ATP run.
+ * @param {Function} [props.onVisited] - Callback when a link is clicked.
+ * @param {Function} [props.onJosmError] - Callback if JOSM remote control fails.
+ */
 export function BulkJosmLinks({ items, atpDate, onVisited, onJosmError }) {
     const { linkClass } = useTheme();
     if (items.length === 0) return null;
@@ -265,6 +321,15 @@ export function BulkJosmLinks({ items, atpDate, onVisited, onJosmError }) {
     );
 }
 
+/**
+ * A generic pagination component with Previous/Next buttons and page information.
+ *
+ * @param {Object} props - The component props.
+ * @param {number} props.page - The current page number.
+ * @param {number} props.totalPages - The total number of pages.
+ * @param {Function} props.onPageChange - Callback when the page changes.
+ * @param {number} props.totalItems - The total number of items across all pages.
+ */
 export function Pagination({ page, totalPages, onPageChange, totalItems }) {
     return (
         <div class="flex justify-between items-center bg-gray-800 p-4 rounded-lg">
@@ -287,6 +352,12 @@ export function Pagination({ page, totalPages, onPageChange, totalItems }) {
     );
 }
 
+/**
+ * A loading spinner component with an optional message.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.message - The message to display while loading.
+ */
 export function LoadingIndicator({ message }) {
     const { spinnerClass } = useTheme();
     return (

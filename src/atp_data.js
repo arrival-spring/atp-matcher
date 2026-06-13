@@ -7,6 +7,12 @@ import { normalizeWebsite } from './tag_comparisons.js';
 const HISTORY_URL = 'https://data.alltheplaces.xyz/runs/history.json';
 const ATP_BASE_URL = 'https://alltheplaces-data.openaddresses.io/runs';
 
+/**
+ * Fetches the recent ATP run history.
+ * In mock mode, it returns the last four runs from mock_data/runs.json.
+ *
+ * @returns {Promise<Object[]>} A promise resolving to an array of the last four run objects.
+ */
 export async function getRuns() {
     if (process.env.MOCK === 'true') {
         return JSON.parse(fs.readFileSync('mock_data/runs.json', 'utf8')).slice(-4);
@@ -22,6 +28,15 @@ export async function getRuns() {
     }
 }
 
+/**
+ * Downloads and processes ATP GeoJSON data for all spiders across the specified runs.
+ * Identifies duplicate refs and websites and builds a lookup map for automated matching.
+ *
+ * @param {Object} spiders - The spider configuration object.
+ * @param {Object[]} runs - The ATP run objects to load data from.
+ * @returns {Promise<Object>} A promise resolving to an object containing spidersData,
+ *                            atpLookup, and wikidataToSpiders maps.
+ */
 export async function loadAllAtpData(spiders, runs) {
     const runIds = runs.map(r => r.run_id);
     const spidersData = new Map();

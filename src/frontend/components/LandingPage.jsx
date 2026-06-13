@@ -2,6 +2,17 @@ import { h } from 'preact';
 import { Layout } from './Layout';
 import { t } from '../i18n';
 
+/**
+ * The landing page component for the project.
+ * Displays global statistics, a global search bar, and links to the 'auto' and 'preview' tiers.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object} props.autoStats - Statistics for the 'auto' tier (places and brands counts).
+ * @param {Object} props.previewStats - Statistics for the 'preview' tier (places and brands counts).
+ * @param {string} props.atpDate - The date of the latest ATP run.
+ * @param {string} props.osmDate - The date of the latest OSM extract.
+ * @param {string} props.basePath - The base path for links and assets.
+ */
 export function LandingPage({ autoStats, previewStats, atpDate, osmDate, basePath }) {
     const gitHubUrl = 'https://github.com/placeholder/atp-osm-sync'; // Placeholder as requested
 
