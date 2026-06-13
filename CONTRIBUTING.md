@@ -56,6 +56,13 @@ To move a spider to auto:
 
 **Review Process:** When a spider is proposed for "Auto", a comment will need to be posted on the OpenStreetMap community forum thread. This is usually done once per week for any spiders being proposed for automatic updates. There is a mandatory two-week waiting period to allow the community to review the data before the spider is merged and automated updates begin.
 
+## Translations
+
+We welcome translations for the dashboard! All translation files are located in the [src/locales/](/src/locales/) directory.
+
+*   **Master Locale:** [en.json](/src/locales/en.json) is the master locale file. All other main locales (e.g., `fr.json`, `de.json`) must include all the keys present in `en.json`.
+*   **Sub-locales:** If you are adding a sub-locale (e.g., `en-GB.json`, `fr-CA.json`), you only need to include the keys that differ from the main locale. For example, [en-GB.json](/src/locales/en-GB.json) only contains a few overrides for British English.
+
 ## Other Contributions
 
 If you want to suggest bigger changes or new features, please open an issue first to discuss the proposal before you start working on it.
