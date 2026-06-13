@@ -42,8 +42,8 @@ Each spider entry looks like this:
 
 #### Other Optional Properties
 
-*   `rejected` (Optional): If you find that a spider is not suitable for automatic updates, you can add this property with a reason. This will be displayed on the website to inform others. The reason should be free text and written in the local language of the spider or in English. Note that spiders with a `rejected` property cannot be moved to the "Auto" tier.
-*   `ref_key` (Optional): By default, the `ref` tag is used for matching ATP items to OSM objects. If the spider uses a different property for its unique identifier, you can specify it here (e.g., `"ref_key": "branch"`).
+*   `rejected` (Optional): If you find that a spider is not suitable for automatic updates, you can add this property with a reason. This will be displayed on the website to inform others. The reason is free text and should be written in the local language of the spider or in English. Note that spiders with a `rejected` property cannot be moved to the "Auto" tier.
+*   `ref_key` (Optional): By default, the `wrbsite` or `ref` tag is used for matching ATP items to OSM objects. If the spider uses a different property for its unique identifier, you can specify it here (e.g., `"ref_key": "branch"` or `"ref_key": "ref:*"`).
 
 ### 2. Submit a Pull Request
 
