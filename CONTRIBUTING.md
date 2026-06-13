@@ -1,10 +1,10 @@
 # Contributing to ATP Sync
 
-Thank you for your interest in contributing! This project matches data from [All The Places](https://alltheplaces.xyz) to OpenStreetMap to help keep OSM data up to date.
+Thank you for your interest in contributing! This project matches data from [All The Places](https://alltheplaces.xyz) (ATP) to OpenStreetMap to help keep OSM data up to date.
 
 ## Finding a Spider
 
-First, go to [All The Places](https://alltheplaces.xyz) to find a suitable spider.
+First, go to [All The Places](https://alltheplaces.xyz) to find a suitable spider. It will need to have a suitable way to match it to OSM objects, usually the store specific website, but if that is not available then a store code in `ref` could be used. Generally, we are only interested in spiders that have `opening_hours` included, sometimes a contribution can be made to ATP to include them in results.
 
 **Important:** We only accept data from **first-party websites** (e.g., the official store locator of a brand). We do not accept data from third-party aggregators, directories or where the brand data is stored on a third-party website.
 
