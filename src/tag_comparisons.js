@@ -5,6 +5,8 @@ import normalizeUrl from 'normalize-url';
 
 const ohCache = new LRUCache({ max: 1000 });
 const ohCompareCache = new LRUCache({ max: 5000 });
+const webCache = new LRUCache({ max: 1000 });
+const phoneCache = new LRUCache({ max: 1000 });
 
 export const STATUS_PRIORITY = [
     'notABrandSpider',
@@ -101,22 +103,30 @@ export function arePhonesEqual(osmValue, atpValue, country) {
 
 export function formatPhone(value, country) {
     if (!value) return null;
+    const cacheKey = country ? `${value}|${country}` : value;
+    if (phoneCache.has(cacheKey)) return phoneCache.get(cacheKey);
+
     try {
         const p = parsePhoneNumber(value, country);
-        if (p.isValid()) {
-            return p.formatInternational();
-        }
+        const result = p.isValid() ? p.formatInternational() : null;
+        phoneCache.set(cacheKey, result);
+        return result;
     } catch {
-        // ignore
+        phoneCache.set(cacheKey, null);
+        return null;
     }
-    return null;
 }
 
 export function normalizeWebsite(url) {
     if (!url) return null;
+    if (webCache.has(url)) return webCache.get(url);
+
     try {
-        return normalizeUrl(url, { forceHttps: true });
+        const result = normalizeUrl(url, { forceHttps: true });
+        webCache.set(url, result);
+        return result;
     } catch {
+        webCache.set(url, url);
         return url;
     }
 }
