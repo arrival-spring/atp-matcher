@@ -1,5 +1,23 @@
 import { URL } from 'url';
 
+/**
+ * Filters ATP properties from a feature properties object.
+ * Removes keys starting with '@' and the 'nsi_id' key.
+ *
+ * @param {Object} props - The feature properties object.
+ * @returns {Object} A new object with filtered properties.
+ */
+export function filterAtpTags(props) {
+    const filtered = {};
+    if (!props) return filtered;
+    for (const [k, v] of Object.entries(props)) {
+        if (!k.startsWith('@') && k !== 'nsi_id') {
+            filtered[k] = v;
+        }
+    }
+    return filtered;
+}
+
 export function isAllowedSourceUri(sourceUri, allowedList) {
     if (!sourceUri || !allowedList || !Array.isArray(allowedList)) return false;
     try {

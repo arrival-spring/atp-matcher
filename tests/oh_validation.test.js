@@ -59,7 +59,9 @@ describe('getMissingDays and formatMissingDays', () => {
 
     test('non-consecutive missing days', () => {
         expect(getMissingDays('Mo 09:00-17:00; We 09:00-17:00; Fr 09:00-17:00')).toEqual(['Tu', 'Th', 'Sa', 'Su']);
-        expect(formatMissingDays(getMissingDays('Mo 09:00-17:00; We 09:00-17:00; Fr 09:00-17:00'))).toBe('Tu, Th, Sa-Su');
+        expect(formatMissingDays(getMissingDays('Mo 09:00-17:00; We 09:00-17:00; Fr 09:00-17:00'))).toBe(
+            'Tu, Th, Sa-Su'
+        );
     });
 
     test('unexpected words return null', () => {

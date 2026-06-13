@@ -1,6 +1,6 @@
 import slugify from 'slugify';
 import { countries as countriesList } from 'countries-list';
-import { isAllowedSourceUri, areAllDaysDefined } from './utils.js';
+import { isAllowedSourceUri, areAllDaysDefined, filterAtpTags } from './utils.js';
 import { areTagsEqual, formatPhone, getOverallStatus } from './tag_comparisons.js';
 
 function isValidIsoDate(date) {
@@ -203,12 +203,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
             }
         }
 
-        const filteredAtpTags = {};
-        for (const [k, v] of Object.entries(props)) {
-            if (!k.startsWith('@') && k !== 'nsi_id') {
-                filteredAtpTags[k] = v;
-            }
-        }
+        const filteredAtpTags = filterAtpTags(props);
 
         const allMatchesForRef = spiderMatches.get(matchingValue) || [];
         const isMapped = allMatchesForRef.length > 0;

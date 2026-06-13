@@ -35,15 +35,15 @@ Each spider entry looks like this:
 }
 ```
 
-*   `source_uri` (**Required**): A list of domains that the spider is allowed to use. This must be the official domain(s) of the brand.
-*   `importableTags` (Optional): A list of additional tags to import (e.g., `phone`, `email`). Note that `opening_hours` and `website` are always included automatically if they are available in the data.
-*   `categories` (Optional): Use this if you need to filter the spider's data to specific OSM features (e.g., `[{"amenity": "bank"}]` for a spider that also includes ATMs).
-*   `showUnmatched` (Optional): Set this to `true` to show items that haven't been matched to OSM yet on the dashboard. Leave this out for global brands that have spiders for each country as the dashboard cannot filter OSM data by country.
+- `source_uri` (**Required**): A list of domains that the spider is allowed to use. This must be the official domain(s) of the brand.
+- `importableTags` (Optional): A list of additional tags to import (e.g., `phone`, `email`). Note that `opening_hours` and `website` are always included automatically if they are available in the data.
+- `categories` (Optional): Use this if you need to filter the spider's data to specific OSM features (e.g., `[{"amenity": "bank"}]` for a spider that also includes ATMs).
+- `showUnmatched` (Optional): Set this to `true` to show items that haven't been matched to OSM yet on the dashboard. Leave this out for global brands that have spiders for each country as the dashboard cannot filter OSM data by country.
 
 #### Other Optional Properties
 
-*   `rejected` (Optional): If you find that a spider is not suitable for automatic updates, you can add this property with a reason. This will be displayed on the website to inform others. The reason is free text and should be written in the local language of the spider or in English. Note that spiders with a `rejected` property cannot be moved to the "Auto" tier.
-*   `ref_key` (Optional): By default, the `wrbsite` or `ref` tag is used for matching ATP items to OSM objects. If the spider uses a different property for its unique identifier, you can specify it here (e.g., `"ref_key": "branch"` or `"ref_key": "ref:*"`).
+- `rejected` (Optional): If you find that a spider is not suitable for automatic updates, you can add this property with a reason. This will be displayed on the website to inform others. The reason is free text and should be written in the local language of the spider or in English. Note that spiders with a `rejected` property cannot be moved to the "Auto" tier.
+- `ref_key` (Optional): By default, the `wrbsite` or `ref` tag is used for matching ATP items to OSM objects. If the spider uses a different property for its unique identifier, you can specify it here (e.g., `"ref_key": "branch"` or `"ref_key": "ref:*"`).
 
 ### 2. Submit a Pull Request
 
@@ -56,6 +56,7 @@ Your contribution will be reviewed and once it has been merged you will be able 
 After a spider has been in the "Preview" stage and you have confirmed that the data is accurate and matching correctly, it can be moved to [spiders_auto.json](/spiders_auto.json). This enables automated updates by a bot when changes are detected. Edits with the status of "Add to OSM" and "Update OSM" will be made in the OSM database.
 
 To move a spider to auto:
+
 1. Create a pull request moving the spider's configuration from [spiders_preview.json](/spiders_preview.json) to [spiders_auto.json](/spiders_auto.json) (or just copy the configuration to the auto file and a script on the pull request will remove it from preview automatically).
 2. **Provide evidence of verification:** In your pull request description, you **must** state what you have done to verify the accuracy of the spider. For example, mention that you surveyed several locations to verify the opening hours and that the matching between ATP items and OSM objects appears to be accurate.
 
@@ -65,8 +66,8 @@ To move a spider to auto:
 
 We welcome translations for the dashboard! All translation files are located in the [src/locales/](/src/locales/) directory.
 
-*   **Master Locale:** [en.json](/src/locales/en.json) is the master locale file. All other main locales (e.g., `fr.json`, `de.json`) must include all the keys present in `en.json`.
-*   **Sub-locales:** If you are adding a sub-locale (e.g., `en-GB.json`, `fr-CA.json`), you only need to include the keys that differ from the main locale. For example, [en-GB.json](/src/locales/en-GB.json) only contains a few overrides for British English.
+- **Master Locale:** [en.json](/src/locales/en.json) is the master locale file. All other main locales (e.g., `fr.json`, `de.json`) must include all the keys present in `en.json`.
+- **Sub-locales:** If you are adding a sub-locale (e.g., `en-GB.json`, `fr-CA.json`), you only need to include the keys that differ from the main locale. For example, [en-GB.json](/src/locales/en-GB.json) only contains a few overrides for British English.
 
 ## Other Contributions
 

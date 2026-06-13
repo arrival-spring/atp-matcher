@@ -13,6 +13,11 @@ export default [
                 ...globals.node,
                 ...globals.jest,
             },
+            parserOptions: {
+                ecmaFeatures: {
+                    jsx: true,
+                },
+            },
         },
         plugins: {
             prettier: prettier,
@@ -20,6 +25,21 @@ export default [
         rules: {
             ...configPrettier.rules,
             'prettier/prettier': 'error',
+            'no-unused-vars': [
+                'error',
+                { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+            ],
+        },
+    },
+    {
+        files: ['src/frontend/**/*.js', 'src/frontend/**/*.jsx'],
+        languageOptions: {
+            globals: {
+                ...globals.browser,
+            },
+        },
+        rules: {
+            'no-unused-vars': 'off',
         },
     },
     {

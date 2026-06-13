@@ -200,7 +200,7 @@ describe('processSpiderResults - Threshold Logic', () => {
             delete f.properties.website;
         });
         data.spiderMaps.forEach((map, idx) => {
-            for (const [ref, props] of map) {
+            for (const [_ref, props] of map) {
                 props.opening_hours = idx < 2 ? 'Mo-Su 10:00-20:00' : 'Mo-Su 09:00-18:00';
                 delete props.website;
             }

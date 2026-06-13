@@ -69,12 +69,7 @@ export function TagsWithLinks({ tags, visitedSet, showOpeningHoursWarning }) {
     return Object.entries(tags).map(([k, v]) => (
         <div key={k}>
             <span class="text-gray-500">{k}=</span>
-            <TagValue
-                value={v}
-                tag={k}
-                visitedSet={visitedSet}
-                showOpeningHoursWarning={showOpeningHoursWarning}
-            />
+            <TagValue value={v} tag={k} visitedSet={visitedSet} showOpeningHoursWarning={showOpeningHoursWarning} />
         </div>
     ));
 }
@@ -108,12 +103,7 @@ export function SpiderValue({ value, history, tag, visitedSet, isStable, isNewVa
         <div class="space-y-1">
             <div class="flex items-start gap-2 font-bold text-white">
                 {indicator && <div class="mt-0.5">{indicator}</div>}
-                <TagValue
-                    value={value}
-                    tag={tag}
-                    visitedSet={visitedSet}
-                    showOpeningHoursWarning={true}
-                />
+                <TagValue value={value} tag={tag} visitedSet={visitedSet} showOpeningHoursWarning={true} />
             </div>
             {showHistory && (
                 <div class="pl-2 border-l border-gray-700 space-y-2">
