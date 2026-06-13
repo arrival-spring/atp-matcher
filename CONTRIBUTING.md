@@ -40,6 +40,11 @@ Each spider entry looks like this:
 *   `categories` (Optional): Use this if you need to filter the spider's data to specific OSM features (e.g., `[{"amenity": "bank"}]` for a spider that also includes ATMs).
 *   `showUnmatched` (Optional): Set this to `true` to show items that haven't been matched to OSM yet on the dashboard. Leave this out for global brands that have spiders for each country as the dashboard cannot filter OSM data by country.
 
+#### Other Optional Properties
+
+*   `rejected` (Optional): If you find that a spider is not suitable for automatic updates, you can add this property with a reason. This will be displayed on the website to inform others. The reason should be free text and written in the local language of the spider or in English. Note that spiders with a `rejected` property cannot be moved to the "Auto" tier.
+*   `ref_key` (Optional): By default, the `ref` tag is used for matching ATP items to OSM objects. If the spider uses a different property for its unique identifier, you can specify it here (e.g., `"ref_key": "branch"`).
+
 ### 2. Submit a Pull Request
 
 Once you have added your spider, save your changes and choose the option to "Create a new branch for this commit and start a pull request."
