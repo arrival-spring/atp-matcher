@@ -3,6 +3,19 @@ import { useRef, useState, useEffect } from 'preact/hooks';
 import { t } from '../i18n';
 import { useTheme } from './ThemeContext';
 
+/**
+ * Sticky tab navigation component for the spider detail page.
+ * Includes tabs for Summary, Unmapped, Unmatched, Duplicate Refs, and each importable tag.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.activeTab - The ID of the currently active tab.
+ * @param {Function} props.onTabChange - Callback when a tab is clicked.
+ * @param {boolean} props.showUnmatched - Whether to show the unmatched tab.
+ * @param {string[]} props.importableTags - Array of importable tag names.
+ * @param {boolean} props.hasDuplicates - Whether any duplicate refs were found.
+ * @param {number} props.unmappedCount - Count of unmapped items.
+ * @param {number} props.unmatchedCount - Count of unmatched items.
+ */
 export function TabNavigation({
     activeTab,
     onTabChange,
@@ -95,6 +108,17 @@ export function TabNavigation({
     );
 }
 
+/**
+ * A single tab button component.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.id - The tab ID.
+ * @param {string} props.label - The button label.
+ * @param {number|null} [props.count] - Optional count to display next to the label.
+ * @param {boolean} props.active - Whether the tab is active.
+ * @param {Function} props.onClick - Callback when clicked.
+ * @param {boolean} [props.isMono=false] - Whether to use monospace font for the label.
+ */
 function TabButton({ id, label, count, active, onClick, isMono }) {
     const { theme } = useTheme();
     const isAuto = theme === 'auto';

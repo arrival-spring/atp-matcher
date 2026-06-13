@@ -10,10 +10,22 @@ export const ThemeContext = createContext({
     spinnerClass: 'border-emerald-600',
 });
 
+/**
+ * Hook to access the current theme context.
+ *
+ * @returns {Object} The current theme context values.
+ */
 export function useTheme() {
     return useContext(ThemeContext);
 }
 
+/**
+ * Provider component that sets the theme for its children based on the spider's tier.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.theme - The theme to use ('auto' or 'preview').
+ * @param {import('preact').ComponentChildren} props.children - Child components.
+ */
 export function ThemeProvider({ theme, children }) {
     const isAuto = theme === 'auto';
     const value = {

@@ -6,6 +6,23 @@ import { handleJosmLink } from '../utils';
 import { t } from '../i18n';
 import { useTheme } from './ThemeContext';
 
+/**
+ * The unmapped tab component for the spider detail page.
+ * Displays ATP features that were not matched to any OSM elements.
+ * Supports brand filtering, search, and JOSM layer import.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object[]} props.results - Matching results between ATP and OSM (to extract disallowed/not brand items).
+ * @param {Object[]|null} props.unmappedCache - Loaded unmapped data from JSON.
+ * @param {boolean} props.loading - Whether the unmapped data is still loading.
+ * @param {Object[]} props.filters - Pre-calculated filters for brand/Wikidata.
+ * @param {Object} props.currentState - Current state of the dashboard.
+ * @param {Function} props.setCurrentState - Callback to update the state.
+ * @param {Set<string>} props.visitedSet - A set of visited URLs.
+ * @param {string} props.spiderName - The name of the spider.
+ * @param {Function} props.onJosmError - Callback if JOSM remote control fails.
+ * @param {number} props.pageSize - The number of items to display per page.
+ */
 export function UnmappedTab({
     results,
     unmappedCache,
@@ -220,6 +237,15 @@ export function UnmappedTab({
     );
 }
 
+/**
+ * A horizontal filter bar for filtering items by brand/Wikidata.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object[]} props.filters - The available filters.
+ * @param {Object} props.currentState - The current dashboard state.
+ * @param {Function} props.onFilterChange - Callback when a filter is clicked.
+ * @param {number} props.totalCount - The total number of items before filtering.
+ */
 export function BrandFilters({ filters, currentState, onFilterChange, totalCount }) {
     const { buttonClass } = useTheme();
     const scrollRef = useRef(null);

@@ -14,6 +14,22 @@ import { ThemeProvider } from './components/ThemeContext';
 
 const PAGE_SIZE = 25;
 
+/**
+ * The main dashboard component for a specific spider's detail page.
+ * Manages tab navigation, data fetching for unmapped/unmatched items, and warning modals.
+ * Persists its state (active tab, search, pagination, etc.) in the URL hash.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.spiderName - The name of the spider.
+ * @param {Object[]} props.results - Matching results between ATP and OSM.
+ * @param {string[]} props.importableTags - List of tags importable for this spider.
+ * @param {string} props.atpDate - The date of the latest ATP run.
+ * @param {boolean} props.showUnmatched - Whether to show the unmatched tab.
+ * @param {number} props.unmappedCount - Initial count of unmapped items.
+ * @param {number} props.unmatchedCount - Initial count of unmatched items.
+ * @param {Object[]} [props.unmappedFilters=[]] - Pre-calculated filters for unmapped items.
+ * @param {Object[]} [props.unmatchedFilters=[]] - Pre-calculated filters for unmatched items.
+ */
 function SpiderDashboard({
     spiderName,
     results,
@@ -295,6 +311,11 @@ function SpiderDashboard({
     );
 }
 
+/**
+ * Initializes the spider detail dashboard application.
+ *
+ * @param {Object} props - Configuration properties passed from the SSR environment.
+ */
 window.initSpiderDashboard = async props => {
     await initI18n();
     const container = document.getElementById('spider-dashboard-root');

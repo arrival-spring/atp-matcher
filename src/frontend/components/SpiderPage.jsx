@@ -2,6 +2,30 @@ import { h } from 'preact';
 import { Layout } from './Layout';
 import { t } from '../i18n';
 
+/**
+ * The static shell for the spider detail page.
+ * Renders the layout, header information (stale data warnings, rejected status),
+ * and the script required to initialize the interactive spider dashboard.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.name - The name of the spider.
+ * @param {string[]} props.importableTags - Array of importable tag names.
+ * @param {string} props.atpDate - The date of the latest ATP run.
+ * @param {string} props.osmDate - The date of the latest OSM extract.
+ * @param {Object[]} props.results - Pre-calculated matching results for the dashboard.
+ * @param {boolean} props.isBrandSpider - Whether this is a brand spider.
+ * @param {boolean} props.isStale - Whether the ATP data is considered stale.
+ * @param {string|null} props.staleDate - The date when the data became stale.
+ * @param {string|null} props.rejected - The reason for rejection, if applicable.
+ * @param {string|null} props.loadStatus - Status of data loading ('missing', 'empty').
+ * @param {boolean} props.showUnmatched - Whether to show the unmatched tab.
+ * @param {number} props.unmappedCount - Count of unmapped items.
+ * @param {number} props.unmatchedCount - Count of unmatched items.
+ * @param {Object[]} props.unmappedFilters - Pre-calculated filters for unmapped items.
+ * @param {Object[]} props.unmatchedFilters - Pre-calculated filters for unmatched items.
+ * @param {string} props.basePath - The base path for links and assets.
+ * @param {string} [props.theme='auto'] - The tier theme ('auto' or 'preview').
+ */
 export function SpiderPage({
     name,
     importableTags,

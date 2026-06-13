@@ -15,6 +15,13 @@ const AUTO_REQUEST_LABEL = 'auto-request';
 const AWAITING_PREVIEW_RUN_LABEL = 'awaiting-preview-run';
 const COMMUNITY_BLOCKED_LABEL = 'community-blocked';
 
+/**
+ * Main function for the feedback bot.
+ * Handles auto-request PRs and merges preview-request PRs.
+ * Requires GITHUB_TOKEN and GITHUB_REPOSITORY environment variables.
+ *
+ * @returns {Promise<void>}
+ */
 async function run() {
     if (!GITHUB_TOKEN || !REPO) {
         console.log('GITHUB_TOKEN or GITHUB_REPOSITORY not set. Skipping feedback bot.');
@@ -43,6 +50,13 @@ async function run() {
     }
 }
 
+/**
+ * Processes open PRs tagged with 'auto-request'.
+ * Posts automated comments, initiates community review, and handles the backlog.
+ *
+ * @param {Map} summaryMap - Map of spider names to their sync summary data.
+ * @returns {Promise<void>}
+ */
 async function handleAutoRequestPrs(summaryMap) {
     const prsResponse = await axios.get(`https://api.github.com/repos/${REPO}/pulls`, {
         params: {
@@ -103,6 +117,13 @@ async function handleAutoRequestPrs(summaryMap) {
     }
 }
 
+/**
+ * Processes recently merged PRs tagged with 'awaiting-preview-run'.
+ * Posts a notification comment when the spider data becomes live on the dashboard.
+ *
+ * @param {Map} summaryMap - Map of spider names to their sync summary data.
+ * @returns {Promise<void>}
+ */
 async function handleMergedPreviewPrs(summaryMap) {
     const prsResponse = await axios.get(`https://api.github.com/repos/${REPO}/pulls`, {
         params: {
@@ -162,6 +183,12 @@ async function handleMergedPreviewPrs(summaryMap) {
     }
 }
 
+/**
+ * Fetches all comments for a specific GitHub PR.
+ *
+ * @param {number} prNumber - The PR number.
+ * @returns {Promise<Object[]>} A promise resolving to an array of comment objects.
+ */
 async function getPrComments(prNumber) {
     const response = await axios.get(`https://api.github.com/repos/${REPO}/issues/${prNumber}/comments`, {
         headers: {
@@ -172,6 +199,12 @@ async function getPrComments(prNumber) {
     return response.data;
 }
 
+/**
+ * Extracts spider names from a PR patch by analyzing changes to spiders_auto.json and spiders_preview.json.
+ *
+ * @param {number} prNumber - The PR number.
+ * @returns {Promise<string[]>} A promise resolving to an array of identified spider names.
+ */
 async function getSpiderNamesFromPr(prNumber) {
     try {
         const filesResponse = await axios.get(`https://api.github.com/repos/${REPO}/pulls/${prNumber}/files`, {
@@ -207,6 +240,15 @@ async function getSpiderNamesFromPr(prNumber) {
     return [];
 }
 
+/**
+ * Posts the initial invitation comment to an auto-request PR.
+ * Includes a link to the spider preview and mentions the community review process.
+ *
+ * @param {Object} pr - The PR object.
+ * @param {string} spiderName - The name of the spider.
+ * @param {Object} _spiderData - Sync summary data for the spider.
+ * @returns {Promise<void>}
+ */
 async function postComment1(pr, spiderName, _spiderData) {
     const author = pr.user.login;
     // TODO: Use real host for preview link
@@ -233,6 +275,12 @@ ${COMMENT_1_TAG}`;
     console.log(`Posted Comment 1 to PR #${pr.number}`);
 }
 
+/**
+ * Posts a comment to a PR explaining that it is currently in the backlog.
+ *
+ * @param {Object} pr - The PR object.
+ * @returns {Promise<void>}
+ */
 async function postPendingComment(pr) {
     const body = `Thank you for your pull request! There are currently several spiders being proposed for automatic updates. To ensure each receives proper community review, we limit the number of active proposals.
 
@@ -253,6 +301,14 @@ ${COMMENT_PENDING_TAG}`;
     console.log(`Posted Pending Comment to PR #${pr.number}`);
 }
 
+/**
+ * Posts a second follow-up comment to an auto-request PR when the review period is nearly over.
+ * Mentions the repo owner for final review and merge.
+ *
+ * @param {Object} pr - The PR object.
+ * @param {string} spiderName - The name of the spider.
+ * @returns {Promise<void>}
+ */
 async function postComment2(pr, spiderName) {
     // TODO: Use real host for preview link
     const previewLink = `https://example.com/preview/${spiderName}`;
@@ -292,6 +348,13 @@ ${COMMENT_2_TAG}`;
     console.log(`Posted Comment 2 and assigned PR #${pr.number} to ${repoOwner}`);
 }
 
+/**
+ * Posts a comment to a merged PR notifying the author that the spiders are now live.
+ *
+ * @param {Object} pr - The PR object.
+ * @param {Object[]} results - An array of objects containing spider names and their sync summary data.
+ * @returns {Promise<void>}
+ */
 async function postPreviewLiveComment(pr, results) {
     const author = pr.user.login;
     let body = `@${author}, thank you for your contribution! The following spiders are now live and can be previewed:\n\n`;
@@ -324,6 +387,13 @@ async function postPreviewLiveComment(pr, results) {
     console.log(`Posted Preview Live Comment to PR #${pr.number} for spiders ${names}`);
 }
 
+/**
+ * Creates a GitHub issue with a template for the community forum post.
+ * Aggregates information for up to five spiders.
+ *
+ * @param {Object[]} spiders - An array of objects containing PRs, spider names, and summary data.
+ * @returns {Promise<void>}
+ */
 async function createForumPostIssue(spiders) {
     const repoOwner = REPO.split('/')[0];
     // TODO: Use real forum thread link

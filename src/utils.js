@@ -18,6 +18,13 @@ export function filterAtpTags(props) {
     return filtered;
 }
 
+/**
+ * Checks if a source URI is allowed based on a list of allowed hostnames.
+ *
+ * @param {string} sourceUri - The source URI to check.
+ * @param {string[]} allowedList - An array of allowed hostnames.
+ * @returns {boolean} True if the source URI is allowed, false otherwise.
+ */
 export function isAllowedSourceUri(sourceUri, allowedList) {
     if (!sourceUri || !allowedList || !Array.isArray(allowedList)) return false;
     try {
@@ -31,6 +38,15 @@ export function isAllowedSourceUri(sourceUri, allowedList) {
     }
 }
 
+/**
+ * Checks if feature properties match a list of category requirements.
+ * Each category is an object of key-value pairs that must all match.
+ * The feature matches if it matches ANY of the categories.
+ *
+ * @param {Object} featureProps - The properties of the feature.
+ * @param {Object[]} categories - An array of category requirement objects.
+ * @returns {boolean} True if the feature matches, false otherwise.
+ */
 export function matchesCategories(featureProps, categories) {
     if (!categories || !Array.isArray(categories) || categories.length === 0) return true;
 
@@ -48,6 +64,13 @@ const dayRangeRegex = /^(Mo|Tu|We|Th|Fr|Sa|Su)-(Mo|Tu|We|Th|Fr|Sa|Su)$/;
 const timeRegex = /^\d{1,2}:\d{2}$/;
 const timeRangeRegex = /^\d{1,2}:\d{2}-\d{1,2}:\d{2}$/;
 
+/**
+ * Identifies which days of the week are missing from an opening hours string.
+ *
+ * @param {string} oh - The opening hours string.
+ * @returns {string[]|null} An array of missing day abbreviations (e.g., ['Mo', 'Tu']),
+ *                          or null if the input is invalid or contains unexpected tokens.
+ */
 export function getMissingDays(oh) {
     if (!oh) return [...days];
     const normalized = oh.replace(/\s+/g, ' ').trim();
@@ -92,11 +115,23 @@ export function getMissingDays(oh) {
     return days.filter(d => !definedDays.has(d));
 }
 
+/**
+ * Checks if an opening hours string defines hours for all seven days of the week.
+ *
+ * @param {string} oh - The opening hours string.
+ * @returns {boolean} True if all days are defined, false otherwise.
+ */
 export function areAllDaysDefined(oh) {
     const missing = getMissingDays(oh);
     return missing !== null && missing.length === 0;
 }
 
+/**
+ * Formats an array of missing days into a human-readable string of ranges.
+ *
+ * @param {string[]} missingDays - An array of missing day abbreviations.
+ * @returns {string} A formatted string of day ranges (e.g., 'Mo-Fr, Su').
+ */
 export function formatMissingDays(missingDays) {
     if (!missingDays || missingDays.length === 0) return '';
 

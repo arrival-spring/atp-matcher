@@ -1,6 +1,19 @@
 import { h } from 'preact';
 import { t } from '../i18n';
 
+/**
+ * The summary tab component for the spider detail page.
+ * Displays an overview of counts for unmapped and unmatched items,
+ * and a breakdown of status counts for each importable tag.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object[]} props.results - Matching results between ATP and OSM.
+ * @param {string[]} props.importableTags - Array of importable tag names.
+ * @param {boolean} props.showUnmatched - Whether to show the unmatched tab link.
+ * @param {number} props.unmappedCount - Total count of unmapped items.
+ * @param {number} props.unmatchedCount - Total count of unmatched items.
+ * @param {Function} props.onTabChange - Callback to switch between tabs.
+ */
 export function SummaryTab({ results, importableTags, showUnmatched, unmappedCount, unmatchedCount, onTabChange }) {
     const isUniquelyMatched = r => r.matchCount === 1 && !['disallowedSourceUri', 'notABrandSpider'].includes(r.status);
 
@@ -86,6 +99,14 @@ export function SummaryTab({ results, importableTags, showUnmatched, unmappedCou
     );
 }
 
+/**
+ * A card component used for displaying top-level counts in the summary tab.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.title - The card title.
+ * @param {number} props.value - The count value to display.
+ * @param {Function} props.onClick - Callback when the card is clicked.
+ */
 function SummaryCard({ title, value, onClick }) {
     return (
         <div

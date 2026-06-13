@@ -1,5 +1,10 @@
 import en from '../locales/en.json';
 
+/**
+ * Scans the locales directory and identifies all available language codes.
+ *
+ * @returns {string[]} An array of supported locale codes (e.g., ['en', 'fr', 'en-GB']).
+ */
 const getLocalesMetadata = () => {
     const codes = new Set(['en']);
 
@@ -49,6 +54,11 @@ let translations = { en };
 
 const LOCAL_STORAGE_KEY = 'atp_osm_sync_locale';
 
+/**
+ * Returns a list of available locales with their display names in various formats.
+ *
+ * @returns {Object[]} An array of locale objects containing code, native name, localized name, and English name.
+ */
 export const getAvailableLocales = () => {
     return localesMetadata.map(code => {
         const getDisplayName = locale => {
@@ -80,6 +90,12 @@ export const getAvailableLocales = () => {
     });
 };
 
+/**
+ * Initializes the internationalization system.
+ * Detects the preferred locale from localStorage or browser settings and loads the corresponding translations.
+ *
+ * @returns {Promise<void>}
+ */
 export const initI18n = async () => {
     const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
     const savedLocale = isBrowser ? localStorage.getItem(LOCAL_STORAGE_KEY) : null;
@@ -109,6 +125,14 @@ export const initI18n = async () => {
     await setLocale(localeToUse);
 };
 
+/**
+ * Performs a deep merge of two objects.
+ * Used for merging sub-locales with their parent main locales.
+ *
+ * @param {Object} target - The target object to merge into.
+ * @param {Object} source - The source object to merge from.
+ * @returns {Object} The merged object.
+ */
 const deepMerge = (target, source) => {
     const output = { ...target };
     if (source && typeof source === 'object') {
@@ -127,6 +151,13 @@ const deepMerge = (target, source) => {
     return output;
 };
 
+/**
+ * Changes the current locale and loads its translation file.
+ * In the browser, it also updates the DOM elements marked with 'data-t' attributes.
+ *
+ * @param {string} locale - The locale code to set.
+ * @returns {Promise<void>}
+ */
 export const setLocale = async locale => {
     const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
 
@@ -202,8 +233,22 @@ export const setLocale = async locale => {
     }
 };
 
+/**
+ * Returns the currently active locale code.
+ *
+ * @returns {string} The active locale code.
+ */
 export const getLocale = () => currentLocale;
 
+/**
+ * Translates a key into the current locale.
+ * Supports dot-notation for nested keys and {{variable}} placeholders.
+ * Falls back to the 'en' locale if the key is missing from the current locale.
+ *
+ * @param {string} key - The translation key (e.g., 'spider.status.matching').
+ * @param {Object} [placeholders={}] - Optional object containing values for placeholders.
+ * @returns {string} The translated string or the key itself if not found.
+ */
 export const t = (key, placeholders = {}) => {
     const keys = key.split('.');
     let value = translations[currentLocale];

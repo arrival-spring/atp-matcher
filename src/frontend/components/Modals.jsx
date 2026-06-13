@@ -3,6 +3,17 @@ import { useState, useEffect } from 'preact/hooks';
 import { t } from '../i18n';
 import { useTheme } from './ThemeContext';
 
+/**
+ * A modal component for displaying warnings when a tag mismatch is detected.
+ * Includes a mandatory waiting period (progress bar) before the user can confirm they understand.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.title - The modal title.
+ * @param {string} props.message - The warning message (can contain HTML).
+ * @param {Function} props.onUnderstand - Callback when the 'Understand' button is clicked.
+ * @param {Function} props.onBack - Callback when the 'Back' or 'Take me back' button is clicked.
+ * @param {boolean} [props.showImportBtn] - Whether to show the JOSM import button after confirmation.
+ */
 export function MismatchModal({ title, message, onUnderstand, onBack, showImportBtn }) {
     const [progress, setProgress] = useState(0);
     const [canConfirm, setCanConfirm] = useState(false);
@@ -81,6 +92,12 @@ export function MismatchModal({ title, message, onUnderstand, onBack, showImport
     );
 }
 
+/**
+ * A modal component displayed when JOSM remote control fails to respond.
+ *
+ * @param {Object} props - The component props.
+ * @param {Function} props.onClose - Callback to close the modal.
+ */
 export function JosmErrorModal({ onClose }) {
     const { buttonClass } = useTheme();
     return (

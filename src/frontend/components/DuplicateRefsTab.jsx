@@ -3,6 +3,20 @@ import { useMemo } from 'preact/hooks';
 import { StatusLabel, TagsWithLinks, Pagination, OsmColumn } from './Common';
 import { t } from '../i18n';
 
+/**
+ * A tab component that displays ATP features that matched multiple OSM elements.
+ * This indicates a potential data quality issue on either ATP or OSM side.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object[]} props.results - Matching results between ATP and OSM.
+ * @param {Object} props.currentState - Current state of the dashboard.
+ * @param {Function} props.setCurrentState - Callback to update the state.
+ * @param {Set<string>} props.visitedSet - A set of visited URLs.
+ * @param {string} props.atpDate - The date of the ATP run.
+ * @param {Function} props.onLinkClick - Callback when a link is clicked.
+ * @param {Function} props.onJosmError - Callback if JOSM remote control fails.
+ * @param {number} props.pageSize - The number of items to display per page.
+ */
 export function DuplicateRefsTab({
     results,
     currentState,

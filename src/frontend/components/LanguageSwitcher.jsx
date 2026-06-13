@@ -3,6 +3,10 @@ import { useState, useEffect, useMemo, useRef } from 'preact/hooks';
 import { t, getAvailableLocales, getLocale, setLocale } from '../i18n';
 import { useTheme } from './ThemeContext';
 
+/**
+ * A floating button and dropdown component for switching the application language.
+ * Supports searching for languages and keyboard navigation.
+ */
 export function LanguageSwitcher() {
     const { linkClass, theme } = useTheme();
     const isAuto = theme === 'auto';

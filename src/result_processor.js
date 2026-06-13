@@ -7,6 +7,19 @@ function isValidIsoDate(date) {
     return date && /^\d{4}-\d{2}-\d{2}$/.test(date);
 }
 
+/**
+ * Processes the results for a single spider, comparing ATP data with OSM data.
+ * Identifies tag differences, determines item status, handles stability checks,
+ * and generates safe edits if applicable.
+ *
+ * @param {Object} spiderData - The processed data for the spider from loadAllAtpData.
+ * @param {Map} spiderMatches - Map of ATP refs to matching OSM elements for this spider.
+ * @param {Object[]} runs - The ATP run objects used for history and stability checks.
+ * @param {Object} [safeEdits={}] - Map to be populated with generated safe edits.
+ * @param {boolean} [isAuto=false] - Whether the spider is in the 'auto' tier.
+ * @returns {Promise<Object>} A promise resolving to an object with results, unmapped items,
+ *                            used tags, and threshold violations.
+ */
 export async function processSpiderResults(spiderData, spiderMatches, runs, safeEdits = {}, isAuto = false) {
     const { latestRun, spiderMaps, config: spider, isBrandSpider } = spiderData;
     console.log(`Processing spider results: ${spider.name}`);

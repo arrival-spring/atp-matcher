@@ -5,6 +5,23 @@ import { t } from '../i18n';
 import { BrandFilters } from './UnmappedTab';
 import { useTheme } from './ThemeContext';
 
+/**
+ * The unmatched tab component for the spider detail page.
+ * Displays OSM features that match the brand criteria but were not linked to any ATP feature.
+ * Supports brand filtering, search, and bulk opening in JOSM.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object[]|null} props.unmatchedCache - Loaded unmatched data from JSON.
+ * @param {boolean} props.loading - Whether the unmatched data is still loading.
+ * @param {Object[]} props.filters - Pre-calculated filters for brand/Wikidata.
+ * @param {Object} props.currentState - Current state of the dashboard.
+ * @param {Function} props.setCurrentState - Callback to update the state.
+ * @param {Set<string>} props.visitedSet - A set of visited URLs.
+ * @param {string} props.atpDate - The date of the ATP run.
+ * @param {Function} props.onVisited - Callback when a link is clicked.
+ * @param {Function} props.onJosmError - Callback if JOSM remote control fails.
+ * @param {number} props.pageSize - The number of items to display per page.
+ */
 export function UnmatchedTab({
     unmatchedCache,
     loading,

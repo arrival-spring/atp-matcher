@@ -4,6 +4,10 @@ const NSI_FILE = 'node_modules/name-suggestion-index/dist/json/nsi.json';
 
 const nsiLookup = new Map();
 
+/**
+ * Loads Name Suggestion Index (NSI) data from the node_modules directory.
+ * Populates a lookup map with effective tags for each NSI item.
+ */
 function loadNsiData() {
     if (!fs.existsSync(NSI_FILE)) {
         console.warn('NSI data not found at', NSI_FILE);
@@ -36,14 +40,32 @@ function loadNsiData() {
 
 loadNsiData();
 
+/**
+ * Returns the effective tags for a given NSI ID.
+ *
+ * @param {string} nsiId - The NSI ID to look up.
+ * @returns {Object|null} The effective tags object, or null if not found.
+ */
 export function getNsiEffectiveTags(nsiId) {
     return nsiLookup.get(nsiId)?.tags || null;
 }
 
+/**
+ * Checks if a given NSI ID exists in the loaded data.
+ *
+ * @param {string} nsiId - The NSI ID to check.
+ * @returns {boolean} True if the ID exists, false otherwise.
+ */
 export function getNsiIdExists(nsiId) {
     return nsiLookup.has(nsiId);
 }
 
+/**
+ * Returns the complete NSI item entry for a given NSI ID.
+ *
+ * @param {string} nsiId - The NSI ID to look up.
+ * @returns {Object|null} The NSI item entry, or null if not found.
+ */
 export function getNsiItem(nsiId) {
     return nsiLookup.get(nsiId) || null;
 }

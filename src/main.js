@@ -18,6 +18,13 @@ const CONFIG_FILE = 'config.json';
 const SPIDERS_AUTO_FILE = 'spiders_auto.json';
 const SPIDERS_PREVIEW_FILE = 'spiders_preview.json';
 
+/**
+ * Main entry point for the sync process.
+ * Orchestrates ATP data loading, OSM data streaming, results processing,
+ * webpage generation, and safe edits saving.
+ *
+ * @returns {Promise<void>}
+ */
 async function run() {
     if (!fs.existsSync(CONFIG_FILE)) {
         console.error('Config file not found.');

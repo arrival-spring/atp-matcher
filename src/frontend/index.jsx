@@ -7,6 +7,15 @@ import { ThemeProvider, useTheme } from './components/ThemeContext';
 
 const PAGE_SIZE = 10;
 
+/**
+ * A dropdown component to filter spiders by country.
+ * Supports searching and keyboard navigation.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object[]} props.allSpiderResults - All spider results to extract countries from.
+ * @param {string|null} props.selectedCountry - The currently selected country code.
+ * @param {Function} props.onSelect - Callback when a country is selected.
+ */
 function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
     const { theme } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
@@ -147,6 +156,13 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
     );
 }
 
+/**
+ * A global search bar component for the landing page.
+ * Allows searching for spiders and brands across the entire project.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.basePath - The base path for links and asset fetching.
+ */
 function GlobalSearch({ basePath }) {
     const [search, setSearch] = useState('');
     const [results, setResults] = useState([]);
@@ -273,6 +289,14 @@ function GlobalSearch({ basePath }) {
     );
 }
 
+/**
+ * The main dashboard component for the tier index pages.
+ * Displays a sortable and filterable table of all spiders in that tier.
+ * Manages its own state for search, pagination, and sorting, persisting it in the URL hash.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object[]} props.allSpiderResults - The results for all spiders in the tier.
+ */
 function Dashboard({ allSpiderResults }) {
     const { linkClass } = useTheme();
     const scrollRef = useRef(null);
@@ -599,6 +623,13 @@ function Dashboard({ allSpiderResults }) {
     );
 }
 
+/**
+ * An icon component indicating the current sort direction for a table column.
+ *
+ * @param {Object} props - The component props.
+ * @param {string} props.column - The column key.
+ * @param {Object} props.currentSort - The current sort state (column and direction).
+ */
 function SortIcon({ column, currentSort }) {
     if (currentSort.column !== column) {
         return (
@@ -618,6 +649,14 @@ function SortIcon({ column, currentSort }) {
     );
 }
 
+/**
+ * A table row component representing a single spider in the dashboard.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object} props.spider - The spider data.
+ * @param {Function} props.onSort - Callback to change the table sorting.
+ * @param {Object} props.currentSort - The current sort state.
+ */
 function SpiderRow({ spider, onSort, currentSort }) {
     const { linkClass, theme } = useTheme();
     const isAuto = theme === 'auto';
@@ -724,6 +763,12 @@ function SpiderRow({ spider, onSort, currentSort }) {
     );
 }
 
+/**
+ * Initializes the dashboard application.
+ *
+ * @param {Object[]} allSpiderResults - Results for all spiders.
+ * @param {string} [theme='auto'] - The tier theme ('auto' or 'preview').
+ */
 window.initDashboard = async (allSpiderResults, theme = 'auto') => {
     await initI18n();
     const container = document.getElementById('dashboard-root');
@@ -741,6 +786,9 @@ window.initDashboard = async (allSpiderResults, theme = 'auto') => {
     }
 };
 
+/**
+ * Initializes the landing page application.
+ */
 window.initLandingPage = async () => {
     await initI18n();
     const searchContainer = document.getElementById('global-search-root');

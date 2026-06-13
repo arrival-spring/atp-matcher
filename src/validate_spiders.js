@@ -11,6 +11,13 @@ const CONFIG_FILE = 'config.json';
 const SPIDERS_AUTO_FILE = 'spiders_auto.json';
 const SPIDERS_PREVIEW_FILE = 'spiders_preview.json';
 
+/**
+ * Cleans and sorts a spider configuration JSON file.
+ * Ensures alphabetical ordering, consistent property structure, and removes redundant tags.
+ *
+ * @param {string} filepath - Path to the JSON file to clean.
+ * @returns {Promise<Object>} An object containing the cleaned spiders and change flags.
+ */
 async function cleanAndSort(filepath) {
     if (!fs.existsSync(filepath)) return { spiders: {}, reordered: false, autoRemovedTags: false };
     const content = fs.readFileSync(filepath, 'utf8');
@@ -70,6 +77,12 @@ async function cleanAndSort(filepath) {
     return { spiders: cleanedSpiders, reordered, autoRemovedTags };
 }
 
+/**
+ * Retrieves the base configuration of spiders from the origin/main branch.
+ *
+ * @param {string} filepath - Path to the spider configuration file.
+ * @returns {Object} The spider configuration object from main branch.
+ */
 function getBaseSpiders(filepath) {
     try {
         const content = execSync(`git show origin/main:${filepath}`, { encoding: 'utf8' });
@@ -79,6 +92,14 @@ function getBaseSpiders(filepath) {
     }
 }
 
+/**
+ * Main validation function that checks for consistency, rules, and changes across all spiders.
+ * Automatically moves spiders from auto to preview if rules are violated.
+ * Generates PR comments with validation results.
+ *
+ * @param {string} [accumulatedComments=''] - Existing comments to include in the output.
+ * @returns {Promise<void>}
+ */
 async function validate(accumulatedComments = '') {
     const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
 
@@ -357,6 +378,15 @@ async function validate(accumulatedComments = '') {
     process.exit(0);
 }
 
+/**
+ * Validates a single spider configuration by checking its latest ATP data.
+ * Verifies categories, disallowed tags, brand lineage, and NSI tag overlap.
+ *
+ * @param {Object} spider - The spider configuration object.
+ * @param {string} type - The type of change (e.g., 'added to auto').
+ * @param {Object} config - The global application configuration.
+ * @returns {Promise<Object>} An object containing the validation comment and error status.
+ */
 async function validateSpider(spider, type, config) {
     const spiderName = spider.name;
     const url = `https://data.alltheplaces.xyz/runs/latest/output/${spiderName}.geojson`;
