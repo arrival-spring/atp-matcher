@@ -29,7 +29,9 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
                 let name = code;
                 try {
                     name = displayNames.of(code);
-                } catch (e) {}
+                } catch (_e) {
+                    // Ignore
+                }
                 return { code, name };
             })
             .sort((a, b) => a.name.localeCompare(b.name, locale));

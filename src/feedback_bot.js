@@ -1,6 +1,5 @@
 import axios from 'axios';
 import fs from 'fs';
-import path from 'path';
 import './axios_config.js';
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
@@ -13,7 +12,6 @@ const COMMENT_PENDING_TAG = '<!-- atp-bot-comment-pending -->';
 const COMMENT_PREVIEW_LIVE_TAG = '<!-- atp-bot-comment-preview-live -->';
 
 const AUTO_REQUEST_LABEL = 'auto-request';
-const PREVIEW_REQUEST_LABEL = 'preview-request';
 const AWAITING_PREVIEW_RUN_LABEL = 'awaiting-preview-run';
 const COMMUNITY_BLOCKED_LABEL = 'community-blocked';
 
@@ -209,7 +207,7 @@ async function getSpiderNamesFromPr(prNumber) {
     return [];
 }
 
-async function postComment1(pr, spiderName, spiderData) {
+async function postComment1(pr, spiderName, _spiderData) {
     const author = pr.user.login;
     // TODO: Use real host for preview link
     const previewLink = `https://example.com/preview/${spiderName}`;
@@ -322,7 +320,8 @@ async function postPreviewLiveComment(pr, results) {
             },
         }
     );
-    console.log(`Posted Preview Live Comment to PR #${pr.number} for spider ${spiderName}`);
+    const names = results.map(r => r.spiderName).join(', ');
+    console.log(`Posted Preview Live Comment to PR #${pr.number} for spiders ${names}`);
 }
 
 async function createForumPostIssue(spiders) {

@@ -8,6 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import slugify from 'slugify';
 import { getRuns, loadAllAtpData } from './atp_data.js';
+import { filterAtpTags } from './utils.js';
 import { streamOsmData } from './osm_stream.js';
 import { processSpiderResults } from './result_processor.js';
 import { generateWebpage } from './web_generator.js';
@@ -143,14 +144,7 @@ async function run() {
                     .filter(r => r.status === 'disallowedSourceUri' || r.status === 'notABrandSpider')
                     .map(r => {
                         const feature = data.latestRun.features.find(f => f.properties.ref === r.ref);
-                        const filteredAtpTags = {};
-                        if (feature) {
-                            for (const [k, v] of Object.entries(feature.properties)) {
-                                if (!k.startsWith('@') && k !== 'nsi_id') {
-                                    filteredAtpTags[k] = v;
-                                }
-                            }
-                        }
+                        const filteredAtpTags = feature ? filterAtpTags(feature.properties) : {};
                         return { ...r, allAtpTags: filteredAtpTags };
                     });
 

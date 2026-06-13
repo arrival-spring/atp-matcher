@@ -265,7 +265,7 @@ async function validate(accumulatedComments = '') {
     for (const s of finalAddedToAuto) {
         const base = basePreview[s.name];
         if (base) {
-            const { name, ...rest } = s;
+            const { name: _name, ...rest } = s;
             if (JSON.stringify(rest) !== JSON.stringify(base)) {
                 errors.push(
                     `Error: Spider \`${s.name}\` was modified while being moved to auto. It must retain the exact same properties.`
