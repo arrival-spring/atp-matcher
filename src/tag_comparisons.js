@@ -2,6 +2,7 @@ import opening_hours from 'opening_hours';
 import { LRUCache } from 'lru-cache';
 import { parsePhoneNumber } from 'libphonenumber-js';
 import normalizeUrl from 'normalize-url';
+import { splitSemicolonList } from './utils.js';
 
 const ohCache = new LRUCache({ max: 1000 });
 const ohCompareCache = new LRUCache({ max: 5000 });
@@ -86,6 +87,22 @@ export function areOpeningHoursEqual(v1, v2, country) {
 }
 
 /**
+ * Internal helper to parse and validate a phone number.
+ *
+ * @param {string} value - The phone number string.
+ * @param {string} [country] - The country code for parsing.
+ * @returns {Object|null} The parsed phone number object, or null if invalid.
+ */
+function getPhoneObject(value, country) {
+    try {
+        const p = parsePhoneNumber(value, country);
+        return p.isValid() ? p : null;
+    } catch {
+        return null;
+    }
+}
+
+/**
  * Compares two phone number strings for equality.
  * Supports semicolon-separated lists and uses international formatting for comparison.
  *
@@ -98,31 +115,15 @@ export function arePhonesEqual(osmValue, atpValue, country) {
     if (osmValue === atpValue) return true;
     if (!atpValue) return true;
 
-    const splitValues = val => (val ? val.split(';').map(v => v.trim()) : []);
-
-    const atpList = splitValues(atpValue)
-        .map(v => {
-            try {
-                const p = parsePhoneNumber(v, country);
-                return p.isValid() ? p.number : null;
-            } catch {
-                return null;
-            }
-        })
-        .filter(v => v !== null);
+    const atpList = splitSemicolonList(atpValue)
+        .map(v => getPhoneObject(v, country)?.number)
+        .filter(v => !!v);
 
     if (atpList.length === 0) return true;
 
-    const osmList = splitValues(osmValue)
-        .map(v => {
-            try {
-                const p = parsePhoneNumber(v, country);
-                return p.isValid() ? p.number : null;
-            } catch {
-                return null;
-            }
-        })
-        .filter(v => v !== null);
+    const osmList = splitSemicolonList(osmValue)
+        .map(v => getPhoneObject(v, country)?.number)
+        .filter(v => !!v);
 
     return atpList.every(v => osmList.includes(v));
 }
@@ -139,15 +140,10 @@ export function formatPhone(value, country) {
     const cacheKey = country ? `${value}|${country}` : value;
     if (phoneCache.has(cacheKey)) return phoneCache.get(cacheKey);
 
-    try {
-        const p = parsePhoneNumber(value, country);
-        const result = p.isValid() ? p.formatInternational() : null;
-        phoneCache.set(cacheKey, result);
-        return result;
-    } catch {
-        phoneCache.set(cacheKey, null);
-        return null;
-    }
+    const p = getPhoneObject(value, country);
+    const result = p ? p.formatInternational() : null;
+    phoneCache.set(cacheKey, result);
+    return result;
 }
 
 /**
@@ -196,12 +192,10 @@ export function areEmailsEqual(osmValue, atpValue) {
     if (osmValue === atpValue) return true;
     if (!atpValue) return true;
 
-    const splitValues = val => (val ? val.split(';').map(v => v.trim().toLowerCase()) : []);
-
-    const atpList = splitValues(atpValue).filter(v => v !== '');
+    const atpList = splitSemicolonList(atpValue).map(v => v.toLowerCase());
     if (atpList.length === 0) return true;
 
-    const osmList = splitValues(osmValue).filter(v => v !== '');
+    const osmList = splitSemicolonList(osmValue).map(v => v.toLowerCase());
 
     return atpList.every(v => osmList.includes(v));
 }
