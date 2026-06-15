@@ -156,3 +156,27 @@ export function formatMissingDays(missingDays) {
 
     return ranges.join(', ');
 }
+
+/**
+ * Checks if a string is a valid ISO date (YYYY-MM-DD).
+ *
+ * @param {string} date - The date string to check.
+ * @returns {boolean|string} True if the date is valid, false otherwise.
+ */
+export function isValidIsoDate(date) {
+    return date && /^\d{4}-\d{2}-\d{2}$/.test(date);
+}
+
+/**
+ * Splits a semicolon-separated list into an array of trimmed, non-empty strings.
+ *
+ * @param {string|null|undefined} val - The string to split.
+ * @returns {string[]} An array of split and trimmed values.
+ */
+export function splitSemicolonList(val) {
+    if (!val) return [];
+    return val
+        .split(';')
+        .map(v => v.trim())
+        .filter(v => v !== '');
+}
