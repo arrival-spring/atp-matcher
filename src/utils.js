@@ -1,6 +1,21 @@
 import { URL } from 'url';
 
 /**
+ * Common options for slugify to ensure consistent slugs across the application.
+ */
+export const SLUGIFY_OPTIONS = { lower: true, remove: /[*+~.()'"!:@]/g };
+
+/**
+ * Threshold for red stability status (discrepancy > 10%).
+ */
+export const STABILITY_THRESHOLD_RED = 0.1;
+
+/**
+ * Threshold for orange stability status (discrepancy > 5%).
+ */
+export const STABILITY_THRESHOLD_ORANGE = 0.05;
+
+/**
  * Filters ATP properties from a feature properties object.
  * Removes keys starting with '@' and the 'nsi_id' key.
  *
@@ -179,4 +194,37 @@ export function splitSemicolonList(val) {
         .split(';')
         .map(v => v.trim())
         .filter(v => v !== '');
+}
+
+/**
+ * Calculates the stability score and color for a spider based on its feature counts over time.
+ *
+ * @param {number[]} featureCounts - An array of feature counts for recent runs.
+ * @param {boolean} isBrandSpider - Whether the spider is a brand spider.
+ * @returns {Object} An object containing stabilityColor and stabilityScore.
+ */
+export function calculateStability(featureCounts, isBrandSpider) {
+    const validCounts = featureCounts.filter(c => c !== null);
+
+    if (!isBrandSpider) {
+        return { stabilityColor: 'red', stabilityScore: 0.0 };
+    }
+
+    if (validCounts.length <= 1) {
+        return { stabilityColor: 'gray', stabilityScore: 0.0 };
+    }
+
+    const minCount = Math.min(...validCounts);
+    const maxCount = Math.max(...validCounts);
+    const discrepancy = maxCount === 0 ? 0 : (maxCount - minCount) / maxCount;
+    const stabilityScore = 1.0 - discrepancy;
+    let stabilityColor = 'green';
+
+    if (discrepancy > STABILITY_THRESHOLD_RED) {
+        stabilityColor = 'red';
+    } else if (discrepancy > STABILITY_THRESHOLD_ORANGE) {
+        stabilityColor = 'orange';
+    }
+
+    return { stabilityColor, stabilityScore };
 }
