@@ -1,6 +1,6 @@
 import slugify from 'slugify';
 import { countries as countriesList } from 'countries-list';
-import { isAllowedSourceUri, areAllDaysDefined, filterAtpTags, isValidIsoDate } from './utils.js';
+import { isAllowedSourceUri, areAllDaysDefined, filterAtpTags, isValidIsoDate, SLUGIFY_OPTIONS } from './utils.js';
 import { areTagsEqual, formatPhone, getOverallStatus } from './tag_comparisons.js';
 
 /**
@@ -381,7 +381,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                 if (countryInfo) {
                     const countryName = countryInfo.native;
                     if (!safeEdits[spider.name]) safeEdits[spider.name] = {};
-                    const stateSlug = state ? slugify(state, { lower: true, remove: /[*+~.()'"!:@]/g }) : null;
+                    const stateSlug = state ? slugify(state, SLUGIFY_OPTIONS) : null;
                     const fileKey = stateSlug ? `${countryCode}_${stateSlug}` : countryCode;
 
                     if (!safeEdits[spider.name][fileKey]) {

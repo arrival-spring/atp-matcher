@@ -1,6 +1,6 @@
 import axios from 'axios';
 import fs from 'fs';
-import { matchesCategories } from './utils.js';
+import { matchesCategories, calculateStability } from './utils.js';
 import { getNsiIdExists, getNsiItem } from './nsi_utils.js';
 import { normalizeWebsite } from './tag_comparisons.js';
 
@@ -134,27 +134,7 @@ export async function loadAllAtpData(spiders, runs) {
         });
 
         // Calculate stability dot color and score
-        const validCounts = featureCounts.filter(c => c !== null);
-        let stabilityColor = 'green';
-        let stabilityScore = 1.0;
-        if (!isBrandSpider) {
-            stabilityColor = 'red';
-            stabilityScore = 0.0;
-        } else if (validCounts.length > 1) {
-            const minCount = Math.min(...validCounts);
-            const maxCount = Math.max(...validCounts);
-            const discrepancy = maxCount === 0 ? 0 : (maxCount - minCount) / maxCount;
-            stabilityScore = 1.0 - discrepancy;
-
-            if (discrepancy > 0.1) {
-                stabilityColor = 'red';
-            } else if (discrepancy > 0.05) {
-                stabilityColor = 'orange';
-            }
-        } else if (validCounts.length <= 1) {
-            stabilityColor = 'gray';
-            stabilityScore = 0.0;
-        }
+        const { stabilityColor, stabilityScore } = calculateStability(featureCounts, isBrandSpider);
 
         const brandsSet = new Set();
         const countriesSet = new Set();

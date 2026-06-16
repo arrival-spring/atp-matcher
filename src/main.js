@@ -8,7 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import slugify from 'slugify';
 import { getRuns, loadAllAtpData } from './atp_data.js';
-import { filterAtpTags } from './utils.js';
+import { filterAtpTags, SLUGIFY_OPTIONS } from './utils.js';
 import { streamOsmData } from './osm_stream.js';
 import { processSpiderResults } from './result_processor.js';
 import { generateWebpage } from './web_generator.js';
@@ -17,6 +17,86 @@ import { reportThresholdViolations } from './github_utils.js';
 const CONFIG_FILE = 'config.json';
 const SPIDERS_AUTO_FILE = 'spiders_auto.json';
 const SPIDERS_PREVIEW_FILE = 'spiders_preview.json';
+
+/**
+ * Checks if a result item is considered mapped.
+ *
+ * @param {Object} r - The result object to check.
+ * @returns {boolean} True if the item is mapped, false otherwise.
+ */
+const isMapped = r => r.matchCount >= 1 && r.status !== 'disallowedSourceUri' && r.status !== 'notABrandSpider';
+
+/**
+ * Identifies unique brand/Wikidata pairs for items and counts their occurrences.
+ *
+ * @param {Object[]} items - An array of item objects.
+ * @returns {Object[]} A sorted array of brand/Wikidata pairs with counts.
+ */
+const getBrandWikidataPairs = items => {
+    const pairs = new Map();
+    items.forEach(item => {
+        const props = item.allAtpTags || item.tags;
+        if (!props || Array.isArray(props)) {
+            console.warn(`Item missing properties or has array tags: ${item.ref || item.id}`);
+            return;
+        }
+        const brand = props.brand || null;
+        const wikidata = props['brand:wikidata'] || null;
+        const key = `${brand}|${wikidata}`;
+        if (!pairs.has(key)) {
+            pairs.set(key, { brand, wikidata, count: 0 });
+        }
+        pairs.get(key).count++;
+    });
+
+    const pairsArray = Array.from(pairs.values());
+
+    // Identify wikidata -> brand mapping for sorting Wikidata-only items after their brand equivalents
+    const wikidataToBrand = new Map();
+    pairsArray.forEach(p => {
+        if (p.brand && p.wikidata && !wikidataToBrand.has(p.wikidata)) {
+            wikidataToBrand.set(p.wikidata, p.brand);
+        }
+    });
+
+    return pairsArray.sort((a, b) => {
+        // "No brand" (both null) always last
+        if (!a.brand && !a.wikidata) return 1;
+        if (!b.brand && !b.wikidata) return -1;
+
+        const getSortKey = p => {
+            if (p.brand) return p.brand.toLowerCase();
+            if (p.wikidata && wikidataToBrand.has(p.wikidata)) return wikidataToBrand.get(p.wikidata).toLowerCase();
+            return 'zzzzzzzzzz'; // After all brands
+        };
+
+        const sortKeyA = getSortKey(a);
+        const sortKeyB = getSortKey(b);
+
+        if (sortKeyA !== sortKeyB) {
+            return sortKeyA.localeCompare(sortKeyB);
+        }
+
+        // If same sort key, brands come before Wikidata-only equivalents
+        if (a.brand && !b.brand) return -1;
+        if (!a.brand && b.brand) return 1;
+
+        // Otherwise sort by wikidata
+        return (a.wikidata || '').localeCompare(b.wikidata || '');
+    });
+};
+
+/**
+ * Generates a human-readable label for a brand/Wikidata pair.
+ *
+ * @param {Object} pair - The brand/Wikidata pair object.
+ * @returns {string} A formatted label.
+ */
+const getFilterLabel = pair => {
+    if (!pair.brand && !pair.wikidata) return 'No brand';
+    if (pair.brand && pair.wikidata) return `${pair.brand} (${pair.wikidata})`;
+    return pair.brand || pair.wikidata;
+};
 
 /**
  * Main entry point for the sync process.
@@ -155,8 +235,6 @@ async function run() {
                         return { ...r, allAtpTags: filteredAtpTags };
                     });
 
-                const isMapped = r =>
-                    r.matchCount >= 1 && r.status !== 'disallowedSourceUri' && r.status !== 'notABrandSpider';
                 const mappedResults = results.filter(isMapped);
                 const mappedCount = mappedResults.length;
                 const issuesCount = mappedResults.filter(r => r.status !== 'matching').length;
@@ -167,67 +245,6 @@ async function run() {
                 // Identify unique brand/Wikidata pairs for unmapped and unmatched
                 const unmappedFilters = [];
                 const unmatchedFilters = [];
-
-                const getBrandWikidataPairs = items => {
-                    const pairs = new Map();
-                    items.forEach(item => {
-                        const props = item.allAtpTags || item.tags;
-                        if (!props || Array.isArray(props)) {
-                            console.warn(`Item missing properties or has array tags: ${item.ref || item.id}`);
-                            return;
-                        }
-                        const brand = props.brand || null;
-                        const wikidata = props['brand:wikidata'] || null;
-                        const key = `${brand}|${wikidata}`;
-                        if (!pairs.has(key)) {
-                            pairs.set(key, { brand, wikidata, count: 0 });
-                        }
-                        pairs.get(key).count++;
-                    });
-
-                    const pairsArray = Array.from(pairs.values());
-
-                    // Identify wikidata -> brand mapping for sorting Wikidata-only items after their brand equivalents
-                    const wikidataToBrand = new Map();
-                    pairsArray.forEach(p => {
-                        if (p.brand && p.wikidata && !wikidataToBrand.has(p.wikidata)) {
-                            wikidataToBrand.set(p.wikidata, p.brand);
-                        }
-                    });
-
-                    return pairsArray.sort((a, b) => {
-                        // "No brand" (both null) always last
-                        if (!a.brand && !a.wikidata) return 1;
-                        if (!b.brand && !b.wikidata) return -1;
-
-                        const getSortKey = p => {
-                            if (p.brand) return p.brand.toLowerCase();
-                            if (p.wikidata && wikidataToBrand.has(p.wikidata))
-                                return wikidataToBrand.get(p.wikidata).toLowerCase();
-                            return 'zzzzzzzzzz'; // After all brands
-                        };
-
-                        const sortKeyA = getSortKey(a);
-                        const sortKeyB = getSortKey(b);
-
-                        if (sortKeyA !== sortKeyB) {
-                            return sortKeyA.localeCompare(sortKeyB);
-                        }
-
-                        // If same sort key, brands come before Wikidata-only equivalents
-                        if (a.brand && !b.brand) return -1;
-                        if (!a.brand && b.brand) return 1;
-
-                        // Otherwise sort by wikidata
-                        return (a.wikidata || '').localeCompare(b.wikidata || '');
-                    });
-                };
-
-                const getFilterLabel = pair => {
-                    if (!pair.brand && !pair.wikidata) return 'No brand';
-                    if (pair.brand && pair.wikidata) return `${pair.brand} (${pair.wikidata})`;
-                    return pair.brand || pair.wikidata;
-                };
 
                 // For unmapped, we need features that are actually unmapped (including disallowed/not brand)
                 const unmappedItemsForFilter = [...unmapped, ...unmappedResults];
@@ -285,9 +302,7 @@ async function run() {
                         return b === filter.brand && w === filter.wikidata;
                     });
 
-                    const brandSlug = filter.brand
-                        ? slugify(filter.brand, { lower: true, remove: /[*+~.()'"!:@]/g })
-                        : 'no-brand';
+                    const brandSlug = filter.brand ? slugify(filter.brand, SLUGIFY_OPTIONS) : 'no-brand';
                     const wikidataPart = filter.wikidata ? `_${filter.wikidata}` : '';
                     const filename = `${spiderName}_unmapped_${brandSlug}${wikidataPart}.geojson`;
                     filter.geojson = filename;
