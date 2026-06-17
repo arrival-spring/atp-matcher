@@ -66,6 +66,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
             }
         } else {
             const allPossibleTags = new Set([...expandedImportableTags, 'opening_hours', 'website']);
+            const country = props['addr:country'];
             if (matchEntries.length === 1) {
                 const osm = matchEntries[0];
                 for (const tag of Object.keys(osm.tags)) {
@@ -77,7 +78,6 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
 
             // We handle importable tags
             for (const tag of allPossibleTags) {
-                const country = props['addr:country'];
                 let status;
                 let osmValue = null;
                 let spiderValue = props[tag] || null;

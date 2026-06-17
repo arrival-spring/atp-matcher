@@ -133,6 +133,14 @@ describe('Tag Comparison Logic', () => {
             expect(areTagsEqual('brand', 'KFC', 'kfc', 'ZA')).toBe(false);
             expect(areTagsEqual('brand', 'KFC', 'KFC', 'ZA')).toBe(true);
         });
+
+        test('should handle fuel tags with semantic normalization', () => {
+            expect(areTagsEqual('fuel:diesel', 'yes', 'true', 'ZA')).toBe(true);
+            expect(areTagsEqual('fuel:octane_95', 'no', '0', 'ZA')).toBe(true);
+            expect(areTagsEqual('fuel:lpg', 'YES ', '1', 'ZA')).toBe(true);
+            expect(areTagsEqual('fuel:diesel', 'yes', 'no', 'ZA')).toBe(false);
+            expect(areTagsEqual('fuel:diesel', 'unknown', 'unknown', 'ZA')).toBe(true);
+        });
     });
 
     describe('getOverallStatus', () => {

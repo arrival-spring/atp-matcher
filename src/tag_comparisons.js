@@ -9,6 +9,9 @@ const ohCompareCache = new LRUCache({ max: 5000 });
 const webCache = new LRUCache({ max: 1000 });
 const phoneCache = new LRUCache({ max: 1000 });
 
+/**
+ * Priority order for item statuses. Lower index means higher priority.
+ */
 export const STATUS_PRIORITY = [
     'notABrandSpider',
     'disallowedSourceUri',
@@ -46,6 +49,21 @@ export function getOH(value, country) {
 }
 
 /**
+ * Strips 'PH' (Public Holiday) from an opening hours string.
+ * Used for comparing ATP values (which usually lack PH info) with OSM values.
+ *
+ * @param {string} oh - The opening hours string to strip.
+ * @returns {string} The stripped opening hours string.
+ */
+function stripPublicHolidays(oh) {
+    if (!oh) return oh;
+    return oh
+        .replace(/,\s?PH/g, '')
+        .replace(/^PH,\s?/, '')
+        .replace(/;\s?PH[^;]+$/, '');
+}
+
+/**
  * Compares two opening hours strings for semantic equality.
  * Handles 'PH' (public holiday) differences by stripping them and re-comparing if needed.
  *
@@ -71,11 +89,7 @@ export function areOpeningHoursEqual(v1, v2, country) {
     }
 
     if (!result && v1 && v2 && v1.includes('PH') && !v2.includes('PH')) {
-        let transformedV1 = v1;
-        transformedV1 = transformedV1.replace(/,\s?PH/g, '');
-        transformedV1 = transformedV1.replace(/^PH,\s?/, '');
-        transformedV1 = transformedV1.replace(/;\s?PH[^;]+$/, '');
-
+        const transformedV1 = stripPublicHolidays(v1);
         const oh1Transformed = getOH(transformedV1, country);
         if (oh1Transformed && oh2) {
             result = oh1Transformed.isEqualTo(oh2)[0];
@@ -201,6 +215,38 @@ export function areEmailsEqual(osmValue, atpValue) {
 }
 
 /**
+ * Normalizes boolean-like fuel tag values.
+ *
+ * @param {any} v - The value to normalize.
+ * @returns {string|null} Normalized 'yes', 'no', or the lowercased trimmed string.
+ */
+function normalizeFuel(v) {
+    if (v === null || v === undefined) return null;
+    const s = v.toString().toLowerCase().trim();
+    if (s === 'yes' || s === 'true' || s === '1') return 'yes';
+    if (s === 'no' || s === 'false' || s === '0') return 'no';
+    return s;
+}
+
+/**
+ * Compares two fuel tag values for semantic equality.
+ *
+ * @param {string} v1 - The first fuel value.
+ * @param {string} v2 - The second fuel value.
+ * @returns {boolean} True if the normalized values are equal, false otherwise.
+ */
+function areFuelTagsEqual(v1, v2) {
+    return normalizeFuel(v1) === normalizeFuel(v2);
+}
+
+const TAG_COMPARATORS = {
+    opening_hours: areOpeningHoursEqual,
+    phone: arePhonesEqual,
+    website: areWebsitesEqual,
+    email: areEmailsEqual,
+};
+
+/**
  * Generic function to compare two tag values based on the tag type.
  * Dispatches to specific comparison functions for opening_hours, phone, website, email, and fuel tags.
  *
@@ -211,23 +257,12 @@ export function areEmailsEqual(osmValue, atpValue) {
  * @returns {boolean} True if the values are considered equal, false otherwise.
  */
 export function areTagsEqual(tag, osmValue, atpValue, country) {
-    if (tag === 'opening_hours') {
-        return areOpeningHoursEqual(osmValue, atpValue, country);
-    } else if (tag === 'phone') {
-        return arePhonesEqual(osmValue, atpValue, country);
-    } else if (tag === 'website') {
-        return areWebsitesEqual(osmValue, atpValue);
-    } else if (tag === 'email') {
-        return areEmailsEqual(osmValue, atpValue);
-    } else if (tag.startsWith('fuel:')) {
-        const normalizeFuel = v => {
-            if (v === null || v === undefined) return null;
-            const s = v.toString().toLowerCase().trim();
-            if (s === 'yes' || s === 'true' || s === '1') return 'yes';
-            if (s === 'no' || s === 'false' || s === '0') return 'no';
-            return s;
-        };
-        return normalizeFuel(osmValue) === normalizeFuel(atpValue);
+    const comparator = TAG_COMPARATORS[tag];
+    if (comparator) {
+        return comparator(osmValue, atpValue, country);
+    }
+    if (tag.startsWith('fuel:')) {
+        return areFuelTagsEqual(osmValue, atpValue);
     }
     return osmValue === atpValue;
 }
