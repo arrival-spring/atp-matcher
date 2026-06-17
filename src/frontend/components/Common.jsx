@@ -322,6 +322,23 @@ export function BulkJosmLinks({ items, atpDate, onVisited, onJosmError }) {
 }
 
 /**
+ * A helper component that handles pagination logic and renders children with paged data.
+ *
+ * @param {Object} props - The component props.
+ * @param {Object[]} props.items - The full array of items to paginate.
+ * @param {number} props.page - The current page number.
+ * @param {number} props.pageSize - The number of items per page.
+ * @param {Function} props.children - A render function that receives { pageData, effectivePage, totalPages }.
+ */
+export function PaginationHelper({ items, page, pageSize, children }) {
+    const totalPages = Math.ceil(items.length / pageSize) || 1;
+    const effectivePage = Math.min(page, totalPages);
+    const pageData = items.slice((effectivePage - 1) * pageSize, effectivePage * pageSize);
+
+    return children({ pageData, effectivePage, totalPages });
+}
+
+/**
  * A generic pagination component with Previous/Next buttons and page information.
  *
  * @param {Object} props - The component props.
