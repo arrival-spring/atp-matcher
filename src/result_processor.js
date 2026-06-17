@@ -1,6 +1,13 @@
 import slugify from 'slugify';
 import { countries as countriesList } from 'countries-list';
-import { isAllowedSourceUri, areAllDaysDefined, filterAtpTags, isValidIsoDate, SLUGIFY_OPTIONS } from './utils.js';
+import {
+    isAllowedSourceUri,
+    areAllDaysDefined,
+    filterAtpTags,
+    isValidIsoDate,
+    SLUGIFY_OPTIONS,
+    getExpandedTags,
+} from './utils.js';
 import { areTagsEqual, formatPhone, getOverallStatus } from './tag_comparisons.js';
 
 /**
@@ -28,23 +35,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
     let mappedCount = 0;
 
     // Expand wildcard tags
-    const expandedImportableTags = new Set();
-    const wildcards = (spider.importableTags || []).filter(t => t.endsWith(':*')).map(t => t.slice(0, -1));
-    const staticTags = (spider.importableTags || []).filter(t => !t.endsWith(':*'));
-
-    staticTags.forEach(t => expandedImportableTags.add(t));
-
-    if (wildcards.length > 0) {
-        for (const feature of latestRun.features) {
-            for (const key of Object.keys(feature.properties)) {
-                for (const wildcard of wildcards) {
-                    if (key.startsWith(wildcard)) {
-                        expandedImportableTags.add(key);
-                    }
-                }
-            }
-        }
-    }
+    const expandedImportableTags = getExpandedTags(spider.importableTags, latestRun.features);
 
     for (const feature of latestRun.features) {
         const props = feature.properties;
