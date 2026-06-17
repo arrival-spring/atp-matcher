@@ -216,6 +216,8 @@ export function areEmailsEqual(osmValue, atpValue) {
 
 /**
  * Normalizes boolean-like fuel tag values.
+ * Fuel tags (e.g., fuel:diesel) should ideally be 'yes' or 'no'.
+ * Other values are kept as-is to ensure they mismatch against boolean values.
  *
  * @param {any} v - The value to normalize.
  * @returns {string|null} Normalized 'yes', 'no', or the lowercased trimmed string.
