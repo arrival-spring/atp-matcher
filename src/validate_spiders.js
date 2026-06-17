@@ -4,7 +4,7 @@ import axios from 'axios';
 import './axios_config.js';
 import { getDomain } from 'tldts';
 import * as prettier from 'prettier';
-import { isAllowedSourceUri, matchesCategories } from './utils.js';
+import { isAllowedSourceUri, matchesCategories, getExpandedTags } from './utils.js';
 import { getNsiEffectiveTags } from './nsi_utils.js';
 
 const CONFIG_FILE = 'config.json';
@@ -410,20 +410,7 @@ async function validateSpider(spider, type, config) {
         const totalFeatures = data.features.length;
         const tagStats = {};
         const nsiOverlapTags = new Set();
-        const expandedImportableTags = new Set();
-        const wildcards = (spider.importableTags || []).filter(t => t.endsWith(':*')).map(t => t.slice(0, -1));
-        const staticTags = (spider.importableTags || []).filter(t => !t.endsWith(':*'));
-        staticTags.forEach(t => expandedImportableTags.add(t));
-
-        if (wildcards.length > 0) {
-            data.features.forEach(f => {
-                for (const key of Object.keys(f.properties)) {
-                    for (const wildcard of wildcards) {
-                        if (key.startsWith(wildcard)) expandedImportableTags.add(key);
-                    }
-                }
-            });
-        }
+        const expandedImportableTags = getExpandedTags(spider.importableTags, data.features);
 
         const tagsToTrack = [...new Set([...expandedImportableTags, 'opening_hours', 'website'])];
         tagsToTrack.forEach(tag => {

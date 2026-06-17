@@ -72,6 +72,37 @@ export function matchesCategories(featureProps, categories) {
     });
 }
 
+/**
+ * Expands wildcard tags (ending in ':*') by checking them against properties of provided features.
+ *
+ * @param {string[]} importableTags - Array of tag names, possibly including wildcards.
+ * @param {Object[]} features - Array of GeoJSON features to check against.
+ * @returns {Set<string>} A set of expanded tag names.
+ */
+export function getExpandedTags(importableTags, features) {
+    const expanded = new Set();
+    if (!importableTags) return expanded;
+
+    const wildcards = importableTags.filter(t => t.endsWith(':*')).map(t => t.slice(0, -1));
+    const staticTags = importableTags.filter(t => !t.endsWith(':*'));
+
+    staticTags.forEach(t => expanded.add(t));
+
+    if (wildcards.length > 0 && features) {
+        for (const feature of features) {
+            if (!feature.properties) continue;
+            for (const key of Object.keys(feature.properties)) {
+                for (const wildcard of wildcards) {
+                    if (key.startsWith(wildcard)) {
+                        expanded.add(key);
+                    }
+                }
+            }
+        }
+    }
+    return expanded;
+}
+
 const days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 const allowedWords = new Set(['closed', 'off', '24/7']);
 const dayNameRegex = /^(Mo|Tu|We|Th|Fr|Sa|Su)$/;
