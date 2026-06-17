@@ -122,6 +122,22 @@ describe('Tag Comparison Logic', () => {
         });
     });
 
+    describe('areEmailsEqual', () => {
+        test('should return true for identical emails', () => {
+            expect(areTagsEqual('email', 'test@example.com', 'test@example.com')).toBe(true);
+        });
+
+        test('should be case-insensitive', () => {
+            expect(areTagsEqual('email', 'TEST@EXAMPLE.COM', 'test@example.com')).toBe(true);
+        });
+
+        test('should handle semicolon-separated lists', () => {
+            expect(areTagsEqual('email', 'a@b.com; c@d.com', 'a@b.com')).toBe(true);
+            expect(areTagsEqual('email', 'a@b.com', 'a@b.com; c@d.com')).toBe(false);
+            expect(areTagsEqual('email', 'A@B.COM; c@d.com', 'a@b.com; C@D.COM')).toBe(true);
+        });
+    });
+
     describe('areTagsEqual', () => {
         test('should route to correct comparison function', () => {
             expect(areTagsEqual('phone', '011 123 4567', '+27111234567', 'ZA')).toBe(true);

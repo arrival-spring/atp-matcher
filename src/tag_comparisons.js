@@ -117,6 +117,31 @@ function getPhoneObject(value, country) {
 }
 
 /**
+ * Internal helper to compare two semicolon-separated lists for equality.
+ *
+ * @param {string} osmValue - The value(s) from OSM.
+ * @param {string} atpValue - The value(s) from ATP.
+ * @param {Function} normalizer - A function to normalize each value in the list.
+ * @returns {boolean} True if all ATP values are present in the OSM list, false otherwise.
+ */
+function areListsEqual(osmValue, atpValue, normalizer) {
+    if (osmValue === atpValue) return true;
+    if (!atpValue) return true;
+
+    const atpList = splitSemicolonList(atpValue)
+        .map(normalizer)
+        .filter(v => !!v);
+
+    if (atpList.length === 0) return true;
+
+    const osmList = splitSemicolonList(osmValue)
+        .map(normalizer)
+        .filter(v => !!v);
+
+    return atpList.every(v => osmList.includes(v));
+}
+
+/**
  * Compares two phone number strings for equality.
  * Supports semicolon-separated lists and uses international formatting for comparison.
  *
@@ -126,20 +151,7 @@ function getPhoneObject(value, country) {
  * @returns {boolean} True if all ATP numbers are present in the OSM list, false otherwise.
  */
 export function arePhonesEqual(osmValue, atpValue, country) {
-    if (osmValue === atpValue) return true;
-    if (!atpValue) return true;
-
-    const atpList = splitSemicolonList(atpValue)
-        .map(v => getPhoneObject(v, country)?.number)
-        .filter(v => !!v);
-
-    if (atpList.length === 0) return true;
-
-    const osmList = splitSemicolonList(osmValue)
-        .map(v => getPhoneObject(v, country)?.number)
-        .filter(v => !!v);
-
-    return atpList.every(v => osmList.includes(v));
+    return areListsEqual(osmValue, atpValue, v => getPhoneObject(v, country)?.number);
 }
 
 /**
@@ -203,15 +215,7 @@ export function areWebsitesEqual(v1, v2) {
  * @returns {boolean} True if all ATP emails are present in the OSM list, false otherwise.
  */
 export function areEmailsEqual(osmValue, atpValue) {
-    if (osmValue === atpValue) return true;
-    if (!atpValue) return true;
-
-    const atpList = splitSemicolonList(atpValue).map(v => v.toLowerCase());
-    if (atpList.length === 0) return true;
-
-    const osmList = splitSemicolonList(osmValue).map(v => v.toLowerCase());
-
-    return atpList.every(v => osmList.includes(v));
+    return areListsEqual(osmValue, atpValue, v => v.toLowerCase());
 }
 
 const TAG_COMPARATORS = {
@@ -223,7 +227,7 @@ const TAG_COMPARATORS = {
 
 /**
  * Generic function to compare two tag values based on the tag type.
- * Dispatches to specific comparison functions for opening_hours, phone, website, email, and fuel tags.
+ * Dispatches to specific comparison functions for opening_hours, phone, website, and email tags.
  *
  * @param {string} tag - The OSM tag name.
  * @param {string} osmValue - The value from OSM.
