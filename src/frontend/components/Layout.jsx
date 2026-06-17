@@ -2,21 +2,21 @@ import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { t, getLocale } from '../i18n';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { ThemeProvider } from './ThemeContext';
+import { TierProvider } from './TierContext';
 
 /**
  * The base layout component for all pages in the application.
- * Includes the HTML head, localized footer with data dates, and initializes the theme.
+ * Includes the HTML head, localized footer with data dates, and initializes the tier.
  *
  * @param {Object} props - The component props.
  * @param {string} props.title - The page title (displayed in the browser tab).
  * @param {string} props.basePath - The base path for links and assets.
  * @param {string} props.atpDate - The date of the latest ATP run.
  * @param {string} props.osmDate - The date of the latest OSM extract.
- * @param {string} [props.theme='auto'] - The tier theme ('auto' or 'preview').
+ * @param {string} [props.tier='auto'] - The spider's tier ('auto' or 'preview').
  * @param {import('preact').ComponentChildren} props.children - Child components to be rendered within the layout.
  */
-export function Layout({ title, basePath, atpDate, osmDate, theme = 'auto', children }) {
+export function Layout({ title, basePath, atpDate, osmDate, tier = 'auto', children }) {
     const [currentLocale, setCurrentLocale] = useState(getLocale());
 
     useEffect(() => {
@@ -39,7 +39,7 @@ export function Layout({ title, basePath, atpDate, osmDate, theme = 'auto', chil
         ]),
         h('body', { class: 'bg-gray-950 text-gray-100 min-h-screen p-4 md:p-8 relative' }, [
             h('div', { id: 'language-switcher-root' }),
-            h('div', { class: 'max-w-7xl mx-auto relative' }, [h(ThemeProvider, { theme }, children)]),
+            h('div', { class: 'max-w-7xl mx-auto relative' }, [h(TierProvider, { tier }, children)]),
             h('footer', { class: 'max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-800 text-gray-500 text-sm' }, [
                 h('div', { class: 'flex flex-wrap gap-x-8 gap-y-2' }, [
                     h('div', null, [h('strong', { 'data-t': 'footer.atpData' }, t('footer.atpData')), ' ', atpDate]),

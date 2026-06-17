@@ -29,7 +29,7 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
     const autoNames = new Set(autoResults.map(s => s.name));
     const previewNames = new Set(previewResults.map(s => s.name));
 
-    const generateSpiderPages = (results, subDir, theme) => {
+    const generateSpiderPages = (results, subDir, tier) => {
         const subDirPath = path.join(outputDir, subDir);
         if (!fs.existsSync(subDirPath)) {
             fs.mkdirSync(subDirPath, { recursive: true });
@@ -48,7 +48,7 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
                         atpDate,
                         osmDate,
                         basePath: '../..',
-                        theme,
+                        tier,
                     })
                 );
                 fs.writeFileSync(path.join(spiderDir, 'index.html'), `<!DOCTYPE html>\n${spiderHtml}`);
@@ -81,7 +81,7 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
     generateSpiderPages(autoResults, 'auto', 'auto');
     generateSpiderPages(previewResults, 'preview', 'preview');
 
-    const generateDashboard = (results, subDir, theme) => {
+    const generateDashboard = (results, subDir, tier) => {
         try {
             const indexData = results.map(s => ({
                 name: s.name,
@@ -92,7 +92,6 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
                 totalCount: s.totalCount,
                 mappedCount: s.mappedCount,
                 issuesCount: s.issuesCount,
-                automaticUpdatesCount: s.automaticUpdatesCount,
                 brands: s.brands,
                 countries: s.countries,
             }));
@@ -103,7 +102,7 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
                     atpDate,
                     osmDate,
                     basePath: '..',
-                    theme,
+                    tier,
                 })
             );
             fs.writeFileSync(path.join(outputDir, subDir, 'index.html'), `<!DOCTYPE html>\n${indexHtml}`);

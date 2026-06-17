@@ -3,7 +3,7 @@ import { useMemo } from 'preact/hooks';
 import { TagsWithLinks, OsmColumn, Pagination, BulkJosmLinks, LoadingIndicator } from './Common';
 import { t } from '../i18n';
 import { BrandFilters } from './UnmappedTab';
-import { useTheme } from './ThemeContext';
+import { useTier } from './TierContext';
 
 /**
  * The unmatched tab component for the spider detail page.
@@ -34,7 +34,7 @@ export function UnmatchedTab({
     onJosmError,
     pageSize,
 }) {
-    const { theme } = useTheme();
+    const { tier } = useTier();
     const filteredUnmatched = useMemo(() => {
         if (!unmatchedCache) return [];
         let filtered = unmatchedCache;
@@ -93,7 +93,7 @@ export function UnmatchedTab({
                     <input
                         type="text"
                         autocomplete="off"
-                        class={`block w-full pl-10 pr-10 py-3 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 ${theme === 'auto' ? 'focus:ring-blue-500' : 'focus:ring-amber-500'} transition-colors sm:text-sm`}
+                        class={`block w-full pl-10 pr-10 py-3 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 ${tier === 'auto' ? 'focus:ring-blue-500' : 'focus:ring-amber-500'} transition-colors sm:text-sm`}
                         placeholder={t('spider.searchTags')}
                         value={currentState.search}
                         onInput={e => setCurrentState(prev => ({ ...prev, search: e.target.value, page: 1 }))}

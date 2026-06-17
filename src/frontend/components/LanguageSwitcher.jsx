@@ -1,15 +1,15 @@
 import { h } from 'preact';
 import { useState, useEffect, useMemo, useRef } from 'preact/hooks';
 import { t, getAvailableLocales, getLocale, setLocale } from '../i18n';
-import { useTheme } from './ThemeContext';
+import { useTier } from './TierContext';
 
 /**
  * A floating button and dropdown component for switching the application language.
  * Supports searching for languages and keyboard navigation.
  */
 export function LanguageSwitcher() {
-    const { linkClass, theme } = useTheme();
-    const isAuto = theme === 'auto';
+    const { linkClass, tier } = useTier();
+    const isAuto = tier === 'auto';
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [search, setSearch] = useState('');
     const [currentLocale, setCurrentLocale] = useState(getLocale());

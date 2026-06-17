@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from 'preact/hooks';
 import { escapeHtml } from './utils';
 import { t, initI18n, getLocale } from './i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
-import { ThemeProvider, useTheme } from './components/ThemeContext';
+import { TierProvider, useTier } from './components/TierContext';
 
 const PAGE_SIZE = 10;
 
@@ -17,7 +17,7 @@ const PAGE_SIZE = 10;
  * @param {Function} props.onSelect - Callback when a country is selected.
  */
 function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
-    const { theme } = useTheme();
+    const { tier } = useTier();
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -102,7 +102,7 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                class={`w-full flex items-center justify-between px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 focus:outline-none focus:ring-1 ${theme === 'auto' ? 'focus:ring-blue-500' : 'focus:ring-amber-500'} transition-colors`}
+                class={`w-full flex items-center justify-between px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 focus:outline-none focus:ring-1 ${tier === 'auto' ? 'focus:ring-blue-500' : 'focus:ring-amber-500'} transition-colors`}
             >
                 <span class="truncate">
                     {selectedName === t('index.showAllCountries') ? t('index.showAllCountries') : selectedName}
@@ -123,8 +123,8 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
                         <input
                             ref={inputRef}
                             type="text"
-                            autocomplate="off"
-                            class={`w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 ${theme === 'auto' ? 'focus:ring-blue-500' : 'focus:ring-amber-500'}`}
+                            autocomplete="off"
+                            class={`w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 ${tier === 'auto' ? 'focus:ring-blue-500' : 'focus:ring-amber-500'}`}
                             placeholder={t('index.countryFilterPlaceholder')}
                             value={search}
                             onInput={e => setSearch(e.target.value)}
@@ -241,7 +241,7 @@ function GlobalSearch({ basePath }) {
                 </div>
                 <input
                     type="text"
-                    autocomplate="off"
+                    autocomplete="off"
                     class="block w-full pl-12 pr-12 py-4 bg-gray-900 border border-gray-700 rounded-xl text-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-lg"
                     placeholder={t('index.searchPlaceholder')}
                     value={search}
@@ -298,7 +298,7 @@ function GlobalSearch({ basePath }) {
  * @param {Object[]} props.allSpiderResults - The results for all spiders in the tier.
  */
 function Dashboard({ allSpiderResults }) {
-    const { linkClass } = useTheme();
+    const { linkClass } = useTier();
     const scrollRef = useRef(null);
     const [fadeState, setFadeState] = useState('');
 
@@ -417,10 +417,6 @@ function Dashboard({ allSpiderResults }) {
                         secondaryA = a.mappedCount;
                         secondaryB = b.mappedCount;
                         break;
-                    case 'updates':
-                        valA = a.automaticUpdatesCount;
-                        valB = b.automaticUpdatesCount;
-                        break;
                     case 'mapped':
                         valA = a.mappedCount;
                         valB = b.mappedCount;
@@ -490,8 +486,8 @@ function Dashboard({ allSpiderResults }) {
                     <input
                         type="text"
                         id="search-input"
-                        autocomplate="off"
-                        class={`block w-full pl-10 pr-10 py-3 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 ${useTheme().theme === 'auto' ? 'focus:ring-blue-500 focus:border-blue-500' : 'focus:ring-amber-500 focus:border-amber-500'} sm:text-sm transition-colors`}
+                        autocomplete="off"
+                        class={`block w-full pl-10 pr-10 py-3 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 ${useTier().tier === 'auto' ? 'focus:ring-blue-500 focus:border-blue-500' : 'focus:ring-amber-500 focus:border-amber-500'} sm:text-sm transition-colors`}
                         placeholder={t('index.searchPlaceholder')}
                         value={search}
                         onInput={handleSearchChange}
@@ -536,7 +532,7 @@ function Dashboard({ allSpiderResults }) {
                                     key={col.key}
                                     class={`px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap flex items-center gap-1 ${
                                         active
-                                            ? `${useTheme().theme === 'auto' ? 'bg-blue-600 border-blue-500' : 'bg-amber-600 border-amber-500'} text-white shadow-md`
+                                            ? `${useTier().tier === 'auto' ? 'bg-blue-600 border-blue-500' : 'bg-amber-600 border-amber-500'} text-white shadow-md`
                                             : 'border-gray-600 text-gray-300 hover:bg-gray-700 cursor-pointer'
                                     }`}
                                     onClick={() => handleSort(col.key)}
@@ -658,8 +654,8 @@ function SortIcon({ column, currentSort }) {
  * @param {Object} props.currentSort - The current sort state.
  */
 function SpiderRow({ spider, onSort, currentSort }) {
-    const { linkClass, theme } = useTheme();
-    const isAuto = theme === 'auto';
+    const { linkClass, tier } = useTier();
+    const isAuto = tier === 'auto';
     const { name, issuesCount, mappedCount, totalCount, isBrandSpider, stabilityColor, loadStatus, brands } = spider;
 
     const statusColors = {
@@ -767,16 +763,16 @@ function SpiderRow({ spider, onSort, currentSort }) {
  * Initializes the dashboard application.
  *
  * @param {Object[]} allSpiderResults - Results for all spiders.
- * @param {string} [theme='auto'] - The tier theme ('auto' or 'preview').
+ * @param {string} [tier='auto'] - The spider's tier ('auto' or 'preview').
  */
-window.initDashboard = async (allSpiderResults, theme = 'auto') => {
+window.initDashboard = async (allSpiderResults, tier = 'auto') => {
     await initI18n();
     const container = document.getElementById('dashboard-root');
     if (container) {
         render(
-            <ThemeProvider theme={theme}>
+            <TierProvider tier={tier}>
                 <Dashboard allSpiderResults={allSpiderResults} />
-            </ThemeProvider>,
+            </TierProvider>,
             container
         );
     }
@@ -798,9 +794,9 @@ window.initLandingPage = async () => {
     const switcherContainer = document.getElementById('language-switcher-root');
     if (switcherContainer) {
         render(
-            <ThemeProvider theme="auto">
+            <TierProvider tier="auto">
                 <LanguageSwitcher />
-            </ThemeProvider>,
+            </TierProvider>,
             switcherContainer
         );
     }

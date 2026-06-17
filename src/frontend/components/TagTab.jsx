@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { useMemo, useRef, useState, useEffect } from 'preact/hooks';
 import { StatusLabel, TagValue, SpiderValue, OsmColumn, Pagination } from './Common';
 import { t } from '../i18n';
-import { useTheme } from './ThemeContext';
+import { useTier } from './TierContext';
 
 /**
  * An icon component indicating the current sort direction for a table column.
@@ -155,8 +155,8 @@ export function TagTab({
     const effectivePage = Math.min(currentState.page, totalPages);
     const pageData = filtered.slice((effectivePage - 1) * pageSize, effectivePage * pageSize);
 
-    const { theme, buttonClass } = useTheme();
-    const isAuto = theme === 'auto';
+    const { tier, buttonClass } = useTier();
+    const isAuto = tier === 'auto';
     const possibleStatuses = isAuto
         ? ['editMade', 'disallowedSourceUri', 'mismatch', 'updateOsm', 'addToOsm', 'matching']
         : ['disallowedSourceUri', 'mismatch', 'updateOsm', 'addToOsm', 'matching'];

@@ -24,7 +24,7 @@ import { t } from '../i18n';
  * @param {Object[]} props.unmappedFilters - Pre-calculated filters for unmapped items.
  * @param {Object[]} props.unmatchedFilters - Pre-calculated filters for unmatched items.
  * @param {string} props.basePath - The base path for links and assets.
- * @param {string} [props.theme='auto'] - The tier theme ('auto' or 'preview').
+ * @param {string} [props.tier='auto'] - The spider's tier ('auto' or 'preview').
  */
 export function SpiderPage({
     name,
@@ -43,12 +43,12 @@ export function SpiderPage({
     unmappedFilters,
     unmatchedFilters,
     basePath,
-    theme = 'auto',
+    tier = 'auto',
 }) {
-    const isAuto = theme === 'auto';
+    const isAuto = tier === 'auto';
     const linkColorClass = isAuto ? 'text-blue-400' : 'text-amber-600';
 
-    return h(Layout, { title: name, basePath, atpDate, osmDate, theme }, [
+    return h(Layout, { title: name, basePath, atpDate, osmDate, tier }, [
         h('nav', { class: 'mb-8 mt-4' }, [
             h(
                 'a',
@@ -167,7 +167,7 @@ export function SpiderPage({
         unmatchedCount: ${unmatchedCount || 0},
         unmappedFilters: ${JSON.stringify(unmappedFilters || [])},
         unmatchedFilters: ${JSON.stringify(unmatchedFilters || [])},
-        theme: ${JSON.stringify(theme)},
+        tier: ${JSON.stringify(tier)},
         rejected: ${JSON.stringify(rejected)}
     });`,
             },
