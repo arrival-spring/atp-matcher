@@ -28,7 +28,6 @@
             "status": "Status",
             "spiderName": "Spider Name",
             "issuesMapped": "Issues / Mapped",
-            "autoUpdates": "Auto Updates",
             "mappedTotal": "Mapped / Total"
         },
         "stability": {

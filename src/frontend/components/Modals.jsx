@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { t } from '../i18n';
-import { useTheme } from './ThemeContext';
+import { useTier } from './TierContext';
 
 /**
  * A modal component for displaying warnings when a tag mismatch is detected.
@@ -18,7 +18,7 @@ export function MismatchModal({ title, message, onUnderstand, onBack, showImport
     const [progress, setProgress] = useState(0);
     const [canConfirm, setCanConfirm] = useState(false);
     const [isImport, setIsImport] = useState(false);
-    const { buttonClass } = useTheme();
+    const { buttonClass } = useTier();
 
     useEffect(() => {
         const start = Date.now();
@@ -99,7 +99,7 @@ export function MismatchModal({ title, message, onUnderstand, onBack, showImport
  * @param {Function} props.onClose - Callback to close the modal.
  */
 export function JosmErrorModal({ onClose }) {
-    const { buttonClass } = useTheme();
+    const { buttonClass } = useTier();
     return (
         <div
             id="josm-modal"

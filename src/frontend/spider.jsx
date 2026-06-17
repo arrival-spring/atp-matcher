@@ -10,7 +10,7 @@ import { UnmatchedTab } from './components/UnmatchedTab';
 import { DuplicateRefsTab } from './components/DuplicateRefsTab';
 import { TagTab } from './components/TagTab';
 import { MismatchModal, JosmErrorModal } from './components/Modals';
-import { ThemeProvider } from './components/ThemeContext';
+import { TierProvider } from './components/TierContext';
 
 const PAGE_SIZE = 25;
 
@@ -321,9 +321,9 @@ window.initSpiderDashboard = async props => {
     const container = document.getElementById('spider-dashboard-root');
     if (container) {
         render(
-            <ThemeProvider theme={props.theme || 'auto'}>
+            <TierProvider tier={props.tier || 'auto'}>
                 <SpiderDashboard {...props} />
-            </ThemeProvider>,
+            </TierProvider>,
             container
         );
     }

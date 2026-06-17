@@ -1,7 +1,7 @@
 import { h, Fragment } from 'preact';
 import { markLinkVisited, handleJosmLink } from '../utils';
 import { t } from '../i18n';
-import { useTheme } from './ThemeContext';
+import { useTier } from './TierContext';
 import { getMissingDays, formatMissingDays } from '../../utils';
 
 /**
@@ -38,7 +38,7 @@ export function StatusLabel({ status }) {
  * @param {boolean} [props.showOpeningHoursWarning=false] - Whether to show missing days warnings.
  */
 export function TagValue({ value, tag, visitedSet, showOpeningHoursWarning }) {
-    const { linkClass } = useTheme();
+    const { linkClass } = useTier();
     if (!value) return null;
 
     let warning = null;
@@ -195,7 +195,7 @@ export function SpiderValue({ value, history, tag, visitedSet, isStable, isNewVa
  * @param {Function} [props.onJosmError] - Callback if JOSM remote control fails.
  */
 export function OsmColumn({ osmId, suggestedFixes = {}, visitedSet, atpDate, onVisited, onJosmError }) {
-    const { linkClass } = useTheme();
+    const { linkClass } = useTier();
     if (!osmId) return null;
     const typeMap = { n: 'node', w: 'way', r: 'relation' };
     const typeChar = osmId.toString()[0];
@@ -277,7 +277,7 @@ export function OsmColumn({ osmId, suggestedFixes = {}, visitedSet, atpDate, onV
  * @param {Function} [props.onJosmError] - Callback if JOSM remote control fails.
  */
 export function BulkJosmLinks({ items, atpDate, onVisited, onJosmError }) {
-    const { linkClass } = useTheme();
+    const { linkClass } = useTier();
     if (items.length === 0) return null;
     const BATCH_SIZE = 100;
 
@@ -359,7 +359,7 @@ export function Pagination({ page, totalPages, onPageChange, totalItems }) {
  * @param {string} props.message - The message to display while loading.
  */
 export function LoadingIndicator({ message }) {
-    const { spinnerClass } = useTheme();
+    const { spinnerClass } = useTier();
     return (
         <div class="py-12 flex flex-col items-center justify-center gap-4">
             <div class={`w-12 h-12 border-4 ${spinnerClass} border-t-transparent rounded-full animate-spin`}></div>

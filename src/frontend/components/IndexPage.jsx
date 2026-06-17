@@ -11,15 +11,15 @@ import { t } from '../i18n';
  * @param {string} props.atpDate - The date of the latest ATP run.
  * @param {string} props.osmDate - The date of the latest OSM extract.
  * @param {string} props.basePath - The base path for links and assets.
- * @param {string} [props.theme='auto'] - The tier theme ('auto' or 'preview').
+ * @param {string} [props.tier='auto'] - The spider's tier ('auto' or 'preview').
  */
-export function IndexPage({ indexData, atpDate, osmDate, basePath, theme = 'auto' }) {
-    const isAuto = theme === 'auto';
+export function IndexPage({ indexData, atpDate, osmDate, basePath, tier = 'auto' }) {
+    const isAuto = tier === 'auto';
     const gradientClass = isAuto ? 'from-blue-400 to-teal-400' : 'from-amber-400 to-orange-400';
 
     const linkColorClass = isAuto ? 'text-blue-400' : 'text-amber-600';
 
-    return h(Layout, { title: t('index.dashboard'), basePath, atpDate, osmDate, theme }, [
+    return h(Layout, { title: t('index.dashboard'), basePath, atpDate, osmDate, tier }, [
         h('nav', { class: 'mb-8 mt-4' }, [
             h('a', { href: `../index.html`, class: `${linkColorClass} hover:underline font-bold text-xl` }, '←'),
         ]),
@@ -39,7 +39,7 @@ export function IndexPage({ indexData, atpDate, osmDate, basePath, theme = 'auto
         h('script', {
             type: 'module',
             dangerouslySetInnerHTML: {
-                __html: `window.initDashboard(${JSON.stringify(indexData)}, ${JSON.stringify(theme)});`,
+                __html: `window.initDashboard(${JSON.stringify(indexData)}, ${JSON.stringify(tier)});`,
             },
         }),
     ]);

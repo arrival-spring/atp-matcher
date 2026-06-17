@@ -1,8 +1,8 @@
 import { h, createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 
-export const ThemeContext = createContext({
-    theme: 'auto',
+export const TierContext = createContext({
+    tier: 'auto',
     linkClass: isVisited => (isVisited ? 'text-gray-600' : 'text-emerald-500'),
     hoverLinkClass: 'hover:text-emerald-400',
     buttonClass: 'bg-emerald-600 hover:bg-emerald-700',
@@ -11,25 +11,25 @@ export const ThemeContext = createContext({
 });
 
 /**
- * Hook to access the current theme context.
+ * Hook to access the current tier context.
  *
- * @returns {Object} The current theme context values.
+ * @returns {Object} The current tier context values.
  */
-export function useTheme() {
-    return useContext(ThemeContext);
+export function useTier() {
+    return useContext(TierContext);
 }
 
 /**
- * Provider component that sets the theme for its children based on the spider's tier.
+ * Provider component that sets the tier for its children.
  *
  * @param {Object} props - The component props.
- * @param {string} props.theme - The theme to use ('auto' or 'preview').
+ * @param {string} props.tier - The spider's tier ('auto' or 'preview').
  * @param {import('preact').ComponentChildren} props.children - Child components.
  */
-export function ThemeProvider({ theme, children }) {
-    const isAuto = theme === 'auto';
+export function TierProvider({ tier, children }) {
+    const isAuto = tier === 'auto';
     const value = {
-        theme,
+        tier,
         linkClass: isVisited => {
             if (isVisited) return 'text-gray-600';
             return isAuto ? 'text-emerald-500' : 'text-amber-600';
@@ -40,5 +40,5 @@ export function ThemeProvider({ theme, children }) {
         spinnerClass: isAuto ? 'border-emerald-600' : 'border-amber-600',
     };
 
-    return h(ThemeContext.Provider, { value, children });
+    return h(TierContext.Provider, { value, children });
 }
