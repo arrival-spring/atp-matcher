@@ -214,31 +214,6 @@ export function areEmailsEqual(osmValue, atpValue) {
     return atpList.every(v => osmList.includes(v));
 }
 
-/**
- * Normalizes boolean-like fuel tag values to 'yes' or 'no'.
- *
- * @param {any} v - The value to normalize.
- * @returns {string|null} Normalized 'yes', 'no', or the original value.
- */
-function normalizeFuel(v) {
-    if (v === null || v === undefined) return null;
-    const s = v.toString().toLowerCase().trim();
-    if (['yes', 'true', '1'].includes(s)) return 'yes';
-    if (['no', 'false', '0'].includes(s)) return 'no';
-    return v;
-}
-
-/**
- * Compares two fuel tag values for semantic equality.
- *
- * @param {string} v1 - The first fuel value.
- * @param {string} v2 - The second fuel value.
- * @returns {boolean} True if the normalized values are equal, false otherwise.
- */
-function areFuelTagsEqual(v1, v2) {
-    return normalizeFuel(v1) === normalizeFuel(v2);
-}
-
 const TAG_COMPARATORS = {
     opening_hours: areOpeningHoursEqual,
     phone: arePhonesEqual,
@@ -260,9 +235,6 @@ export function areTagsEqual(tag, osmValue, atpValue, country) {
     const comparator = TAG_COMPARATORS[tag];
     if (comparator) {
         return comparator(osmValue, atpValue, country);
-    }
-    if (tag.startsWith('fuel:')) {
-        return areFuelTagsEqual(osmValue, atpValue);
     }
     return osmValue === atpValue;
 }
