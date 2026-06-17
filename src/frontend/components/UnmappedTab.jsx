@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { useMemo, useState, useRef, useEffect } from 'preact/hooks';
-import { StatusLabel, TagsWithLinks, Pagination, LoadingIndicator } from './Common';
+import { StatusLabel, TagsWithLinks, Pagination, LoadingIndicator, PaginationHelper } from './Common';
 import { MismatchModal } from './Modals';
 import { handleJosmLink } from '../utils';
 import { t } from '../i18n';
@@ -79,10 +79,6 @@ export function UnmappedTab({
         return filtered;
     }, [disallowedOrNotBrand, unmappedCache, currentState.brand, currentState.wikidata, currentState.search]);
 
-    const totalPages = Math.ceil(allUnmapped.length / pageSize) || 1;
-    const effectivePage = Math.min(currentState.page, totalPages);
-    const pageData = allUnmapped.slice((effectivePage - 1) * pageSize, effectivePage * pageSize);
-
     const [showJosmWarning, setShowJosmWarning] = useState(false);
     const { linkClass } = useTier();
 
@@ -157,81 +153,85 @@ export function UnmappedTab({
             {loading && <LoadingIndicator message={t('spider.loading')} />}
 
             {!loading && (
-                <>
-                    <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6">
-                        <table class="min-w-full table-auto">
-                            <thead
-                                class={`bg-gray-800 text-gray-400 text-left sticky z-10 shadow-sm ${filters && filters.length > 1 ? 'top-[124px] md:top-[122px]' : 'top-[44px] md:top-[52px]'}`}
-                            >
-                                <tr class="hidden md:table-row">
-                                    <th class="px-4 py-3">{t('spider.table.ref')}</th>
-                                    <th class="px-4 py-3">{t('spider.table.tags')}</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-gray-300 divide-y divide-gray-800">
-                                {pageData.map(r => (
-                                    <tr
-                                        key={r.ref}
-                                        class="flex flex-col md:table-row border-b border-gray-800 md:border-none p-4 md:p-0 hover:bg-gray-800 transition-colors"
-                                    >
-                                        <td class="md:table-cell md:px-4 md:py-3 font-medium break-all mb-2 md:mb-0">
-                                            <div class="text-lg md:text-base flex items-center flex-wrap">
-                                                {r.ref}
-                                                <StatusLabel status={r.status} />
-                                            </div>
-                                        </td>
-                                        <td class="md:table-cell md:px-4 md:py-3">
-                                            <div class="flex md:block">
-                                                <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">
-                                                    {t('spider.table.tags')}:
-                                                </span>
-                                                <div class="text-xs font-mono whitespace-pre-wrap flex-grow">
-                                                    <TagsWithLinks
-                                                        tags={r.allAtpTags}
-                                                        visitedSet={visitedSet}
-                                                        showOpeningHoursWarning={true}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <Pagination
-                        page={effectivePage}
-                        totalPages={totalPages}
-                        onPageChange={p => setCurrentState(prev => ({ ...prev, page: p }))}
-                        totalItems={allUnmapped.length}
-                    />
-
-                    <div class="mt-8 text-center">
-                        <button
-                            onClick={() => setShowJosmWarning(true)}
-                            class={`${linkClass(false)} hover:underline text-sm cursor-pointer bg-transparent border-none`}
-                        >
-                            {t('spider.actions.openUnmapped')}
-                        </button>
-                    </div>
-
-                    {showJosmWarning && (
+                <PaginationHelper items={allUnmapped} page={currentState.page} pageSize={pageSize}>
+                    {({ pageData, effectivePage, totalPages }) => (
                         <>
-                            <MismatchModal
-                                title={t('spider.modals.mismatch.title')}
-                                message={t('spider.modals.josmImport.message')}
-                                onUnderstand={handleImport}
-                                onBack={() => setShowJosmWarning(false)}
-                                showImportBtn
+                            <div class="overflow-x-auto md:overflow-x-visible bg-gray-900 rounded-lg shadow mb-6">
+                                <table class="min-w-full table-auto">
+                                    <thead
+                                        class={`bg-gray-800 text-gray-400 text-left sticky z-10 shadow-sm ${filters && filters.length > 1 ? 'top-[124px] md:top-[122px]' : 'top-[44px] md:top-[52px]'}`}
+                                    >
+                                        <tr class="hidden md:table-row">
+                                            <th class="px-4 py-3">{t('spider.table.ref')}</th>
+                                            <th class="px-4 py-3">{t('spider.table.tags')}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-gray-300 divide-y divide-gray-800">
+                                        {pageData.map(r => (
+                                            <tr
+                                                key={r.ref}
+                                                class="flex flex-col md:table-row border-b border-gray-800 md:border-none p-4 md:p-0 hover:bg-gray-800 transition-colors"
+                                            >
+                                                <td class="md:table-cell md:px-4 md:py-3 font-medium break-all mb-2 md:mb-0">
+                                                    <div class="text-lg md:text-base flex items-center flex-wrap">
+                                                        {r.ref}
+                                                        <StatusLabel status={r.status} />
+                                                    </div>
+                                                </td>
+                                                <td class="md:table-cell md:px-4 md:py-3">
+                                                    <div class="flex md:block">
+                                                        <span class="md:hidden font-bold text-gray-400 w-16 shrink-0 text-sm">
+                                                            {t('spider.table.tags')}:
+                                                        </span>
+                                                        <div class="text-xs font-mono whitespace-pre-wrap flex-grow">
+                                                            <TagsWithLinks
+                                                                tags={r.allAtpTags}
+                                                                visitedSet={visitedSet}
+                                                                showOpeningHoursWarning={true}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <Pagination
+                                page={effectivePage}
+                                totalPages={totalPages}
+                                onPageChange={p => setCurrentState(prev => ({ ...prev, page: p }))}
+                                totalItems={allUnmapped.length}
                             />
-                            <div
-                                class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
-                                onClick={() => setShowJosmWarning(false)}
-                            />
+
+                            <div class="mt-8 text-center">
+                                <button
+                                    onClick={() => setShowJosmWarning(true)}
+                                    class={`${linkClass(false)} hover:underline text-sm cursor-pointer bg-transparent border-none`}
+                                >
+                                    {t('spider.actions.openUnmapped')}
+                                </button>
+                            </div>
+
+                            {showJosmWarning && (
+                                <>
+                                    <MismatchModal
+                                        title={t('spider.modals.mismatch.title')}
+                                        message={t('spider.modals.josmImport.message')}
+                                        onUnderstand={handleImport}
+                                        onBack={() => setShowJosmWarning(false)}
+                                        showImportBtn
+                                    />
+                                    <div
+                                        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+                                        onClick={() => setShowJosmWarning(false)}
+                                    />
+                                </>
+                            )}
                         </>
                     )}
-                </>
+                </PaginationHelper>
             )}
         </div>
     );
