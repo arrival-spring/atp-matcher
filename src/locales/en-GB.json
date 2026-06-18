@@ -1,6 +1,6 @@
 {
     "subtitle": "Data synchronisation between All The Places and OpenStreetMap",
-    "landing": {
+    "index": {
         "summary": "This project helps synchronise point-of-interest data from All The Places into OpenStreetMap. It compares first-party brand data with current OSM features to find missing locations, outdated tags and potential improvements."
     }
 }

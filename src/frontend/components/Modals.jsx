@@ -63,7 +63,7 @@ export function MismatchModal({ title, message, onUnderstand, onBack, showImport
                         onClick={onBack}
                         class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors border border-gray-600 font-medium cursor-pointer"
                     >
-                        {showImportBtn ? t('index.pagination.previous') : t('spider.modals.takeMeBack')}
+                        {showImportBtn ? t('dashboard.pagination.previous') : t('spider.modals.takeMeBack')}
                     </button>
                     {!isImport && (
                         <button

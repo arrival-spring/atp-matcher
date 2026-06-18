@@ -3,9 +3,9 @@ import path from 'path';
 import { execSync } from 'child_process';
 import { h } from 'preact';
 import render from 'preact-render-to-string';
-import { IndexPage } from './frontend/components/IndexPage.jsx';
+import { DashboardPage } from './frontend/components/DashboardPage.jsx';
 import { SpiderPage } from './frontend/components/SpiderPage.jsx';
-import { LandingPage } from './frontend/components/LandingPage.jsx';
+import { IndexPage } from './frontend/components/IndexPage.jsx';
 import { initI18n } from './frontend/i18n.js';
 
 /**
@@ -83,7 +83,7 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
 
     const generateDashboard = (results, subDir, tier) => {
         try {
-            const indexData = results.map(s => ({
+            const dashboardData = results.map(s => ({
                 name: s.name,
                 stabilityColor: s.stabilityColor,
                 stabilityScore: s.stabilityScore,
@@ -96,16 +96,16 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
                 countries: s.countries,
             }));
 
-            const indexHtml = render(
-                h(IndexPage, {
-                    indexData,
+            const dashboardHtml = render(
+                h(DashboardPage, {
+                    dashboardData,
                     atpDate,
                     osmDate,
                     basePath: '..',
                     tier,
                 })
             );
-            fs.writeFileSync(path.join(outputDir, subDir, 'index.html'), `<!DOCTYPE html>\n${indexHtml}`);
+            fs.writeFileSync(path.join(outputDir, subDir, 'index.html'), `<!DOCTYPE html>\n${dashboardHtml}`);
         } catch (error) {
             console.error(`Error generating dashboard for ${subDir}: ${error.message}`);
         }
@@ -114,15 +114,15 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
     generateDashboard(autoResults, 'auto', 'auto');
     generateDashboard(previewResults, 'preview', 'preview');
 
-    // Generate Landing Page
+    // Generate Index Page
     try {
         const getStats = results => ({
             places: results.reduce((sum, s) => sum + (s.mappedCount || 0), 0),
             brands: results.length,
         });
 
-        const landingHtml = render(
-            h(LandingPage, {
+        const indexHtml = render(
+            h(IndexPage, {
                 autoStats: getStats(autoResults),
                 previewStats: getStats(previewResults),
                 atpDate,
@@ -130,12 +130,12 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
                 basePath: '.',
             })
         );
-        const landingWithScript = `<!DOCTYPE html>\n${landingHtml}
+        const indexWithScript = `<!DOCTYPE html>\n${indexHtml}
 <script type="module" src="./assets/index.js"></script>
-<script type="module">window.initLandingPage();</script>`;
-        fs.writeFileSync(path.join(outputDir, 'index.html'), landingWithScript);
+<script type="module">window.initIndexPage();</script>`;
+        fs.writeFileSync(path.join(outputDir, 'index.html'), indexWithScript);
     } catch (error) {
-        console.error(`Error generating landing page: ${error.message}`);
+        console.error(`Error generating index page: ${error.message}`);
     }
 
     // Build frontend assets
