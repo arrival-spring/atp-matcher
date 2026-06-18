@@ -53,7 +53,7 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
         );
     }, [countries, search]);
 
-    const items = [{ code: null, name: t('index.showAllCountries') }, ...filteredCountries];
+    const items = [{ code: null, name: t('dashboard.showAllCountries') }, ...filteredCountries];
 
     useEffect(() => {
         const handleClickOutside = e => {
@@ -95,7 +95,7 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
 
     const selectedName = selectedCountry
         ? countries.find(c => c.code === selectedCountry)?.name || selectedCountry
-        : t('index.showAllCountries');
+        : t('dashboard.showAllCountries');
 
     return (
         <div class="relative md:w-48 shrink-0" ref={containerRef}>
@@ -105,7 +105,7 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
                 class={`w-full flex items-center justify-between px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 focus:outline-none focus:ring-1 ${tier === 'auto' ? 'focus:ring-blue-500' : 'focus:ring-amber-500'} transition-colors`}
             >
                 <span class="truncate">
-                    {selectedName === t('index.showAllCountries') ? t('index.showAllCountries') : selectedName}
+                    {selectedName === t('dashboard.showAllCountries') ? t('dashboard.showAllCountries') : selectedName}
                 </span>
                 <svg
                     class={`w-4 h-4 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -125,7 +125,7 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
                             type="text"
                             autocomplete="off"
                             class={`w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 ${tier === 'auto' ? 'focus:ring-blue-500' : 'focus:ring-amber-500'}`}
-                            placeholder={t('index.countryFilterPlaceholder')}
+                            placeholder={t('dashboard.countryFilterPlaceholder')}
                             value={search}
                             onInput={e => setSearch(e.target.value)}
                             onKeyDown={handleKeyDown}
@@ -157,7 +157,7 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
 }
 
 /**
- * A global search bar component for the landing page.
+ * A global search bar component for the index page.
  * Allows searching for spiders and brands across the entire project.
  *
  * @param {Object} props - The component props.
@@ -243,7 +243,7 @@ function GlobalSearch({ basePath }) {
                     type="text"
                     autocomplete="off"
                     class="block w-full pl-12 pr-12 py-4 bg-gray-900 border border-gray-700 rounded-xl text-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-lg"
-                    placeholder={t('index.searchPlaceholder')}
+                    placeholder={t('dashboard.searchPlaceholder')}
                     value={search}
                     onInput={e => setSearch(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -463,10 +463,10 @@ function Dashboard({ allSpiderResults }) {
     };
 
     const sortColumns = [
-        { key: 'status', label: t('index.table.status') },
-        { key: 'name', label: t('index.table.spiderName') },
-        { key: 'issues', label: t('index.table.issuesMapped') },
-        { key: 'mapped', label: t('index.table.mappedTotal') },
+        { key: 'status', label: t('dashboard.table.status') },
+        { key: 'name', label: t('dashboard.table.spiderName') },
+        { key: 'issues', label: t('dashboard.table.issuesMapped') },
+        { key: 'mapped', label: t('dashboard.table.mappedTotal') },
     ];
 
     return (
@@ -488,7 +488,7 @@ function Dashboard({ allSpiderResults }) {
                         id="search-input"
                         autocomplete="off"
                         class={`block w-full pl-10 pr-10 py-3 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 ${useTier().tier === 'auto' ? 'focus:ring-blue-500 focus:border-blue-500' : 'focus:ring-amber-500 focus:border-amber-500'} sm:text-sm transition-colors`}
-                        placeholder={t('index.searchPlaceholder')}
+                        placeholder={t('dashboard.searchPlaceholder')}
                         value={search}
                         onInput={handleSearchChange}
                         onKeyDown={handleSearchKeyDown}
@@ -555,7 +555,7 @@ function Dashboard({ allSpiderResults }) {
                                 onClick={() => handleSort('status')}
                             >
                                 <div class="flex items-center gap-1">
-                                    {t('index.table.status')}
+                                    {t('dashboard.table.status')}
                                     <SortIcon column="status" currentSort={sort} />
                                 </div>
                             </th>
@@ -564,7 +564,7 @@ function Dashboard({ allSpiderResults }) {
                                 onClick={() => handleSort('name')}
                             >
                                 <div class="flex items-center gap-1">
-                                    {t('index.table.spiderName')}
+                                    {t('dashboard.table.spiderName')}
                                     <SortIcon column="name" currentSort={sort} />
                                 </div>
                             </th>
@@ -573,7 +573,7 @@ function Dashboard({ allSpiderResults }) {
                                 onClick={() => handleSort('issues')}
                             >
                                 <div class="flex items-center justify-end gap-1">
-                                    {t('index.table.issuesMapped')}
+                                    {t('dashboard.table.issuesMapped')}
                                     <SortIcon column="issues" currentSort={sort} />
                                 </div>
                             </th>
@@ -582,7 +582,7 @@ function Dashboard({ allSpiderResults }) {
                                 onClick={() => handleSort('mapped')}
                             >
                                 <div class="flex items-center justify-end gap-1">
-                                    {t('index.table.mappedTotal')}
+                                    {t('dashboard.table.mappedTotal')}
                                     <SortIcon column="mapped" currentSort={sort} />
                                 </div>
                             </th>
@@ -602,17 +602,17 @@ function Dashboard({ allSpiderResults }) {
                     disabled={effectivePage === 1}
                     class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer text-sm font-medium"
                 >
-                    {t('index.pagination.previous')}
+                    {t('dashboard.pagination.previous')}
                 </button>
                 <span class="text-gray-400 font-medium text-sm">
-                    {t('index.pagination.pageOf', { page: effectivePage, totalPages })}
+                    {t('dashboard.pagination.pageOf', { page: effectivePage, totalPages })}
                 </span>
                 <button
                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                     disabled={effectivePage === totalPages || filtered.length === 0}
                     class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer text-sm font-medium"
                 >
-                    {t('index.pagination.next')}
+                    {t('dashboard.pagination.next')}
                 </button>
             </div>
         </div>
@@ -666,10 +666,10 @@ function SpiderRow({ spider, onSort, currentSort }) {
     };
 
     const statusTitles = {
-        green: t('index.stability.stable'),
-        orange: t('index.stability.minorVariations'),
-        red: t('index.stability.majorVariations'),
-        gray: t('index.stability.missingData'),
+        green: t('dashboard.stability.stable'),
+        orange: t('dashboard.stability.minorVariations'),
+        red: t('dashboard.stability.majorVariations'),
+        gray: t('dashboard.stability.missingData'),
     };
 
     const showTotals = !loadStatus && isBrandSpider;
@@ -783,9 +783,9 @@ window.initDashboard = async (allSpiderResults, tier = 'auto') => {
 };
 
 /**
- * Initializes the landing page application.
+ * Initializes the index page application.
  */
-window.initLandingPage = async () => {
+window.initIndexPage = async () => {
     await initI18n();
     const searchContainer = document.getElementById('global-search-root');
     if (searchContainer) {

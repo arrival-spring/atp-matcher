@@ -355,15 +355,15 @@ export function Pagination({ page, totalPages, onPageChange, totalItems }) {
                 disabled={page === 1}
                 class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer text-sm font-medium"
             >
-                {t('index.pagination.previous')}
+                {t('dashboard.pagination.previous')}
             </button>
-            <span class="text-gray-400 font-medium text-sm">{t('index.pagination.pageOf', { page, totalPages })}</span>
+            <span class="text-gray-400 font-medium text-sm">{t('dashboard.pagination.pageOf', { page, totalPages })}</span>
             <button
                 onClick={() => onPageChange(page + 1)}
                 disabled={page === totalPages || totalItems === 0}
                 class="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50 transition-colors cursor-pointer text-sm font-medium"
             >
-                {t('index.pagination.next')}
+                {t('dashboard.pagination.next')}
             </button>
         </div>
     );

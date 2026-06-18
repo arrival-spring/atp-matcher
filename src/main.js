@@ -358,7 +358,7 @@ async function run() {
     try {
         await generateWebpage(autoResults, previewResults, atpDate, osmDate);
 
-        // Generate global index for landing page search
+        // Generate global index for index page search
         const globalIndex = [
             ...autoResults.map(s => ({ name: s.name, brands: s.brands, tier: 'auto' })),
             ...previewResults.map(s => ({ name: s.name, brands: s.brands, tier: 'preview' })),
