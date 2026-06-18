@@ -357,7 +357,9 @@ export function Pagination({ page, totalPages, onPageChange, totalItems }) {
             >
                 {t('dashboard.pagination.previous')}
             </button>
-            <span class="text-gray-400 font-medium text-sm">{t('dashboard.pagination.pageOf', { page, totalPages })}</span>
+            <span class="text-gray-400 font-medium text-sm">
+                {t('dashboard.pagination.pageOf', { page, totalPages })}
+            </span>
             <button
                 onClick={() => onPageChange(page + 1)}
                 disabled={page === totalPages || totalItems === 0}

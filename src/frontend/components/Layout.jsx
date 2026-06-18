@@ -5,6 +5,49 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { TierProvider } from './TierContext';
 
 /**
+ * Navigation header component with logo, tier label, and optional spider name.
+ */
+function Header({ basePath, tier, spiderName, isIndex }) {
+    const isAuto = tier === 'auto';
+    const accentClass = isAuto ? 'text-emerald-500' : 'text-amber-500';
+    const hoverAccentClass = isAuto ? 'hover:text-emerald-400' : 'hover:text-amber-400';
+
+    const logo = h(
+        'a',
+        {
+            href: `${basePath}/index.html`,
+            class: 'font-extrabold text-2xl md:text-3xl hover:text-gray-300 transition-colors shrink-0',
+        },
+        t('title')
+    );
+
+    const tierLabel =
+        !isIndex &&
+        (spiderName
+            ? h(
+                  'a',
+                  {
+                      href: `${basePath}/${tier}/index.html`,
+                      class: `font-bold text-lg md:text-xl ${accentClass} ${hoverAccentClass} transition-colors shrink-0`,
+                  },
+                  t(`nav.${tier}`)
+              )
+            : h('span', { class: `font-bold text-lg md:text-xl ${accentClass} shrink-0` }, t(`nav.${tier}`)));
+
+    // For SEO/Accessibility:
+    // On Index and Dashboard, the logo/tier combo is the H1.
+    // On SpiderPage, the spiderName is the H1.
+    const TitleContainer = spiderName ? 'div' : 'h1';
+
+    return h('header', { class: 'mb-8' }, [
+        h('div', { class: 'flex flex-col md:flex-row md:items-baseline gap-x-4 gap-y-1' }, [
+            h(TitleContainer, { class: 'flex items-baseline gap-x-4' }, [logo, tierLabel]),
+            spiderName && h('h1', { class: 'text-xl md:text-2xl font-bold text-gray-400 truncate' }, spiderName),
+        ]),
+    ]);
+}
+
+/**
  * The base layout component for all pages in the application.
  * Includes the HTML head, localized footer with data dates, and initializes the tier.
  *
@@ -14,9 +57,11 @@ import { TierProvider } from './TierContext';
  * @param {string} props.atpDate - The date of the latest ATP run.
  * @param {string} props.osmDate - The date of the latest OSM extract.
  * @param {string} [props.tier='auto'] - The spider's tier ('auto' or 'preview').
+ * @param {string} [props.spiderName] - The name of the spider (optional).
+ * @param {boolean} [props.isIndex=false] - Whether this is the index page.
  * @param {import('preact').ComponentChildren} props.children - Child components to be rendered within the layout.
  */
-export function Layout({ title, basePath, atpDate, osmDate, tier = 'auto', children }) {
+export function Layout({ title, basePath, atpDate, osmDate, tier = 'auto', spiderName, isIndex = false, children }) {
     const [currentLocale, setCurrentLocale] = useState(getLocale());
 
     useEffect(() => {
@@ -39,7 +84,9 @@ export function Layout({ title, basePath, atpDate, osmDate, tier = 'auto', child
         ]),
         h('body', { class: 'bg-gray-950 text-gray-100 min-h-screen p-4 md:p-8 relative' }, [
             h('div', { id: 'language-switcher-root' }),
-            h('div', { class: 'max-w-7xl mx-auto relative' }, [h(TierProvider, { tier }, children)]),
+            h('div', { class: 'max-w-7xl mx-auto relative' }, [
+                h(TierProvider, { tier }, [h(Header, { basePath, tier, spiderName, isIndex }), children]),
+            ]),
             h('footer', { class: 'max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-800 text-gray-500 text-sm' }, [
                 h('div', { class: 'flex flex-wrap gap-x-8 gap-y-2' }, [
                     h('div', null, [h('strong', { 'data-t': 'footer.atpData' }, t('footer.atpData')), ' ', atpDate]),
