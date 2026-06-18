@@ -9,17 +9,24 @@ import { TierProvider } from './TierContext';
  */
 function Header({ basePath, tier, spiderName, isIndex }) {
     const isAuto = tier === 'auto';
-    const accentClass = isAuto ? 'text-emerald-500' : 'text-amber-500';
-    const hoverAccentClass = isAuto ? 'hover:text-emerald-400' : 'hover:text-amber-400';
+    const gradientClass = isAuto ? 'from-blue-400 to-teal-400' : 'from-amber-400 to-orange-400';
 
-    const logo = h(
-        'a',
-        {
-            href: `${basePath}/index.html`,
-            class: 'font-extrabold text-2xl md:text-3xl hover:text-gray-300 transition-colors shrink-0',
-        },
-        t('title')
-    );
+    const logo = isIndex
+        ? h(
+              'span',
+              {
+                  class: 'font-extrabold text-2xl md:text-3xl bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400 shrink-0',
+              },
+              t('title')
+          )
+        : h(
+              'a',
+              {
+                  href: `${basePath}/`,
+                  class: 'font-extrabold text-2xl md:text-3xl bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400 hover:opacity-80 transition-opacity shrink-0',
+              },
+              t('title')
+          );
 
     const tierLabel =
         !isIndex &&
@@ -27,12 +34,18 @@ function Header({ basePath, tier, spiderName, isIndex }) {
             ? h(
                   'a',
                   {
-                      href: `${basePath}/${tier}/index.html`,
-                      class: `font-bold text-lg md:text-xl ${accentClass} ${hoverAccentClass} transition-colors shrink-0`,
+                      href: `${basePath}/${tier}/`,
+                      class: `font-bold text-lg md:text-xl bg-clip-text text-transparent bg-gradient-to-r ${gradientClass} hover:opacity-80 transition-opacity shrink-0`,
                   },
                   t(`nav.${tier}`)
               )
-            : h('span', { class: `font-bold text-lg md:text-xl ${accentClass} shrink-0` }, t(`nav.${tier}`)));
+            : h(
+                  'span',
+                  {
+                      class: `font-bold text-lg md:text-xl bg-clip-text text-transparent bg-gradient-to-r ${gradientClass} shrink-0`,
+                  },
+                  t(`nav.${tier}`)
+              ));
 
     // For SEO/Accessibility:
     // On Index and Dashboard, the logo/tier combo is the H1.
