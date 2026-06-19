@@ -50,14 +50,9 @@ export function IndexPage({ autoStats, previewStats, atpDate, osmDate, basePath 
         );
     };
 
-    return h(Layout, { title: t('title'), basePath, atpDate, osmDate }, [
-        h('header', { class: 'mb-12' }, [
-            h('h1', { class: 'text-4xl font-extrabold mb-4', 'data-t': 'title' }, t('title')),
-            h(
-                'p',
-                { class: 'text-xl text-gray-400 max-w-3xl mb-6', 'data-t': 'index.summary' },
-                t('index.summary')
-            ),
+    return h(Layout, { title: t('title'), basePath, atpDate, osmDate, isIndex: true }, [
+        h('div', { class: 'mb-12' }, [
+            h('p', { class: 'text-xl text-gray-400 max-w-3xl mb-6', 'data-t': 'index.summary' }, t('index.summary')),
             h('div', { class: 'flex gap-4 mb-12' }, [
                 h(
                     'a',

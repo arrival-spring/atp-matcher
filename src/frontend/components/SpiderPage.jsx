@@ -48,19 +48,8 @@ export function SpiderPage({
     const isAuto = tier === 'auto';
     const linkColorClass = isAuto ? 'text-blue-400' : 'text-amber-600';
 
-    return h(Layout, { title: name, basePath, atpDate, osmDate, tier }, [
-        h('nav', { class: 'mb-8 mt-4' }, [
-            h(
-                'a',
-                {
-                    href: `../index.html`,
-                    class: `${linkColorClass} hover:underline font-bold text-xl`,
-                },
-                '←'
-            ),
-        ]),
-        h('header', { class: 'mb-12' }, [
-            h('h1', { class: 'text-4xl font-extrabold mb-2' }, name),
+    return h(Layout, { title: name, basePath, atpDate, osmDate, tier, spiderName: name }, [
+        h('div', { class: 'mb-12' }, [
             rejected &&
                 h('div', { class: 'bg-red-900/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6 mt-4' }, [
                     h('p', { class: 'font-bold', 'data-t': 'spider.rejected' }, t('spider.rejected')),
