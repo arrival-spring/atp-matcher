@@ -21,7 +21,13 @@ import { initI18n } from './frontend/i18n.js';
  * @returns {Promise<void>} A promise that resolves when the webpage generation is complete.
  */
 export async function generateWebpage(autoResults, previewResults, atpDate, osmDate) {
-    await initI18n();
+    const srcLocalesDir = path.join('src', 'locales');
+    const supportedLocales = fs
+        .readdirSync(srcLocalesDir)
+        .filter(f => f.endsWith('.json') && f !== 'locales.json')
+        .map(f => f.replace('.json', ''));
+
+    await initI18n(supportedLocales);
     const outputDir = 'output';
     if (!fs.existsSync(outputDir)) {
         fs.mkdirSync(outputDir);
@@ -165,12 +171,12 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
         if (!fs.existsSync(localesDir)) {
             fs.mkdirSync(localesDir, { recursive: true });
         }
-        const srcLocalesDir = path.join('src', 'locales');
         fs.readdirSync(srcLocalesDir).forEach(file => {
             if (file.endsWith('.json')) {
                 fs.copyFileSync(path.join(srcLocalesDir, file), path.join(localesDir, file));
             }
         });
+        fs.writeFileSync(path.join(localesDir, 'index.json'), JSON.stringify(supportedLocales));
     } catch (error) {
         console.error(`Error building frontend assets: ${error.message}`);
     }

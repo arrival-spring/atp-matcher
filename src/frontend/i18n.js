@@ -1,13 +1,17 @@
 import en from '../locales/en.json';
 
 /**
- * Scans the locales directory and identifies all available language codes.
- *
- * @returns {string[]} An array of supported locale codes (e.g., ['en', 'fr', 'en-GB']).
+ * Initial list of supported locale codes.
+ * This is updated during initialization if more locales are discovered.
+ * @type {string[]}
  */
-function getLocalesMetadata() {
-    const codes = new Set(['en']);
+let LOCALES_METADATA = ['en'];
 
+/**
+ * Scans the locales directory using Vite's glob import to identify available language codes.
+ * This works synchronously during the build/bundling process.
+ */
+function discoverLocalesFromGlob() {
     try {
         // @ts-ignore
         const globbed = import.meta.glob('../locales/*.json', { eager: true });
@@ -15,39 +19,19 @@ function getLocalesMetadata() {
             const filename = p.split('/').pop();
             const code = filename.slice(0, filename.lastIndexOf('.json'));
             if (code && code !== 'locales') {
-                codes.add(code);
+                if (!LOCALES_METADATA.includes(code)) {
+                    LOCALES_METADATA.push(code);
+                }
             }
         }
+        LOCALES_METADATA.sort();
     } catch (e) {
-        // Fallback for Node.js if needed, but in this project
-        // the backend generation also uses tsx which might handle this differently
-        // or we can rely on a hardcoded list if glob fails.
+        // Ignore if glob is not available (e.g. in pure Node environment)
     }
-
-    // Node.js fallback (Backend generation)
-    if (codes.size <= 1 && typeof process !== 'undefined' && process.versions?.node) {
-        try {
-            // Use dynamic import/require only in Node
-            const fs = require('fs');
-            const path = require('path');
-            const localesDir = path.join(process.cwd(), 'src', 'locales');
-            if (fs.existsSync(localesDir)) {
-                fs.readdirSync(localesDir).forEach(f => {
-                    if (f.endsWith('.json')) {
-                        const code = f.replace('.json', '');
-                        if (code !== 'locales') codes.add(code);
-                    }
-                });
-            }
-        } catch (err) {
-            // Ignore
-        }
-    }
-
-    return Array.from(codes).sort();
 }
 
-const LOCALES_METADATA = getLocalesMetadata();
+// Initial discovery via glob (if available)
+discoverLocalesFromGlob();
 
 let currentLocale = 'en';
 let translations = { en };
@@ -94,10 +78,27 @@ export function getAvailableLocales() {
  * Initializes the internationalization system.
  * Detects the preferred locale from localStorage or browser settings and loads the corresponding translations.
  *
+ * @param {string[]} [supportedLocales] - Optional array of supported locale codes.
  * @returns {Promise<void>}
  */
-export async function initI18n() {
+export async function initI18n(supportedLocales) {
     const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+
+    if (supportedLocales && Array.isArray(supportedLocales)) {
+        LOCALES_METADATA = Array.from(new Set([...LOCALES_METADATA, ...supportedLocales])).sort();
+    } else if (isBrowser && LOCALES_METADATA.length <= 1) {
+        try {
+            const response = await fetch(`${window.basePath || ''}/locales/index.json`);
+            if (response.ok) {
+                const codes = await response.json();
+                if (Array.isArray(codes)) {
+                    LOCALES_METADATA = Array.from(new Set([...LOCALES_METADATA, ...codes])).sort();
+                }
+            }
+        } catch (e) {
+            // Fallback to what we have
+        }
+    }
     const savedLocale = isBrowser ? localStorage.getItem(LOCAL_STORAGE_KEY) : null;
     const browserLocales = isBrowser ? navigator.languages || [navigator.language] : [];
 
