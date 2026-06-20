@@ -128,12 +128,12 @@ export function LanguageSwitcher() {
                                               setLocale(meta.code);
                                               setIsMenuOpen(false);
                                           },
-                                          class: `locale-option w-full text-left px-4 py-2 transition-colors flex items-center justify-between ${
+                                          class: `locale-option w-full text-left px-4 py-2 transition-colors flex items-center justify-between cursor-pointer ${
                                               activeIndex === index ? 'bg-gray-700' : 'hover:bg-gray-800'
                                           } ${currentLocale === meta.code ? `${linkClass(false)} font-bold` : 'text-gray-300'}`,
                                       },
                                       [
-                                          h('span', null, meta.native),
+                                          h('span', null, `${meta.localized} (${meta.native})`),
                                           currentLocale === meta.code && h('span', null, '✓'),
                                       ]
                                   )
