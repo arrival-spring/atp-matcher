@@ -4,7 +4,7 @@ import { spawn } from 'child_process';
 import readline from 'readline';
 import { getNsiEffectiveTags } from './nsi_utils.js';
 import { normalizeWebsite } from './tag_comparisons.js';
-import { matchesCategories } from './utils.js';
+import { matchesCategories } from './shared_utils.js';
 
 const decodeOpl = str => {
     // OPL format uses %HEX% encoding for characters.

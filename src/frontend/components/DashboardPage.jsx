@@ -1,3 +1,4 @@
+/** @jsx h */
 import { h } from 'preact';
 import { Layout } from './Layout';
 import { t } from '../i18n';
@@ -14,15 +15,21 @@ import { t } from '../i18n';
  * @param {string} [props.tier='auto'] - The spider's tier ('auto' or 'preview').
  */
 export function DashboardPage({ dashboardData, atpDate, osmDate, basePath, tier = 'auto' }) {
-    return h(Layout, { title: t('dashboard.dashboard'), basePath, atpDate, osmDate, tier }, [
-        h('div', { class: 'mb-12' }, [h('p', { class: 'text-xl text-gray-400', 'data-t': 'subtitle' }, t('subtitle'))]),
-        h('div', { id: 'dashboard-root' }),
-        h('script', { type: 'module', src: `${basePath}/assets/index.js` }),
-        h('script', {
-            type: 'module',
-            dangerouslySetInnerHTML: {
-                __html: `window.initDashboard(${JSON.stringify(dashboardData)}, ${JSON.stringify(tier)});`,
-            },
-        }),
-    ]);
+    return (
+        <Layout title={t('dashboard.dashboard')} basePath={basePath} atpDate={atpDate} osmDate={osmDate} tier={tier}>
+            <div class="mb-12">
+                <p class="text-xl text-gray-400" data-t="subtitle">
+                    {t('subtitle')}
+                </p>
+            </div>
+            <div id="dashboard-root" />
+            <script type="module" src={`${basePath}/assets/index.js`} />
+            <script
+                type="module"
+                dangerouslySetInnerHTML={{
+                    __html: `window.initDashboard(${JSON.stringify(dashboardData)}, ${JSON.stringify(tier)});`,
+                }}
+            />
+        </Layout>
+    );
 }

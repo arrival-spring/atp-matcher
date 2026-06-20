@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
+/** @jsx h */
 import { h } from 'preact';
 import render from 'preact-render-to-string';
 import { DashboardPage } from './frontend/components/DashboardPage.jsx';
@@ -17,7 +18,7 @@ import { initI18n } from './frontend/i18n.js';
  * @param {Object[]} previewResults - Results for spiders in the 'preview' tier.
  * @param {string} atpDate - The date of the latest ATP run.
  * @param {string} osmDate - The date of the latest OSM extract.
- * @returns {Promise<void>}
+ * @returns {Promise<void>} A promise that resolves when the webpage generation is complete.
  */
 export async function generateWebpage(autoResults, previewResults, atpDate, osmDate) {
     await initI18n();
@@ -29,7 +30,14 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
     const autoNames = new Set(autoResults.map(s => s.name));
     const previewNames = new Set(previewResults.map(s => s.name));
 
-    const generateSpiderPages = (results, subDir, tier) => {
+    /**
+     * Generates individual spider detail pages.
+     *
+     * @param {Object[]} results - Results for the spiders in the tier.
+     * @param {string} subDir - The subdirectory for the tier ('auto' or 'preview').
+     * @param {string} tier - The tier name.
+     */
+    function generateSpiderPages(results, subDir, tier) {
         const subDirPath = path.join(outputDir, subDir);
         if (!fs.existsSync(subDirPath)) {
             fs.mkdirSync(subDirPath, { recursive: true });
@@ -43,13 +51,7 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
                 }
 
                 const spiderHtml = render(
-                    h(SpiderPage, {
-                        ...spider,
-                        atpDate,
-                        osmDate,
-                        basePath: '../..',
-                        tier,
-                    })
+                    <SpiderPage {...spider} atpDate={atpDate} osmDate={osmDate} basePath="../.." tier={tier} />
                 );
                 fs.writeFileSync(path.join(spiderDir, 'index.html'), `<!DOCTYPE html>\n${spiderHtml}`);
 
@@ -76,12 +78,19 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
                 console.error(`Error generating spider page for ${spider.name} in ${subDir}: ${error.message}`);
             }
         });
-    };
+    }
 
     generateSpiderPages(autoResults, 'auto', 'auto');
     generateSpiderPages(previewResults, 'preview', 'preview');
 
-    const generateDashboard = (results, subDir, tier) => {
+    /**
+     * Generates the tier-specific dashboard page.
+     *
+     * @param {Object[]} results - Results for all spiders in the tier.
+     * @param {string} subDir - The subdirectory for the tier.
+     * @param {string} tier - The tier name.
+     */
+    function generateDashboard(results, subDir, tier) {
         try {
             const dashboardData = results.map(s => ({
                 name: s.name,
@@ -97,38 +106,46 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
             }));
 
             const dashboardHtml = render(
-                h(DashboardPage, {
-                    dashboardData,
-                    atpDate,
-                    osmDate,
-                    basePath: '..',
-                    tier,
-                })
+                <DashboardPage
+                    dashboardData={dashboardData}
+                    atpDate={atpDate}
+                    osmDate={osmDate}
+                    basePath=".."
+                    tier={tier}
+                />
             );
             fs.writeFileSync(path.join(outputDir, subDir, 'index.html'), `<!DOCTYPE html>\n${dashboardHtml}`);
         } catch (error) {
             console.error(`Error generating dashboard for ${subDir}: ${error.message}`);
         }
-    };
+    }
 
     generateDashboard(autoResults, 'auto', 'auto');
     generateDashboard(previewResults, 'preview', 'preview');
 
     // Generate Index Page
     try {
-        const getStats = results => ({
-            places: results.reduce((sum, s) => sum + (s.mappedCount || 0), 0),
-            brands: results.length,
-        });
+        /**
+         * Calculates global stats for the index page.
+         *
+         * @param {Object[]} results - Results for a specific tier.
+         * @returns {Object} Statistics object with places and brands counts.
+         */
+        function getStats(results) {
+            return {
+                places: results.reduce((sum, s) => sum + (s.mappedCount || 0), 0),
+                brands: results.length,
+            };
+        }
 
         const indexHtml = render(
-            h(IndexPage, {
-                autoStats: getStats(autoResults),
-                previewStats: getStats(previewResults),
-                atpDate,
-                osmDate,
-                basePath: '.',
-            })
+            <IndexPage
+                autoStats={getStats(autoResults)}
+                previewStats={getStats(previewResults)}
+                atpDate={atpDate}
+                osmDate={osmDate}
+                basePath="."
+            />
         );
         const indexWithScript = `<!DOCTYPE html>\n${indexHtml}
 <script type="module" src="./assets/index.js"></script>

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import fs from 'fs';
-import { matchesCategories, calculateStability } from './utils.js';
+import { matchesCategories, calculateStability } from './shared_utils.js';
 import { getNsiIdExists, getNsiItem } from './nsi_utils.js';
 import { normalizeWebsite } from './tag_comparisons.js';
 

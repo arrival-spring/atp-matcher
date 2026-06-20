@@ -2,7 +2,7 @@ import { h, Fragment } from 'preact';
 import { markLinkVisited, handleJosmLink } from '../utils';
 import { t } from '../i18n';
 import { useTier } from './TierContext';
-import { getMissingDays, formatMissingDays } from '../../utils';
+import { getMissingDays, formatMissingDays } from '../../shared_utils';
 
 /**
  * A label component that displays the status of a tag or item.

@@ -5,7 +5,7 @@ import en from '../locales/en.json';
  *
  * @returns {string[]} An array of supported locale codes (e.g., ['en', 'fr', 'en-GB']).
  */
-const getLocalesMetadata = () => {
+function getLocalesMetadata() {
     const codes = new Set(['en']);
 
     try {
@@ -45,9 +45,9 @@ const getLocalesMetadata = () => {
     }
 
     return Array.from(codes).sort();
-};
+}
 
-const localesMetadata = getLocalesMetadata();
+const LOCALES_METADATA = getLocalesMetadata();
 
 let currentLocale = 'en';
 let translations = { en };
@@ -59,8 +59,8 @@ const LOCAL_STORAGE_KEY = 'atp_osm_sync_locale';
  *
  * @returns {Object[]} An array of locale objects containing code, native name, localized name, and English name.
  */
-export const getAvailableLocales = () => {
-    return localesMetadata.map(code => {
+export function getAvailableLocales() {
+    return LOCALES_METADATA.map(code => {
         const getDisplayName = locale => {
             try {
                 const langNames = new Intl.DisplayNames([locale], { type: 'language' });
@@ -88,7 +88,7 @@ export const getAvailableLocales = () => {
             english: getDisplayName('en'),
         };
     });
-};
+}
 
 /**
  * Initializes the internationalization system.
@@ -96,7 +96,7 @@ export const getAvailableLocales = () => {
  *
  * @returns {Promise<void>}
  */
-export const initI18n = async () => {
+export async function initI18n() {
     const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
     const savedLocale = isBrowser ? localStorage.getItem(LOCAL_STORAGE_KEY) : null;
     const browserLocales = isBrowser ? navigator.languages || [navigator.language] : [];
@@ -104,9 +104,9 @@ export const initI18n = async () => {
     let localeToUse = 'en';
 
     const findSupportedLocale = loc => {
-        if (localesMetadata.includes(loc)) return loc;
+        if (LOCALES_METADATA.includes(loc)) return loc;
         const short = loc.split('-')[0];
-        if (localesMetadata.includes(short)) return short;
+        if (LOCALES_METADATA.includes(short)) return short;
         return null;
     };
 
@@ -123,7 +123,7 @@ export const initI18n = async () => {
     }
 
     await setLocale(localeToUse);
-};
+}
 
 /**
  * Performs a deep merge of two objects.
@@ -133,7 +133,7 @@ export const initI18n = async () => {
  * @param {Object} source - The source object to merge from.
  * @returns {Object} The merged object.
  */
-const deepMerge = (target, source) => {
+function deepMerge(target, source) {
     const output = { ...target };
     if (source && typeof source === 'object') {
         Object.keys(source).forEach(key => {
@@ -149,7 +149,7 @@ const deepMerge = (target, source) => {
         });
     }
     return output;
-};
+}
 
 /**
  * Changes the current locale and loads its translation file.
@@ -158,7 +158,7 @@ const deepMerge = (target, source) => {
  * @param {string} locale - The locale code to set.
  * @returns {Promise<void>}
  */
-export const setLocale = async locale => {
+export async function setLocale(locale) {
     const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
 
     if (!translations[locale]) {
@@ -231,14 +231,16 @@ export const setLocale = async locale => {
         // Dispatch custom event to notify components
         window.dispatchEvent(new CustomEvent('localeChanged', { detail: locale }));
     }
-};
+}
 
 /**
  * Returns the currently active locale code.
  *
  * @returns {string} The active locale code.
  */
-export const getLocale = () => currentLocale;
+export function getLocale() {
+    return currentLocale;
+}
 
 /**
  * Translates a key into the current locale.
@@ -249,7 +251,7 @@ export const getLocale = () => currentLocale;
  * @param {Object} [placeholders={}] - Optional object containing values for placeholders.
  * @returns {string} The translated string or the key itself if not found.
  */
-export const t = (key, placeholders = {}) => {
+export function t(key, placeholders = {}) {
     const keys = key.split('.');
     let value = translations[currentLocale];
     let fallbackValue = translations['en'];
@@ -270,4 +272,4 @@ export const t = (key, placeholders = {}) => {
     }
 
     return result;
-};
+}

@@ -1,4 +1,4 @@
-import { areAllDaysDefined, getMissingDays, formatMissingDays } from '../src/utils.js';
+import { areAllDaysDefined, getMissingDays, formatMissingDays } from '../src/shared_utils.js';
 
 describe('areAllDaysDefined', () => {
     test('standard formats with all days defined', () => {

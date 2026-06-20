@@ -2,7 +2,7 @@ import fs from 'fs';
 
 const NSI_FILE = 'node_modules/name-suggestion-index/dist/json/nsi.json';
 
-const nsiLookup = new Map();
+const NSI_LOOKUP = new Map();
 
 /**
  * Loads Name Suggestion Index (NSI) data from the node_modules directory.
@@ -30,7 +30,7 @@ function loadNsiData() {
                 }
             }
 
-            nsiLookup.set(item.id, {
+            NSI_LOOKUP.set(item.id, {
                 tags: effectiveTags,
                 originalTags: item.tags,
             });
@@ -47,7 +47,7 @@ loadNsiData();
  * @returns {Object|null} The effective tags object, or null if not found.
  */
 export function getNsiEffectiveTags(nsiId) {
-    return nsiLookup.get(nsiId)?.tags || null;
+    return NSI_LOOKUP.get(nsiId)?.tags || null;
 }
 
 /**
@@ -57,7 +57,7 @@ export function getNsiEffectiveTags(nsiId) {
  * @returns {boolean} True if the ID exists, false otherwise.
  */
 export function getNsiIdExists(nsiId) {
-    return nsiLookup.has(nsiId);
+    return NSI_LOOKUP.has(nsiId);
 }
 
 /**
@@ -67,5 +67,5 @@ export function getNsiIdExists(nsiId) {
  * @returns {Object|null} The NSI item entry, or null if not found.
  */
 export function getNsiItem(nsiId) {
-    return nsiLookup.get(nsiId) || null;
+    return NSI_LOOKUP.get(nsiId) || null;
 }
