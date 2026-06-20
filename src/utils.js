@@ -1,33 +1,4 @@
 import { URL } from 'url';
-import {
-    SLUGIFY_OPTIONS,
-    STABILITY_THRESHOLD_RED,
-    STABILITY_THRESHOLD_ORANGE,
-    filterAtpTags,
-    matchesCategories,
-    getExpandedTags,
-    getMissingDays,
-    areAllDaysDefined,
-    formatMissingDays,
-    isValidIsoDate,
-    splitSemicolonList,
-    calculateStability,
-} from './shared_utils.js';
-
-export {
-    SLUGIFY_OPTIONS,
-    STABILITY_THRESHOLD_RED,
-    STABILITY_THRESHOLD_ORANGE,
-    filterAtpTags,
-    matchesCategories,
-    getExpandedTags,
-    getMissingDays,
-    areAllDaysDefined,
-    formatMissingDays,
-    isValidIsoDate,
-    splitSemicolonList,
-    calculateStability,
-};
 
 /**
  * Checks if a source URI is allowed based on a list of allowed hostnames.

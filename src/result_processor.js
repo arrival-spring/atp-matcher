@@ -1,13 +1,7 @@
 import slugify from 'slugify';
 import { countries as countriesList } from 'countries-list';
-import {
-    isAllowedSourceUri,
-    areAllDaysDefined,
-    filterAtpTags,
-    isValidIsoDate,
-    SLUGIFY_OPTIONS,
-    getExpandedTags,
-} from './utils.js';
+import { isAllowedSourceUri } from './utils.js';
+import { areAllDaysDefined, filterAtpTags, isValidIsoDate, SLUGIFY_OPTIONS, getExpandedTags } from './shared_utils.js';
 import { areTagsEqual, formatPhone, getOverallStatus } from './tag_comparisons.js';
 
 /**

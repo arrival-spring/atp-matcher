@@ -1,4 +1,4 @@
-import { calculateStability } from '../src/utils.js';
+import { calculateStability } from '../src/shared_utils.js';
 
 describe('calculateStability', () => {
     test('non-brand spider should be red with 0 score', () => {

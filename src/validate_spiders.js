@@ -4,7 +4,8 @@ import axios from 'axios';
 import './axios_config.js';
 import { getDomain } from 'tldts';
 import * as prettier from 'prettier';
-import { isAllowedSourceUri, matchesCategories, getExpandedTags } from './utils.js';
+import { isAllowedSourceUri } from './utils.js';
+import { matchesCategories, getExpandedTags } from './shared_utils.js';
 import { getNsiEffectiveTags } from './nsi_utils.js';
 
 const CONFIG_FILE = 'config.json';
