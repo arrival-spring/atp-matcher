@@ -8,10 +8,10 @@ import fs from 'fs';
 import path from 'path';
 import slugify from 'slugify';
 import { getRuns, loadAllAtpData } from './atp_data.js';
-import { filterAtpTags, SLUGIFY_OPTIONS } from './utils.js';
+import { filterAtpTags, SLUGIFY_OPTIONS } from './shared_utils.js';
 import { streamOsmData } from './osm_stream.js';
 import { processSpiderResults } from './result_processor.js';
-import { generateWebpage } from './web_generator.js';
+import { generateWebpage } from './web_generator.jsx';
 import { reportThresholdViolations } from './github_utils.js';
 
 const CONFIG_FILE = 'config.json';
@@ -24,7 +24,9 @@ const SPIDERS_PREVIEW_FILE = 'spiders_preview.json';
  * @param {Object} r - The result object to check.
  * @returns {boolean} True if the item is mapped, false otherwise.
  */
-const isMapped = r => r.matchCount >= 1 && r.status !== 'disallowedSourceUri' && r.status !== 'notABrandSpider';
+function isMapped(r) {
+    return r.matchCount >= 1 && r.status !== 'disallowedSourceUri' && r.status !== 'notABrandSpider';
+}
 
 /**
  * Identifies unique brand/Wikidata pairs for items and counts their occurrences.
@@ -32,7 +34,7 @@ const isMapped = r => r.matchCount >= 1 && r.status !== 'disallowedSourceUri' &&
  * @param {Object[]} items - An array of item objects.
  * @returns {Object[]} A sorted array of brand/Wikidata pairs with counts.
  */
-const getBrandWikidataPairs = items => {
+function getBrandWikidataPairs(items) {
     const pairs = new Map();
     items.forEach(item => {
         const props = item.allAtpTags || item.tags;
@@ -84,7 +86,7 @@ const getBrandWikidataPairs = items => {
         // Otherwise sort by wikidata
         return (a.wikidata || '').localeCompare(b.wikidata || '');
     });
-};
+}
 
 /**
  * Generates a human-readable label for a brand/Wikidata pair.
@@ -92,11 +94,11 @@ const getBrandWikidataPairs = items => {
  * @param {Object} pair - The brand/Wikidata pair object.
  * @returns {string} A formatted label.
  */
-const getFilterLabel = pair => {
+function getFilterLabel(pair) {
     if (!pair.brand && !pair.wikidata) return 'No brand';
     if (pair.brand && pair.wikidata) return `${pair.brand} (${pair.wikidata})`;
     return pair.brand || pair.wikidata;
-};
+}
 
 /**
  * Main entry point for the sync process.
@@ -369,7 +371,7 @@ async function run() {
     }
 
     // Save safe edits
-    const saveSafeEdits = (safeEdits, subDir) => {
+    function saveSafeEdits(safeEdits, subDir) {
         try {
             const safeEditsDir = path.join('safe-edits', subDir);
             if (!fs.existsSync('safe-edits')) fs.mkdirSync('safe-edits');
@@ -388,7 +390,7 @@ async function run() {
         } catch (error) {
             console.error(`Error saving safe edits for ${subDir}: ${error.message}`);
         }
-    };
+    }
 
     saveSafeEdits(safeEditsAuto, 'auto');
     saveSafeEdits(safeEditsPreview, 'preview');

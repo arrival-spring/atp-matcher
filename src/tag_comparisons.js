@@ -2,12 +2,12 @@ import opening_hours from 'opening_hours';
 import { LRUCache } from 'lru-cache';
 import { parsePhoneNumber } from 'libphonenumber-js';
 import normalizeUrl from 'normalize-url';
-import { splitSemicolonList } from './utils.js';
+import { splitSemicolonList } from './shared_utils.js';
 
-const ohCache = new LRUCache({ max: 1000 });
-const ohCompareCache = new LRUCache({ max: 5000 });
-const webCache = new LRUCache({ max: 1000 });
-const phoneCache = new LRUCache({ max: 1000 });
+const OH_CACHE = new LRUCache({ max: 1000 });
+const OH_COMPARE_CACHE = new LRUCache({ max: 5000 });
+const WEB_CACHE = new LRUCache({ max: 1000 });
+const PHONE_CACHE = new LRUCache({ max: 1000 });
 
 /**
  * Priority order for item statuses. Lower index means higher priority.
@@ -35,15 +35,15 @@ export const STATUS_PRIORITY = [
 export function getOH(value, country) {
     if (!value) return null;
     const cacheKey = country ? `${value}|${country}` : value;
-    if (ohCache.has(cacheKey)) return ohCache.get(cacheKey);
+    if (OH_CACHE.has(cacheKey)) return OH_CACHE.get(cacheKey);
 
     try {
         const options = country ? { address: { country_code: country.toLowerCase() } } : undefined;
         const oh = new opening_hours(value, options);
-        ohCache.set(cacheKey, oh);
+        OH_CACHE.set(cacheKey, oh);
         return oh;
     } catch {
-        ohCache.set(cacheKey, null);
+        OH_CACHE.set(cacheKey, null);
         return null;
     }
 }
@@ -76,7 +76,7 @@ export function areOpeningHoursEqual(v1, v2, country) {
     if (v1 === v2) return true;
 
     const cacheKey = `${v1}|${v2}|${country}`;
-    if (ohCompareCache.has(cacheKey)) return ohCompareCache.get(cacheKey);
+    if (OH_COMPARE_CACHE.has(cacheKey)) return OH_COMPARE_CACHE.get(cacheKey);
 
     const oh1 = getOH(v1, country);
     const oh2 = getOH(v2, country);
@@ -96,7 +96,7 @@ export function areOpeningHoursEqual(v1, v2, country) {
         }
     }
 
-    ohCompareCache.set(cacheKey, result);
+    OH_COMPARE_CACHE.set(cacheKey, result);
     return result;
 }
 
@@ -164,11 +164,11 @@ export function arePhonesEqual(osmValue, atpValue, country) {
 export function formatPhone(value, country) {
     if (!value) return null;
     const cacheKey = country ? `${value}|${country}` : value;
-    if (phoneCache.has(cacheKey)) return phoneCache.get(cacheKey);
+    if (PHONE_CACHE.has(cacheKey)) return PHONE_CACHE.get(cacheKey);
 
     const p = getPhoneObject(value, country);
     const result = p ? p.formatInternational() : null;
-    phoneCache.set(cacheKey, result);
+    PHONE_CACHE.set(cacheKey, result);
     return result;
 }
 
@@ -181,14 +181,14 @@ export function formatPhone(value, country) {
  */
 export function normalizeWebsite(url) {
     if (!url) return null;
-    if (webCache.has(url)) return webCache.get(url);
+    if (WEB_CACHE.has(url)) return WEB_CACHE.get(url);
 
     try {
         const result = normalizeUrl(url, { forceHttps: true });
-        webCache.set(url, result);
+        WEB_CACHE.set(url, result);
         return result;
     } catch {
-        webCache.set(url, url);
+        WEB_CACHE.set(url, url);
         return url;
     }
 }

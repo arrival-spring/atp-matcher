@@ -56,11 +56,11 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
     const items = [{ code: null, name: t('dashboard.showAllCountries') }, ...filteredCountries];
 
     useEffect(() => {
-        function handleClickOutside(e) {
+        const handleClickOutside = e => {
             if (containerRef.current && !containerRef.current.contains(e.target)) {
                 setIsOpen(false);
             }
-        }
+        };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
@@ -200,11 +200,11 @@ function GlobalSearch({ basePath }) {
     }, [search, globalIndex]);
 
     useEffect(() => {
-        function handleClickOutside(e) {
+        const handleClickOutside = e => {
             if (containerRef.current && !containerRef.current.contains(e.target)) {
                 setIsOpen(false);
             }
-        }
+        };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
@@ -765,7 +765,7 @@ function SpiderRow({ spider, onSort, currentSort }) {
  * @param {Object[]} allSpiderResults - Results for all spiders.
  * @param {string} [tier='auto'] - The spider's tier ('auto' or 'preview').
  */
-window.initDashboard = async function (allSpiderResults, tier = 'auto') {
+window.initDashboard = async (allSpiderResults, tier = 'auto') => {
     await initI18n();
     const container = document.getElementById('dashboard-root');
     if (container) {
@@ -785,7 +785,7 @@ window.initDashboard = async function (allSpiderResults, tier = 'auto') {
 /**
  * Initializes the index page application.
  */
-window.initIndexPage = async function () {
+window.initIndexPage = async () => {
     await initI18n();
     const searchContainer = document.getElementById('global-search-root');
     if (searchContainer) {

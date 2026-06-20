@@ -18,7 +18,7 @@ import { initI18n } from './frontend/i18n.js';
  * @param {Object[]} previewResults - Results for spiders in the 'preview' tier.
  * @param {string} atpDate - The date of the latest ATP run.
  * @param {string} osmDate - The date of the latest OSM extract.
- * @returns {Promise<void>}
+ * @returns {Promise<void>} A promise that resolves when the webpage generation is complete.
  */
 export async function generateWebpage(autoResults, previewResults, atpDate, osmDate) {
     await initI18n();
@@ -30,6 +30,13 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
     const autoNames = new Set(autoResults.map(s => s.name));
     const previewNames = new Set(previewResults.map(s => s.name));
 
+    /**
+     * Generates individual spider detail pages.
+     *
+     * @param {Object[]} results - Results for the spiders in the tier.
+     * @param {string} subDir - The subdirectory for the tier ('auto' or 'preview').
+     * @param {string} tier - The tier name.
+     */
     function generateSpiderPages(results, subDir, tier) {
         const subDirPath = path.join(outputDir, subDir);
         if (!fs.existsSync(subDirPath)) {
@@ -76,6 +83,13 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
     generateSpiderPages(autoResults, 'auto', 'auto');
     generateSpiderPages(previewResults, 'preview', 'preview');
 
+    /**
+     * Generates the tier-specific dashboard page.
+     *
+     * @param {Object[]} results - Results for all spiders in the tier.
+     * @param {string} subDir - The subdirectory for the tier.
+     * @param {string} tier - The tier name.
+     */
     function generateDashboard(results, subDir, tier) {
         try {
             const dashboardData = results.map(s => ({
@@ -111,6 +125,12 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
 
     // Generate Index Page
     try {
+        /**
+         * Calculates global stats for the index page.
+         *
+         * @param {Object[]} results - Results for a specific tier.
+         * @returns {Object} Statistics object with places and brands counts.
+         */
         function getStats(results) {
             return {
                 places: results.reduce((sum, s) => sum + (s.mappedCount || 0), 0),
