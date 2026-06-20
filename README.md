@@ -32,18 +32,20 @@ To run the project locally, you will need Node.js and npm installed.
 
 1. Clone the repository.
 2. Install dependencies:
-   ```bash
-   npm install
-   ```
+    ```bash
+    npm install
+    ```
 
 ### Running the Sync Process
 
 The sync process downloads ATP data and compares it with OSM. You can run it with:
+
 ```bash
 npm run sync
 ```
 
 To run a build with mock data (useful for frontend development):
+
 ```bash
 npm run preview-build
 ```
@@ -53,17 +55,17 @@ npm run preview-build
 The frontend is built using Preact and Vite.
 
 - To build the frontend:
-  ```bash
-  npm run build:fe
-  ```
+    ```bash
+    npm run build:fe
+    ```
 - To lint the code:
-  ```bash
-  npm run lint
-  ```
+    ```bash
+    npm run lint
+    ```
 - To run tests:
-  ```bash
-  npm test
-  ```
+    ```bash
+    npm test
+    ```
 
 ## License
 
