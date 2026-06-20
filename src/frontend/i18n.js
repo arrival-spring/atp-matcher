@@ -48,18 +48,7 @@ export function getAvailableLocales() {
         const getDisplayName = locale => {
             try {
                 const langNames = new Intl.DisplayNames([locale], { type: 'language' });
-                const baseName = langNames.of(code);
-
-                if (code.includes('-')) {
-                    const regionCode = code.split('-')[1].toUpperCase();
-                    const regionNames = new Intl.DisplayNames([locale], { type: 'region' });
-                    const regionName = regionNames.of(regionCode);
-
-                    const baseLang = code.split('-')[0];
-                    const baseLangName = langNames.of(baseLang);
-                    return `${baseLangName} (${regionName})`;
-                }
-                return baseName;
+                return langNames.of(code);
             } catch (e) {
                 return code;
             }

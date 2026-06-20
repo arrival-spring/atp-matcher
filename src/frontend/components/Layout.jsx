@@ -13,13 +13,17 @@ function Header({ basePath, tier, spiderName, isIndex }) {
     const gradientClass = isAuto ? 'from-blue-400 to-teal-400' : 'from-amber-400 to-orange-400';
 
     const logo = isIndex ? (
-        <span class="font-extrabold text-2xl md:text-3xl bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400 shrink-0">
+        <span
+            class="font-extrabold text-2xl md:text-3xl bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400 shrink-0"
+            data-t="title"
+        >
             {t('title')}
         </span>
     ) : (
         <a
             href={`${basePath}/`}
             class="font-extrabold text-2xl md:text-3xl bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400 hover:opacity-80 transition-opacity shrink-0"
+            data-t="title"
         >
             {t('title')}
         </a>
@@ -31,12 +35,14 @@ function Header({ basePath, tier, spiderName, isIndex }) {
             <a
                 href={`${basePath}/${tier}/`}
                 class={`font-bold text-lg md:text-xl bg-clip-text text-transparent bg-gradient-to-r ${gradientClass} hover:opacity-80 transition-opacity shrink-0`}
+                data-t={`nav.${tier}`}
             >
                 {t(`nav.${tier}`)}
             </a>
         ) : (
             <span
                 class={`font-bold text-lg md:text-xl bg-clip-text text-transparent bg-gradient-to-r ${gradientClass} shrink-0`}
+                data-t={`nav.${tier}`}
             >
                 {t(`nav.${tier}`)}
             </span>
