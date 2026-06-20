@@ -11,12 +11,12 @@
         "auto": {
             "title": "Otomatik Güncellemeler",
             "description": "Bazı güncellemeler otomatik olarak yapılıyor ancak bazı farklılıkların incelenmesi gerekiyor",
-            "stats": "<span class=\"text-xl\">{{ y }}</span> markadan <strong>{{ x }}</strong> yer güncelleniyor"
+            "stats": "{{ y }} markadan {{ x }} yer güncelleniyor"
         },
         "preview": {
             "title": "Önizleme",
             "description": "Henüz otomatik olarak bir güncelleme yapılmıyor ancak bunların uygun olup olmadığını görmek için incelenebilir",
-            "stats": "<span class=\"text-xl\">{{ y }}</span> markadan önizlemede <strong>{{ x }}</strong> yer var"
+            "stats": "{{ y }} markadan önizlemede {{ x }} yer var"
         }
     },
     "footer": {

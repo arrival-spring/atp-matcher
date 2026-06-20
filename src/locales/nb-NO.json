@@ -11,12 +11,12 @@
         "auto": {
             "title": "Automatiske oppdateringer",
             "description": "Noen oppdateringer gjøres automatisk, men noen forskjeller må vurderes",
-            "stats": "<strong>{{ x }}</strong> steder oppdateres fra <span class=\"text-xl\">{{ y }}</span> merkevarer"
+            "stats": "{{ x }} steder oppdateres fra {{ y }} merkevarer"
         },
         "preview": {
             "title": "Forhåndsvisning",
             "description": "Ingen oppdateringer gjøres automatisk ennå, men disse kan vurderes for å se om de er egnet",
-            "stats": "<strong>{{ x }}</strong> steder i forhåndsvisning fra <span class=\"text-xl\">{{ y }}</span> merkevarer"
+            "stats": "{{ x }} steder i forhåndsvisning fra {{ y }} merkevarer"
         }
     },
     "footer": {

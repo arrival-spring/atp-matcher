@@ -11,12 +11,12 @@
         "auto": {
             "title": "自動更新",
             "description": "部分更新正在自動進行，但某些差異仍需人工審核",
-            "stats": "正在從 <span class=\"text-xl\">{{ y }}</span> 個品牌更新 <strong>{{ x }}</strong> 個地點"
+            "stats": "正在從 {{ y }} 個品牌更新 {{ x }} 個地點"
         },
         "preview": {
             "title": "預覽",
             "description": "尚未進行自動更新，但可以審核這些內容以確定是否適用",
-            "stats": "預覽中包含來自 <span class=\"text-xl\">{{ y }}</span> 個品牌的 <strong>{{ x }}</strong> 個地點"
+            "stats": "預覽中包含來自 {{ y }} 個品牌的 {{ x }} 個地點"
         }
     },
     "footer": {

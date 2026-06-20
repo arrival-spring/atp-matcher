@@ -11,12 +11,12 @@
         "auto": {
             "title": "Automatiske oppdateringar",
             "description": "Nokre oppdateringar blir gjorde automatisk, men nokre forskjellar må vurderast",
-            "stats": "<strong>{{ x }}</strong> stader blir oppdaterte frå <span class=\"text-xl\">{{ y }}</span> merkevarer"
+            "stats": "{{ x }} stader blir oppdaterte frå {{ y }} merkevarer"
         },
         "preview": {
             "title": "Førehandsvising",
             "description": "Ingen oppdateringar blir gjorde automatisk enno, men desse kan vurderast for å sjå om dei er eigna",
-            "stats": "<strong>{{ x }}</strong> stader i førehandsvising frå <span class=\"text-xl\">{{ y }}</span> merkevarer"
+            "stats": "{{ x }} stader i førehandsvising frå {{ y }} merkevarer"
         }
     },
     "footer": {

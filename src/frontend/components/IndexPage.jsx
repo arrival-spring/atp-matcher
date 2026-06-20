@@ -34,21 +34,29 @@ export function IndexPage({ autoStats, previewStats, atpDate, osmDate, basePath 
                 <p class="text-gray-400 mb-6" data-t={`index.${type}.description`}>
                     {description}
                 </p>
-                <div
-                    class="text-gray-300"
-                    data-t={`index.${type}.stats`}
-                    data-t-html="true"
-                    data-t-params={JSON.stringify({
-                        x: `<span class="text-4xl font-bold text-white">${stats.places}</span>`,
-                        y: stats.brands,
-                    })}
-                    dangerouslySetInnerHTML={{
-                        __html: t(`index.${type}.stats`, {
-                            x: `<span class="text-4xl font-bold text-white">${stats.places}</span>`,
-                            y: stats.brands,
-                        }),
-                    }}
-                />
+                <div class="text-gray-300" data-t={`index.${type}.stats`}>
+                    {(() => {
+                        const statsStr = t(`index.${type}.stats`);
+                        const parts = statsStr.split(/({{\s*[xy]\s*}})/);
+                        return parts.map(part => {
+                            if (part.match(/{{\s*x\s*}}/)) {
+                                return (
+                                    <span class="text-4xl font-bold text-white" data-t-ignore>
+                                        {stats.places}
+                                    </span>
+                                );
+                            }
+                            if (part.match(/{{\s*y\s*}}/)) {
+                                return (
+                                    <span class="text-xl" data-t-ignore>
+                                        {stats.brands}
+                                    </span>
+                                );
+                            }
+                            return part;
+                        });
+                    })()}
+                </div>
             </a>
         );
     }

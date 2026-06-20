@@ -11,12 +11,12 @@
         "auto": {
             "title": "Automatische updates",
             "description": "Sommige updates worden automatisch uitgevoerd, maar sommige verschillen moeten worden beoordeeld",
-            "stats": "<strong>{{ x }}</strong> plaatsen worden bijgewerkt van <span class=\"text-xl\">{{ y }}</span> merken"
+            "stats": "{{ x }} plaatsen worden bijgewerkt van {{ y }} merken"
         },
         "preview": {
             "title": "Preview",
             "description": "Er worden nog geen automatische updates uitgevoerd, maar deze kunnen worden beoordeeld om te zien of ze geschikt zijn",
-            "stats": "<strong>{{ x }}</strong> plaatsen in preview van <span class=\"text-xl\">{{ y }}</span> merken"
+            "stats": "{{ x }} plaatsen in preview van {{ y }} merken"
         }
     },
     "footer": {

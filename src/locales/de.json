@@ -11,12 +11,12 @@
         "auto": {
             "title": "Automatische Aktualisierungen",
             "description": "Einige Aktualisierungen erfolgen automatisch, aber einige Unterschiede müssen überprüft werden",
-            "stats": "<strong>{{ x }}</strong> Orte werden von <span class=\"text-xl\">{{ y }}</span> Marken aktualisiert"
+            "stats": "{{ x }} Orte werden von {{ y }} Marken aktualisiert"
         },
         "preview": {
             "title": "Vorschau",
             "description": "Es werden noch keine automatischen Aktualisierungen vorgenommen, aber diese können überprüft werden, um festzustellen, ob sie geeignet sind",
-            "stats": "<strong>{{ x }}</strong> Orte in der Vorschau von <span class=\"text-xl\">{{ y }}</span> Marken"
+            "stats": "{{ x }} Orte in der Vorschau von {{ y }} Marken"
         }
     },
     "footer": {

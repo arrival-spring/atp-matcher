@@ -11,12 +11,12 @@
         "auto": {
             "title": "Aggiornamenti automatici",
             "description": "Alcuni aggiornamenti vengono eseguiti automaticamente, ma alcune differenze richiedono una revisione",
-            "stats": "<strong>{{ x }}</strong> luoghi aggiornati da <span class=\"text-xl\">{{ y }}</span> marchi"
+            "stats": "{{ x }} luoghi aggiornati da {{ y }} marchi"
         },
         "preview": {
             "title": "Anteprima",
             "description": "Non sono ancora stati effettuati aggiornamenti automatici, ma questi possono essere esaminati per verificarne l'idoneità",
-            "stats": "<strong>{{ x }}</strong> luoghi in anteprima da <span class=\"text-xl\">{{ y }}</span> marchi"
+            "stats": "{{ x }} luoghi in anteprima da {{ y }} marchi"
         }
     },
     "footer": {
