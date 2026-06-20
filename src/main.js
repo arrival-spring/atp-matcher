@@ -403,8 +403,8 @@ async function run() {
         importableTags: s.importableTags,
         tier: autoNames.has(s.name) ? 'auto' : 'preview',
     }));
-    if (!fs.existsSync('output')) fs.mkdirSync('output');
-    fs.writeFileSync(path.join('output', 'sync_summary.json'), JSON.stringify(syncSummary, null, 2));
+    if (!fs.existsSync('temp')) fs.mkdirSync('temp');
+    fs.writeFileSync(path.join('temp', 'sync_summary.json'), JSON.stringify(syncSummary, null, 2));
 }
 
 run().catch(err => {

@@ -4,7 +4,7 @@ import './axios_config.js';
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const REPO = process.env.GITHUB_REPOSITORY;
-const SUMMARY_FILE = 'output/sync_summary.json';
+const SUMMARY_FILE = 'temp/sync_summary.json';
 
 const COMMENT_1_TAG = '<!-- atp-bot-comment-1 -->';
 const COMMENT_2_TAG = '<!-- atp-bot-comment-2 -->';
