@@ -56,11 +56,11 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
     const items = [{ code: null, name: t('dashboard.showAllCountries') }, ...filteredCountries];
 
     useEffect(() => {
-        const handleClickOutside = e => {
+        function handleClickOutside(e) {
             if (containerRef.current && !containerRef.current.contains(e.target)) {
                 setIsOpen(false);
             }
-        };
+        }
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
@@ -77,7 +77,7 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
         setSelectedIndex(0);
     }, [search]);
 
-    const handleKeyDown = e => {
+    function handleKeyDown(e) {
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             setSelectedIndex(prev => Math.min(prev + 1, items.length - 1));
@@ -91,7 +91,7 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
         } else if (e.key === 'Escape') {
             setIsOpen(false);
         }
-    };
+    }
 
     const selectedName = selectedCountry
         ? countries.find(c => c.code === selectedCountry)?.name || selectedCountry
@@ -200,16 +200,16 @@ function GlobalSearch({ basePath }) {
     }, [search, globalIndex]);
 
     useEffect(() => {
-        const handleClickOutside = e => {
+        function handleClickOutside(e) {
             if (containerRef.current && !containerRef.current.contains(e.target)) {
                 setIsOpen(false);
             }
-        };
+        }
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleKeyDown = e => {
+    function handleKeyDown(e) {
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             setSelectedIndex(prev => Math.min(prev + 1, results.length - 1));
@@ -224,7 +224,7 @@ function GlobalSearch({ basePath }) {
         } else if (e.key === 'Escape') {
             setIsOpen(false);
         }
-    };
+    }
 
     return (
         <div class="relative max-w-2xl" ref={containerRef}>
@@ -302,7 +302,7 @@ function Dashboard({ allSpiderResults }) {
     const scrollRef = useRef(null);
     const [fadeState, setFadeState] = useState('');
 
-    const updateFadeEffect = () => {
+    function updateFadeEffect() {
         const container = scrollRef.current;
         if (!container) return;
 
@@ -316,7 +316,7 @@ function Dashboard({ allSpiderResults }) {
         else if (!atStart) setFadeState('fade-left');
         else if (!atEnd) setFadeState('fade-right');
         else setFadeState('');
-    };
+    }
 
     useEffect(() => {
         updateFadeEffect();
@@ -340,7 +340,7 @@ function Dashboard({ allSpiderResults }) {
 
     // Load state from URL hash
     useEffect(() => {
-        const loadState = () => {
+        function loadState() {
             const hash = window.location.hash.substring(1);
             const params = new URLSearchParams(hash);
             const s = params.get('search') || '';
@@ -352,7 +352,7 @@ function Dashboard({ allSpiderResults }) {
             setPage(p);
             if (sortCol) setSort({ column: sortCol, direction: sortDir });
             setSelectedCountry(country);
-        };
+        }
 
         loadState();
         window.addEventListener('popstate', loadState);
@@ -379,14 +379,14 @@ function Dashboard({ allSpiderResults }) {
         isFirstRender.current = false;
     }, [search, page, sort, selectedCountry]);
 
-    const handleSort = column => {
+    function handleSort(column) {
         let direction = column === 'name' ? 'asc' : 'desc';
         if (sort.column === column) {
             direction = sort.direction === 'desc' ? 'asc' : 'desc';
         }
         setSort({ column, direction });
         setPage(1);
-    };
+    }
 
     const filtered = useMemo(() => {
         let data = allSpiderResults.filter(spider => {
@@ -449,18 +449,18 @@ function Dashboard({ allSpiderResults }) {
         return filtered.slice(start, start + PAGE_SIZE);
     }, [filtered, effectivePage]);
 
-    const handleSearchChange = e => {
+    function handleSearchChange(e) {
         setSearch(e.target.value);
         setPage(1);
-    };
+    }
 
-    const handleSearchKeyDown = e => {
+    function handleSearchKeyDown(e) {
         if (e.key === 'Enter') {
             if (filtered.length === 1) {
                 window.location.href = `${filtered[0].name}/`;
             }
         }
-    };
+    }
 
     const sortColumns = [
         { key: 'status', label: t('dashboard.table.status') },
@@ -765,7 +765,7 @@ function SpiderRow({ spider, onSort, currentSort }) {
  * @param {Object[]} allSpiderResults - Results for all spiders.
  * @param {string} [tier='auto'] - The spider's tier ('auto' or 'preview').
  */
-window.initDashboard = async (allSpiderResults, tier = 'auto') => {
+window.initDashboard = async function (allSpiderResults, tier = 'auto') {
     await initI18n();
     const container = document.getElementById('dashboard-root');
     if (container) {
@@ -785,7 +785,7 @@ window.initDashboard = async (allSpiderResults, tier = 'auto') => {
 /**
  * Initializes the index page application.
  */
-window.initIndexPage = async () => {
+window.initIndexPage = async function () {
     await initI18n();
     const searchContainer = document.getElementById('global-search-root');
     if (searchContainer) {
