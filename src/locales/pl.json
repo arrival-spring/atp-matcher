@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "Synchronizacja danych między All The Places a OpenStreetMap",
+    "nav": {
+        "auto": "Auto",
+        "preview": "Podgląd"
+    },
+    "index": {
+        "summary": "Ten projekt pomaga synchronizować dane o punktach zainteresowania z All The Places do OpenStreetMap. Porównuje dane marek z aktualnymi obiektami OSM, aby znaleźć brakujące lokalizacje, nieaktualne tagi i potencjalne ulepszenia.",
+        "githubLink": "Dodaj pająki, zgłaszaj błędy i zobacz kod źródłowy",
+        "auto": {
+            "title": "Automatyczne aktualizacje",
+            "description": "Niektóre aktualizacje są dokonywane automatycznie, ale niektóre różnice wymagają sprawdzenia",
+            "stats": "{{ x }} miejsc aktualizowanych z {{ y }} marek"
+        },
+        "preview": {
+            "title": "Podgląd",
+            "description": "Żadne aktualizacje nie są jeszcze dokonywane automatycznie, ale można je przejrzeć, aby sprawdzić, czy są odpowiednie",
+            "stats": "{{ x }} miejsc w podglądzie z {{ y }} marek"
+        }
+    },
+    "footer": {
+        "atpData": "Dane ATP:",
+        "osmData": "Dane OSM:"
+    },
+    "dashboard": {
+        "dashboard": "Panel",
+        "searchPlaceholder": "Szukaj pająków lub marek...",
+        "countryFilterPlaceholder": "Szukaj nazwy lub kodu kraju...",
+        "showAllCountries": "Wszystkie kraje",
+        "table": {
+            "status": "Status",
+            "spiderName": "Nazwa pająka",
+            "issuesMapped": "Problemy / Zamapowane",
+            "mappedTotal": "Zamapowane / Razem"
+        },
+        "stability": {
+            "stable": "Stabilne",
+            "minorVariations": "Niewielkie zmiany",
+            "majorVariations": "Znaczne zmiany",
+            "missingData": "Brak danych"
+        },
+        "pagination": {
+            "previous": "Poprzednia",
+            "next": "Następna",
+            "pageOf": "Strona {{ page }} z {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Nieaktualne dane",
+        "staleDataDesc": "Ostatni przebieg ATP był pusty. Pokazywanie danych z dnia {{ date }}.",
+        "rejected": "Odrzucono dla automatycznych aktualizacji",
+        "rejectedDesc": "Ten pająk został odrzucony z automatycznych aktualizacji. Może być nadal przydatny z innych powodów. Podano następujący powód:",
+        "noData": "❌ Brak dostępnych danych",
+        "noData404": "Nie znaleziono ostatniego przebiegu ATP dla tego pająka (404).",
+        "noDataEmpty": "Wszystkie ostatnie przebiegi ATP dla tego pająka były puste.",
+        "notBrandSpider": "❌ To nie jest pająk marki",
+        "notBrandSpiderDesc": "Ten pająk nie posiada oczekiwanego atrybutu spider:lineage=S_ATP_BRANDS.",
+        "links": {
+            "source": "Źródło pająka"
+        },
+        "tabs": {
+            "summary": "Podsumowanie",
+            "unmapped": "Niezamapowane",
+            "unmatched": "Niedopasowane",
+            "duplicateRefs": "Zduplikowane Refy"
+        },
+        "summary": {
+            "overview": "Przegląd",
+            "tagDetails": "Szczegóły tagów",
+            "noData": "Brak dostępnych danych"
+        },
+        "table": {
+            "ref": "Ref",
+            "tags": "Tagi",
+            "atpTags": "Tagi ATP",
+            "osmMatches": "Dopasowania OSM",
+            "spiderValue": "Wartość pająka",
+            "osmValue": "Wartość OSM",
+            "noValue": "brak wartości",
+            "missingDaysWarning": "brak {{ days }}",
+            "osmId": "OSM ID"
+        },
+        "status": {
+            "notMapped": "Niezamapowane",
+            "addToOsm": "Dodaj do OSM",
+            "updateOsm": "Aktualizuj OSM",
+            "editMade": "Wprowadzono zmianę",
+            "mismatch": "Niezgodność",
+            "matching": "Zgodne",
+            "disallowedSourceUri": "Niedozwolony URI źródła",
+            "notABrandSpider": "To nie jest pająk marki",
+            "duplicateRef": "Zduplikowany Ref"
+        },
+        "tooltips": {
+            "stableValue": "Stabilna wartość",
+            "newValue": "Nowa wartość"
+        },
+        "actions": {
+            "edit": "edytuj",
+            "update": "aktualizuj",
+            "openUnmatched": "Otwórz wszystkie niedopasowane w JOSM",
+            "openUnmapped": "Otwórz niezamapowane elementy w JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "Błąd JOSM",
+                "message": "Nie można połączyć się z JOSM. Upewnij się, że JOSM jest uruchomiony, a zdalne sterowanie włączone w ustawieniach."
+            },
+            "mismatch": {
+                "title": "Ważne ostrzeżenie",
+                "message": "Niektóre dane z pająka mogą być błędne. NIE aktualizuj po prostu {{ tag }} na wszystkich obiektach. Sprawdź historię, aby zobaczyć, kto dodał {{ tag }} i jakie było prawdopodobne źródło. Jeśli nie masz pewności, NIE WPROWADZAJ ZMIAN, chyba że możesz sprawdzić to miejsce osobiście."
+            },
+            "josmImport": {
+                "message": "To załaduje i otworzy niezamapowane elementy z ATP w JOSM. Może to być przydatne do dopasowania ich do istniejących elementów. NIE importuj ich bezpośrednio, lecz użyj konflacji i własnego osądu."
+            },
+            "understand": "Rozumiem",
+            "takeMeBack": "Wróć"
+        },
+        "filters": {
+            "allBrands": "Wszystkie marki",
+            "noBrand": "Brak marki"
+        },
+        "loading": "Ładowanie elementów...",
+        "searchTags": "Szukaj tagów..."
+    },
+    "locales": {
+        "searchPlaceholder": "Szukaj języków...",
+        "noResults": "Nie znaleziono języków"
+    }
+}

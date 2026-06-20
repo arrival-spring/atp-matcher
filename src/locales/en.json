@@ -11,12 +11,12 @@
         "auto": {
             "title": "Automatic Updates",
             "description": "Some updates are being made automatically but some differences need reviewing",
-            "stats": "<strong>{{ x }}</strong> places being updated from <span class=\"text-xl\">{{ y }}</span> brands"
+            "stats": "{{ x }} places being updated from {{ y }} brands"
         },
         "preview": {
             "title": "Preview",
             "description": "No updates are being made automatically yet but these can be reviewed to see if they are suitable",
-            "stats": "<strong>{{ x }}</strong> places in preview from <span class=\"text-xl\">{{ y }}</span> brands"
+            "stats": "{{ x }} places in preview from {{ y }} brands"
         }
     },
     "footer": {

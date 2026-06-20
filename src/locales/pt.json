@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "Sincronização de dados entre All The Places e OpenStreetMap",
+    "nav": {
+        "auto": "Auto",
+        "preview": "Visualização"
+    },
+    "index": {
+        "summary": "Este projeto ajuda a sincronizar dados de pontos de interesse de All The Places para o OpenStreetMap. Compara dados de marcas oficiais com elementos atuais do OSM para encontrar locais em falta, etiquetas desatualizadas e potenciais melhorias.",
+        "githubLink": "Adicionar spiders, reportar problemas e ver código fonte",
+        "auto": {
+            "title": "Atualizações Automáticas",
+            "description": "Algumas atualizações estão a ser feitas automaticamente, mas algumas diferenças precisam de revisão",
+            "stats": "{{ x }} locais a serem atualizados de {{ y }} marcas"
+        },
+        "preview": {
+            "title": "Visualização",
+            "description": "Ainda não estão a ser feitas atualizações automáticas, mas estas podem ser revistas para ver se são adequadas",
+            "stats": "{{ x }} locais em visualização de {{ y }} marcas"
+        }
+    },
+    "footer": {
+        "atpData": "Dados ATP:",
+        "osmData": "Dados OSM:"
+    },
+    "dashboard": {
+        "dashboard": "Painel de Controlo",
+        "searchPlaceholder": "Pesquisar spiders ou marcas...",
+        "countryFilterPlaceholder": "Pesquisar nome ou código do país...",
+        "showAllCountries": "Todos os países",
+        "table": {
+            "status": "Estado",
+            "spiderName": "Nome do Spider",
+            "issuesMapped": "Problemas / Mapeados",
+            "mappedTotal": "Mapeados / Total"
+        },
+        "stability": {
+            "stable": "Estável",
+            "minorVariations": "Pequenas variações",
+            "majorVariations": "Grandes variações",
+            "missingData": "Dados em falta"
+        },
+        "pagination": {
+            "previous": "Anterior",
+            "next": "Seguinte",
+            "pageOf": "Página {{ page }} de {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Dados Obsoletos",
+        "staleDataDesc": "A última execução do ATP estava vazia. A mostrar dados de {{ date }} em vez disso.",
+        "rejected": "Rejeitado para atualizações automáticas",
+        "rejectedDesc": "Este spider foi rejeitado de ser incluído nas atualizações automáticas. Pode ainda ser útil por outros motivos. O seguinte motivo foi dado:",
+        "noData": "❌ Dados Não Disponíveis",
+        "noData404": "A última execução do ATP para este spider não foi encontrada (404).",
+        "noDataEmpty": "Todas as execuções recentes do ATP para este spider estavam vazias.",
+        "notBrandSpider": "❌ Não é um Spider de Marca",
+        "notBrandSpiderDesc": "Este spider não tem o atributo esperado spider:lineage=S_ATP_BRANDS.",
+        "links": {
+            "source": "Fonte do Spider"
+        },
+        "tabs": {
+            "summary": "Resumo",
+            "unmapped": "Não Mapeados",
+            "unmatched": "Não Correspondidos",
+            "duplicateRefs": "Refs Duplicadas"
+        },
+        "summary": {
+            "overview": "Visão Geral",
+            "tagDetails": "Detalhes das Etiquetas",
+            "noData": "Nenhum dado disponível"
+        },
+        "table": {
+            "ref": "Ref",
+            "tags": "Etiquetas",
+            "atpTags": "Etiquetas ATP",
+            "osmMatches": "Correspondências OSM",
+            "spiderValue": "Valor do Spider",
+            "osmValue": "Valor OSM",
+            "noValue": "sem valor",
+            "missingDaysWarning": "{{ days }} em falta",
+            "osmId": "ID OSM"
+        },
+        "status": {
+            "notMapped": "Não mapeado",
+            "addToOsm": "Adicionar ao OSM",
+            "updateOsm": "Atualizar OSM",
+            "editMade": "Edição Realizada",
+            "mismatch": "Divergência",
+            "matching": "Correspondente",
+            "disallowedSourceUri": "URI de Origem Não Permitido",
+            "notABrandSpider": "Não é um Spider de Marca",
+            "duplicateRef": "Ref Duplicada"
+        },
+        "tooltips": {
+            "stableValue": "Valor estável",
+            "newValue": "Novo valor"
+        },
+        "actions": {
+            "edit": "editar",
+            "update": "atualizar",
+            "openUnmatched": "Abrir todos os não correspondidos no JOSM",
+            "openUnmapped": "Abrir itens não mapeados no JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "Erro do JOSM",
+                "message": "Não foi possível ligar ao JOSM. Certifique-se de que o JOSM está a correr e que o Controlo Remoto está ativado nas preferências."
+            },
+            "mismatch": {
+                "title": "Aviso Importante",
+                "message": "Alguns dos dados do spider podem estar errados. NÃO atualize simplesmente {{ tag }} em todos os objetos. Verifique o histórico para ver quem adicionou {{ tag }} e a sua provável fonte. Se não tiver a certeza, NÃO FAÇA ALTERAÇÕES a menos que possa inspecionar o local."
+            },
+            "josmImport": {
+                "message": "Isto irá carregar e abrir os itens não mapeados do ATP no JOSM. Isto pode ser útil para os fazer corresponder a elementos existentes. NÃO os importe, mas utilize a conflação e o seu julgamento."
+            },
+            "understand": "Eu compreendo",
+            "takeMeBack": "Voltar"
+        },
+        "filters": {
+            "allBrands": "Todas as marcas",
+            "noBrand": "Sem marca"
+        },
+        "loading": "A carregar itens...",
+        "searchTags": "Pesquisar etiquetas..."
+    },
+    "locales": {
+        "searchPlaceholder": "Pesquisar idiomas...",
+        "noResults": "Nenhum idioma encontrado"
+    }
+}

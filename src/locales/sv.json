@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "Datasynkronisering mellan All The Places och OpenStreetMap",
+    "nav": {
+        "auto": "Auto",
+        "preview": "Förhandsvisning"
+    },
+    "index": {
+        "summary": "Detta projekt hjälper till att synkronisera intressepunkter från All The Places till OpenStreetMap. Det jämför varumärkesdata med befintliga OSM-objekt för att hitta saknade platser, föråldrade taggar och potentiella förbättringar.",
+        "githubLink": "Lägg till spindlar, rapportera problem och visa källkod",
+        "auto": {
+            "title": "Automatiska uppdateringar",
+            "description": "Vissa uppdateringar görs automatiskt men vissa skillnader behöver granskas",
+            "stats": "{{ x }} platser uppdateras från {{ y }} varumärken"
+        },
+        "preview": {
+            "title": "Förhandsvisning",
+            "description": "Inga uppdateringar görs automatiskt ännu men dessa kan granskas för att se om de är lämpliga",
+            "stats": "{{ x }} platser i förhandsvisning från {{ y }} varumärken"
+        }
+    },
+    "footer": {
+        "atpData": "ATP-data:",
+        "osmData": "OSM-data:"
+    },
+    "dashboard": {
+        "dashboard": "Instrumentpanel",
+        "searchPlaceholder": "Sök spindlar eller varumärken...",
+        "countryFilterPlaceholder": "Sök landsnamn eller kod...",
+        "showAllCountries": "Alla länder",
+        "table": {
+            "status": "Status",
+            "spiderName": "Spindelnamn",
+            "issuesMapped": "Problem / Mappade",
+            "mappedTotal": "Mappade / Totalt"
+        },
+        "stability": {
+            "stable": "Stabil",
+            "minorVariations": "Mindre variationer",
+            "majorVariations": "Större variationer",
+            "missingData": "Saknad data"
+        },
+        "pagination": {
+            "previous": "Föregående",
+            "next": "Nästa",
+            "pageOf": "Sida {{ page }} av {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Föråldrad data",
+        "staleDataDesc": "Den senaste ATP-körningen var tom. Visar data från {{ date }} istället.",
+        "rejected": "Avvisad för automatiska uppdateringar",
+        "rejectedDesc": "Denna spindel har avvisats från att inkluderas i de automatiska uppdateringarna. Den kan fortfarande vara användbar av andra skäl. Följande skäl angavs:",
+        "noData": "❌ Ingen data tillgänglig",
+        "noData404": "Den senaste ATP-körningen för denna spindel kunde inte hittas (404).",
+        "noDataEmpty": "Alla senaste ATP-körningar för denna spindel var tomma.",
+        "notBrandSpider": "❌ Inte en varumärkesspindel",
+        "notBrandSpiderDesc": "Denna spindel har inte det förväntade attributet spider:lineage=S_ATP_BRANDS.",
+        "links": {
+            "source": "Spindellänk"
+        },
+        "tabs": {
+            "summary": "Sammanfattning",
+            "unmapped": "Omappade",
+            "unmatched": "Ej matchade",
+            "duplicateRefs": "Dubblett-refs"
+        },
+        "summary": {
+            "overview": "Översikt",
+            "tagDetails": "Taggdetaljer",
+            "noData": "Ingen data tillgänglig"
+        },
+        "table": {
+            "ref": "Ref",
+            "tags": "Taggar",
+            "atpTags": "ATP-taggar",
+            "osmMatches": "OSM-matchningar",
+            "spiderValue": "Spindelvärde",
+            "osmValue": "OSM-värde",
+            "noValue": "saknar värde",
+            "missingDaysWarning": "{{ days }} saknas",
+            "osmId": "OSM-ID"
+        },
+        "status": {
+            "notMapped": "Omappad",
+            "addToOsm": "Lägg till i OSM",
+            "updateOsm": "Uppdatera OSM",
+            "editMade": "Ändring gjord",
+            "mismatch": "Missmatch",
+            "matching": "Matchar",
+            "disallowedSourceUri": "Otillåten käll-URI",
+            "notABrandSpider": "Inte en varumärkesspindel",
+            "duplicateRef": "Dubblett-ref"
+        },
+        "tooltips": {
+            "stableValue": "Stabilt värde",
+            "newValue": "Nytt värde"
+        },
+        "actions": {
+            "edit": "redigera",
+            "update": "uppdatera",
+            "openUnmatched": "Öppna alla ej matchade i JOSM",
+            "openUnmapped": "Öppna omappade objekt i JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "JOSM-fel",
+                "message": "Kunde inte ansluta till JOSM. Se till att JOSM körs och att fjärrstyrning är aktiverat i inställningarna."
+            },
+            "mismatch": {
+                "title": "Viktig varning",
+                "message": "Vissa data från spindeln kan vara felaktiga. Uppdatera INTE bara {{ tag }} på alla objekt. Kontrollera historiken för att se vem som lade till {{ tag }} och deras troliga källa. Om du är osäker, GÖR INGEN ÄNDRING såvida du inte kan besöka platsen."
+            },
+            "josmImport": {
+                "message": "Detta kommer att ladda och öppna de omappade objekten från ATP i JOSM. Detta kan vara användbart för att matcha dem mot befintliga objekt. Importera dem INTE direkt, utan använd sammanfogning (conflation) och omdöme."
+            },
+            "understand": "Jag förstår",
+            "takeMeBack": "Gå tillbaka"
+        },
+        "filters": {
+            "allBrands": "Alla varumärken",
+            "noBrand": "Inget varumärke"
+        },
+        "loading": "Laddar objekt...",
+        "searchTags": "Sök taggar..."
+    },
+    "locales": {
+        "searchPlaceholder": "Sök språk...",
+        "noResults": "Inga språk hittades"
+    }
+}

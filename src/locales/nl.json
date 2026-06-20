@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "Gegevenssynchronisatie tussen All The Places en OpenStreetMap",
+    "nav": {
+        "auto": "Auto",
+        "preview": "Preview"
+    },
+    "index": {
+        "summary": "Dit project helpt bij het synchroniseren van point-of-interest-gegevens van All The Places naar OpenStreetMap. Het vergelijkt merkgegevens uit de eerste hand met huidige OSM-objecten om ontbrekende locaties, verouderde tags en mogelijke verbeteringen te vinden.",
+        "githubLink": "Spiders toevoegen, problemen melden en broncode bekijken",
+        "auto": {
+            "title": "Automatische updates",
+            "description": "Sommige updates worden automatisch uitgevoerd, maar sommige verschillen moeten worden beoordeeld",
+            "stats": "{{ x }} plaatsen worden bijgewerkt van {{ y }} merken"
+        },
+        "preview": {
+            "title": "Preview",
+            "description": "Er worden nog geen automatische updates uitgevoerd, maar deze kunnen worden beoordeeld om te zien of ze geschikt zijn",
+            "stats": "{{ x }} plaatsen in preview van {{ y }} merken"
+        }
+    },
+    "footer": {
+        "atpData": "ATP-gegevens:",
+        "osmData": "OSM-gegevens:"
+    },
+    "dashboard": {
+        "dashboard": "Dashboard",
+        "searchPlaceholder": "Zoek spiders of merken...",
+        "countryFilterPlaceholder": "Zoek landnaam of code...",
+        "showAllCountries": "Alle landen",
+        "table": {
+            "status": "Status",
+            "spiderName": "Spider-naam",
+            "issuesMapped": "Problemen / Gemapt",
+            "mappedTotal": "Gemapt / Totaal"
+        },
+        "stability": {
+            "stable": "Stabiel",
+            "minorVariations": "Kleine variaties",
+            "majorVariations": "Grote variaties",
+            "missingData": "Ontbrekende gegevens"
+        },
+        "pagination": {
+            "previous": "Vorige",
+            "next": "Volgende",
+            "pageOf": "Pagina {{ page }} van {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Verouderde gegevens",
+        "staleDataDesc": "De laatste ATP-run was leeg. In plaats daarvan worden gegevens van {{ date }} getoond.",
+        "rejected": "Geweigerd voor automatische updates",
+        "rejectedDesc": "Deze spider is geweigerd voor opname in de automatische updates. Hij kan om andere redenen nog steeds nuttig zijn. De volgende reden is opgegeven:",
+        "noData": "❌ Geen gegevens beschikbaar",
+        "noData404": "De laatste ATP-run voor deze spider kon niet worden gevonden (404).",
+        "noDataEmpty": "Alle recente ATP-runs voor deze spider waren leeg.",
+        "notBrandSpider": "❌ Geen merk-spider",
+        "notBrandSpiderDesc": "Deze spider heeft niet het verwachte attribuut spider:lineage=S_ATP_BRANDS.",
+        "links": {
+            "source": "Spider-bron"
+        },
+        "tabs": {
+            "summary": "Samenvatting",
+            "unmapped": "Niet gemapt",
+            "unmatched": "Niet overeenkomend",
+            "duplicateRefs": "Dubbele refs"
+        },
+        "summary": {
+            "overview": "Overzicht",
+            "tagDetails": "Tag-details",
+            "noData": "Geen gegevens beschikbaar"
+        },
+        "table": {
+            "ref": "Ref",
+            "tags": "Tags",
+            "atpTags": "ATP-tags",
+            "osmMatches": "OSM-overeenkomsten",
+            "spiderValue": "Spider-waarde",
+            "osmValue": "OSM-waarde",
+            "noValue": "geen waarde",
+            "missingDaysWarning": "{{ days }} ontbreken",
+            "osmId": "OSM ID"
+        },
+        "status": {
+            "notMapped": "Niet gemapt",
+            "addToOsm": "Toevoegen aan OSM",
+            "updateOsm": "OSM bijwerken",
+            "editMade": "Bewerking uitgevoerd",
+            "mismatch": "Verschil",
+            "matching": "Overeenkomend",
+            "disallowedSourceUri": "Niet-toegestane bron-URI",
+            "notABrandSpider": "Geen merk-spider",
+            "duplicateRef": "Dubbele ref"
+        },
+        "tooltips": {
+            "stableValue": "Stabiele waarde",
+            "newValue": "Nieuwe waarde"
+        },
+        "actions": {
+            "edit": "bewerken",
+            "update": "bijwerken",
+            "openUnmatched": "Open alle niet-overeenkomende in JOSM",
+            "openUnmapped": "Open niet-gemapte items in JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "JOSM-fout",
+                "message": "Kon geen verbinding maken met JOSM. Zorg ervoor dat JOSM draait en dat Remote Control is ingeschakeld in de voorkeuren."
+            },
+            "mismatch": {
+                "title": "Belangrijke waarschuwing",
+                "message": "Sommige gegevens van de spider kunnen onjuist zijn. Werk NIET zomaar {{ tag }} bij op alle objecten. Controleer de geschiedenis om te zien wie {{ tag }} heeft toegevoegd en wat hun waarschijnlijke bron was. Als je het niet zeker weet, MAAK DAN GEEN WIJZIGING, tenzij je de locatie kunt controleren."
+            },
+            "josmImport": {
+                "message": "Dit zal de niet-gemapte items van ATP in JOSM laden en openen. Dit kan handig zijn om ze te matchen met bestaande elementen. Importeer ze NIET direct, maar gebruik conflatie en je eigen oordeel."
+            },
+            "understand": "Ik begrijp het",
+            "takeMeBack": "Ga terug"
+        },
+        "filters": {
+            "allBrands": "Alle merken",
+            "noBrand": "Geen merk"
+        },
+        "loading": "Items laden...",
+        "searchTags": "Zoek tags..."
+    },
+    "locales": {
+        "searchPlaceholder": "Zoek talen...",
+        "noResults": "Geen talen gevonden"
+    }
+}

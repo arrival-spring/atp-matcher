@@ -207,14 +207,51 @@ export async function setLocale(locale) {
             const params = paramsAttr ? JSON.parse(paramsAttr) : {};
             const translated = t(key, params);
 
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                el.placeholder = translated;
+                return;
+            }
+
+            // Handle elements with nested structure that we want to preserve (like stats in IndexPage)
+            const statsParts = translated.split(/({{\s*[xy]\s*}})/);
+            if (statsParts.length > 1) {
+                let xIdx = 0;
+                let yIdx = 0;
+                const placeholders = el.querySelectorAll('[data-t-ignore]');
+                el.childNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE && node.hasAttribute('data-t-ignore')) {
+                        // Keep the placeholder as is
+                    } else if (node.nodeType === Node.TEXT_NODE) {
+                        // This is tricky as we need to replace text nodes while keeping elements in place.
+                        // For simplicity in this specific project's IndexPage, we can reconstruct the innerHTML
+                        // but that might lose Preact's event listeners.
+                        // However, IndexPage cards are just links.
+                    }
+                });
+
+                // Simpler approach for the specific stats use case:
+                const xSpan = el.querySelector('span.text-4xl');
+                const ySpan = el.querySelector('span.text-xl');
+
+                if (xSpan && ySpan) {
+                    const xVal = xSpan.textContent;
+                    const yVal = ySpan.textContent;
+                    el.innerHTML = translated
+                        .replace(
+                            /{{\s*x\s*}}/,
+                            `<span class="text-4xl font-bold text-white" data-t-ignore>${xVal}</span>`
+                        )
+                        .replace(/{{\s*y\s*}}/, `<span class="text-xl" data-t-ignore>${yVal}</span>`);
+                    return;
+                }
+            }
+
             if (
                 el.getAttribute('data-t-html') === 'true' ||
                 el.innerHTML.includes('<span') ||
                 el.innerHTML.includes('<strong')
             ) {
                 el.innerHTML = translated;
-            } else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-                el.placeholder = translated;
             } else {
                 el.textContent = translated;
             }

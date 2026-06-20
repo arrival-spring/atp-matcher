@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "All The Places 与 OpenStreetMap 之间的数据同步",
+    "nav": {
+        "auto": "自动",
+        "preview": "预览"
+    },
+    "index": {
+        "summary": "该项目帮助将来自 All The Places 的兴趣点数据同步到 OpenStreetMap。它将第一手品牌数据与当前的 OSM 要素进行对比，以发现缺失的位置、过时的标签以及潜在的改进方案。",
+        "githubLink": "添加蜘蛛、报告问题并查看源代码",
+        "auto": {
+            "title": "自动更新",
+            "description": "部分更新正在自动进行，但某些差异仍需人工审核",
+            "stats": "正在从 {{ y }} 个品牌更新 {{ x }} 个地点"
+        },
+        "preview": {
+            "title": "预览",
+            "description": "尚未进行自动更新，但可以审核这些内容以确定是否适用",
+            "stats": "预览中包含来自 {{ y }} 个品牌的 {{ x }} 个地点"
+        }
+    },
+    "footer": {
+        "atpData": "ATP 数据：",
+        "osmData": "OSM 数据："
+    },
+    "dashboard": {
+        "dashboard": "仪表板",
+        "searchPlaceholder": "搜索蜘蛛或品牌...",
+        "countryFilterPlaceholder": "搜索国家名称或代码...",
+        "showAllCountries": "所有国家",
+        "table": {
+            "status": "状态",
+            "spiderName": "蜘蛛名称",
+            "issuesMapped": "问题 / 已映射",
+            "mappedTotal": "已映射 / 总计"
+        },
+        "stability": {
+            "stable": "稳定",
+            "minorVariations": "轻微波动",
+            "majorVariations": "剧烈波动",
+            "missingData": "数据缺失"
+        },
+        "pagination": {
+            "previous": "上一页",
+            "next": "下一页",
+            "pageOf": "第 {{ page }} 页，共 {{ totalPages }} 页"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ 数据过时",
+        "staleDataDesc": "最近一次 ATP 运行结果为空。现显示 {{ date }} 的数据。",
+        "rejected": "已拒绝自动更新",
+        "rejectedDesc": "该蜘蛛已被拒绝加入自动更新。出于其他原因，它可能仍然有用。给出的原因为：",
+        "noData": "❌ 无可用数据",
+        "noData404": "找不到该蜘蛛最近一次运行的 ATP 数据 (404)。",
+        "noDataEmpty": "该蜘蛛最近的所有 ATP 运行结果均为空。",
+        "notBrandSpider": "❌ 非品牌蜘蛛",
+        "notBrandSpiderDesc": "该蜘蛛不具备预期的 spider:lineage=S_ATP_BRANDS 属性。",
+        "links": {
+            "source": "蜘蛛来源"
+        },
+        "tabs": {
+            "summary": "摘要",
+            "unmapped": "未映射",
+            "unmatched": "未匹配",
+            "duplicateRefs": "重复引用 (Refs)"
+        },
+        "summary": {
+            "overview": "概览",
+            "tagDetails": "标签详情",
+            "noData": "无可用数据"
+        },
+        "table": {
+            "ref": "引用 (Ref)",
+            "tags": "标签",
+            "atpTags": "ATP 标签",
+            "osmMatches": "OSM 匹配项",
+            "spiderValue": "蜘蛛值",
+            "osmValue": "OSM 值",
+            "noValue": "无值",
+            "missingDaysWarning": "缺少 {{ days }}",
+            "osmId": "OSM ID"
+        },
+        "status": {
+            "notMapped": "未映射",
+            "addToOsm": "添加到 OSM",
+            "updateOsm": "更新 OSM",
+            "editMade": "已做修改",
+            "mismatch": "不匹配",
+            "matching": "匹配",
+            "disallowedSourceUri": "不允许的源 URI",
+            "notABrandSpider": "非品牌蜘蛛",
+            "duplicateRef": "重复引用 (Ref)"
+        },
+        "tooltips": {
+            "stableValue": "稳定值",
+            "newValue": "新值"
+        },
+        "actions": {
+            "edit": "编辑",
+            "update": "更新",
+            "openUnmatched": "在 JOSM 中打开所有未匹配项",
+            "openUnmapped": "在 JOSM 中打开未映射项"
+        },
+        "modals": {
+            "josmError": {
+                "title": "JOSM 错误",
+                "message": "无法连接到 JOSM。请确保 JOSM 正在运行且已在首选项中启用远程控制。"
+            },
+            "mismatch": {
+                "title": "重要警告",
+                "message": "来自蜘蛛的部分数据可能存在错误。请勿简单地更新所有对象上的 {{ tag }} 标签。请检查历史记录以查看是谁添加了 {{ tag }} 以及其可能的来源。如果您不确定，除非您可以实地考察，否则请勿进行更改。"
+            },
+            "josmImport": {
+                "message": "这将把 ATP 中未映射的项目加载并在 JOSM 中打开。这对于将它们与现有要素匹配可能很有用。请勿直接导入，请结合冲突处理和个人判断。"
+            },
+            "understand": "我明白",
+            "takeMeBack": "返回"
+        },
+        "filters": {
+            "allBrands": "所有品牌",
+            "noBrand": "无品牌"
+        },
+        "loading": "正在加载项目...",
+        "searchTags": "搜索标签..."
+    },
+    "locales": {
+        "searchPlaceholder": "搜索语言...",
+        "noResults": "未找到语言"
+    }
+}

@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "Datasynkronisering mellom All The Places og OpenStreetMap",
+    "nav": {
+        "auto": "Auto",
+        "preview": "Førehandsvising"
+    },
+    "index": {
+        "summary": "Dette prosjektet hjelper til med å synkronisere interessepunkt frå All The Places til OpenStreetMap. Det samanliknar merkevaredata med eksisterande OSM-objekt for å finne manglande stader, utdaterte taggar og potensielle forbetringar.",
+        "githubLink": "Legg til spidre, rapporter problem og sjå kjeldekode",
+        "auto": {
+            "title": "Automatiske oppdateringar",
+            "description": "Nokre oppdateringar blir gjorde automatisk, men nokre forskjellar må vurderast",
+            "stats": "{{ x }} stader blir oppdaterte frå {{ y }} merkevarer"
+        },
+        "preview": {
+            "title": "Førehandsvising",
+            "description": "Ingen oppdateringar blir gjorde automatisk enno, men desse kan vurderast for å sjå om dei er eigna",
+            "stats": "{{ x }} stader i førehandsvising frå {{ y }} merkevarer"
+        }
+    },
+    "footer": {
+        "atpData": "ATP-data:",
+        "osmData": "OSM-data:"
+    },
+    "dashboard": {
+        "dashboard": "Dashbord",
+        "searchPlaceholder": "Søk etter spidre eller merkevarer...",
+        "countryFilterPlaceholder": "Søk etter landnamn eller kode...",
+        "showAllCountries": "Alle land",
+        "table": {
+            "status": "Status",
+            "spiderName": "Spider-namn",
+            "issuesMapped": "Problem / Kartlagt",
+            "mappedTotal": "Kartlagt / Totalt"
+        },
+        "stability": {
+            "stable": "Stabil",
+            "minorVariations": "Mindre variasjonar",
+            "majorVariations": "Større variasjonar",
+            "missingData": "Manglande data"
+        },
+        "pagination": {
+            "previous": "Førre",
+            "next": "Neste",
+            "pageOf": "Side {{ page }} av {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Utdaterte data",
+        "staleDataDesc": "Siste ATP-køyring var tom. Viser data frå {{ date }} i staden.",
+        "rejected": "Avvist for automatiske oppdateringar",
+        "rejectedDesc": "Denne spideren har blitt avvist frå å bli inkludert i automatiske oppdateringar. Han kan framleis vere nyttig av andre grunnar. Følgjande årsak blei oppgitt:",
+        "noData": "❌ Inga data tilgjengeleg",
+        "noData404": "Siste ATP-køyring for denne spideren blei ikkje funnen (404).",
+        "noDataEmpty": "Alle nylege ATP-køyringar for denne spideren var tomme.",
+        "notBrandSpider": "❌ Ikkje ein merkevare-spider",
+        "notBrandSpiderDesc": "Denne spideren har ikkje den venta attributten spider:lineage=S_ATP_BRANDS.",
+        "links": {
+            "source": "Spider-kjelde"
+        },
+        "tabs": {
+            "summary": "Samandrag",
+            "unmapped": "Ukartlagt",
+            "unmatched": "Umatcha",
+            "duplicateRefs": "Dupliserte referansar"
+        },
+        "summary": {
+            "overview": "Oversyn",
+            "tagDetails": "Tagg-detaljar",
+            "noData": "Inga data tilgjengeleg"
+        },
+        "table": {
+            "ref": "Ref",
+            "tags": "Taggar",
+            "atpTags": "ATP-taggar",
+            "osmMatches": "OSM-treff",
+            "spiderValue": "Spider-verdi",
+            "osmValue": "OSM-verdi",
+            "noValue": "ingen verdi",
+            "missingDaysWarning": "{{ days }} manglar",
+            "osmId": "OSM-ID"
+        },
+        "status": {
+            "notMapped": "Ikkje kartlagt",
+            "addToOsm": "Legg til i OSM",
+            "updateOsm": "Oppdater OSM",
+            "editMade": "Endring utført",
+            "mismatch": "Uoverensstemming",
+            "matching": "Samsvarar",
+            "disallowedSourceUri": "Ikkje tillaten kjelde-URI",
+            "notABrandSpider": "Ikkje ein merkevare-spider",
+            "duplicateRef": "Duplisert referanse"
+        },
+        "tooltips": {
+            "stableValue": "Stabil verdi",
+            "newValue": "Ny verdi"
+        },
+        "actions": {
+            "edit": "rediger",
+            "update": "oppdater",
+            "openUnmatched": "Opne alle umatcha i JOSM",
+            "openUnmapped": "Opne ukartlagte element i JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "JOSM-feil",
+                "message": "Kunne ikkje kople til JOSM. Vennlegst sjekk at JOSM køyrer og at fjernstyring er aktivert i innstillingane."
+            },
+            "mismatch": {
+                "title": "Viktig åtvaring",
+                "message": "Nokre av dataene frå spideren kan vere feil. IKKJE berre oppdater {{ tag }} på alle objekt. Sjekk historikken for å sjå kven som la til {{ tag }} og den sannsynlege kjelda deira. Dersom du er usikker, IKKJE GJER EI ENDRING med mindre du kan undersøke staden."
+            },
+            "josmImport": {
+                "message": "Dette vil laste inn og opne dei ukartlagte elementa frå ATP i JOSM. Dette kan vere nyttig for å matche dei med eksisterande element. IKKJE importer dei direkte, men bruk konflasjon og skjønn."
+            },
+            "understand": "Eg forstår",
+            "takeMeBack": "Gå tilbake"
+        },
+        "filters": {
+            "allBrands": "Alle merkevarer",
+            "noBrand": "Inga merkevare"
+        },
+        "loading": "Lastar inn element...",
+        "searchTags": "Søk i taggar..."
+    },
+    "locales": {
+        "searchPlaceholder": "Søk i språk...",
+        "noResults": "Ingen språk funne"
+    }
+}

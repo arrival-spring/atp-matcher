@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "All The Places ve OpenStreetMap arasındaki veri senkronizasyonu",
+    "nav": {
+        "auto": "Otomatik",
+        "preview": "Önizleme"
+    },
+    "index": {
+        "summary": "Bu proje, All The Places'tan gelen ilgi çekici nokta verilerinin OpenStreetMap'e senkronize edilmesine yardımcı olur. Eksik konumları, güncelliğini yitirmiş etiketleri ve potansiyel iyileştirmeleri bulmak için birinci taraf marka verilerini mevcut OSM özellikleriyle karşılaştırır.",
+        "githubLink": "Örümcek ekle, sorun bildir ve kaynağı görüntüle",
+        "auto": {
+            "title": "Otomatik Güncellemeler",
+            "description": "Bazı güncellemeler otomatik olarak yapılıyor ancak bazı farklılıkların incelenmesi gerekiyor",
+            "stats": "{{ y }} markadan {{ x }} yer güncelleniyor"
+        },
+        "preview": {
+            "title": "Önizleme",
+            "description": "Henüz otomatik olarak bir güncelleme yapılmıyor ancak bunların uygun olup olmadığını görmek için incelenebilir",
+            "stats": "{{ y }} markadan önizlemede {{ x }} yer var"
+        }
+    },
+    "footer": {
+        "atpData": "ATP Verisi:",
+        "osmData": "OSM Verisi:"
+    },
+    "dashboard": {
+        "dashboard": "Panel",
+        "searchPlaceholder": "Örümcek veya marka ara...",
+        "countryFilterPlaceholder": "Ülke adı veya kodu ara...",
+        "showAllCountries": "Tüm ülkeler",
+        "table": {
+            "status": "Durum",
+            "spiderName": "Örümcek Adı",
+            "issuesMapped": "Sorunlar / Eşlenen",
+            "mappedTotal": "Eşlenen / Toplam"
+        },
+        "stability": {
+            "stable": "Kararlı",
+            "minorVariations": "Küçük varyasyonlar",
+            "majorVariations": "Büyük varyasyonlar",
+            "missingData": "Eksik veri"
+        },
+        "pagination": {
+            "previous": "Önceki",
+            "next": "Sonraki",
+            "pageOf": "Sayfa {{ page }} / {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Eski Veri",
+        "staleDataDesc": "Son ATP çalışması boştu. Bunun yerine {{ date }} tarihli veriler gösteriliyor.",
+        "rejected": "Otomatik güncellemeler için reddedildi",
+        "rejectedDesc": "Bu örümcek otomatik güncellemelere dahil edilmekten reddedildi. Başka nedenlerle hala yararlı olabilir. Aşağıdaki neden belirtildi:",
+        "noData": "❌ Veri Mevcut Değil",
+        "noData404": "Bu örümcek için son ATP çalışması bulunamadı (404).",
+        "noDataEmpty": "Bu örümcek için son ATP çalışmalarının tümü boştu.",
+        "notBrandSpider": "❌ Bir Marka Örümceği Değil",
+        "notBrandSpiderDesc": "Bu örümcek beklenen spider:lineage=S_ATP_BRANDS özelliğine sahip değil.",
+        "links": {
+            "source": "Örümcek Kaynağı"
+        },
+        "tabs": {
+            "summary": "Özet",
+            "unmapped": "Eşlenmemiş",
+            "unmatched": "Eşleşmeyen",
+            "duplicateRefs": "Yinelenen Ref'ler"
+        },
+        "summary": {
+            "overview": "Genel Bakış",
+            "tagDetails": "Etiket Ayrıntıları",
+            "noData": "Veri mevcut değil"
+        },
+        "table": {
+            "ref": "Ref",
+            "tags": "Etiketler",
+            "atpTags": "ATP Etiketleri",
+            "osmMatches": "OSM Eşleşmeleri",
+            "spiderValue": "Örümcek Değeri",
+            "osmValue": "OSM Değeri",
+            "noValue": "değer yok",
+            "missingDaysWarning": "{{ days }} eksik",
+            "osmId": "OSM ID"
+        },
+        "status": {
+            "notMapped": "Eşlenmemiş",
+            "addToOsm": "OSM'ye ekle",
+            "updateOsm": "OSM'yi güncelle",
+            "editMade": "Düzenleme Yapıldı",
+            "mismatch": "Uyuşmazlık",
+            "matching": "Eşleşiyor",
+            "disallowedSourceUri": "İzin verilmeyen Kaynak URI",
+            "notABrandSpider": "Bir Marka Örümceği Değil",
+            "duplicateRef": "Yinelenen Ref"
+        },
+        "tooltips": {
+            "stableValue": "Kararlı değer",
+            "newValue": "Yeni değer"
+        },
+        "actions": {
+            "edit": "düzenle",
+            "update": "güncelle",
+            "openUnmatched": "Tüm eşleşmeyenleri JOSM'da aç",
+            "openUnmapped": "Eşlenmemiş öğeleri JOSM'da aç"
+        },
+        "modals": {
+            "josmError": {
+                "title": "JOSM Hatası",
+                "message": "JOSM'a bağlanılamadı. Lütfen JOSM'un çalıştığından ve tercihlerde Uzaktan Kumanda'nın etkinleştirildiğinden emin olun."
+            },
+            "mismatch": {
+                "title": "Önemli Uyarı",
+                "message": "Örümcekten gelen verilerin bazıları yanlış olabilir. Tüm nesnelerde {{ tag }} etiketini doğrudan GÜNCELLEMEYİN. {{ tag }} etiketini kimin eklediğini ve olası kaynaklarını görmek için geçmişi kontrol edin. Emin değilseniz, yeri bizzat inceleyemediğiniz sürece DEĞİŞİKLİK YAPMAYIN."
+            },
+            "josmImport": {
+                "message": "Bu, ATP'den eşlenmemiş öğeleri JOSM'a yükleyecek ve açacaktır. Bu, onları mevcut öğelerle eşleştirmek için yararlı olabilir. Onları içe aktarmayın (import), ancak birleştirme (conflation) ve muhakeme kullanın."
+            },
+            "understand": "Anlıyorum",
+            "takeMeBack": "Beni geri götür"
+        },
+        "filters": {
+            "allBrands": "Tüm markalar",
+            "noBrand": "Marka yok"
+        },
+        "loading": "Öğeler yükleniyor...",
+        "searchTags": "Etiketlerde ara..."
+    },
+    "locales": {
+        "searchPlaceholder": "Dil ara...",
+        "noResults": "Dil bulunamadı"
+    }
+}

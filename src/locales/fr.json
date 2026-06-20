@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "Synchronisation des données entre All The Places et OpenStreetMap",
+    "nav": {
+        "auto": "Auto",
+        "preview": "Aperçu"
+    },
+    "index": {
+        "summary": "Ce projet aide à synchroniser les données des points d'intérêt d'All The Places vers OpenStreetMap. Il compare les données des marques de première main avec les éléments actuels d'OSM pour trouver les lieux manquants, les balises obsolètes et les améliorations potentielles.",
+        "githubLink": "Ajouter des araignées, signaler des problèmes et voir la source",
+        "auto": {
+            "title": "Mises à jour automatiques",
+            "description": "Certaines mises à jour sont effectuées automatiquement mais certaines différences nécessitent une révision",
+            "stats": "{{ x }} lieux mis à jour à partir de {{ y }} marques"
+        },
+        "preview": {
+            "title": "Aperçu",
+            "description": "Aucune mise à jour n'est encore effectuée automatiquement mais celles-ci peuvent être examinées pour voir si elles conviennent",
+            "stats": "{{ x }} lieux en aperçu à partir de {{ y }} marques"
+        }
+    },
+    "footer": {
+        "atpData": "Données ATP :",
+        "osmData": "Données OSM :"
+    },
+    "dashboard": {
+        "dashboard": "Tableau de bord",
+        "searchPlaceholder": "Rechercher des araignées ou des marques...",
+        "countryFilterPlaceholder": "Rechercher un nom ou un code de pays...",
+        "showAllCountries": "Tous les pays",
+        "table": {
+            "status": "Statut",
+            "spiderName": "Nom de l'araignée",
+            "issuesMapped": "Problèmes / Cartographiés",
+            "mappedTotal": "Cartographiés / Total"
+        },
+        "stability": {
+            "stable": "Stable",
+            "minorVariations": "Variations mineures",
+            "majorVariations": "Variations majeures",
+            "missingData": "Données manquantes"
+        },
+        "pagination": {
+            "previous": "Précédent",
+            "next": "Suivant",
+            "pageOf": "Page {{ page }} sur {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Données obsolètes",
+        "staleDataDesc": "La dernière exécution d'ATP était vide. Affichage des données du {{ date }} à la place.",
+        "rejected": "Rejeté pour les mises à jour automatiques",
+        "rejectedDesc": "Cette araignée a été rejetée des mises à jour automatiques. Elle peut encore être utile pour d'autres raisons. La raison suivante a été donnée :",
+        "noData": "❌ Aucune donnée disponible",
+        "noData404": "La dernière exécution d'ATP pour cette araignée n'a pas pu être trouvée (404).",
+        "noDataEmpty": "Toutes les exécutions récentes d'ATP pour cette araignée étaient vides.",
+        "notBrandSpider": "❌ Pas une araignée de marque",
+        "notBrandSpiderDesc": "Cette araignée n'a pas l'attribut spider:lineage=S_ATP_BRANDS attendu.",
+        "links": {
+            "source": "Source de l'araignée"
+        },
+        "tabs": {
+            "summary": "Résumé",
+            "unmapped": "Non cartographiés",
+            "unmatched": "Non correspondants",
+            "duplicateRefs": "Réf. en double"
+        },
+        "summary": {
+            "overview": "Aperçu",
+            "tagDetails": "Détails des balises",
+            "noData": "Aucune donnée disponible"
+        },
+        "table": {
+            "ref": "Réf.",
+            "tags": "Balises",
+            "atpTags": "Balises ATP",
+            "osmMatches": "Correspondances OSM",
+            "spiderValue": "Valeur araignée",
+            "osmValue": "Valeur OSM",
+            "noValue": "aucune valeur",
+            "missingDaysWarning": "{{ days }} manquants",
+            "osmId": "ID OSM"
+        },
+        "status": {
+            "notMapped": "Non cartographié",
+            "addToOsm": "Ajouter à OSM",
+            "updateOsm": "Mettre à jour OSM",
+            "editMade": "Modification effectuée",
+            "mismatch": "Incohérence",
+            "matching": "Correspondance",
+            "disallowedSourceUri": "URI source non autorisée",
+            "notABrandSpider": "Pas une araignée de marque",
+            "duplicateRef": "Réf. en double"
+        },
+        "tooltips": {
+            "stableValue": "Valeur stable",
+            "newValue": "Nouvelle valeur"
+        },
+        "actions": {
+            "edit": "modifier",
+            "update": "mettre à jour",
+            "openUnmatched": "Ouvrir tous les non-correspondants dans JOSM",
+            "openUnmapped": "Ouvrir les éléments non cartographiés dans JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "Erreur JOSM",
+                "message": "Impossible de se connecter à JOSM. Veuillez vous assurer que JOSM est en cours d'exécution et que le contrôle à distance est activé dans les préférences."
+            },
+            "mismatch": {
+                "title": "Avertissement important",
+                "message": "Certaines données de l'araignée peuvent être erronées. NE mettez PAS simplement à jour {{ tag }} sur tous les objets. Vérifiez l'historique pour voir qui a ajouté {{ tag }} et sa source probable. Si vous n'êtes pas sûr, NE FAITES PAS DE CHANGEMENT à moins de pouvoir inspecter le lieu."
+            },
+            "josmImport": {
+                "message": "Ceci chargera et ouvrira les éléments non cartographiés d'ATP dans JOSM. Cela peut être utile pour les faire correspondre à des éléments existants. NE les importez PAS, mais utilisez la confluence et votre jugement."
+            },
+            "understand": "Je comprends",
+            "takeMeBack": "Retour"
+        },
+        "filters": {
+            "allBrands": "Toutes les marques",
+            "noBrand": "Aucune marque"
+        },
+        "loading": "Chargement des éléments...",
+        "searchTags": "Rechercher des balises..."
+    },
+    "locales": {
+        "searchPlaceholder": "Rechercher des langues...",
+        "noResults": "Aucune langue trouvée"
+    }
+}

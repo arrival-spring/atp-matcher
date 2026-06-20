@@ -1,0 +1,34 @@
+{
+    "index": {
+        "summary": "Este projeto ajuda a sincronizar dados de pontos de interesse do All The Places para o OpenStreetMap. Compara dados de marcas oficiais com elementos atuais do OSM para encontrar locais ausentes, etiquetas desatualizadas e melhorias potenciais.",
+        "auto": {
+            "description": "Algumas atualizações estão sendo feitas automaticamente, mas algumas diferenças precisam de revisão",
+            "stats": "{{ x }} locais sendo atualizados de {{ y }} marcas"
+        },
+        "preview": {
+            "description": "Ainda não estão sendo feitas atualizações automáticas, mas estas podem ser revisadas para ver se são adequadas",
+            "stats": "{{ x }} locais em visualização de {{ y }} marcas"
+        }
+    },
+    "dashboard": {
+        "dashboard": "Painel de Controle",
+        "pagination": {
+            "next": "Próximo"
+        }
+    },
+    "spider": {
+        "notBrandSpiderDesc": "Este spider não possui o atributo esperado spider:lineage=S_ATP_BRANDS.",
+        "table": {
+            "missingDaysWarning": "{{ days }} ausentes"
+        },
+        "status": {
+            "disallowedSourceUri": "URI de Origem Não Permitida"
+        },
+        "modals": {
+            "josmError": {
+                "message": "Não foi possível conectar ao JOSM. Certifique-se de que o JOSM está em execução e que o Controle Remoto está ativado nas preferências."
+            }
+        },
+        "loading": "Carregando itens..."
+    }
+}
