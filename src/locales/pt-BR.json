@@ -14,7 +14,8 @@
         "dashboard": "Painel de Controle",
         "pagination": {
             "next": "Próximo"
-        }
+        },
+        "table": {}
     },
     "spider": {
         "notBrandSpiderDesc": "Este spider não possui o atributo esperado spider:lineage=S_ATP_BRANDS.",

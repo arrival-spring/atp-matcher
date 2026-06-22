@@ -24,14 +24,21 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
     const containerRef = useRef(null);
     const inputRef = useRef(null);
 
+    const [currentLocale, setCurrentLocale] = useState(getLocale());
+
+    useEffect(() => {
+        const handleLocaleChange = e => setCurrentLocale(e.detail);
+        window.addEventListener('localeChanged', handleLocaleChange);
+        return () => window.removeEventListener('localeChanged', handleLocaleChange);
+    }, []);
+
     const countries = useMemo(() => {
         const codes = new Set();
         allSpiderResults.forEach(s => {
             if (s.countries) s.countries.forEach(c => codes.add(c));
         });
 
-        const locale = getLocale();
-        const displayNames = new Intl.DisplayNames([locale], { type: 'region' });
+        const displayNames = new Intl.DisplayNames([currentLocale], { type: 'region' });
 
         return Array.from(codes)
             .map(code => {
@@ -43,8 +50,8 @@ function CountryFilter({ allSpiderResults, selectedCountry, onSelect }) {
                 }
                 return { code, name };
             })
-            .sort((a, b) => a.name.localeCompare(b.name, locale));
-    }, [allSpiderResults]);
+            .sort((a, b) => a.name.localeCompare(b.name, currentLocale));
+    }, [allSpiderResults, currentLocale]);
 
     const filteredCountries = useMemo(() => {
         const searchLower = search.toLowerCase();
@@ -302,6 +309,14 @@ function Dashboard({ allSpiderResults }) {
     const scrollRef = useRef(null);
     const [fadeState, setFadeState] = useState('');
 
+    const [currentLocale, setCurrentLocale] = useState(getLocale());
+
+    useEffect(() => {
+        const handleLocaleChange = e => setCurrentLocale(e.detail);
+        window.addEventListener('localeChanged', handleLocaleChange);
+        return () => window.removeEventListener('localeChanged', handleLocaleChange);
+    }, []);
+
     function updateFadeEffect() {
         const container = scrollRef.current;
         if (!container) return;
@@ -324,13 +339,6 @@ function Dashboard({ allSpiderResults }) {
         return () => window.removeEventListener('resize', updateFadeEffect);
     }, []);
 
-    const [currentLocale, setCurrentLocale] = useState(null);
-
-    useEffect(() => {
-        const handleLocaleChange = e => setCurrentLocale(e.detail);
-        window.addEventListener('localeChanged', handleLocaleChange);
-        return () => window.removeEventListener('localeChanged', handleLocaleChange);
-    }, []);
 
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
@@ -439,7 +447,7 @@ function Dashboard({ allSpiderResults }) {
         }
 
         return data;
-    }, [allSpiderResults, search, sort, selectedCountry]);
+    }, [allSpiderResults, search, sort, selectedCountry, currentLocale]);
 
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
     const effectivePage = Math.min(page, totalPages);
@@ -735,7 +743,7 @@ function SpiderRow({ spider, onSort, currentSort }) {
                             <span class="text-gray-500">{showTotals ? ` / ${mappedCount}` : ''}</span>
                         </div>
                         <div class="md:hidden text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">
-                            (Issues / Mapped)
+                            ({t('dashboard.table.issuesMapped')})
                         </div>
                     </div>
                     <div class="flex flex-col md:hidden text-right">
@@ -744,7 +752,7 @@ function SpiderRow({ spider, onSort, currentSort }) {
                             <span class="text-gray-500">{showTotals ? ` / ${totalCount}` : ''}</span>
                         </div>
                         <div class="md:hidden text-[10px] text-gray-500 uppercase tracking-tighter leading-none whitespace-nowrap mt-1">
-                            (Mapped / Total)
+                            ({t('dashboard.table.mappedTotal')})
                         </div>
                     </div>
                 </div>
