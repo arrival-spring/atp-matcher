@@ -48,7 +48,30 @@ export function getAvailableLocales() {
         const getDisplayName = locale => {
             try {
                 const langNames = new Intl.DisplayNames([locale], { type: 'language' });
-                return langNames.of(code);
+                const name = langNames.of(code);
+                const langCode = code.split('-')[0];
+
+                // If the name is just the code or appears to be a fallback (e.g. "nn (Norway)"),
+                // try to get the name for the base language instead.
+                const isFallback =
+                    name === code ||
+                    name === langCode ||
+                    name.startsWith(`${code} `) ||
+                    name.startsWith(`${langCode} `) ||
+                    name.includes(`(${code})`) ||
+                    name.includes(`(${langCode})`);
+
+                if (isFallback && code.includes('-')) {
+                    const baseName = langNames.of(langCode);
+                    const isBaseFallback =
+                        baseName === langCode ||
+                        baseName.startsWith(`${langCode} `) ||
+                        baseName.includes(`(${langCode})`);
+                    if (!isBaseFallback) {
+                        return baseName;
+                    }
+                }
+                return name;
             } catch (e) {
                 return code;
             }
