@@ -14,7 +14,7 @@ const SPIDERS_PREVIEW_FILE = 'spiders_preview.json';
 
 /**
  * Cleans and sorts a spider configuration JSON file.
- * Ensures alphabetical ordering, consistent property structure, and removes redundant tags.
+ * Ensures alphabetical ordering, consistent property structure and removes redundant tags.
  *
  * @param {string} filepath - Path to the JSON file to clean.
  * @param {boolean} [shouldWrite=false] - Whether to write the cleaned JSON back to the file.
@@ -97,7 +97,7 @@ function getBaseSpiders(filepath) {
 }
 
 /**
- * Main validation function that checks for consistency, rules, and changes across all spiders.
+ * Main validation function that checks for consistency, rules and changes across all spiders.
  * Automatically moves spiders from auto to preview if rules are violated.
  * Generates PR comments with validation results.
  *
@@ -182,7 +182,7 @@ async function validate(accumulatedComments = '') {
     ];
 
     if (allChanges.length === 0) {
-        if (infoComments || autoMoveComment) outputComment(infoComments + autoMoveComment);
+        if (infoComments) outputComment(infoComments);
         return;
     }
 
@@ -199,7 +199,9 @@ async function validate(accumulatedComments = '') {
     const directToAuto = finalAddedToAuto.filter(s => !removedFromPreviewNames.has(s.name));
     if (directToAuto.length > 0) {
         directToAuto.forEach(s => {
-            errors.push(`Error: Spider \`${s.name}\` was added directly to auto. Spiders must be added to preview first and undergo community review before being moved to auto.`);
+            errors.push(
+                `Error: Spider \`${s.name}\` was added directly to auto. Spiders must be added to preview first and undergo community review before being moved to auto.`
+            );
         });
     }
 
@@ -207,7 +209,9 @@ async function validate(accumulatedComments = '') {
     const stillInPreview = finalAddedToAuto.filter(s => spidersPreview[s.name]);
     if (stillInPreview.length > 0) {
         stillInPreview.forEach(s => {
-            errors.push(`Error: Spider \`${s.name}\` was added to auto but is still present in \`${SPIDERS_PREVIEW_FILE}\`. Please remove it from the preview file.`);
+            errors.push(
+                `Error: Spider \`${s.name}\` was added to auto but is still present in \`${SPIDERS_PREVIEW_FILE}\`. Please remove it from the preview file.`
+            );
         });
     }
 
@@ -247,7 +251,7 @@ async function validate(accumulatedComments = '') {
         }
     }
 
-    let combinedComment = infoComments + autoMoveComment;
+    let combinedComment = infoComments;
     let hasGlobalErrors = errors.length > 0;
 
     const validationResults = [];
@@ -320,7 +324,7 @@ async function validate(accumulatedComments = '') {
 
 /**
  * Validates a single spider configuration by checking its latest ATP data.
- * Verifies categories, disallowed tags, brand lineage, and NSI tag overlap.
+ * Verifies categories, disallowed tags, brand lineage and NSI tag overlap.
  *
  * @param {Object} spider - The spider configuration object.
  * @param {string} type - The type of change (e.g., 'added to auto').
