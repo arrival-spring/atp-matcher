@@ -1,7 +1,7 @@
 name: PR Validation
 
 on:
-    pull_request_target:
+    pull_request:
         paths:
             - 'spiders_auto.json'
             - 'spiders_preview.json'
@@ -13,11 +13,9 @@ jobs:
             contents: write
             pull-requests: write
         steps:
-            - name: Checkout PR Branch
+            - name: Checkout repository
               uses: actions/checkout@v5
               with:
-                  repository: ${{ github.event.pull_request.head.repo.full_name }}
-                  ref: ${{ github.event.pull_request.head.ref }}
                   fetch-depth: 0
 
             - name: Setup Node.js
