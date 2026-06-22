@@ -41,7 +41,7 @@ const LOCAL_STORAGE_KEY = 'atp_osm_sync_locale';
 /**
  * Returns a list of available locales with their display names in various formats.
  *
- * @returns {Object[]} An array of locale objects containing code, native name, localized name, and English name.
+ * @returns {Object[]} An array of locale objects containing code, native name, localised name and English name.
  */
 export function getAvailableLocales() {
     return LOCALES_METADATA.map(code => {
@@ -80,14 +80,14 @@ export function getAvailableLocales() {
         return {
             code,
             native: getDisplayName(code),
-            localized: getDisplayName(currentLocale),
+            localised: getDisplayName(currentLocale),
             english: getDisplayName('en'),
         };
     });
 }
 
 /**
- * Initializes the internationalization system.
+ * Initialises the internationalization system.
  * Detects the preferred locale from localStorage or browser settings and loads the corresponding translations.
  *
  * @param {string[]} [supportedLocales] - Optional array of supported locale codes.
@@ -225,45 +225,44 @@ export async function setLocale(locale) {
             }
 
             // Handle elements with nested structure that we want to preserve (like stats in IndexPage)
-            const xSpan = el.querySelector('span.text-4xl');
-            const ySpan = el.querySelector('span.text-xl');
-
-            if (xSpan && ySpan) {
-                // Re-replace x and y tokens in the translated string, but keep the values from the spans
-                // We use textContent for the values to ensure they are safe.
-                const xVal = xSpan.textContent;
-                const yVal = ySpan.textContent;
-
-                // To avoid innerHTML, we split and rebuild text nodes where possible,
-                // but since this is a specific SSR fix, we use a safer approach for this well-known structure.
-                const parts = translated.split(/({{\s*[xy]\s*}})/);
-                el.innerHTML = ''; // Clear but we will rebuild carefully
-
-                parts.forEach(part => {
-                    if (part.match(/{{\s*x\s*}}/)) {
-                        const s = document.createElement('span');
-                        s.className = 'text-4xl font-bold text-white';
-                        s.setAttribute('data-t-ignore', 'true');
-                        s.textContent = xVal;
-                        el.appendChild(s);
-                    } else if (part.match(/{{\s*y\s*}}/)) {
-                        const s = document.createElement('span');
-                        s.className = 'text-xl';
-                        s.setAttribute('data-t-ignore', 'true');
-                        s.textContent = yVal;
-                        el.appendChild(s);
-                    } else {
-                        el.appendChild(document.createTextNode(part));
+            const statsParts = translated.split(/({{\s*[xy]\s*}})/);
+            if (statsParts.length > 1) {
+                let xIdx = 0;
+                let yIdx = 0;
+                const placeholders = el.querySelectorAll('[data-t-ignore]');
+                el.childNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE && node.hasAttribute('data-t-ignore')) {
+                        // Keep the placeholder as is
+                    } else if (node.nodeType === Node.TEXT_NODE) {
+                        // This is tricky as we need to replace text nodes while keeping elements in place.
+                        // For simplicity in this specific project's IndexPage, we can reconstruct the innerHTML
+                        // but that might lose Preact's event listeners.
+                        // However, IndexPage cards are just links.
                     }
                 });
-                return;
+
+                // Simpler approach for the specific stats use case:
+                const xSpan = el.querySelector('span.text-4xl');
+                const ySpan = el.querySelector('span.text-xl');
+
+                if (xSpan && ySpan) {
+                    const xVal = xSpan.textContent;
+                    const yVal = ySpan.textContent;
+                    el.innerHTML = translated
+                        .replace(
+                            /{{\s*x\s*}}/,
+                            `<span class="text-4xl font-bold text-white" data-t-ignore>${xVal}</span>`
+                        )
+                        .replace(/{{\s*y\s*}}/, `<span class="text-xl" data-t-ignore>${yVal}</span>`);
+                    return;
+                }
             }
 
-            if (el.getAttribute('data-t-html') === 'true') {
-                // Use DOMParser to parse and then strip scripts/risky elements if we really needed HTML
-                // But for this project, let's keep it simple and only allow a very restricted set if needed.
-                // For now, if someone marked it as data-t-html, we still use innerHTML but it's a risk.
-                // Better: avoid data-t-html and use nested components.
+            if (
+                el.getAttribute('data-t-html') === 'true' ||
+                el.innerHTML.includes('<span') ||
+                el.innerHTML.includes('<strong')
+            ) {
                 el.innerHTML = translated;
             } else {
                 el.textContent = translated;
