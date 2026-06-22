@@ -17,9 +17,10 @@ const SPIDERS_PREVIEW_FILE = 'spiders_preview.json';
  * Ensures alphabetical ordering, consistent property structure, and removes redundant tags.
  *
  * @param {string} filepath - Path to the JSON file to clean.
+ * @param {boolean} [shouldWrite=false] - Whether to write the cleaned JSON back to the file.
  * @returns {Promise<Object>} An object containing the cleaned spiders and change flags.
  */
-async function cleanAndSort(filepath) {
+async function cleanAndSort(filepath, shouldWrite = false) {
     if (!fs.existsSync(filepath)) return { spiders: {}, reordered: false, autoRemovedTags: false };
     const content = fs.readFileSync(filepath, 'utf8');
     const spiders = JSON.parse(content);
@@ -52,26 +53,28 @@ async function cleanAndSort(filepath) {
 
     let reordered = false;
     if (!isSortedAndCleaned || autoRemovedTags) {
-        let json = '{\n';
-        const keys = Object.keys(cleanedSpiders).sort();
-        keys.forEach((name, i) => {
-            const spider = cleanedSpiders[name];
-            json += `    "${name}": {\n`;
-            const propKeys = Object.keys(spider);
-            propKeys.forEach((prop, j) => {
-                json += `        "${prop}": ${JSON.stringify(spider[prop])}${j < propKeys.length - 1 ? ',' : ''}\n`;
+        if (shouldWrite) {
+            let json = '{\n';
+            const keys = Object.keys(cleanedSpiders).sort();
+            keys.forEach((name, i) => {
+                const spider = cleanedSpiders[name];
+                json += `    "${name}": {\n`;
+                const propKeys = Object.keys(spider);
+                propKeys.forEach((prop, j) => {
+                    json += `        "${prop}": ${JSON.stringify(spider[prop])}${j < propKeys.length - 1 ? ',' : ''}\n`;
+                });
+                json += `    }${i < keys.length - 1 ? ',' : ''}\n`;
             });
-            json += `    }${i < keys.length - 1 ? ',' : ''}\n`;
-        });
-        json += '}';
+            json += '}';
 
-        const prettierConfig = await prettier.resolveConfig(filepath);
-        const formatted = await prettier.format(json, {
-            ...prettierConfig,
-            filepath: filepath,
-            printWidth: 1000,
-        });
-        fs.writeFileSync(filepath, formatted);
+            const prettierConfig = await prettier.resolveConfig(filepath);
+            const formatted = await prettier.format(json, {
+                ...prettierConfig,
+                filepath: filepath,
+                printWidth: 1000,
+            });
+            fs.writeFileSync(filepath, formatted);
+        }
         reordered = !isSortedAndCleaned;
     }
 
@@ -103,9 +106,10 @@ function getBaseSpiders(filepath) {
  */
 async function validate(accumulatedComments = '') {
     const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+    const shouldFix = process.argv.includes('--fix');
 
-    const autoData = await cleanAndSort(SPIDERS_AUTO_FILE);
-    const previewData = await cleanAndSort(SPIDERS_PREVIEW_FILE);
+    const autoData = await cleanAndSort(SPIDERS_AUTO_FILE, shouldFix);
+    const previewData = await cleanAndSort(SPIDERS_PREVIEW_FILE, shouldFix);
 
     const spidersAuto = autoData.spiders;
     const spidersPreview = previewData.spiders;
@@ -125,16 +129,6 @@ async function validate(accumulatedComments = '') {
     const basePreview = getBaseSpiders(SPIDERS_PREVIEW_FILE);
 
     let infoComments = accumulatedComments;
-    if (autoData.reordered || previewData.reordered) {
-        const msg =
-            '> ℹ️ **Spiders were not in alphabetical order.** I have reordered them and committed the change.\n\n';
-        if (!infoComments.includes(msg)) infoComments += msg;
-    }
-    if (autoData.autoRemovedTags || previewData.autoRemovedTags) {
-        const msg =
-            '> ℹ️ **`opening_hours` and `website` are now automatically included.** I have removed them from `importableTags` and committed the change.\n\n';
-        if (!infoComments.includes(msg)) infoComments += msg;
-    }
 
     const addedToAuto = [];
     const modifiedInAuto = [];
@@ -193,41 +187,43 @@ async function validate(accumulatedComments = '') {
     }
 
     if (filesChanged) {
-        const sortedAuto = {};
-        Object.keys(spidersAuto)
-            .sort()
-            .forEach(k => (sortedAuto[k] = spidersAuto[k]));
-        const sortedPreview = {};
-        Object.keys(spidersPreview)
-            .sort()
-            .forEach(k => (sortedPreview[k] = spidersPreview[k]));
+        if (shouldFix) {
+            const sortedAuto = {};
+            Object.keys(spidersAuto)
+                .sort()
+                .forEach(k => (sortedAuto[k] = spidersAuto[k]));
+            const sortedPreview = {};
+            Object.keys(spidersPreview)
+                .sort()
+                .forEach(k => (sortedPreview[k] = spidersPreview[k]));
 
-        for (const [file, data] of [
-            [SPIDERS_AUTO_FILE, sortedAuto],
-            [SPIDERS_PREVIEW_FILE, sortedPreview],
-        ]) {
-            let json = '{\n';
-            const keys = Object.keys(data).sort();
-            keys.forEach((name, i) => {
-                const spider = data[name];
-                json += `    "${name}": {\n`;
-                const propKeys = Object.keys(spider);
-                propKeys.forEach((prop, j) => {
-                    json += `        "${prop}": ${JSON.stringify(spider[prop])}${j < propKeys.length - 1 ? ',' : ''}\n`;
+            for (const [file, data] of [
+                [SPIDERS_AUTO_FILE, sortedAuto],
+                [SPIDERS_PREVIEW_FILE, sortedPreview],
+            ]) {
+                let json = '{\n';
+                const keys = Object.keys(data).sort();
+                keys.forEach((name, i) => {
+                    const spider = data[name];
+                    json += `    "${name}": {\n`;
+                    const propKeys = Object.keys(spider);
+                    propKeys.forEach((prop, j) => {
+                        json += `        "${prop}": ${JSON.stringify(spider[prop])}${j < propKeys.length - 1 ? ',' : ''}\n`;
+                    });
+                    json += `    }${i < keys.length - 1 ? ',' : ''}\n`;
                 });
-                json += `    }${i < keys.length - 1 ? ',' : ''}\n`;
-            });
-            json += '}';
+                json += '}';
 
-            const prettierConfig = await prettier.resolveConfig(file);
-            fs.writeFileSync(
-                file,
-                await prettier.format(json, {
-                    ...prettierConfig,
-                    filepath: file,
-                    printWidth: 1000,
-                })
-            );
+                const prettierConfig = await prettier.resolveConfig(file);
+                fs.writeFileSync(
+                    file,
+                    await prettier.format(json, {
+                        ...prettierConfig,
+                        filepath: file,
+                        printWidth: 1000,
+                    })
+                );
+            }
         }
 
         // Re-evaluate changes after automatic move, preserving comments
