@@ -6,6 +6,9 @@ import { SAFE_EDITS_DIR, HOST_URL } from './constants.js';
 import { fileURLToPath } from 'url';
 import { GITHUB_URL } from './constants.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const packageInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
 
 const PACKAGE_NAME = packageInfo.name;
@@ -49,10 +52,10 @@ async function withRetry(fn, maxAttempts = 3, initialDelay = 5000) {
             return await fn();
         } catch (error) {
             lastError = error;
-            const status = error.cause;
+            const status = error.status || error.cause;
 
             // Only retry on 5xx errors and if we haven't exhausted attempts
-            if (status >= 500 && status < 600 && attempt < maxAttempts) {
+            if (typeof status === 'number' && status >= 500 && status < 600 && attempt < maxAttempts) {
                 const delay = initialDelay * Math.pow(2, attempt - 1);
                 console.warn(
                     `OSM API call failed (status ${status}). Attempt ${attempt}/${maxAttempts}. Retrying in ${delay}ms...`
@@ -72,7 +75,7 @@ async function withRetry(fn, maxAttempts = 3, initialDelay = 5000) {
  * If an edit value is explicitly set to null, the corresponding tag key is deleted
  * from the feature's tags.
  *
- * @param {object} feature - The feature object (node, way, or relation) containing the 'tags' object.
+ * @param {object} feature - The feature object (node, way or relation) containing the 'tags' object.
  * @param {object} elementEdits - The object of key-value edits to apply. A value of null indicates a deletion.
  * @param {object} originalValues - The object of key-value original tag values.
  * @returns {boolean} Whether any changes were made
@@ -120,8 +123,8 @@ function applyEditsToFeatureTags(feature, elementEdits, originalValues) {
  * * @param {Array<Object>} data - The original array of objects.
  * @returns {Object} An object keyed by type (e.g., "node"), containing:
  * - featureIds: An array of IDs for that type.
- * - new: A Map<ID, originalValues object>.
- * - original: A Map<ID, newValues object>.
+ * - newValuesMap: A Map<ID, newValues object>.
+ * - originalValuesMap: A Map<ID, originalValues object>.
  */
 function groupData(data) {
     return data.reduce((acc, item) => {
@@ -130,14 +133,14 @@ function groupData(data) {
         if (!acc[type]) {
             acc[type] = {
                 featureIds: [],
-                new: new Map(),
-                original: new Map(),
+                newValuesMap: new Map(),
+                originalValuesMap: new Map(),
             };
         }
 
         acc[type].featureIds.push(id);
-        acc[type].change.set(id, originalValues);
-        acc[type].original.set(id, newValues);
+        acc[type].newValuesMap.set(id, newValues);
+        acc[type].originalValuesMap.set(id, originalValues);
 
         return acc;
     }, {});
@@ -147,7 +150,7 @@ function groupData(data) {
  * Fetches features from the OSM API, applies the suggested edits to their tags,
  * and tracks features that resulted in actual modifications.
  *
- * @param {Object<string, GroupedFixes>} groupedData An object keyed by type, containing IDs, fixes and original invalid values.
+ * @param {Object<string, object>} groupedData An object keyed by type, containing IDs, fixes and original invalid values.
  * @returns {Promise<Array<object>>} A promise that resolves to an array of modified feature objects
  * ready for inclusion in an OSM changeset.
  */
@@ -156,7 +159,7 @@ async function processFeatures(groupedData) {
     const MAX_FEATURES_PER_FETCH = 500;
     for (const type in groupedData) {
         if (Object.hasOwn(groupedData, type)) {
-            const { featureIds, change, original } = groupedData[type];
+            const { featureIds, newValuesMap, originalValuesMap } = groupedData[type];
 
             if (featureIds.length > 0) {
                 const featureIdChunks = [];
@@ -172,8 +175,8 @@ async function processFeatures(groupedData) {
 
                 for (const feature of allFeatures) {
                     const featureId = feature.id;
-                    const newValues = change.get(featureId);
-                    const originalValues = original.get(featureId);
+                    const newValues = newValuesMap.get(featureId);
+                    const originalValues = originalValuesMap.get(featureId);
                     if (newValues) {
                         const changed = applyEditsToFeatureTags(feature, newValues, originalValues);
                         if (changed) {
@@ -203,25 +206,25 @@ export async function uploadSafeChanges(filePath) {
     const stateData = JSON.parse(content);
 
     const edits = stateData.edits;
+    const metadata = stateData.metadata;
 
     const groupedData = groupData(edits);
     const modifications = await processFeatures(groupedData);
 
     if (modifications.length > 0) {
         console.log(
-            `Uploading ${modifications.length} modifications for ${stateData.spider}: ${stateData.state} (${stateData.country})`
+            `Uploading ${modifications.length} modifications for ${metadata.spider}: ${metadata.state || ''} (${metadata.country})`
         );
 
-        const pageLink = `${HOST_URL}auto/${stateData.spider}`;
+        const pageLink = `${HOST_URL}auto/${metadata.spider}`;
+        const comment = `Automatically update ${metadata.tags.join(',')} from first-party brand data for ${metadata.spider}: ${metadata.country}${metadata.state ? `, ${metadata.state}` : ''}`;
 
         const response = await withRetry(() =>
             OSM.uploadChangeset(
                 {
                     ...CHANGESET_TAGS,
-                    ...{
-                        comment: `Automatically update ${stateData.tags.join(',')} from first-party brand data for ${stateData.spider}: ${stateData.country}, ${stateData.state}`,
-                    },
-                    ...{ manual_review_needed: pageLink },
+                    comment,
+                    manual_review_needed: pageLink,
                 },
                 { create: [], modify: modifications, delete: [] }
             )
@@ -230,7 +233,9 @@ export async function uploadSafeChanges(filePath) {
         const changesetIds = Object.keys(response || {});
 
         changesetIds.forEach(id => {
-            console.log(`Changeset ${id} created for ${stateData.spider}: ${stateData.state} (${stateData.country})`);
+            console.log(
+                `Changeset ${id} created for ${metadata.spider}: ${metadata.state || ''} (${metadata.country})`
+            );
         });
     }
 }
@@ -291,10 +296,10 @@ async function processSafeEdits() {
                 const fileContent = await fsp.readFile(filePath, 'utf8');
                 const data = JSON.parse(fileContent);
 
-                const countryName = data.country;
+                const countryName = data.metadata.country;
 
                 if (!countryName) {
-                    console.warn(`Skipping file ${filePath}: 'countryName' not found in file.`);
+                    console.warn(`Skipping file ${filePath}: 'country' not found in metadata.`);
                     continue;
                 }
 
@@ -309,7 +314,7 @@ async function processSafeEdits() {
                 const stats = countryStats[countryName];
                 stats.totalSafeEdits += data.edits.length;
 
-                if (data.totalSafeEdits > 0) {
+                if (data.edits.length > 0) {
                     try {
                         await uploadSafeChanges(filePath);
                         stats.uploaded++;
@@ -353,7 +358,6 @@ async function main() {
     await processSafeEdits();
 }
 
-const __filename = fileURLToPath(import.meta.url);
 if (process.argv[1] === __filename) {
     main();
 }
