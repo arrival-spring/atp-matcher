@@ -75,7 +75,7 @@ async function withRetry(fn, maxAttempts = 3, initialDelay = 5000) {
  * If an edit value is explicitly set to null, the corresponding tag key is deleted
  * from the feature's tags.
  *
- * @param {object} feature - The feature object (node, way, or relation) containing the 'tags' object.
+ * @param {object} feature - The feature object (node, way or relation) containing the 'tags' object.
  * @param {object} elementEdits - The object of key-value edits to apply. A value of null indicates a deletion.
  * @param {object} originalValues - The object of key-value original tag values.
  * @returns {boolean} Whether any changes were made
@@ -217,10 +217,9 @@ export async function uploadSafeChanges(filePath) {
         );
 
         const pageLink = `${HOST_URL}auto/${metadata.spider}`;
-
         const comment = `Automatically update ${metadata.tags.join(',')} from first-party brand data for ${metadata.spider}: ${metadata.country}${metadata.state ? `, ${metadata.state}` : ''}`;
 
-        const changesetId = await withRetry(() =>
+        const response = await withRetry(() =>
             OSM.uploadChangeset(
                 {
                     ...CHANGESET_TAGS,
@@ -231,9 +230,13 @@ export async function uploadSafeChanges(filePath) {
             )
         );
 
-        console.log(
-            `Changeset ${changesetId} created for ${metadata.spider}: ${metadata.state || ''} (${metadata.country})`
-        );
+        const changesetIds = Object.keys(response || {});
+
+        changesetIds.forEach(id => {
+            console.log(
+                `Changeset ${id} created for ${metadata.spider}: ${metadata.state || ''} (${metadata.country})`
+            );
+        });
     }
 }
 
