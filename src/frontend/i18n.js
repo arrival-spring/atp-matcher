@@ -41,14 +41,37 @@ const LOCAL_STORAGE_KEY = 'atp_osm_sync_locale';
 /**
  * Returns a list of available locales with their display names in various formats.
  *
- * @returns {Object[]} An array of locale objects containing code, native name, localized name, and English name.
+ * @returns {Object[]} An array of locale objects containing code, native name, localised name and English name.
  */
 export function getAvailableLocales() {
     return LOCALES_METADATA.map(code => {
         const getDisplayName = locale => {
             try {
                 const langNames = new Intl.DisplayNames([locale], { type: 'language' });
-                return langNames.of(code);
+                const name = langNames.of(code);
+                const langCode = code.split('-')[0];
+
+                // If the name is just the code or appears to be a fallback (e.g. "nn (Norway)"),
+                // try to get the name for the base language instead.
+                const isFallback =
+                    name === code ||
+                    name === langCode ||
+                    name.startsWith(`${code} `) ||
+                    name.startsWith(`${langCode} `) ||
+                    name.includes(`(${code})`) ||
+                    name.includes(`(${langCode})`);
+
+                if (isFallback && code.includes('-')) {
+                    const baseName = langNames.of(langCode);
+                    const isBaseFallback =
+                        baseName === langCode ||
+                        baseName.startsWith(`${langCode} `) ||
+                        baseName.includes(`(${langCode})`);
+                    if (!isBaseFallback) {
+                        return baseName;
+                    }
+                }
+                return name;
             } catch (e) {
                 return code;
             }
@@ -57,14 +80,14 @@ export function getAvailableLocales() {
         return {
             code,
             native: getDisplayName(code),
-            localized: getDisplayName(currentLocale),
+            localised: getDisplayName(currentLocale),
             english: getDisplayName('en'),
         };
     });
 }
 
 /**
- * Initializes the internationalization system.
+ * Initialises the internationalization system.
  * Detects the preferred locale from localStorage or browser settings and loads the corresponding translations.
  *
  * @param {string[]} [supportedLocales] - Optional array of supported locale codes.

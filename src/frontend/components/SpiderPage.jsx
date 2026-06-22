@@ -121,7 +121,7 @@ export function SpiderPage({
                         target="_blank"
                         class={`${linkColorClass} hover:underline inline-flex items-center`}
                     >
-                        {t('spider.links.source')}
+                        <span data-t="spider.links.source">{t('spider.links.source')}</span>
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                                 stroke-linecap="round"

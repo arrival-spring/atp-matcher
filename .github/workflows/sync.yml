@@ -1,8 +1,6 @@
 name: ATP-OSM Sync
 
 on:
-    schedule:
-        - cron: '0 0 * * 3' # Run every Wednesday at midnight
     workflow_dispatch:
         inputs:
             mock:
@@ -14,6 +12,10 @@ on:
 jobs:
     sync:
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            pull-requests: write
+            issues: write
 
         env:
             NO_DEBUG: true

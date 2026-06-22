@@ -94,6 +94,10 @@ export function Layout({ title, basePath, atpDate, osmDate, tier = 'auto', spide
             <head>
                 <meta charset="UTF-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <meta
+                    http-equiv="Content-Security-Policy"
+                    content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://data.alltheplaces.xyz https://api.github.com http://127.0.0.1:8111;"
+                />
                 <title>{`${title} | ${t('title')}`}</title>
                 <link
                     rel="icon"

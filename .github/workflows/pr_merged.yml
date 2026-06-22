@@ -9,8 +9,37 @@ jobs:
         if: github.event.pull_request.merged == true
         runs-on: ubuntu-latest
         permissions:
+            contents: write
             pull-requests: write
         steps:
+            - name: Checkout repository
+              uses: actions/checkout@v5
+              with:
+                  ref: main
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24.x
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Fix spider files and format code
+              run: |
+                  node src/validate_spiders.js --fix
+                  npm run format
+
+            - name: Commit and push changes
+              run: |
+                  if [ -n "$(git status --porcelain)" ]; then
+                    git config --global user.name 'github-actions[bot]'
+                    git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+                    git add .
+                    git commit -m "chore: auto-fix spider files and format code"
+                    git push origin main
+                  fi
+
             - name: Check for preview-request label
               id: check-label
               run: |

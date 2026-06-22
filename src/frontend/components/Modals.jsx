@@ -57,7 +57,9 @@ export function MismatchModal({ title, message, onUnderstand, onBack, showImport
                     </svg>
                     <h3 class="text-2xl font-bold">{title}</h3>
                 </div>
-                <p class="text-lg text-gray-200 mb-8 leading-relaxed" dangerouslySetInnerHTML={{ __html: message }} />
+                <div class="text-lg text-gray-200 mb-8 leading-relaxed">
+                    {typeof message === 'string' ? <p>{message}</p> : message}
+                </div>
                 <div class="flex justify-end gap-4">
                     <button
                         onClick={onBack}
