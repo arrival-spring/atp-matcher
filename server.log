@@ -1,8 +1,0 @@
-127.0.0.1 - - [22/Jun/2026 06:32:55] "GET /auto/ HTTP/1.1" 200 -
-127.0.0.1 - - [22/Jun/2026 06:32:55] code 404, message File not found
-127.0.0.1 - - [22/Jun/2026 06:32:55] "GET /style.css HTTP/1.1" 404 -
-127.0.0.1 - - [22/Jun/2026 06:32:55] "GET /assets/index.js HTTP/1.1" 200 -
-127.0.0.1 - - [22/Jun/2026 06:32:55] "GET /assets/jsxRuntime.module-UF7LHxdo.js HTTP/1.1" 200 -
-127.0.0.1 - - [22/Jun/2026 06:32:55] "GET /locales/nn-NO.json HTTP/1.1" 200 -
-127.0.0.1 - - [22/Jun/2026 06:32:55] code 404, message File not found
-127.0.0.1 - - [22/Jun/2026 06:32:55] "GET /locales/nn.json HTTP/1.1" 404 -
