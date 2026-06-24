@@ -1,0 +1,131 @@
+{
+    "title": "Synchronizácia ATP-OSM",
+    "subtitle": "Synchronizácia údajov medzi All The Places a OpenStreetMap",
+    "nav": {
+        "auto": "Auto",
+        "preview": "Náhľad"
+    },
+    "index": {
+        "summary": "Tento projekt pomáha synchronizovať údaje o bodoch záujmu z All The Places do OpenStreetMap. Porovnáva údaje značiek s aktuálnymi prvkami v OSM s cieľom nájsť chýbajúce miesta, zastarané značky a potenciálne vylepšenia.",
+        "githubLink": "Pridať spidera, nahlásiť chybu a zobraziť zdrojový kód",
+        "auto": {
+            "title": "Automatické aktualizácie",
+            "description": "Niektoré aktualizácie prebiehajú automaticky, ale niektoré rozdiely vyžadujú kontrolu",
+            "stats": "Aktualizuje sa {{ x }} miest pre {{ y }} značiek"
+        },
+        "preview": {
+            "title": "Náhľad",
+            "description": "Automatické aktualizácie zatiaľ neprebiehajú, ale údaje je možné skontrolovať a posúdiť ich vhodnosť",
+            "stats": "{{ x }} miest v náhľade pre {{ y }} značiek"
+        }
+    },
+    "footer": {
+        "atpData": "Údaje ATP:",
+        "osmData": "Údaje OSM:"
+    },
+    "dashboard": {
+        "dashboard": "Nástenka",
+        "searchPlaceholder": "Hľadať spidera alebo značku...",
+        "countryFilterPlaceholder": "Hľadať názov alebo kód krajiny...",
+        "showAllCountries": "Všetky krajiny",
+        "table": {
+            "status": "Stav",
+            "spiderName": "Názov spidera",
+            "issuesMapped": "Problémy / Namapované",
+            "mappedTotal": "Namapované / Celkom"
+        },
+        "stability": {
+            "stable": "Stabilné",
+            "minorVariations": "Drobné variácie",
+            "majorVariations": "Výrazné variácie",
+            "missingData": "Chýbajúce údaje"
+        },
+        "pagination": {
+            "previous": "Predchádzajúce",
+            "next": "Nasledujúce",
+            "pageOf": "Strana {{ page }} z {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Zastarané údaje",
+        "staleDataDesc": "Posledný beh ATP bol prázdny. Zobrazujú sa údaje z {{ date }}.",
+        "rejected": "Odmietnuté pre automatické aktualizácie",
+        "rejectedDesc": "Tento spider bol odmietnutý z automatických aktualizácií. Stále môže byť užitočný z iných dôvodov. Uvedený dôvod:",
+        "noData": "❌ Nie sú k dispozícii žiadne údaje",
+        "noData404": "Posledný beh ATP pre tohto spidera nebol nájdený (404).",
+        "noDataEmpty": "Všetky posledné behy ATP pre tohto spidera boli prázdne.",
+        "notBrandSpider": "❌ Nie je spider pre značku",
+        "notBrandSpiderDesc": "Tento spider nemá očakávaný atribút spider:lineage=S_ATP_BRANDS.",
+        "links": {
+            "source": "Zdroj spidera"
+        },
+        "tabs": {
+            "summary": "Súhrn",
+            "unmapped": "Nenamapované",
+            "unmatched": "Nezhoduje sa",
+            "duplicateRefs": "Duplicitné referencie"
+        },
+        "summary": {
+            "overview": "Prehľad",
+            "tagDetails": "Detaily značiek",
+            "noData": "Nie sú k dispozícii žiadne údaje"
+        },
+        "table": {
+            "ref": "Ref",
+            "tags": "Značky",
+            "atpTags": "Značky ATP",
+            "osmMatches": "Zhody v OSM",
+            "spiderValue": "Hodnota spidera",
+            "osmValue": "Hodnota v OSM",
+            "noValue": "žiadna hodnota",
+            "missingDaysWarning": "chýba {{ days }}",
+            "osmId": "OSM ID"
+        },
+        "status": {
+            "notMapped": "Nenamapované",
+            "addToOsm": "Pridať do OSM",
+            "updateOsm": "Aktualizovať OSM",
+            "editMade": "Úprava vykonaná",
+            "mismatch": "Nezhoda",
+            "matching": "Zhoda",
+            "disallowedSourceUri": "Nepovolené zdrojové URI",
+            "notABrandSpider": "Nie je spider pre značku",
+            "duplicateRef": "Duplicitná ref"
+        },
+        "tooltips": {
+            "stableValue": "Stabilná hodnota",
+            "newValue": "Nová hodnota"
+        },
+        "actions": {
+            "edit": "upraviť",
+            "update": "aktualizovať",
+            "openUnmatched": "Otvoriť všetko nezhodujúce sa v JOSM",
+            "openUnmapped": "Otvoriť nenamapované položky v JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "Chyba JOSM",
+                "message": "Nepodarilo sa pripojiť k JOSM. Uistite sa, že JOSM beží a že je v nastaveniach povolené vzdialené ovládanie."
+            },
+            "mismatch": {
+                "title": "Dôležité varovanie",
+                "message": "Niektoré údaje zo spidera môžu byť chybné. NEAKTUALIZUJTE jednoducho {{ tag }} u všetkých objektov. Skontrolujte históriu, aby ste zistili, kto pridal {{ tag }} a aký bol pravdepodobne zdroj. Ak si nie ste istí, NEROBTE ZMENU, pokiaľ nemôžete miesto overiť."
+            },
+            "josmImport": {
+                "message": "Táto akcia načíta a otvorí nenamapované položky z ATP v JOSM. To môže byť užitočné pre ich spárovanie s existujúcimi prvkami. NEIMPORTUJTE ich priamo, ale použite proces zlúčenia a vlastný úsudok."
+            },
+            "understand": "Rozumiem",
+            "takeMeBack": "Späť"
+        },
+        "filters": {
+            "allBrands": "Všetky značky",
+            "noBrand": "Žiadna značka"
+        },
+        "loading": "Načítavanie položiek...",
+        "searchTags": "Hľadať značky..."
+    },
+    "locales": {
+        "searchPlaceholder": "Hľadať jazyky...",
+        "noResults": "Neboli nájdené žiadne jazyky"
+    }
+}

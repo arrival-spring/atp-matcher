@@ -1,0 +1,131 @@
+{
+    "title": "Sincronizare ATP-OSM",
+    "subtitle": "Sincronizarea datelor între All The Places și OpenStreetMap",
+    "nav": {
+        "auto": "Auto",
+        "preview": "Previzualizare"
+    },
+    "index": {
+        "summary": "Acest proiect ajută la sincronizarea datelor despre punctele de interes din All The Places în OpenStreetMap. Compară datele de brand de la prima sursă cu elementele actuale din OSM pentru a găsi locații lipsă, etichete învechite și potențiale îmbunătățiri.",
+        "githubLink": "Adăugați spideri, raportați probleme și vedeți sursa",
+        "auto": {
+            "title": "Actualizări automate",
+            "description": "Unele actualizări se fac automat, dar unele diferențe necesită revizuire",
+            "stats": "{{ x }} locații actualizate din {{ y }} branduri"
+        },
+        "preview": {
+            "title": "Previzualizare",
+            "description": "Încă nu se fac actualizări automate, dar acestea pot fi revizuite pentru a vedea dacă sunt potrivite",
+            "stats": "{{ x }} locații în previzualizare din {{ y }} branduri"
+        }
+    },
+    "footer": {
+        "atpData": "Date ATP:",
+        "osmData": "Date OSM:"
+    },
+    "dashboard": {
+        "dashboard": "Panou de control",
+        "searchPlaceholder": "Căutare spideri sau branduri...",
+        "countryFilterPlaceholder": "Căutare nume sau cod țară...",
+        "showAllCountries": "Toate țările",
+        "table": {
+            "status": "Stare",
+            "spiderName": "Nume spider",
+            "issuesMapped": "Probleme / Mapate",
+            "mappedTotal": "Mapate / Total"
+        },
+        "stability": {
+            "stable": "Stabil",
+            "minorVariations": "Variații minore",
+            "majorVariations": "Variații majore",
+            "missingData": "Date lipsă"
+        },
+        "pagination": {
+            "previous": "Anterior",
+            "next": "Următor",
+            "pageOf": "Pagina {{ page }} din {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Date învechite",
+        "staleDataDesc": "Ultima rulare ATP a fost goală. Se afișează datele din {{ date }} în schimb.",
+        "rejected": "Respins pentru actualizări automate",
+        "rejectedDesc": "Acest spider a fost respins de la includerea în actualizările automate. Poate fi încă util din alte motive. Motivul oferit a fost:",
+        "noData": "❌ Nu sunt date disponibile",
+        "noData404": "Ultima rulare ATP pentru acest spider nu a fost găsită (404).",
+        "noDataEmpty": "Toate rulările recente ATP pentru acest spider au fost goale.",
+        "notBrandSpider": "❌ Nu este un spider de brand",
+        "notBrandSpiderDesc": "Acest spider nu are atributul așteptat spider:lineage=S_ATP_BRANDS.",
+        "links": {
+            "source": "Sursă spider"
+        },
+        "tabs": {
+            "summary": "Rezumat",
+            "unmapped": "Nemapat",
+            "unmatched": "Nepotrivit",
+            "duplicateRefs": "Ref-uri duplicate"
+        },
+        "summary": {
+            "overview": "Prezentare generală",
+            "tagDetails": "Detalii etichete",
+            "noData": "Nu sunt date disponibile"
+        },
+        "table": {
+            "ref": "Ref",
+            "tags": "Etichete",
+            "atpTags": "Etichete ATP",
+            "osmMatches": "Potriviri OSM",
+            "spiderValue": "Valoare spider",
+            "osmValue": "Valoare OSM",
+            "noValue": "fără valoare",
+            "missingDaysWarning": "{{ days }} lipsă",
+            "osmId": "ID OSM"
+        },
+        "status": {
+            "notMapped": "Nemapat",
+            "addToOsm": "Adăugare la OSM",
+            "updateOsm": "Actualizare OSM",
+            "editMade": "Editare efectuată",
+            "mismatch": "Nepotrivire",
+            "matching": "Se potrivește",
+            "disallowedSourceUri": "URI sursă nepermis",
+            "notABrandSpider": "Nu este un spider de brand",
+            "duplicateRef": "Ref duplicat"
+        },
+        "tooltips": {
+            "stableValue": "Valoare stabilă",
+            "newValue": "Valoare nouă"
+        },
+        "actions": {
+            "edit": "editare",
+            "update": "actualizare",
+            "openUnmatched": "Deschide toate nepotrivirile în JOSM",
+            "openUnmapped": "Deschide elementele nemapate în JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "Eroare JOSM",
+                "message": "Nu s-a putut conecta la JOSM. Vă rugăm să vă asigurați că JOSM rulează și că Controlul de la distanță este activat în preferințe."
+            },
+            "mismatch": {
+                "title": "Avertisment important",
+                "message": "Unele date de la spider pot fi greșite. NU actualizați pur și simplu {{ tag }} pe toate obiectele. Verificați istoricul pentru a vedea cine a adăugat {{ tag }} și sursa lor probabilă. Dacă nu sunteți sigur, NU FACEȚI O MODIFICARE decât dacă puteți verifica locul pe teren."
+            },
+            "josmImport": {
+                "message": "Aceasta va încărca și va deschide elementele nemapate de la ATP în JOSM. Acest lucru poate fi util pentru a le potrivi cu elementele existente. NU le importați, ci folosiți confluența și discernământul."
+            },
+            "understand": "Am înțeles",
+            "takeMeBack": "Înapoi"
+        },
+        "filters": {
+            "allBrands": "Toate brandurile",
+            "noBrand": "Fără brand"
+        },
+        "loading": "Se încarcă elementele...",
+        "searchTags": "Căutare etichete..."
+    },
+    "locales": {
+        "searchPlaceholder": "Căutare limbi...",
+        "noResults": "Nu s-au găsit limbi"
+    }
+}

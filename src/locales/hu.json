@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM szinkronizálás",
+    "subtitle": "Adatszinkronizálás az All The Places és az OpenStreetMap között",
+    "nav": {
+        "auto": "Automatikus",
+        "preview": "Előnézet"
+    },
+    "index": {
+        "summary": "Ez a projekt segít az All The Places projektből származó érdekes pontok (POI) szinkronizálásában az OpenStreetMap-be. Összehasonlítja az elsődleges márkaadatokat a jelenlegi OSM-elemekkel, hogy megtalálja a hiányzó helyeket, az elavult címkéket és a lehetséges fejlesztéseket.",
+        "githubLink": "Spiderek hozzáadása, hibák bejelentése és forráskód megtekintése",
+        "auto": {
+            "title": "Automatikus frissítések",
+            "description": "Néhány frissítés automatikusan történik, de bizonyos eltérések felülvizsgálatot igényelnek",
+            "stats": "{{ x }} hely frissítése {{ y }} márkából"
+        },
+        "preview": {
+            "title": "Előnézet",
+            "description": "Még nem történik automatikus frissítés, de ezek áttekinthetők, hogy megfelelőek-e",
+            "stats": "{{ x }} hely előnézetben {{ y }} márkából"
+        }
+    },
+    "footer": {
+        "atpData": "ATP adatok:",
+        "osmData": "OSM adatok:"
+    },
+    "dashboard": {
+        "dashboard": "Vezérlőpult",
+        "searchPlaceholder": "Spiderek vagy márkák keresése...",
+        "countryFilterPlaceholder": "Országnév vagy kód keresése...",
+        "showAllCountries": "Összes ország",
+        "table": {
+            "status": "Állapot",
+            "spiderName": "Spider neve",
+            "issuesMapped": "Problémák / Feltérképezve",
+            "mappedTotal": "Feltérképezve / Összesen"
+        },
+        "stability": {
+            "stable": "Stabil",
+            "minorVariations": "Kisebb eltérések",
+            "majorVariations": "Jelentős eltérések",
+            "missingData": "Hiányzó adatok"
+        },
+        "pagination": {
+            "previous": "Előző",
+            "next": "Következő",
+            "pageOf": "{{ page }}/{{ totalPages }} oldal"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Elavult adatok",
+        "staleDataDesc": "A legutóbbi ATP futtatás üres volt. Ehelyett {{ date }} dátumú adatok láthatók.",
+        "rejected": "Elutasítva az automatikus frissítésből",
+        "rejectedDesc": "Ezt a spidert elutasították az automatikus frissítésekből. Más okokból még hasznos lehet. A megadott ok:",
+        "noData": "❌ Nincs elérhető adat",
+        "noData404": "A spider legutóbbi ATP futtatása nem található (404).",
+        "noDataEmpty": "A spider összes legutóbbi ATP futtatása üres volt.",
+        "notBrandSpider": "❌ Nem márkaspider",
+        "notBrandSpiderDesc": "Ez a spider nem rendelkezik a várt spider:lineage=S_ATP_BRANDS attribútummal.",
+        "links": {
+            "source": "Spider forrása"
+        },
+        "tabs": {
+            "summary": "Összegzés",
+            "unmapped": "Térképezetlen",
+            "unmatched": "Eltérő",
+            "duplicateRefs": "Duplikált Refek"
+        },
+        "summary": {
+            "overview": "Áttekintés",
+            "tagDetails": "Címkerészletek",
+            "noData": "Nincs elérhető adat"
+        },
+        "table": {
+            "ref": "Ref",
+            "tags": "Címkék",
+            "atpTags": "ATP címkék",
+            "osmMatches": "OSM egyezések",
+            "spiderValue": "Spider érték",
+            "osmValue": "OSM érték",
+            "noValue": "nincs érték",
+            "missingDaysWarning": "{{ days }} hiányzik",
+            "osmId": "OSM ID"
+        },
+        "status": {
+            "notMapped": "Nincs feltérképezve",
+            "addToOsm": "Hozzáadás az OSM-hez",
+            "updateOsm": "OSM frissítése",
+            "editMade": "Szerkesztés megtörtént",
+            "mismatch": "Eltérés",
+            "matching": "Egyezik",
+            "disallowedSourceUri": "Nem engedélyezett forrás URI",
+            "notABrandSpider": "Nem márkaspider",
+            "duplicateRef": "Duplikált Ref"
+        },
+        "tooltips": {
+            "stableValue": "Stabil érték",
+            "newValue": "Új érték"
+        },
+        "actions": {
+            "edit": "szerkesztés",
+            "update": "frissítés",
+            "openUnmatched": "Az összes eltérő megnyitása JOSM-ben",
+            "openUnmapped": "Térképezetlen elemek megnyitása JOSM-ben"
+        },
+        "modals": {
+            "josmError": {
+                "title": "JOSM hiba",
+                "message": "Nem sikerült csatlakozni a JOSM-hez. Győződjön meg róla, hogy a JOSM fut, és a távvezérlés engedélyezve van a beállításokban."
+            },
+            "mismatch": {
+                "title": "Fontos figyelmeztetés",
+                "message": "A spiderből származó adatok némelyike hibás lehet. NE frissítse egyszerűen a(z) {{ tag }} címkét az összes objektumon. Ellenőrizze az előzményeket, hogy ki adta hozzá a(z) {{ tag }} címkét, és mi volt a valószínű forrásuk. Ha nem biztos benne, NE VÉGEZZEN MÓDOSÍTÁST, hacsak nem tudja ellenőrizni a helyszínt."
+            },
+            "josmImport": {
+                "message": "Ez betölti és megnyitja a térképezetlen elemeket az ATP-ből a JOSM-be. Ez hasznos lehet a meglévő elemekkel való összevetéshez. NE importálja őket közvetlenül, hanem használja az összevetést és a saját megítélését."
+            },
+            "understand": "Megértettem",
+            "takeMeBack": "Vissza"
+        },
+        "filters": {
+            "allBrands": "Összes márka",
+            "noBrand": "Nincs márka"
+        },
+        "loading": "Elemek betöltése...",
+        "searchTags": "Címkék keresése..."
+    },
+    "locales": {
+        "searchPlaceholder": "Nyelvek keresése...",
+        "noResults": "Nincs találat"
+    }
+}

@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM 同期",
+    "subtitle": "All The Places と OpenStreetMap 間のデータ同期",
+    "nav": {
+        "auto": "自動",
+        "preview": "プレビュー"
+    },
+    "index": {
+        "summary": "このプロジェクトは、All The Places からの店舗・施設データを OpenStreetMap に同期するのを支援します。一次ソースのブランドデータと現在の OSM データを比較して、不足している場所、古いタグ、および潜在的な改善点を見つけます。",
+        "githubLink": "スパイダーの追加、問題の報告、ソースコードの表示",
+        "auto": {
+            "title": "自動更新",
+            "description": "一部の更新は自動的に行われていますが、一部の差異は確認が必要です",
+            "stats": "{{ y }} ブランドの {{ x }} 箇所が更新されています"
+        },
+        "preview": {
+            "title": "プレビュー",
+            "description": "自動更新はまだ行われていませんが、これらを確認して適切かどうかを判断できます",
+            "stats": "{{ y }} ブランドの {{ x }} 箇所がプレビュー中です"
+        }
+    },
+    "footer": {
+        "atpData": "ATP データ:",
+        "osmData": "OSM データ:"
+    },
+    "dashboard": {
+        "dashboard": "ダッシュボード",
+        "searchPlaceholder": "スパイダーまたはブランドを検索...",
+        "countryFilterPlaceholder": "国名または国コードを検索...",
+        "showAllCountries": "すべての国",
+        "table": {
+            "status": "ステータス",
+            "spiderName": "スパイダー名",
+            "issuesMapped": "問題 / マッピング済み",
+            "mappedTotal": "マッピング済み / 合計"
+        },
+        "stability": {
+            "stable": "安定",
+            "minorVariations": "軽微な変動",
+            "majorVariations": "大幅な変動",
+            "missingData": "データ不足"
+        },
+        "pagination": {
+            "previous": "前へ",
+            "next": "次へ",
+            "pageOf": "{{ totalPages }} ページ中 {{ page }} ページ"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ 古いデータ",
+        "staleDataDesc": "最新の ATP 実行結果は空でした。代わりに {{ date }} のデータを表示しています。",
+        "rejected": "自動更新から除外",
+        "rejectedDesc": "このスパイダーは自動更新への追加が拒否されました。他の目的には引き続き役立つ可能性があります。理由は以下の通りです:",
+        "noData": "❌ データなし",
+        "noData404": "このスパイダーの最新の ATP 実行結果が見つかりませんでした (404)。",
+        "noDataEmpty": "このスパイダーの最近の ATP 実行結果はすべて空でした。",
+        "notBrandSpider": "❌ ブランドスパイダーではありません",
+        "notBrandSpiderDesc": "このスパイダーには期待される spider:lineage=S_ATP_BRANDS 属性がありません。",
+        "links": {
+            "source": "スパイダーのソース"
+        },
+        "tabs": {
+            "summary": "概要",
+            "unmapped": "未マッピング",
+            "unmatched": "不一致",
+            "duplicateRefs": "重複 Ref"
+        },
+        "summary": {
+            "overview": "概観",
+            "tagDetails": "タグの詳細",
+            "noData": "データなし"
+        },
+        "table": {
+            "ref": "Ref",
+            "tags": "タグ",
+            "atpTags": "ATP タグ",
+            "osmMatches": "OSM 一致",
+            "spiderValue": "スパイダーの値",
+            "osmValue": "OSM の値",
+            "noValue": "値なし",
+            "missingDaysWarning": "{{ days }} 不足",
+            "osmId": "OSM ID"
+        },
+        "status": {
+            "notMapped": "未マッピング",
+            "addToOsm": "OSM に追加",
+            "updateOsm": "OSM を更新",
+            "editMade": "編集済み",
+            "mismatch": "不一致",
+            "matching": "一致",
+            "disallowedSourceUri": "許可されていないソース URI",
+            "notABrandSpider": "ブランドスパイダーではありません",
+            "duplicateRef": "重複 Ref"
+        },
+        "tooltips": {
+            "stableValue": "安定した値",
+            "newValue": "新しい値"
+        },
+        "actions": {
+            "edit": "編集",
+            "update": "更新",
+            "openUnmatched": "不一致の項目をすべて JOSM で開く",
+            "openUnmapped": "未マッピングの項目を JOSM で開く"
+        },
+        "modals": {
+            "josmError": {
+                "title": "JOSM エラー",
+                "message": "JOSM に接続できませんでした。JOSM が実行されており、設定でリモートコントロールが有効になっていることを確認してください。"
+            },
+            "mismatch": {
+                "title": "重要な警告",
+                "message": "スパイダーからの一部のデータが間違っている可能性があります。すべてのオブジェクトの {{ tag }} を単純に更新しないでください。履歴を確認して、誰が {{ tag }} を追加したか、およびその情報源を確認してください。確信が持てない場合は、現地調査ができる場合を除き、変更を行わないでください。"
+            },
+            "josmImport": {
+                "message": "これにより、ATP から未マッピングの項目が JOSM に読み込まれ、開かれます。これは、既存の要素と一致させるのに役立つ場合があります。そのままインポートするのではなく、データの統合と判断を行ってください。"
+            },
+            "understand": "理解しました",
+            "takeMeBack": "戻る"
+        },
+        "filters": {
+            "allBrands": "すべてのブランド",
+            "noBrand": "ブランドなし"
+        },
+        "loading": "読み込み中...",
+        "searchTags": "タグを検索..."
+    },
+    "locales": {
+        "searchPlaceholder": "言語を検索...",
+        "noResults": "言語が見つかりません"
+    }
+}
