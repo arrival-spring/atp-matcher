@@ -9,7 +9,7 @@ import { useTier } from './TierContext';
  *
  * @param {Object} props - The component props.
  * @param {string} props.title - The modal title.
- * @param {string} props.message - The warning message (can contain HTML).
+ * @param {string|import('preact').VNode} props.message - The warning message (string or JSX element).
  * @param {Function} props.onUnderstand - Callback when the 'Understand' button is clicked.
  * @param {Function} props.onBack - Callback when the 'Back' or 'Take me back' button is clicked.
  * @param {boolean} [props.showImportBtn] - Whether to show the JOSM import button after confirmation.

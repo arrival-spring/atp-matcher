@@ -1,6 +1,6 @@
-import { render, h } from 'preact';
+import { render, h, Fragment } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
-import { escapeHtml, getVisitedLinks, markLinkVisited } from './utils';
+import { getVisitedLinks, markLinkVisited } from './utils';
 import { t, initI18n } from './i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { TabNavigation } from './components/TabNavigation';
@@ -161,9 +161,18 @@ function SpiderDashboard({
             if (!warnedTags.includes(currentState.tag)) {
                 setMismatchModalConfig({
                     title: t('spider.modals.mismatch.title'),
-                    message: t('spider.modals.mismatch.message', {
-                        tag: `<strong class="text-white">${escapeHtml(currentState.tag)}</strong>`,
-                    }),
+                    message: (
+                        <Fragment>
+                            {t('spider.modals.mismatch.message')
+                                .split(/({{\s*tag\s*}})/)
+                                .map(part => {
+                                    if (part.match(/{{\s*tag\s*}}/)) {
+                                        return <strong class="text-white">{currentState.tag}</strong>;
+                                    }
+                                    return part;
+                                })}
+                        </Fragment>
+                    ),
                     onUnderstand: () => {
                         const warnedTags = JSON.parse(
                             sessionStorage.getItem(`mismatch_warned_tags_${spiderName}`) || '[]'
