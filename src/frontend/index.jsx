@@ -339,7 +339,6 @@ function Dashboard({ allSpiderResults }) {
         return () => window.removeEventListener('resize', updateFadeEffect);
     }, []);
 
-
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
     const [sort, setSort] = useState({ column: null, direction: 'desc' });
