@@ -185,11 +185,15 @@ export async function loadAllAtpData(spiders, runs) {
             const identity = effectiveNsiId ? `nsi:${effectiveNsiId}` : wikidata ? `wd:${wikidata}` : null;
 
             if (identity) {
+                const country = props['addr:country'];
                 const refKeyName = spiderConfig.ref_key || 'ref';
                 const matchingRef = refKeyName === 'branch' ? atpRef.toLowerCase() : atpRef;
-                const refKey = `${identity}|${refKeyName}|${matchingRef}`;
-                if (!refCounts.has(refKey)) refCounts.set(refKey, []);
-                refCounts.get(refKey).push({ spiderName, atpRef });
+
+                if (country && /^[A-Z]{2}$/.test(country)) {
+                    const refKey = `${identity}|${refKeyName}|${matchingRef}|${country}`;
+                    if (!refCounts.has(refKey)) refCounts.set(refKey, []);
+                    refCounts.get(refKey).push({ spiderName, atpRef });
+                }
 
                 if (website) {
                     const normalizedWeb = normalizeWebsite(website);
@@ -257,13 +261,14 @@ export async function loadAllAtpData(spiders, runs) {
             const identity = effectiveNsiId ? `nsi:${effectiveNsiId}` : wikidata ? `wd:${wikidata}` : null;
 
             if (brand && wikidata && identity) {
-                if (atpRef) {
+                const country = props['addr:country'];
+                if (atpRef && country && /^[A-Z]{2}$/.test(country)) {
                     const refKeyName = spiderConfig.ref_key || 'ref';
                     const matchingRef = refKeyName === 'branch' ? atpRef.toLowerCase() : atpRef;
-                    const refKey = `${identity}|${refKeyName}|${matchingRef}`;
+                    const refKey = `${identity}|${refKeyName}|${matchingRef}|${country}`;
 
                     if (!duplicateRefKeys.has(refKey)) {
-                        const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}`;
+                        const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}|${country}`;
                         if (!atpLookup.has(key)) atpLookup.set(key, []);
                         atpLookup.get(key).push({ spiderName, atpRef, nsiId: effectiveNsiId });
                     }
