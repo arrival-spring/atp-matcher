@@ -68,11 +68,12 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
             const wikidata = props['brand:wikidata'];
 
             // Simplified matching for mock
+            const country = props['addr:country'];
             for (const [refKeyName, spiderNames] of refKeyMap.entries()) {
                 const osmRefValue = props[refKeyName];
-                if (osmRefValue) {
+                if (osmRefValue && country && /^[A-Z]{2}$/.test(country)) {
                     const matchingRef = refKeyName === 'branch' ? osmRefValue.toLowerCase() : osmRefValue;
-                    const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}`;
+                    const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}|${country}`;
                     if (atpLookup.has(key)) {
                         for (const match of atpLookup.get(key)) {
                             if (!spiderNames.has(match.spiderName)) continue;
@@ -186,11 +187,12 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
             }
 
             // 2. Try matching by ref/ref_key
+            const country = props['addr:country'];
             for (const [refKeyName, spiderNames] of refKeyMap.entries()) {
                 const osmRefValue = props[refKeyName];
-                if (osmRefValue) {
+                if (osmRefValue && country && /^[A-Z]{2}$/.test(country)) {
                     const matchingRef = refKeyName === 'branch' ? osmRefValue.toLowerCase() : osmRefValue;
-                    const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}`;
+                    const key = `ref|${brand}|${wikidata}|${refKeyName}|${matchingRef}|${country}`;
                     if (atpLookup.has(key)) {
                         for (const match of atpLookup.get(key)) {
                             // Ensure we are matching the correct spider
