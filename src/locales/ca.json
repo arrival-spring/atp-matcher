@@ -1,0 +1,131 @@
+{
+    "title": "Sincronització ATP-OSM",
+    "subtitle": "Sincronització de dades entre All The Places i OpenStreetMap",
+    "nav": {
+        "auto": "Auto",
+        "preview": "Previsualització"
+    },
+    "index": {
+        "summary": "Aquest projecte ajuda a sincronitzar dades de punts d'interès d'All The Places a OpenStreetMap. Compara dades de marques oficials amb elements actuals d'OSM per trobar ubicacions absents, etiquetes desactualitzades i millores potencials.",
+        "githubLink": "Afegiu aranyes, informeu de problemes i vegeu el codi font",
+        "auto": {
+            "title": "Actualitzacions automàtiques",
+            "description": "Algunes actualitzacions s'estan fent automàticament, però algunes diferències requereixen revisió",
+            "stats": "{{ x }} llocs actualitzant-se de {{ y }} marques"
+        },
+        "preview": {
+            "title": "Previsualització",
+            "description": "Encara no s'estan fent actualitzacions automàtiques, però es poden revisar per veure si són adequades",
+            "stats": "{{ x }} llocs en previsualització de {{ y }} marques"
+        }
+    },
+    "footer": {
+        "atpData": "Dades ATP:",
+        "osmData": "Dades OSM:"
+    },
+    "dashboard": {
+        "dashboard": "Taulell de control",
+        "searchPlaceholder": "Cerca aranyes o marques...",
+        "countryFilterPlaceholder": "Cerca nom o codi de país...",
+        "showAllCountries": "Tots els països",
+        "table": {
+            "status": "Estat",
+            "spiderName": "Nom de l'aranya",
+            "issuesMapped": "Problemes / Mapejats",
+            "mappedTotal": "Mapejats / Total"
+        },
+        "stability": {
+            "stable": "Estable",
+            "minorVariations": "Variacions menors",
+            "majorVariations": "Variacions majors",
+            "missingData": "Dades absents"
+        },
+        "pagination": {
+            "previous": "Anterior",
+            "next": "Següent",
+            "pageOf": "Pàgina {{ page }} de {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Dades obsoletes",
+        "staleDataDesc": "L'última execució d'ATP estava buida. Es mostren dades de {{ date }} en comptes d'això.",
+        "rejected": "Rebutjada per a actualitzacions automàtiques",
+        "rejectedDesc": "Aquesta aranya ha estat rebutjada per ser inclosa en les actualitzacions automàtiques. Encara pot ser útil per altres motius. El motiu donat ha estat:",
+        "noData": "❌ Dades no disponibles",
+        "noData404": "No s'ha trobat l'última execució d'ATP per a aquesta aranya (404).",
+        "noDataEmpty": "Totes les execucions recents d'ATP per a aquesta aranya estaven buides.",
+        "notBrandSpider": "❌ No és una aranya de marca",
+        "notBrandSpiderDesc": "Aquesta aranya no té l'atribut esperat spider:lineage=S_ATP_BRANDS.",
+        "links": {
+            "source": "Font de l'aranya"
+        },
+        "tabs": {
+            "summary": "Resum",
+            "unmapped": "No mapejat",
+            "unmatched": "No coincident",
+            "duplicateRefs": "Refs duplicades"
+        },
+        "summary": {
+            "overview": "Visió general",
+            "tagDetails": "Detalls de les etiquetes",
+            "noData": "No hi ha dades disponibles"
+        },
+        "table": {
+            "ref": "Ref",
+            "tags": "Etiquetes",
+            "atpTags": "Etiquetes ATP",
+            "osmMatches": "Coincidències OSM",
+            "spiderValue": "Valor de l'aranya",
+            "osmValue": "Valor OSM",
+            "noValue": "sense valor",
+            "missingDaysWarning": "falten {{ days }}",
+            "osmId": "ID OSM"
+        },
+        "status": {
+            "notMapped": "No mapejat",
+            "addToOsm": "Afegeix a OSM",
+            "updateOsm": "Actualitza OSM",
+            "editMade": "Edició realitzada",
+            "mismatch": "Divergència",
+            "matching": "Coincident",
+            "disallowedSourceUri": "URI de la font no permès",
+            "notABrandSpider": "No és una aranya de marca",
+            "duplicateRef": "Ref duplicada"
+        },
+        "tooltips": {
+            "stableValue": "Valor estable",
+            "newValue": "Nou valor"
+        },
+        "actions": {
+            "edit": "edita",
+            "update": "actualitza",
+            "openUnmatched": "Obre tots els no coincidents al JOSM",
+            "openUnmapped": "Obre els elements no mapejats al JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "Error del JOSM",
+                "message": "No s'ha pogut connectar al JOSM. Assegureu-vos que el JOSM s'està executant i que el Control Remot està activat a les preferències."
+            },
+            "mismatch": {
+                "title": "Avís important",
+                "message": "Algunes de les dades de l'aranya poden ser incorrectes. NO actualitzeu simplement {{ tag }} a tots els objectes. Comproveu l'historial per veure qui va afegir {{ tag }} i la seva font probable. Si no n'esteu segurs, NO FEU CAP CANVI a menys que pugueu verificar el lloc."
+            },
+            "josmImport": {
+                "message": "Això carregarà i obrirà els elements no mapejats de l'ATP al JOSM. Això pot ser útil per fer-los coincidir amb elements existents. NO els importeu, utilitzeu la confluència i el vostre propi criteri."
+            },
+            "understand": "Ho entenc",
+            "takeMeBack": "Torna enrere"
+        },
+        "filters": {
+            "allBrands": "Totes les marques",
+            "noBrand": "Sense marca"
+        },
+        "loading": "Carregant elements...",
+        "searchTags": "Cerca etiquetes..."
+    },
+    "locales": {
+        "searchPlaceholder": "Cerca idiomes...",
+        "noResults": "No s'han trobat idiomes"
+    }
+}

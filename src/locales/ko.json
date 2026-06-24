@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM 동기화",
+    "subtitle": "All The Places와 OpenStreetMap 간의 데이터 동기화",
+    "nav": {
+        "auto": "자동",
+        "preview": "미리보기"
+    },
+    "index": {
+        "summary": "이 프로젝트는 All The Places의 관심 지점(POI) 데이터를 OpenStreetMap에 동기화하는 것을 돕습니다. 공식 브랜드 데이터와 현재 OSM 데이터를 비교하여 누락된 위치, 오래된 태그 및 잠재적인 개선 사항을 찾습니다.",
+        "githubLink": "스파이더 추가, 이슈 보고 및 소스 코드 보기",
+        "auto": {
+            "title": "자동 업데이트",
+            "description": "일부 업데이트는 자동으로 수행되지만 일부 차이점은 검토가 필요합니다",
+            "stats": "{{ y }}개 브랜드에서 {{ x }}개 지점이 업데이트 중입니다"
+        },
+        "preview": {
+            "title": "미리보기",
+            "description": "아직 자동 업데이트가 이루어지지 않고 있지만, 적절한지 검토할 수 있습니다",
+            "stats": "{{ y }}개 브랜드에서 {{ x }}개 지점이 미리보기 중입니다"
+        }
+    },
+    "footer": {
+        "atpData": "ATP 데이터:",
+        "osmData": "OSM 데이터:"
+    },
+    "dashboard": {
+        "dashboard": "대시보드",
+        "searchPlaceholder": "스파이더 또는 브랜드 검색...",
+        "countryFilterPlaceholder": "국가 이름 또는 코드 검색...",
+        "showAllCountries": "모든 국가",
+        "table": {
+            "status": "상태",
+            "spiderName": "스파이더 이름",
+            "issuesMapped": "이슈 / 매핑됨",
+            "mappedTotal": "매핑됨 / 전체"
+        },
+        "stability": {
+            "stable": "안정적",
+            "minorVariations": "사소한 변동",
+            "majorVariations": "주요 변동",
+            "missingData": "데이터 누락"
+        },
+        "pagination": {
+            "previous": "이전",
+            "next": "다음",
+            "pageOf": "{{ totalPages }}페이지 중 {{ page }}페이지"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ 오래된 데이터",
+        "staleDataDesc": "최근 ATP 실행 결과가 비어 있습니다. 대신 {{ date }}의 데이터를 표시합니다.",
+        "rejected": "자동 업데이트에서 제외됨",
+        "rejectedDesc": "이 스파이더는 자동 업데이트 포함이 거부되었습니다. 다른 용도로는 여전히 유용할 수 있습니다. 거부 사유는 다음과 같습니다.",
+        "noData": "❌ 데이터 없음",
+        "noData404": "이 스파이더의 최근 ATP 실행 결과를 찾을 수 없습니다 (404).",
+        "noDataEmpty": "이 스파이더의 최근 ATP 실행 결과가 모두 비어 있습니다.",
+        "notBrandSpider": "❌ 브랜드 스파이더가 아님",
+        "notBrandSpiderDesc": "이 스파이더에는 기대되는 spider:lineage=S_ATP_BRANDS 속성이 없습니다.",
+        "links": {
+            "source": "스파이더 소스"
+        },
+        "tabs": {
+            "summary": "요약",
+            "unmapped": "미매핑",
+            "unmatched": "불일치",
+            "duplicateRefs": "중복 Ref"
+        },
+        "summary": {
+            "overview": "개요",
+            "tagDetails": "태그 상세",
+            "noData": "데이터 없음"
+        },
+        "table": {
+            "ref": "Ref",
+            "tags": "태그",
+            "atpTags": "ATP 태그",
+            "osmMatches": "OSM 일치",
+            "spiderValue": "스파이더 값",
+            "osmValue": "OSM 값",
+            "noValue": "값 없음",
+            "missingDaysWarning": "{{ days }} 누락됨",
+            "osmId": "OSM ID"
+        },
+        "status": {
+            "notMapped": "미매핑",
+            "addToOsm": "OSM에 추가",
+            "updateOsm": "OSM 업데이트",
+            "editMade": "편집 완료",
+            "mismatch": "불일치",
+            "matching": "일치함",
+            "disallowedSourceUri": "허용되지 않은 소스 URI",
+            "notABrandSpider": "브랜드 스파이더가 아님",
+            "duplicateRef": "중복 Ref"
+        },
+        "tooltips": {
+            "stableValue": "안정적인 값",
+            "newValue": "새로운 값"
+        },
+        "actions": {
+            "edit": "편집",
+            "update": "업데이트",
+            "openUnmatched": "JOSM에서 불일치 항목 모두 열기",
+            "openUnmapped": "JOSM에서 미매핑 항목 열기"
+        },
+        "modals": {
+            "josmError": {
+                "title": "JOSM 오류",
+                "message": "JOSM에 연결할 수 없습니다. JOSM이 실행 중이고 설정에서 원격 제어(Remote Control)가 활성화되어 있는지 확인하십시오."
+            },
+            "mismatch": {
+                "title": "중요 경고",
+                "message": "스파이더의 일부 데이터가 틀릴 수 있습니다. 모든 객체에서 단순히 {{ tag }}을(를) 업데이트하지 마십시오. 이력을 확인하여 누가 {{ tag }}을(를) 추가했는지와 그 출처를 확인하십시오. 확실하지 않다면 현장 조사를 할 수 없는 한 변경하지 마십시오."
+            },
+            "josmImport": {
+                "message": "ATP에서 미매핑 항목을 JOSM으로 불러와 엽니다. 이는 기존 요소와 일치시키는 데 유용할 수 있습니다. 그대로 가져오지 말고, 데이터 통합과 판단을 통해 처리하십시오."
+            },
+            "understand": "이해했습니다",
+            "takeMeBack": "돌아가기"
+        },
+        "filters": {
+            "allBrands": "모든 브랜드",
+            "noBrand": "브랜드 없음"
+        },
+        "loading": "항목 로딩 중...",
+        "searchTags": "태그 검색..."
+    },
+    "locales": {
+        "searchPlaceholder": "언어 검색...",
+        "noResults": "언어를 찾을 수 없습니다"
+    }
+}

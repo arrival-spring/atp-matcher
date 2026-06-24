@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM-synkronointi",
+    "subtitle": "Tietojen synkronointi All The Placesin ja OpenStreetMapin välillä",
+    "nav": {
+        "auto": "Automaattinen",
+        "preview": "Esikatselu"
+    },
+    "index": {
+        "summary": "Tämä projekti auttaa synkronoimaan kohdetietoja All The Placesista OpenStreetMapiin. Se vertaa bränditietoja nykyisiin OSM-kohteisiin löytääkseen puuttuvia paikkoja, vanhentuneita tunnisteita ja mahdollisia parannuksia.",
+        "githubLink": "Lisää spidereita, ilmoita ongelmista ja näytä lähdekoodi",
+        "auto": {
+            "title": "Automaattiset päivitykset",
+            "description": "Jotkut päivitykset tehdään automaattisesti, mutta jotkut erot vaativat tarkistusta",
+            "stats": "{{ x }} paikkaa päivitetään {{ y }} brändistä"
+        },
+        "preview": {
+            "title": "Esikatselu",
+            "description": "Automaattisia päivityksiä ei vielä tehdä, mutta nämä voidaan tarkistaa sopivuuden toteamiseksi",
+            "stats": "{{ x }} paikkaa esikatselussa {{ y }} brändistä"
+        }
+    },
+    "footer": {
+        "atpData": "ATP-tiedot:",
+        "osmData": "OSM-tiedot:"
+    },
+    "dashboard": {
+        "dashboard": "Ohjauspaneeli",
+        "searchPlaceholder": "Etsi spidereita tai brändejä...",
+        "countryFilterPlaceholder": "Etsi maan nimeä tai koodia...",
+        "showAllCountries": "Kaikki maat",
+        "table": {
+            "status": "Tila",
+            "spiderName": "Spiderin nimi",
+            "issuesMapped": "Ongelmat / Kartoitettu",
+            "mappedTotal": "Kartoitettu / Yhteensä"
+        },
+        "stability": {
+            "stable": "Vakaa",
+            "minorVariations": "Pieniä vaihteluita",
+            "majorVariations": "Suuria vaihteluita",
+            "missingData": "Puuttuvia tietoja"
+        },
+        "pagination": {
+            "previous": "Edellinen",
+            "next": "Seuraava",
+            "pageOf": "Sivu {{ page }} / {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Vanhentunutta tietoa",
+        "staleDataDesc": "Viimeisin ATP-ajo oli tyhjä. Näytetään tiedot päivämäärältä {{ date }}.",
+        "rejected": "Hylätty automaattisista päivityksistä",
+        "rejectedDesc": "Tätä spideria ei ole hyväksytty automaattisiin päivityksiin. Se voi silti olla hyödyllinen muista syistä. Syy:",
+        "noData": "❌ Tietoja ei saatavilla",
+        "noData404": "Spiderin viimeisintä ATP-ajoa ei löytynyt (404).",
+        "noDataEmpty": "Kaikki spiderin viimeaikaiset ATP-ajot olivat tyhjiä.",
+        "notBrandSpider": "❌ Ei brändispider",
+        "notBrandSpiderDesc": "Tällä spiderilla ei ole odotettua spider:lineage=S_ATP_BRANDS -attribuuttia.",
+        "links": {
+            "source": "Spiderin lähde"
+        },
+        "tabs": {
+            "summary": "Yhteenveto",
+            "unmapped": "Kartoittamattomat",
+            "unmatched": "Täsmäämättömät",
+            "duplicateRefs": "Päällekkäiset viitteet"
+        },
+        "summary": {
+            "overview": "Yleiskatsaus",
+            "tagDetails": "Tunnisteiden tiedot",
+            "noData": "Tietoja ei saatavilla"
+        },
+        "table": {
+            "ref": "Viite",
+            "tags": "Tunnisteet",
+            "atpTags": "ATP-tunnisteet",
+            "osmMatches": "OSM-osumat",
+            "spiderValue": "Spider-arvo",
+            "osmValue": "OSM-arvo",
+            "noValue": "ei arvoa",
+            "missingDaysWarning": "{{ days }} puuttuu",
+            "osmId": "OSM-tunniste"
+        },
+        "status": {
+            "notMapped": "Ei kartoitettu",
+            "addToOsm": "Lisää OSM:ään",
+            "updateOsm": "Päivitä OSM",
+            "editMade": "Muokkaus tehty",
+            "mismatch": "Eroavaisuus",
+            "matching": "Täsmää",
+            "disallowedSourceUri": "Lähde-URI ei sallittu",
+            "notABrandSpider": "Ei brändispider",
+            "duplicateRef": "Päällekkäinen viite"
+        },
+        "tooltips": {
+            "stableValue": "Vakaa arvo",
+            "newValue": "Uusi arvo"
+        },
+        "actions": {
+            "edit": "muokkaa",
+            "update": "päivitä",
+            "openUnmatched": "Avaa kaikki täsmäämättömät JOSMissa",
+            "openUnmapped": "Avaa kartoittamattomat kohteet JOSMissa"
+        },
+        "modals": {
+            "josmError": {
+                "title": "JOSM-virhe",
+                "message": "Yhteyttä JOSMiin ei voitu muodostaa. Varmista, että JOSM on käynnissä ja kaukosäätö (Remote Control) on käytössä asetuksissa."
+            },
+            "mismatch": {
+                "title": "Tärkeä varoitus",
+                "message": "Jotkut spiderin tiedot voivat olla virheellisiä. ÄLÄ vain päivitä {{ tag }} -tunnistetta kaikkiin kohteisiin. Tarkista historiasta, kuka lisäsi {{ tag }} -tunnisteen ja mikä heidän todennäköinen lähteensä oli. Jos et ole varma, ÄLÄ TEE MUUTOKSIA, ellet voi varmistaa paikkaa paikan päällä."
+            },
+            "josmImport": {
+                "message": "Tämä lataa ja avaa kartoittamattomat kohteet ATP:stä JOSMiin. Tämä voi olla hyödyllistä niiden täsmäämiseksi olemassa oleviin kohteisiin. ÄLÄ tuo niitä suoraan, vaan käytä yhdistämistä ja harkintaa."
+            },
+            "understand": "Ymmärrän",
+            "takeMeBack": "Palaa takaisin"
+        },
+        "filters": {
+            "allBrands": "Kaikki brändit",
+            "noBrand": "Ei brändiä"
+        },
+        "loading": "Ladataan kohteita...",
+        "searchTags": "Etsi tunnisteita..."
+    },
+    "locales": {
+        "searchPlaceholder": "Etsi kieliä...",
+        "noResults": "Kieliä ei löytynyt"
+    }
+}
