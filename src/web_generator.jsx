@@ -100,7 +100,7 @@ export async function generateWebpage(autoResults, previewResults, atpDate, osmD
         try {
             const dashboardData = results.map(s => ({
                 name: s.name,
-                stabilityColor: s.stabilityColor,
+                stabilityColour: s.stabilityColour,
                 stabilityScore: s.stabilityScore,
                 loadStatus: s.loadStatus,
                 isBrandSpider: s.isBrandSpider,

@@ -2,7 +2,7 @@ import axios from 'axios';
 import fs from 'fs';
 import { matchesCategories, calculateStability } from './shared_utils.js';
 import { getNsiIdExists, getNsiItem } from './nsi_utils.js';
-import { normalizeWebsite } from './tag_comparisons.js';
+import { normaliseWebsite } from './tag_comparisons.js';
 
 const HISTORY_URL = 'https://data.alltheplaces.xyz/runs/history.json';
 const ATP_BASE_URL = 'https://alltheplaces-data.openaddresses.io/runs';
@@ -133,8 +133,8 @@ export async function loadAllAtpData(spiders, runs) {
             return map;
         });
 
-        // Calculate stability dot color and score
-        const { stabilityColor, stabilityScore } = calculateStability(featureCounts, isBrandSpider);
+        // Calculate stability dot colour and score
+        const { stabilityColour, stabilityScore } = calculateStability(featureCounts, isBrandSpider);
 
         const brandsSet = new Set();
         const countriesSet = new Set();
@@ -156,7 +156,7 @@ export async function loadAllAtpData(spiders, runs) {
             isBrandSpider,
             isStale,
             staleDate: isStale ? runs[effectiveLatestIndex].start_time : null,
-            stabilityColor,
+            stabilityColour,
             stabilityScore,
             featureCounts,
             runStatuses,
@@ -196,8 +196,8 @@ export async function loadAllAtpData(spiders, runs) {
                 }
 
                 if (website) {
-                    const normalizedWeb = normalizeWebsite(website);
-                    const webKey = `${identity}|${normalizedWeb}`;
+                    const normalisedWeb = normaliseWebsite(website);
+                    const webKey = `${identity}|${normalisedWeb}`;
                     if (!webCounts.has(webKey)) webCounts.set(webKey, []);
                     webCounts.get(webKey).push({ spiderName, atpRef });
                 }
@@ -275,10 +275,10 @@ export async function loadAllAtpData(spiders, runs) {
                 }
 
                 if (website) {
-                    const normalizedWeb = normalizeWebsite(website);
-                    const webKey = `${identity}|${normalizedWeb}`;
+                    const normalisedWeb = normaliseWebsite(website);
+                    const webKey = `${identity}|${normalisedWeb}`;
                     if (!duplicateWebKeys.has(webKey)) {
-                        const key = `web|${brand}|${wikidata}|${normalizedWeb}`;
+                        const key = `web|${brand}|${wikidata}|${normalisedWeb}`;
                         if (!atpLookup.has(key)) atpLookup.set(key, []);
                         atpLookup.get(key).push({ spiderName, atpRef, nsiId: effectiveNsiId });
                     }

@@ -40,7 +40,7 @@ export function LanguageSwitcher() {
             meta =>
                 meta.code.toLowerCase().includes(s) ||
                 meta.native.toLowerCase().includes(s) ||
-                meta.localized.toLowerCase().includes(s) ||
+                meta.localised.toLowerCase().includes(s) ||
                 meta.english.toLowerCase().includes(s)
         );
     }, [locales, search]);
@@ -133,7 +133,7 @@ export function LanguageSwitcher() {
                                           } ${currentLocale === meta.code ? `${linkClass(false)} font-bold` : 'text-gray-300'}`,
                                       },
                                       [
-                                          h('span', null, `${meta.localized} (${meta.native})`),
+                                          h('span', null, `${meta.localised} (${meta.native})`),
                                           currentLocale === meta.code && h('span', null, '✓'),
                                       ]
                                   )

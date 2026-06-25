@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "Andmete sünkroonimine All The Placesi ja OpenStreetMapi vahel",
+    "nav": {
+        "auto": "Automaatne",
+        "preview": "Eelvaade"
+    },
+    "index": {
+        "summary": "See projekt aitab sünkroonida huvipunktide andmeid All The Placesist OpenStreetMapi. See võrdleb esmaste kaubamärkide andmeid praeguste OSM-i objektidega, et leida puuduvaid asukohti, aegunud silte ja potentsiaalseid parandusi.",
+        "githubLink": "Lisa ämblikke, teata probleemidest ja vaata lähtekoodi",
+        "auto": {
+            "title": "Automaatsed uuendused",
+            "description": "Mõned uuendused tehakse automaatselt, kuid mõned erinevused vajavad ülevaatamist",
+            "stats": "Uuendamisel on {{ x }} kohta {{ y }} kaubamärgilt"
+        },
+        "preview": {
+            "title": "Eelvaade",
+            "description": "Automaatseid uuendusi veel ei tehta, kuid neid saab üle vaadata, et näha, kas need on sobivad",
+            "stats": "Eelvaates on {{ x }} kohta {{ y }} kaubamärgilt"
+        }
+    },
+    "footer": {
+        "atpData": "ATP andmed:",
+        "osmData": "OSM andmed:"
+    },
+    "dashboard": {
+        "dashboard": "Töölaud",
+        "searchPlaceholder": "Otsi ämblikke või kaubamärke...",
+        "countryFilterPlaceholder": "Otsi riigi nime või koodi...",
+        "showAllCountries": "Kõik riigid",
+        "table": {
+            "status": "Olek",
+            "spiderName": "Ämbliku nimi",
+            "issuesMapped": "Probleemid / Kaardistatud",
+            "mappedTotal": "Kaardistatud / Kokku"
+        },
+        "stability": {
+            "stable": "Stabiilne",
+            "minorVariations": "Väikesed variatsioonid",
+            "majorVariations": "Suured variatsioonid",
+            "missingData": "Andmed puuduvad"
+        },
+        "pagination": {
+            "previous": "Eelmine",
+            "next": "Järgmine",
+            "pageOf": "Lehekülg {{ page }} / {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Aegunud andmed",
+        "staleDataDesc": "Viimane ATP käivitus oli tühi. Selle asemel kuvatakse andmed kuupäevast {{ date }}.",
+        "rejected": "Automaatseteks uuendusteks tagasi lükatud",
+        "rejectedDesc": "See ämblik on automaatsetest uuendustest välja jäetud. See võib siiski olla kasulik muudel põhjustel. Toodi järgmine põhjus:",
+        "noData": "❌ Andmed pole saadaval",
+        "noData404": "Selle ämbliku viimast ATP käivitust ei leitud (404).",
+        "noDataEmpty": "Kõik selle ämbliku viimased ATP käivitused olid tühjad.",
+        "notBrandSpider": "❌ Pole kaubamärgi ämblik",
+        "notBrandSpiderDesc": "Sellel ämblikul puudub oodatud atribuut spider:lineage=S_ATP_BRANDS.",
+        "links": {
+            "source": "Ämbliku allikas"
+        },
+        "tabs": {
+            "summary": "Kokkuvõte",
+            "unmapped": "Kaardistamata",
+            "unmatched": "Ebakõlad",
+            "duplicateRefs": "Duplikaatviited"
+        },
+        "summary": {
+            "overview": "Ülevaade",
+            "tagDetails": "Sildi üksikasjad",
+            "noData": "Andmed pole saadaval"
+        },
+        "table": {
+            "ref": "Viide",
+            "tags": "Sildid",
+            "atpTags": "ATP sildid",
+            "osmMatches": "OSM-i vasted",
+            "spiderValue": "Ämbliku väärtus",
+            "osmValue": "OSM-i väärtus",
+            "noValue": "väärtus puudub",
+            "missingDaysWarning": "{{ days }} puudu",
+            "osmId": "OSM ID"
+        },
+        "status": {
+            "notMapped": "Kaardistamata",
+            "addToOsm": "Lisa OSM-i",
+            "updateOsm": "Uuenda OSM-i",
+            "editMade": "Muudatus tehtud",
+            "mismatch": "Ebakõla",
+            "matching": "Vastab",
+            "disallowedSourceUri": "Lubamatu allika URI",
+            "notABrandSpider": "Pole kaubamärgi ämblik",
+            "duplicateRef": "Duplikaatviide"
+        },
+        "tooltips": {
+            "stableValue": "Stabiilne väärtus",
+            "newValue": "Uus väärtus"
+        },
+        "actions": {
+            "edit": "muuda",
+            "update": "uuenda",
+            "openUnmatched": "Ava kõik ebakõlad JOSM-is",
+            "openUnmapped": "Ava kaardistamata objektid JOSM-is"
+        },
+        "modals": {
+            "josmError": {
+                "title": "JOSM-i viga",
+                "message": "Ühendust JOSM-iga ei saanud luua. Veenduge, et JOSM töötab ja seadetes on lubatud kaugjuhtimine (Remote Control)."
+            },
+            "mismatch": {
+                "title": "Oluline hoiatus",
+                "message": "Mõned ämbliku andmed võivad olla valed. ÄRGE lihtsalt uuendage {{ tag }} kõigil objektidel. Kontrollige ajalugu, et näha, kes lisas {{ tag }} ja milline on nende tõenäoline allikas. Kui te pole kindel, siis ÄRGE TEE MUUDATUSI, välja arvatve juhul, kui saate kohta kohapeal kontrollida."
+            },
+            "josmImport": {
+                "message": "See laadib ja avab kaardistamata objektid ATP-st JOSM-is. See võib olla kasulik nende sobitamiseks olemasolevate elementidega. ÄRGE importige neid, vaid kasutage võrdlemist ja oma otsustusvõimet."
+            },
+            "understand": "Saan aru",
+            "takeMeBack": "Mine tagasi"
+        },
+        "filters": {
+            "allBrands": "Kõik kaubamärgid",
+            "noBrand": "Kaubamärk puudub"
+        },
+        "loading": "Üksuste laadimine...",
+        "searchTags": "Otsi silte..."
+    },
+    "locales": {
+        "searchPlaceholder": "Otsi keeli...",
+        "noResults": "Keeli ei leitud"
+    }
+}

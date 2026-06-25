@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "Đồng bộ hóa dữ liệu giữa All The Places và OpenStreetMap",
+    "nav": {
+        "auto": "Tự động",
+        "preview": "Xem trước"
+    },
+    "index": {
+        "summary": "Dự án này giúp đồng bộ hóa dữ liệu điểm quan tâm từ All The Places vào OpenStreetMap. Nó so sánh dữ liệu thương hiệu chính thức với các thực thể OSM hiện tại để tìm các vị trí còn thiếu, các thẻ lỗi thời và các cải tiến tiềm năng.",
+        "githubLink": "Thêm spider, báo cáo sự cố và xem mã nguồn",
+        "auto": {
+            "title": "Cập nhật Tự động",
+            "description": "Một số cập nhật đang được thực hiện tự động nhưng một số khác biệt cần được xem xét",
+            "stats": "Đang cập nhật {{ x }} địa điểm từ {{ y }} thương hiệu"
+        },
+        "preview": {
+            "title": "Xem trước",
+            "description": "Chưa có cập nhật nào được thực hiện tự động nhưng chúng có thể được xem xét để xem có phù hợp hay không",
+            "stats": "{{ x }} địa điểm đang xem trước từ {{ y }} thương hiệu"
+        }
+    },
+    "footer": {
+        "atpData": "Dữ liệu ATP:",
+        "osmData": "Dữ liệu OSM:"
+    },
+    "dashboard": {
+        "dashboard": "Bảng điều khiển",
+        "searchPlaceholder": "Tìm kiếm spider hoặc thương hiệu...",
+        "countryFilterPlaceholder": "Tìm kiếm tên hoặc mã quốc gia...",
+        "showAllCountries": "Tất cả quốc gia",
+        "table": {
+            "status": "Trạng thái",
+            "spiderName": "Tên Spider",
+            "issuesMapped": "Sự cố / Đã khớp",
+            "mappedTotal": "Đã khớp / Tổng cộng"
+        },
+        "stability": {
+            "stable": "Ổn định",
+            "minorVariations": "Biến động nhỏ",
+            "majorVariations": "Biến động lớn",
+            "missingData": "Thiếu dữ liệu"
+        },
+        "pagination": {
+            "previous": "Trước",
+            "next": "Tiếp",
+            "pageOf": "Trang {{ page }} / {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Dữ liệu Cũ",
+        "staleDataDesc": "Lần chạy ATP gần nhất trống rỗng. Đang hiển thị dữ liệu từ ngày {{ date }}.",
+        "rejected": "Bị từ chối cập nhật tự động",
+        "rejectedDesc": "Spider này đã bị từ chối đưa vào cập nhật tự động. Nó vẫn có thể hữu ích vì những lý do khác. Lý do được đưa ra là:",
+        "noData": "❌ Không có Dữ liệu",
+        "noData404": "Không tìm thấy lần chạy ATP gần nhất cho spider này (404).",
+        "noDataEmpty": "Tất cả các lần chạy ATP gần đây cho spider này đều trống rỗng.",
+        "notBrandSpider": "❌ Không phải Spider Thương hiệu",
+        "notBrandSpiderDesc": "Spider này không có thuộc tính spider:lineage=S_ATP_BRANDS như mong đợi.",
+        "links": {
+            "source": "Mã nguồn Spider"
+        },
+        "tabs": {
+            "summary": "Tổng quan",
+            "unmapped": "Chưa khớp",
+            "unmatched": "Sai lệch",
+            "duplicateRefs": "Ref trùng lặp"
+        },
+        "summary": {
+            "overview": "Tổng quan",
+            "tagDetails": "Chi tiết Thẻ",
+            "noData": "Không có dữ liệu"
+        },
+        "table": {
+            "ref": "Tham chiếu",
+            "tags": "Thẻ",
+            "atpTags": "Thẻ ATP",
+            "osmMatches": "Khớp OSM",
+            "spiderValue": "Giá trị Spider",
+            "osmValue": "Giá trị OSM",
+            "noValue": "không có giá trị",
+            "missingDaysWarning": "thiếu {{ days }} ngày",
+            "osmId": "OSM ID"
+        },
+        "status": {
+            "notMapped": "Chưa khớp",
+            "addToOsm": "Thêm vào OSM",
+            "updateOsm": "Cập nhật OSM",
+            "editMade": "Đã chỉnh sửa",
+            "mismatch": "Sai lệch",
+            "matching": "Khớp",
+            "disallowedSourceUri": "URI nguồn không được phép",
+            "notABrandSpider": "Không phải Spider Thương hiệu",
+            "duplicateRef": "Ref trùng lặp"
+        },
+        "tooltips": {
+            "stableValue": "Giá trị ổn định",
+            "newValue": "Giá trị mới"
+        },
+        "actions": {
+            "edit": "chỉnh sửa",
+            "update": "cập nhật",
+            "openUnmatched": "Mở tất cả sai lệch trong JOSM",
+            "openUnmapped": "Mở các mục chưa khớp trong JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "Lỗi JOSM",
+                "message": "Không thể kết nối với JOSM. Vui lòng đảm bảo JOSM đang chạy và Điều khiển từ xa (Remote Control) đã được bật trong phần cài đặt."
+            },
+            "mismatch": {
+                "title": "Cảnh báo Quan trọng",
+                "message": "Một số dữ liệu từ spider có thể bị sai. KHÔNG chỉ đơn giản là cập nhật {{ tag }} trên tất cả các đối tượng. Hãy kiểm tra lịch sử để xem ai đã thêm {{ tag }} và nguồn có thể có của họ. Nếu bạn không chắc chắn, KHÔNG THỰC HIỆN THAY ĐỔI trừ khi bạn có thể khảo sát thực tế địa điểm đó."
+            },
+            "josmImport": {
+                "message": "Thao tác này sẽ tải và mở các mục chưa khớp từ ATP vào JOSM. Điều này có thể hữu ích để so khớp chúng với các thực thể hiện có. KHÔNG nhập chúng trực tiếp, hãy sử dụng đối soát và phán đoán của bạn."
+            },
+            "understand": "Tôi đã hiểu",
+            "takeMeBack": "Quay lại"
+        },
+        "filters": {
+            "allBrands": "Tất cả thương hiệu",
+            "noBrand": "Không có thương hiệu"
+        },
+        "loading": "Đang tải dữ liệu...",
+        "searchTags": "Tìm kiếm thẻ..."
+    },
+    "locales": {
+        "searchPlaceholder": "Tìm kiếm ngôn ngữ...",
+        "noResults": "Không tìm thấy ngôn ngữ nào"
+    }
+}

@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "Duomenų sinchronizavimas tarp All The Places ir OpenStreetMap",
+    "nav": {
+        "auto": "Automatinis",
+        "preview": "Peržiūra"
+    },
+    "index": {
+        "summary": "Šis projektas padeda sinchronizuoti lankytinų vietų duomenis iš All The Places į OpenStreetMap. Jis palygina pirminius prekės ženklų duomenis su dabartiniais OSM objektais, kad rastų trūkstamas vietas, pasenusias žymas ir galimus patobulinimus.",
+        "githubLink": "Pridėkite vorus, praneškite apie problemas ir peržiūrėkite šaltinį",
+        "auto": {
+            "title": "Automatiniai atnaujinimai",
+            "description": "Kai kurie atnaujinimai atliekami automatiškai, tačiau kai kuriuos skirtumus reikia peržiūrėti",
+            "stats": "Atnaujinama {{ x }} vietų iš {{ y }} prekės ženklų"
+        },
+        "preview": {
+            "title": "Peržiūra",
+            "description": "Automatiniai atnaujinimai dar neatliekami, tačiau juos galima peržiūrėti ir įvertinti jų tinkamumą",
+            "stats": "{{ x }} vietų peržiūroje iš {{ y }} prekės ženklų"
+        }
+    },
+    "footer": {
+        "atpData": "ATP duomenys:",
+        "osmData": "OSM duomenys:"
+    },
+    "dashboard": {
+        "dashboard": "Skydelis",
+        "searchPlaceholder": "Ieškoti vorų ar prekės ženklų...",
+        "countryFilterPlaceholder": "Ieškoti šalies pavadinimo ar kodo...",
+        "showAllCountries": "Visos šalys",
+        "table": {
+            "status": "Būsena",
+            "spiderName": "Voro pavadinimas",
+            "issuesMapped": "Problemos / Susieti",
+            "mappedTotal": "Susieti / Iš viso"
+        },
+        "stability": {
+            "stable": "Stabilus",
+            "minorVariations": "Nedideli svyravimai",
+            "majorVariations": "Dideli svyravimai",
+            "missingData": "Trūksta duomenų"
+        },
+        "pagination": {
+            "previous": "Ankstesnis",
+            "next": "Kitas",
+            "pageOf": "Puslapis {{ page }} iš {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Pasenę duomenys",
+        "staleDataDesc": "Paskutinis ATP vykdymas buvo tuščias. Rodomi duomenys iš {{ date }}.",
+        "rejected": "Atmesta automatiniams atnaujinimams",
+        "rejectedDesc": "Šis voras buvo atmestas ir neįtrauktas į automatinius atnaujinimus. Jis vis tiek gali būti naudingas dėl kitų priežasčių. Nurodyta ši priežastis:",
+        "noData": "❌ Duomenų nėra",
+        "noData404": "Paskutinio ATP vykdymo šiam vorui nepavyko rasti (404).",
+        "noDataEmpty": "Visi paskutiniai ATP vykdai šiam vorui buvo tušti.",
+        "notBrandSpider": "❌ Ne prekės ženklo voras",
+        "notBrandSpiderDesc": "Šis voras neturi tikėtino spider:lineage=S_ATP_BRANDS atributo.",
+        "links": {
+            "source": "Voro šaltinis"
+        },
+        "tabs": {
+            "summary": "Santrauka",
+            "unmapped": "Nesusieta",
+            "unmatched": "Nesutampa",
+            "duplicateRefs": "Dubliuoti Ref"
+        },
+        "summary": {
+            "overview": "Apžvalga",
+            "tagDetails": "Žymų informacija",
+            "noData": "Duomenų nėra"
+        },
+        "table": {
+            "ref": "Ref",
+            "tags": "Žymos",
+            "atpTags": "ATP žymos",
+            "osmMatches": "OSM atitikmenys",
+            "spiderValue": "Voro reikšmė",
+            "osmValue": "OSM reikšmė",
+            "noValue": "reikšmės nėra",
+            "missingDaysWarning": "trūksta {{ days }}",
+            "osmId": "OSM ID"
+        },
+        "status": {
+            "notMapped": "Nesusieta",
+            "addToOsm": "Pridėti į OSM",
+            "updateOsm": "Atnaujinti OSM",
+            "editMade": "Pakeitimas atliktas",
+            "mismatch": "Nesutapimas",
+            "matching": "Sutampa",
+            "disallowedSourceUri": "Neleidžiamas šaltinio URI",
+            "notABrandSpider": "Ne prekės ženklo voras",
+            "duplicateRef": "Dubliuotas Ref"
+        },
+        "tooltips": {
+            "stableValue": "Stabili reikšmė",
+            "newValue": "Nauja reikšmė"
+        },
+        "actions": {
+            "edit": "redaguoti",
+            "update": "atnaujinti",
+            "openUnmatched": "Atidaryti visus nesutampančius JOSM",
+            "openUnmapped": "Atidaryti nesusietus elementus JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "JOSM klaida",
+                "message": "Nepavyko prisijungti prie JOSM. Įsitikinkite, kad JOSM veikia ir nustatymuose įjungtas nuotolinis valdymas (Remote Control)."
+            },
+            "mismatch": {
+                "title": "Svarbus įspėjimas",
+                "message": "Kai kurie duomenys iš voro gali būti klaidingi. NEATNAUJINKITE tiesiog {{ tag }} visuose objektuose. Patikrinkite istoriją, kad pamatytumėme, kas pridėjo {{ tag }} ir koks jų tikėtinas šaltinis. Jei nesate tikri, NEATLIKITE PAKEITIMŲ, nebent galite apžiūrėti vietą."
+            },
+            "josmImport": {
+                "message": "Tai įkels ir atidarys nesusietus elementus iš ATP į JOSM. Tai gali būti naudinga bandant juos susieti su esamais elementais. NEIMPORTUOKITE jų, bet naudokite sutapatinimą ir savo vertinimą."
+            },
+            "understand": "Suprantu",
+            "takeMeBack": "Grįžti atgal"
+        },
+        "filters": {
+            "allBrands": "Visi prekės ženklai",
+            "noBrand": "Be prekės ženklo"
+        },
+        "loading": "Kraunama...",
+        "searchTags": "Ieškoti žymų..."
+    },
+    "locales": {
+        "searchPlaceholder": "Ieškoti kalbų...",
+        "noResults": "Kalbų nerasta"
+    }
+}

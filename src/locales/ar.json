@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "مزامنة البيانات بين All The Places و OpenStreetMap",
+    "nav": {
+        "auto": "تلقائي",
+        "preview": "معاينة"
+    },
+    "index": {
+        "summary": "يساعد هذا المشروع في مزامنة بيانات النقاط المهمة من All The Places إلى OpenStreetMap. يقوم بمقارنة بيانات العلامات التجارية مع ميزات OSM الحالية للعثور على المواقع المفقودة، والعلامات القديمة والتحسينات المحتملة.",
+        "githubLink": "أضف العناكب، أبلغ عن المشكلات وعرض المصدر",
+        "auto": {
+            "title": "التحديثات التلقائية",
+            "description": "يتم إجراء بعض التحديثات تلقائيًا ولكن بعض الاختلافات تحتاج إلى مراجعة",
+            "stats": "يتم تحديث {{ x }} مكانًا من {{ y }} علامة تجارية"
+        },
+        "preview": {
+            "title": "معاينة",
+            "description": "لم يتم إجراء أي تحديثات تلقائيًا بعد ولكن يمكن مراجعتها لمعرفة ما إذا كانت مناسبة",
+            "stats": "{{ x }} مكانًا في المعاينة من {{ y }} علامة تجارية"
+        }
+    },
+    "footer": {
+        "atpData": "بيانات ATP:",
+        "osmData": "بيانات OSM:"
+    },
+    "dashboard": {
+        "dashboard": "لوحة القيادة",
+        "searchPlaceholder": "البحث عن العناكب أو العلامات التجارية...",
+        "countryFilterPlaceholder": "البحث عن اسم الدولة أو الرمز...",
+        "showAllCountries": "كل الدول",
+        "table": {
+            "status": "الحالة",
+            "spiderName": "اسم العنكبوت",
+            "issuesMapped": "المشكلات / المحددة",
+            "mappedTotal": "المحددة / الإجمالي"
+        },
+        "stability": {
+            "stable": "مستقر",
+            "minorVariations": "اختلافات طفيفة",
+            "majorVariations": "اختلافات كبيرة",
+            "missingData": "بيانات مفقودة"
+        },
+        "pagination": {
+            "previous": "السابق",
+            "next": "التالي",
+            "pageOf": "صفحة {{ page }} من {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ بيانات قديمة",
+        "staleDataDesc": "كان آخر تشغيل لـ ATP فارغًا. يتم عرض البيانات من {{ date }} بدلاً من ذلك.",
+        "rejected": "مرفوض للتحديثات التلقائية",
+        "rejectedDesc": "تم رفض هذا العنكبوت من تضمينه في التحديثات التلقائية. قد لا يزال مفيدًا لأسباب أخرى. تم تقديم السبب التالي:",
+        "noData": "❌ لا تتوفر بيانات",
+        "noData404": "تعذر العثور على أحدث تشغيل لـ ATP لهذا العنكبوت (404).",
+        "noDataEmpty": "كانت جميع عمليات تشغيل ATP الأخيرة لهذا العنكبوت فارغة.",
+        "notBrandSpider": "❌ ليس عنكبوت علامة تجارية",
+        "notBrandSpiderDesc": "لا يحتوي هذا العنكبوت على السمة المتوقعة spider:lineage=S_ATP_BRANDS.",
+        "links": {
+            "source": "مصدر العنكبوت"
+        },
+        "tabs": {
+            "summary": "ملخص",
+            "unmapped": "غير محدد",
+            "unmatched": "غير متطابق",
+            "duplicateRefs": "مراجع مكررة"
+        },
+        "summary": {
+            "overview": "نظرة عامة",
+            "tagDetails": "تفاصيل العلامة",
+            "noData": "لا توجد بيانات متاحة"
+        },
+        "table": {
+            "ref": "المرجع",
+            "tags": "العلامات",
+            "atpTags": "علامات ATP",
+            "osmMatches": "تطابقات OSM",
+            "spiderValue": "قيمة العنكبوت",
+            "osmValue": "قيمة OSM",
+            "noValue": "لا توجد قيمة",
+            "missingDaysWarning": "{{ days }} مفقودة",
+            "osmId": "معرف OSM"
+        },
+        "status": {
+            "notMapped": "غير محدد",
+            "addToOsm": "أضف إلى OSM",
+            "updateOsm": "تحديث OSM",
+            "editMade": "تم التعديل",
+            "mismatch": "عدم تطابق",
+            "matching": "متطابق",
+            "disallowedSourceUri": "URI المصدر غير مسموح به",
+            "notABrandSpider": "ليس عنكبوت علامة تجارية",
+            "duplicateRef": "مرجع مكرر"
+        },
+        "tooltips": {
+            "stableValue": "قيمة مستقرة",
+            "newValue": "قيمة جديدة"
+        },
+        "actions": {
+            "edit": "تعديل",
+            "update": "تحديث",
+            "openUnmatched": "فتح جميع غير المتطابقة في JOSM",
+            "openUnmapped": "فتح العناصر غير المحددة في JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "خطأ JOSM",
+                "message": "تعذر الاتصال بـ JOSM. يرجى التأكد من تشغيل JOSM وتمكين التحكم عن بعد في التفضيلات."
+            },
+            "mismatch": {
+                "title": "تحذير هام",
+                "message": "قد تكون بعض البيانات من العنكبوت خاطئة. لا تقم ببساطة بتحديث {{ tag }} على جميع الكائنات. تحقق من السجل لمعرفة من أضاف {{ tag }} ومصدره المحتمل. إذا لم تكن متأكدًا، فلا تقم بإجراء تغيير ما لم تتمكن من مسح المكان."
+            },
+            "josmImport": {
+                "message": "سيؤدي هذا إلى تحميل وفتح العناصر غير المحددة من ATP في JOSM. قد يكون هذا مفيدًا لمطابقتها مع العناصر الموجودة. لا تستوردها، بل استخدم التوفيق والتقدير."
+            },
+            "understand": "أنا أفهم",
+            "takeMeBack": "خذني للخلف"
+        },
+        "filters": {
+            "allBrands": "كل العلامات التجارية",
+            "noBrand": "لا توجد علامة تجارية"
+        },
+        "loading": "جاري تحميل العناصر...",
+        "searchTags": "البحث عن العلامات..."
+    },
+    "locales": {
+        "searchPlaceholder": "البحث عن اللغات...",
+        "noResults": "لم يتم العثور على لغات"
+    }
+}

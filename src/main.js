@@ -205,7 +205,7 @@ async function run() {
                     isBrandSpider: false,
                     lineage: null,
                     loadStatus: data.loadStatus,
-                    stabilityColor: 'gray',
+                    stabilityColour: 'grey',
                     rejected: data.config.rejected,
                 });
                 continue;
@@ -334,7 +334,7 @@ async function run() {
                     lineage: data.lineage,
                     isStale: data.isStale,
                     staleDate: data.staleDate,
-                    stabilityColor: data.stabilityColor,
+                    stabilityColour: data.stabilityColour,
                     stabilityScore: data.stabilityScore,
                     loadStatus: data.loadStatus,
                     showUnmatched: data.config.showUnmatched || false,

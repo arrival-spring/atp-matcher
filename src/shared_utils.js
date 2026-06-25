@@ -126,14 +126,14 @@ export const TIME_RANGE_REGEX = /^\d{1,2}:\d{2}-\d{1,2}:\d{2}$/;
  */
 export function getMissingDays(oh) {
     if (!oh) return [...DAYS];
-    const normalized = oh.replace(/\s+/g, ' ').trim();
-    if (normalized === '24/7') return [];
+    const normalised = oh.replace(/\s+/g, ' ').trim();
+    if (normalised === '24/7') return [];
 
     const definedDays = new Set();
 
     // Check for unexpected words
     // We split by common separators and check if each token is allowed
-    const tokens = normalized.split(/[ ,;]+/);
+    const tokens = normalised.split(/[ ,;]+/);
 
     for (const token of tokens) {
         if (!token) continue;
@@ -235,34 +235,34 @@ export function splitSemicolonList(val) {
 }
 
 /**
- * Calculates the stability score and color for a spider based on its feature counts over time.
+ * Calculates the stability score and colour for a spider based on its feature counts over time.
  *
  * @param {number[]} featureCounts - An array of feature counts for recent runs.
  * @param {boolean} isBrandSpider - Whether the spider is a brand spider.
- * @returns {Object} An object containing stabilityColor and stabilityScore.
+ * @returns {Object} An object containing stabilityColour and stabilityScore.
  */
 export function calculateStability(featureCounts, isBrandSpider) {
     const validCounts = featureCounts.filter(c => c !== null);
 
     if (!isBrandSpider) {
-        return { stabilityColor: 'red', stabilityScore: 0.0 };
+        return { stabilityColour: 'red', stabilityScore: 0.0 };
     }
 
     if (validCounts.length <= 1) {
-        return { stabilityColor: 'gray', stabilityScore: 0.0 };
+        return { stabilityColour: 'grey', stabilityScore: 0.0 };
     }
 
     const minCount = Math.min(...validCounts);
     const maxCount = Math.max(...validCounts);
     const discrepancy = maxCount === 0 ? 0 : (maxCount - minCount) / maxCount;
     const stabilityScore = 1.0 - discrepancy;
-    let stabilityColor = 'green';
+    let stabilityColour = 'green';
 
     if (discrepancy > STABILITY_THRESHOLD_RED) {
-        stabilityColor = 'red';
+        stabilityColour = 'red';
     } else if (discrepancy > STABILITY_THRESHOLD_ORANGE) {
-        stabilityColor = 'orange';
+        stabilityColour = 'orange';
     }
 
-    return { stabilityColor, stabilityScore };
+    return { stabilityColour, stabilityScore };
 }

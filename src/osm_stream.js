@@ -3,7 +3,7 @@ import fs from 'fs';
 import { spawn } from 'child_process';
 import readline from 'readline';
 import { getNsiEffectiveTags } from './nsi_utils.js';
-import { normalizeWebsite } from './tag_comparisons.js';
+import { normaliseWebsite } from './tag_comparisons.js';
 import { matchesCategories } from './shared_utils.js';
 
 const decodeOpl = str => {
@@ -161,8 +161,8 @@ export async function streamOsmData(url, spiders, atpLookup, wikidataToSpiders, 
 
             // 1. Try matching by website
             if (website) {
-                const normalizedWeb = normalizeWebsite(website);
-                const key = `web|${brand}|${wikidata}|${normalizedWeb}`;
+                const normalisedWeb = normaliseWebsite(website);
+                const key = `web|${brand}|${wikidata}|${normalisedWeb}`;
                 if (atpLookup.has(key)) {
                     for (const match of atpLookup.get(key)) {
                         const matchId = `${match.spiderName}|${match.atpRef}`;
