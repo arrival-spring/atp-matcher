@@ -134,7 +134,7 @@ export async function loadAllAtpData(spiders, runs) {
         });
 
         // Calculate stability dot colour and score
-        const { stabilityColour, stabilityValue } = calculateStability(featureCounts, isBrandSpider);
+        const { stabilityColour, stabilityScore } = calculateStability(featureCounts, isBrandSpider);
 
         const brandsSet = new Set();
         const countriesSet = new Set();
@@ -157,7 +157,7 @@ export async function loadAllAtpData(spiders, runs) {
             isStale,
             staleDate: isStale ? runs[effectiveLatestIndex].start_time : null,
             stabilityColour,
-            stabilityValue,
+            stabilityScore,
             featureCounts,
             runStatuses,
             brands: Array.from(brandsSet).sort(),

@@ -239,23 +239,23 @@ export function splitSemicolonList(val) {
  *
  * @param {number[]} featureCounts - An array of feature counts for recent runs.
  * @param {boolean} isBrandSpider - Whether the spider is a brand spider.
- * @returns {Object} An object containing stabilityColour and stabilityValue.
+ * @returns {Object} An object containing stabilityColour and stabilityScore.
  */
 export function calculateStability(featureCounts, isBrandSpider) {
     const validCounts = featureCounts.filter(c => c !== null);
 
     if (!isBrandSpider) {
-        return { stabilityColour: 'red', stabilityValue: 0.0 };
+        return { stabilityColour: 'red', stabilityScore: 0.0 };
     }
 
     if (validCounts.length <= 1) {
-        return { stabilityColour: 'grey', stabilityValue: 0.0 };
+        return { stabilityColour: 'grey', stabilityScore: 0.0 };
     }
 
     const minCount = Math.min(...validCounts);
     const maxCount = Math.max(...validCounts);
     const discrepancy = maxCount === 0 ? 0 : (maxCount - minCount) / maxCount;
-    const stabilityValue = 1.0 - discrepancy;
+    const stabilityScore = 1.0 - discrepancy;
     let stabilityColour = 'green';
 
     if (discrepancy > STABILITY_THRESHOLD_RED) {
@@ -264,5 +264,5 @@ export function calculateStability(featureCounts, isBrandSpider) {
         stabilityColour = 'orange';
     }
 
-    return { stabilityColour, stabilityValue };
+    return { stabilityColour, stabilityScore };
 }

@@ -411,8 +411,8 @@ function Dashboard({ allSpiderResults }) {
 
                 switch (sort.column) {
                     case 'status':
-                        valA = a.stabilityValue;
-                        valB = b.stabilityValue;
+                        valA = a.stabilityScore;
+                        valB = b.stabilityScore;
                         break;
                     case 'name':
                         valA = a.name;
