@@ -112,27 +112,40 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                 const countOfSpiderValue = nonNullValues.filter(v => areTagsEqual(tag, v, spiderValue, country)).length;
                 const isNewValue = countOfSpiderValue === 1;
 
+                let osmTag = tag;
                 if (matchEntries.length > 1) {
                     status = 'duplicateRef';
                 } else if (matchEntries.length === 1) {
                     const osm = matchEntries[0];
                     osmId = osm.id;
                     let osmTagValue = osm.tags[tag] || null;
-                    let osmCheckDate = osm.tags[`check_date:${tag}`] || null;
+
+                    if (!osmTagValue) {
+                        if (tag === 'phone' && osm.tags['contact:phone']) {
+                            osmTag = 'contact:phone';
+                            osmTagValue = osm.tags['contact:phone'];
+                        } else if (tag === 'website' && osm.tags['contact:website']) {
+                            osmTag = 'contact:website';
+                            osmTagValue = osm.tags['contact:website'];
+                        } else if (tag === 'email' && osm.tags['contact:email']) {
+                            osmTag = 'contact:email';
+                            osmTagValue = osm.tags['contact:email'];
+                        }
+                    } else if (['phone', 'website', 'email'].includes(tag)) {
+                        // Already found base tag, which is the default for osmTag
+                    } else if (
+                        tag.startsWith('contact:') &&
+                        ['contact:phone', 'contact:website', 'contact:email'].includes(tag)
+                    ) {
+                        osmTag = tag;
+                    }
+
+                    osmValue = osmTagValue;
+
+                    let osmCheckDate = osm.tags[`check_date:${osmTag}`] || null;
                     if (!isValidIsoDate(osmCheckDate)) {
                         osmCheckDate = null;
                     }
-
-                    if (!osmTagValue) {
-                        if (tag === 'phone') {
-                            osmTagValue = osm.tags['contact:phone'] || null;
-                        } else if (tag === 'website') {
-                            osmTagValue = osm.tags['contact:website'] || null;
-                        } else if (tag === 'email') {
-                            osmTagValue = osm.tags['contact:email'] || null;
-                        }
-                    }
-                    osmValue = osmTagValue;
 
                     if (!osmTagValue) {
                         status = 'addToOsm';
@@ -183,6 +196,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
 
                 itemTags.push({
                     tag,
+                    osmTag,
                     status,
                     osmValue,
                     spiderValue,
@@ -246,8 +260,9 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                 const originalValues = {};
                 const newValues = {};
                 tagsToEdit.forEach(t => {
-                    originalValues[t.tag] = t.osmValue;
-                    newValues[t.tag] = t.spiderValue;
+                    const activeTag = t.osmTag || t.tag;
+                    originalValues[activeTag] = t.osmValue;
+                    newValues[activeTag] = t.spiderValue;
 
                     if (!tagEditCounts[t.tag]) tagEditCounts[t.tag] = { add: 0, update: 0 };
                     if (t.status === 'addToOsm') {
@@ -256,7 +271,7 @@ export async function processSpiderResults(spiderData, spiderMatches, runs, safe
                         tagEditCounts[t.tag].update++;
                     }
 
-                    const checkDateTag = `check_date:${t.tag}`;
+                    const checkDateTag = `check_date:${activeTag}`;
                     const osm = matchEntries[0];
                     let existingCheckDate = osm.tags[checkDateTag] || null;
                     if (!isValidIsoDate(existingCheckDate)) {

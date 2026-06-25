@@ -94,6 +94,7 @@ export function TagTab({
                         ? {
                               ...r,
                               tagStatus: tagData.status,
+                              osmTag: tagData.osmTag,
                               osmValue: tagData.osmValue,
                               spiderValue: tagData.spiderValue,
                               history: tagData.history,
@@ -290,7 +291,7 @@ export function TagTab({
                                 r.tagStatus === 'editMade' ||
                                 (r.tagStatus === 'mismatch' && currentState.status === 'mismatch')
                             ) {
-                                suggestedFixes[tag] = r.spiderValue;
+                                suggestedFixes[r.osmTag || tag] = r.spiderValue;
                             }
                             return (
                                 <tr
