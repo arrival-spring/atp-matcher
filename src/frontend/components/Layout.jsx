@@ -68,7 +68,7 @@ function Header({ basePath, tier, spiderName, isIndex }) {
 
 /**
  * The base layout component for all pages in the application.
- * Includes the HTML head, localized footer with data dates, and initializes the tier.
+ * Includes the HTML head, localised footer with data dates, and initialises the tier.
  *
  * @param {Object} props - The component props.
  * @param {string} props.title - The page title (displayed in the browser tab).

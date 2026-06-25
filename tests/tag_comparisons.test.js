@@ -4,7 +4,7 @@ import {
     areWebsitesEqual,
     areTagsEqual,
     getOverallStatus,
-    normalizeWebsite,
+    normaliseWebsite,
 } from '../src/tag_comparisons.js';
 
 describe('Tag Comparison Logic', () => {
@@ -169,12 +169,12 @@ describe('Tag Comparison Logic', () => {
     });
 
     describe('Website Normalization', () => {
-        test('normalizeWebsite should handle various URL formats', () => {
-            expect(normalizeWebsite('http://example.com')).toBe('https://example.com');
-            expect(normalizeWebsite('https://example.com')).toBe('https://example.com');
-            expect(normalizeWebsite('example.com')).toBe('https://example.com');
-            expect(normalizeWebsite('http://example.com/path')).toBe('https://example.com/path');
-            expect(normalizeWebsite('HTTPS://EXAMPLE.COM/')).toBe('https://example.com');
+        test('normaliseWebsite should handle various URL formats', () => {
+            expect(normaliseWebsite('http://example.com')).toBe('https://example.com');
+            expect(normaliseWebsite('https://example.com')).toBe('https://example.com');
+            expect(normaliseWebsite('example.com')).toBe('https://example.com');
+            expect(normaliseWebsite('http://example.com/path')).toBe('https://example.com/path');
+            expect(normaliseWebsite('HTTPS://EXAMPLE.COM/')).toBe('https://example.com');
         });
 
         test('areWebsitesEqual should handle null/undefined', () => {

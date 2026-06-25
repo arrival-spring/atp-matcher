@@ -2,7 +2,7 @@ import en from '../locales/en.json';
 
 /**
  * Initial list of supported locale codes.
- * This is updated during initialization if more locales are discovered.
+ * This is updated during initialisation if more locales are discovered.
  * @type {string[]}
  */
 let LOCALES_METADATA = ['en'];
@@ -87,7 +87,7 @@ export function getAvailableLocales() {
 }
 
 /**
- * Initialises the internationalization system.
+ * Initialises the internationalisation system.
  * Detects the preferred locale from localStorage or browser settings and loads the corresponding translations.
  *
  * @param {string[]} [supportedLocales] - Optional array of supported locale codes.

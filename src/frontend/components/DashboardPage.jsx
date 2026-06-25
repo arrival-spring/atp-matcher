@@ -5,7 +5,7 @@ import { t } from '../i18n';
 
 /**
  * The static shell for the tier dashboard pages (Auto or Preview dashboard).
- * Renders the layout and scripts required to initialize the interactive dashboard.
+ * Renders the layout and scripts required to initialise the interactive dashboard.
  *
  * @param {Object} props - The component props.
  * @param {Object[]} props.dashboardData - Summary data for all spiders in the tier.

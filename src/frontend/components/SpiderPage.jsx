@@ -6,7 +6,7 @@ import { t } from '../i18n';
 /**
  * The static shell for the spider detail page.
  * Renders the layout, header information (stale data warnings, rejected status),
- * and the script required to initialize the interactive spider dashboard.
+ * and the script required to initialise the interactive spider dashboard.
  *
  * @param {Object} props - The component props.
  * @param {string} props.name - The name of the spider.
@@ -47,7 +47,7 @@ export function SpiderPage({
     tier = 'auto',
 }) {
     const isAuto = tier === 'auto';
-    const linkColorClass = isAuto ? 'text-blue-400' : 'text-amber-600';
+    const linkColourClass = isAuto ? 'text-blue-400' : 'text-amber-600';
 
     return (
         <Layout title={name} basePath={basePath} atpDate={atpDate} osmDate={osmDate} tier={tier} spiderName={name}>
@@ -104,7 +104,7 @@ export function SpiderPage({
                     <a
                         href={`https://data.alltheplaces.xyz/runs/latest/output/${name}.geojson`}
                         target="_blank"
-                        class={`${linkColorClass} hover:underline inline-flex items-center`}
+                        class={`${linkColourClass} hover:underline inline-flex items-center`}
                     >
                         GeoJSON
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,7 +119,7 @@ export function SpiderPage({
                     <a
                         href={`https://github.com/alltheplaces/alltheplaces/tree/master/locations/spiders/${name}.py`}
                         target="_blank"
-                        class={`${linkColorClass} hover:underline inline-flex items-center`}
+                        class={`${linkColourClass} hover:underline inline-flex items-center`}
                     >
                         <span data-t="spider.links.source">{t('spider.links.source')}</span>
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

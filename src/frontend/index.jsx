@@ -411,8 +411,8 @@ function Dashboard({ allSpiderResults }) {
 
                 switch (sort.column) {
                     case 'status':
-                        valA = a.stabilityScore;
-                        valB = b.stabilityScore;
+                        valA = a.stabilityValue;
+                        valB = b.stabilityValue;
                         break;
                     case 'name':
                         valA = a.name;
@@ -663,20 +663,20 @@ function SortIcon({ column, currentSort }) {
 function SpiderRow({ spider, onSort, currentSort }) {
     const { linkClass, tier } = useTier();
     const isAuto = tier === 'auto';
-    const { name, issuesCount, mappedCount, totalCount, isBrandSpider, stabilityColor, loadStatus, brands } = spider;
+    const { name, issuesCount, mappedCount, totalCount, isBrandSpider, stabilityColour, loadStatus, brands } = spider;
 
-    const statusColors = {
+    const statusColours = {
         green: 'bg-green-500',
         orange: 'bg-orange-500',
         red: 'bg-red-500',
-        gray: 'bg-gray-600',
+        grey: 'bg-gray-600',
     };
 
     const statusTitles = {
         green: t('dashboard.stability.stable'),
         orange: t('dashboard.stability.minorVariations'),
         red: t('dashboard.stability.majorVariations'),
-        gray: t('dashboard.stability.missingData'),
+        grey: t('dashboard.stability.missingData'),
     };
 
     const showTotals = !loadStatus && isBrandSpider;
@@ -689,8 +689,8 @@ function SpiderRow({ spider, onSort, currentSort }) {
             <td class="md:table-cell md:px-6 md:py-4 mb-2 md:mb-0">
                 <div class="flex items-center gap-2">
                     <div
-                        class={`w-3 h-3 rounded-full shrink-0 ${statusColors[stabilityColor] || 'bg-gray-600'}`}
-                        title={statusTitles[stabilityColor]}
+                        class={`w-3 h-3 rounded-full shrink-0 ${statusColours[stabilityColour] || 'bg-gray-600'}`}
+                        title={statusTitles[stabilityColour]}
                     />
                     <div class="md:hidden flex-grow flex items-center justify-between">
                         <div class="flex items-center">
@@ -767,7 +767,7 @@ function SpiderRow({ spider, onSort, currentSort }) {
 }
 
 /**
- * Initializes the dashboard application.
+ * Initialises the dashboard application.
  *
  * @param {Object[]} allSpiderResults - Results for all spiders.
  * @param {string} [tier='auto'] - The spider's tier ('auto' or 'preview').
@@ -790,7 +790,7 @@ window.initDashboard = async (allSpiderResults, tier = 'auto') => {
 };
 
 /**
- * Initializes the index page application.
+ * Initialises the index page application.
  */
 window.initIndexPage = async () => {
     await initI18n();

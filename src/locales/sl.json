@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "Sinhronizacija podatkov med All The Places in OpenStreetMap",
+    "nav": {
+        "auto": "Samodejno",
+        "preview": "Predogled"
+    },
+    "index": {
+        "summary": "Ta projekt pomaga sinhronizirati podatke o točkah zanimanja iz All The Places v OpenStreetMap. Primerja podatke blagovnih znamk s trenutnimi funkcijami OSM, da najde manjkajoče lokacije, zastarele oznake in morebitne izboljšave.",
+        "githubLink": "Dodajte pajke, prijavite težave in oglejte si vir",
+        "auto": {
+            "title": "Samodejne posodobitve",
+            "description": "Nekatere posodobitve se izvajajo samodejno, vendar nekatere razlike potrebujejo pregled",
+            "stats": "Posodabljanje {{ x }} mest iz {{ y }} blagovnih znamk"
+        },
+        "preview": {
+            "title": "Predogled",
+            "description": "Samodejne posodobitve se še ne izvajajo, vendar jih je mogoče pregledati in ugotoviti, ali so ustrezne",
+            "stats": "{{ x }} mest v predogledu iz {{ y }} blagovnih znamk"
+        }
+    },
+    "footer": {
+        "atpData": "Podatki ATP:",
+        "osmData": "Podatki OSM:"
+    },
+    "dashboard": {
+        "dashboard": "Nadzorna plošča",
+        "searchPlaceholder": "Iskanje pajkov ali blagovnih znamk...",
+        "countryFilterPlaceholder": "Iskanje imena ali kode države...",
+        "showAllCountries": "Vse države",
+        "table": {
+            "status": "Status",
+            "spiderName": "Ime pajka",
+            "issuesMapped": "Težave / Preslikano",
+            "mappedTotal": "Preslikano / Skupaj"
+        },
+        "stability": {
+            "stable": "Stabilno",
+            "minorVariations": "Manjša odstopanja",
+            "majorVariations": "Večja odstopanja",
+            "missingData": "Manjkajoči podatki"
+        },
+        "pagination": {
+            "previous": "Prejšnja",
+            "next": "Naslednja",
+            "pageOf": "Stran {{ page }} od {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Zastareli podatki",
+        "staleDataDesc": "Zadnji zagon ATP je bil prazen. Namesto tega so prikazani podatki z dne {{ date }}.",
+        "rejected": "Zavrnjeno za samodejne posodobitve",
+        "rejectedDesc": "Ta pajek je bil zavrnjen iz samodejnih posodobitev. Morda je še vedno uporaben iz drugih razlogov. Podan je bil naslednji razlog:",
+        "noData": "❌ Podatki niso na voljo",
+        "noData404": "Zadnjega zagona ATP za tega pajka ni bilo mogoče najti (404).",
+        "noDataEmpty": "Vsi nedavni zagoni ATP za tega pajka so bili prazni.",
+        "notBrandSpider": "❌ Ni pajek blagovne znamke",
+        "notBrandSpiderDesc": "Ta pajek nima pričakovanega atributa spider:lineage=S_ATP_BRANDS.",
+        "links": {
+            "source": "Vir pajka"
+        },
+        "tabs": {
+            "summary": "Povzetek",
+            "unmapped": "Nepreslikano",
+            "unmatched": "Neujemanje",
+            "duplicateRefs": "Podvojeni sklici"
+        },
+        "summary": {
+            "overview": "Pregled",
+            "tagDetails": "Podrobnosti oznak",
+            "noData": "Podatki niso na voljo"
+        },
+        "table": {
+            "ref": "Sklic",
+            "tags": "Oznake",
+            "atpTags": "Oznake ATP",
+            "osmMatches": "Ujemanja OSM",
+            "spiderValue": "Vrednost pajka",
+            "osmValue": "Vrednost OSM",
+            "noValue": "brez vrednosti",
+            "missingDaysWarning": "manjka {{ days }}",
+            "osmId": "ID OSM"
+        },
+        "status": {
+            "notMapped": "Nepreslikano",
+            "addToOsm": "Dodaj v OSM",
+            "updateOsm": "Posodobi OSM",
+            "editMade": "Urejanje opravljeno",
+            "mismatch": "Neujemanje",
+            "matching": "Ujemanje",
+            "disallowedSourceUri": "Nedovoljen izvorni URI",
+            "notABrandSpider": "Ni pajek blagovne znamke",
+            "duplicateRef": "Podvojen sklic"
+        },
+        "tooltips": {
+            "stableValue": "Stabilna vrednost",
+            "newValue": "Nova vrednost"
+        },
+        "actions": {
+            "edit": "uredi",
+            "update": "posodobi",
+            "openUnmatched": "Odpri vse neujemajoče v JOSM",
+            "openUnmapped": "Odpri nepreslikane elemente v JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "Napaka JOSM",
+                "message": "Povezave z JOSM ni bilo mogoče vzpostaviti. Prepričajte se, da se JOSM izvaja in da je v nastavitvah omogočen daljinski upravljalnik."
+            },
+            "mismatch": {
+                "title": "Pomembno opozorilo",
+                "message": "Nekateri podatki iz pajka so morda napačni. NE posodabljajte preprosto {{ tag }} na vseh objektih. Preverite zgodovino, da vidite, kdo je dodal {{ tag }} in njihov verjeten vir. Če niste prepričani, NE SPREMINJAJTE, razen če si lahko ogledate kraj."
+            },
+            "josmImport": {
+                "message": "To bo naložilo in odprlo nepreslikane elemente iz ATP v JOSM. To je lahko uporabno za njihovo ujemanje z obstoječimi elementi. NE uvažajte jih, temveč uporabite primerjavo in presojo."
+            },
+            "understand": "Razumem",
+            "takeMeBack": "Nazaj"
+        },
+        "filters": {
+            "allBrands": "Vse blagovne znamke",
+            "noBrand": "Brez blagovne znamke"
+        },
+        "loading": "Nalaganje elementov...",
+        "searchTags": "Iskanje oznak..."
+    },
+    "locales": {
+        "searchPlaceholder": "Iskanje jezikov...",
+        "noResults": "Jezikov ni bilo mogoče najti"
+    }
+}

@@ -1,12 +1,12 @@
 {
     "title": "ATP-OSM Sync",
-    "subtitle": "Data synchronization between All The Places and OpenStreetMap",
+    "subtitle": "Data synchronisation between All The Places and OpenStreetMap",
     "nav": {
         "auto": "Auto",
         "preview": "Preview"
     },
     "index": {
-        "summary": "This project helps synchronize point-of-interest data from All The Places into OpenStreetMap. It compares first-party brand data with current OSM features to find missing locations, outdated tags and potential improvements.",
+        "summary": "This project helps synchronise point-of-interest data from All The Places into OpenStreetMap. It compares first-party brand data with current OSM features to find missing locations, outdated tags and potential improvements.",
         "githubLink": "Add spiders, report issues and view source",
         "auto": {
             "title": "Automatic Updates",

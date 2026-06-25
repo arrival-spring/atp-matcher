@@ -29,7 +29,7 @@ export const STATUS_PRIORITY = [
  * Uses a cache to store previously parsed values.
  *
  * @param {string} value - The opening hours string.
- * @param {string} [country] - The country code for localized parsing rules.
+ * @param {string} [country] - The country code for localised parsing rules.
  * @returns {Object|null} The opening_hours object, or null if parsing fails.
  */
 export function getOH(value, country) {
@@ -69,7 +69,7 @@ function stripPublicHolidays(oh) {
  *
  * @param {string} v1 - The first opening hours string.
  * @param {string} v2 - The second opening hours string.
- * @param {string} [country] - The country code for localized parsing.
+ * @param {string} [country] - The country code for localised parsing.
  * @returns {boolean} True if the opening hours are semantically equal, false otherwise.
  */
 export function areOpeningHoursEqual(v1, v2, country) {
@@ -121,21 +121,21 @@ function getPhoneObject(value, country) {
  *
  * @param {string} osmValue - The value(s) from OSM.
  * @param {string} atpValue - The value(s) from ATP.
- * @param {Function} normalizer - A function to normalize each value in the list.
+ * @param {Function} normaliser - A function to normalise each value in the list.
  * @returns {boolean} True if all ATP values are present in the OSM list, false otherwise.
  */
-function areListsEqual(osmValue, atpValue, normalizer) {
+function areListsEqual(osmValue, atpValue, normaliser) {
     if (osmValue === atpValue) return true;
     if (!atpValue) return true;
 
     const atpList = splitSemicolonList(atpValue)
-        .map(normalizer)
+        .map(normaliser)
         .filter(v => !!v);
 
     if (atpList.length === 0) return true;
 
     const osmList = splitSemicolonList(osmValue)
-        .map(normalizer)
+        .map(normaliser)
         .filter(v => !!v);
 
     return atpList.every(v => osmList.includes(v));
@@ -173,13 +173,13 @@ export function formatPhone(value, country) {
 }
 
 /**
- * Normalizes a website URL.
+ * Normalises a website URL.
  * Forces HTTPS and uses a cache to store results.
  *
- * @param {string} url - The URL to normalize.
- * @returns {string|null} The normalized URL, or null if input is empty.
+ * @param {string} url - The URL to normalise.
+ * @returns {string|null} The normalised URL, or null if input is empty.
  */
-export function normalizeWebsite(url) {
+export function normaliseWebsite(url) {
     if (!url) return null;
     if (WEB_CACHE.has(url)) return WEB_CACHE.get(url);
 
@@ -194,16 +194,16 @@ export function normalizeWebsite(url) {
 }
 
 /**
- * Compares two website URLs for equality after normalization.
+ * Compares two website URLs for equality after normalisation.
  *
  * @param {string} v1 - The first URL.
  * @param {string} v2 - The second URL.
- * @returns {boolean} True if the normalized URLs are equal, false otherwise.
+ * @returns {boolean} True if the normalised URLs are equal, false otherwise.
  */
 export function areWebsitesEqual(v1, v2) {
     if (v1 === v2) return true;
     if (!v1 || !v2) return false;
-    return normalizeWebsite(v1) === normalizeWebsite(v2);
+    return normaliseWebsite(v1) === normaliseWebsite(v2);
 }
 
 /**
@@ -232,7 +232,7 @@ const TAG_COMPARATORS = {
  * @param {string} tag - The OSM tag name.
  * @param {string} osmValue - The value from OSM.
  * @param {string} atpValue - The value from ATP.
- * @param {string} [country] - The country code for localized comparisons.
+ * @param {string} [country] - The country code for localised comparisons.
  * @returns {boolean} True if the values are considered equal, false otherwise.
  */
 export function areTagsEqual(tag, osmValue, atpValue, country) {

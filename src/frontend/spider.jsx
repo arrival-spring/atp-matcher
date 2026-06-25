@@ -321,7 +321,7 @@ function SpiderDashboard({
 }
 
 /**
- * Initializes the spider detail dashboard application.
+ * Initialises the spider detail dashboard application.
  *
  * @param {Object} props - Configuration properties passed from the SSR environment.
  */

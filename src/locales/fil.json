@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "Pagsasabay ng data sa pagitan ng All The Places at OpenStreetMap",
+    "nav": {
+        "auto": "Auto",
+        "preview": "Preview"
+    },
+    "index": {
+        "summary": "Ang proyektong ito ay tumutulong sa pagsabay ng data ng point-of-interest mula sa All The Places patungo sa OpenStreetMap. Inihahambing nito ang data ng first-party brand sa mga kasalukuyang feature ng OSM upang makahanap ng mga kulang na lokasyon, mga lumang tag, at mga potensyal na pagpapabuti.",
+        "githubLink": "Magdagdag ng mga spider, mag-ulat ng mga isyu at tingnan ang source",
+        "auto": {
+            "title": "Mga Awtomatikong Update",
+            "description": "Ang ilang mga update ay awtomatikong ginagawa ngunit ang ilang mga pagkakaiba ay kailangang suriin",
+            "stats": "{{ x }} mga lugar ang ina-update mula sa {{ y }} na mga brand"
+        },
+        "preview": {
+            "title": "Preview",
+            "description": "Wala pang mga update na awtomatikong ginagawa ngunit ang mga ito ay maaaring suriin upang makita kung angkop ang mga ito",
+            "stats": "{{ x }} mga lugar sa preview mula sa {{ y }} na mga brand"
+        }
+    },
+    "footer": {
+        "atpData": "Data ng ATP:",
+        "osmData": "Data ng OSM:"
+    },
+    "dashboard": {
+        "dashboard": "Dashboard",
+        "searchPlaceholder": "Maghanap ng mga spider o brand...",
+        "countryFilterPlaceholder": "Maghanap ng pangalan o code ng bansa...",
+        "showAllCountries": "Lahat ng bansa",
+        "table": {
+            "status": "Katayuan",
+            "spiderName": "Pangalan ng Spider",
+            "issuesMapped": "Mga Isyu / Na-map",
+            "mappedTotal": "Na-map / Kabuuan"
+        },
+        "stability": {
+            "stable": "Matatag",
+            "minorVariations": "Maliit na pagkakaiba",
+            "majorVariations": "Malaking pagkakaiba",
+            "missingData": "Kulang na data"
+        },
+        "pagination": {
+            "previous": "Nakaraan",
+            "next": "Susunod",
+            "pageOf": "Pahina {{ page }} ng {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Lumang Data",
+        "staleDataDesc": "Ang huling ATP run ay walang laman. Ipinapakita ang data mula noong {{ date }} sa halip.",
+        "rejected": "Tinanggihan para sa mga awtomatikong update",
+        "rejectedDesc": "Ang spider na ito ay tinanggihan na maisama sa mga awtomatikong update. Maaari pa rin itong maging kapaki-pakinabang sa ibang mga dahilan. Ang sumusunod na dahilan ay ibinigay:",
+        "noData": "❌ Walang Data na Magagamit",
+        "noData404": "Ang pinakabagong ATP run para sa spider na ito ay hindi mahanap (404).",
+        "noDataEmpty": "Ang lahat ng kamakailang ATP run para sa spider na ito ay walang laman.",
+        "notBrandSpider": "❌ Hindi isang Brand Spider",
+        "notBrandSpiderDesc": "Ang spider na ito ay walang inaasahang spider:lineage=S_ATP_BRANDS na attribute.",
+        "links": {
+            "source": "Source ng Spider"
+        },
+        "tabs": {
+            "summary": "Buod",
+            "unmapped": "Hindi pa na-map",
+            "unmatched": "Hindi tugma",
+            "duplicateRefs": "Duplicate na Refs"
+        },
+        "summary": {
+            "overview": "Pangkalahatang-ideya",
+            "tagDetails": "Mga Detalye ng Tag",
+            "noData": "Walang data na magagamit"
+        },
+        "table": {
+            "ref": "Ref",
+            "tags": "Mga Tag",
+            "atpTags": "Mga Tag ng ATP",
+            "osmMatches": "Mga Tugma sa OSM",
+            "spiderValue": "Halaga ng Spider",
+            "osmValue": "Halaga ng OSM",
+            "noValue": "walang halaga",
+            "missingDaysWarning": "{{ days }} ang kulang",
+            "osmId": "OSM ID"
+        },
+        "status": {
+            "notMapped": "Hindi pa na-map",
+            "addToOsm": "Idagdag sa OSM",
+            "updateOsm": "I-update ang OSM",
+            "editMade": "May Ginawang Pagbabago",
+            "mismatch": "Hindi Tugma",
+            "matching": "Nagtutugma",
+            "disallowedSourceUri": "Hindi Pinapayagang Source URI",
+            "notABrandSpider": "Hindi isang Brand Spider",
+            "duplicateRef": "Duplicate na Ref"
+        },
+        "tooltips": {
+            "stableValue": "Matatag na halaga",
+            "newValue": "Bagong halaga"
+        },
+        "actions": {
+            "edit": "i-edit",
+            "update": "i-update",
+            "openUnmatched": "Buksan ang lahat ng hindi tugma sa JOSM",
+            "openUnmapped": "Buksan ang mga hindi pa na-map na item sa JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "Error sa JOSM",
+                "message": "Hindi makakonekta sa JOSM. Pakitiyak na tumatakbo ang JOSM at naka-enable ang Remote Control sa mga kagustuhan."
+            },
+            "mismatch": {
+                "title": "Mahalagang Babala",
+                "message": "Ang ilan sa mga data mula sa spider ay maaaring mali. HUWAG basta-basta i-update ang {{ tag }} sa lahat ng mga object. Suriin ang kasaysayan upang makita kung sino ang nagdagdag ng {{ tag }} at ang kanilang posibleng pinagmulan. Kung hindi ka sigurado ay HUWAG MAGSAGAWA NG PAGBABAGO maliban kung maaari mong suriin ang lugar."
+            },
+            "josmImport": {
+                "message": "Ilo-load at bubuksan nito ang mga hindi pa na-map na item mula sa ATP patungo sa JOSM. Maaari itong maging kapaki-pakinabang upang itugma ang mga ito sa mga umiiral na elemento. HUWAG i-import ang mga ito, ngunit gamitin ang paghahambing at paghatol."
+            },
+            "understand": "Naiintindihan ko",
+            "takeMeBack": "Ibalik ako"
+        },
+        "filters": {
+            "allBrands": "Lahat ng brand",
+            "noBrand": "Walang brand"
+        },
+        "loading": "Naglo-load ng mga item...",
+        "searchTags": "Maghanap ng mga tag..."
+    },
+    "locales": {
+        "searchPlaceholder": "Maghanap ng mga wika...",
+        "noResults": "Walang nahanap na wika"
+    }
+}

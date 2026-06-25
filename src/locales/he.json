@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "סנכרון נתונים בין All The Places ל-OpenStreetMap",
+    "nav": {
+        "auto": "אוטומטי",
+        "preview": "תצוגה מקדימה"
+    },
+    "index": {
+        "summary": "פרויקט זה עוזר לסנכרן נתוני נקודות עניין מ-All The Places ל-OpenStreetMap. הוא משווה נתוני מותגים עם מאפייני OSM נוכחיים כדי למצוא מיקומים חסרים, תגיות מיושנות ושיפורים פוטנציאליים.",
+        "githubLink": "הוספת ספיידרים, דיווח על בעיות וצפייה בקוד המקור",
+        "auto": {
+            "title": "עדכונים אוטומטיים",
+            "description": "חלק מהעדכונים מתבצעים באופן אוטומטי אך חלק מההבדלים דורשים בדיקה",
+            "stats": "{{ x }} מקומות מעודכנים מ-{{ y }} מותגים"
+        },
+        "preview": {
+            "title": "תצוגה מקדימה",
+            "description": "עדיין לא מתבצעים עדכונים אוטומטיים אך ניתן לבדוק אותם כדי לראות אם הם מתאימים",
+            "stats": "{{ x }} מקומات בתצוגה מקדימה מ-{{ y }} מותגים"
+        }
+    },
+    "footer": {
+        "atpData": "נתוני ATP:",
+        "osmData": "נתוני OSM:"
+    },
+    "dashboard": {
+        "dashboard": "לוח בקרה",
+        "searchPlaceholder": "חיפוש ספיידרים או מותגים...",
+        "countryFilterPlaceholder": "חיפوش שם מדינה או קוד...",
+        "showAllCountries": "כל המדינות",
+        "table": {
+            "status": "סטטוס",
+            "spiderName": "שם הספיידר",
+            "issuesMapped": "בעיות / מופו",
+            "mappedTotal": "מופו / סך הכל"
+        },
+        "stability": {
+            "stable": "יציב",
+            "minorVariations": "שינויים קלים",
+            "majorVariations": "שינויים משמעותיים",
+            "missingData": "נתונים חסרים"
+        },
+        "pagination": {
+            "previous": "הקודם",
+            "next": "הבא",
+            "pageOf": "דף {{ page }} מתוך {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ נתונים מיושנים",
+        "staleDataDesc": "ריצת ה-ATP האחרונה הייתה ריקה. מציג נתונים מ-{{ date }} במקום זאת.",
+        "rejected": "נדחה לעדכונים אוטומטיים",
+        "rejectedDesc": "ספיידר זה נדחה מהכללה בעדכונים האוטומטיים. הוא עשוי עדיין להיות שימושי מסיבות אחרות. הסיבה הבאה ניתנה:",
+        "noData": "❌ אין נתונים זמינים",
+        "noData404": "לא ניתן היה למצוא את ריצת ה-ATP האחרונה עבור ספיידר זה (404).",
+        "noDataEmpty": "כל ריצות ה-ATP האחרונות עבור ספיידר זה היו ריקות.",
+        "notBrandSpider": "❌ לא ספיידר של מותג",
+        "notBrandSpiderDesc": "לספיידר זה אין את המאפיין המצופה spider:lineage=S_ATP_BRANDS.",
+        "links": {
+            "source": "מקור הספיידר"
+        },
+        "tabs": {
+            "summary": "סיכום",
+            "unmapped": "לא מופו",
+            "unmatched": "ללא התאמה",
+            "duplicateRefs": "מזהים כפולים"
+        },
+        "summary": {
+            "overview": "סקירה כללית",
+            "tagDetails": "פרטי תגיות",
+            "noData": "אין נתונים זמינים"
+        },
+        "table": {
+            "ref": "מזהה",
+            "tags": "תגיות",
+            "atpTags": "תגיות ATP",
+            "osmMatches": "התאמות OSM",
+            "spiderValue": "ערך ספיידר",
+            "osmValue": "ערך OSM",
+            "noValue": "אין ערך",
+            "missingDaysWarning": "{{ days }} חסרים",
+            "osmId": "מזהה OSM"
+        },
+        "status": {
+            "notMapped": "לא מופה",
+            "addToOsm": "הוספה ל-OSM",
+            "updateOsm": "עדכון OSM",
+            "editMade": "בוצע עריכה",
+            "mismatch": "חוסר התאמה",
+            "matching": "תואם",
+            "disallowedSourceUri": "URI מקור לא מורשה",
+            "notABrandSpider": "לא ספיידר של מותג",
+            "duplicateRef": "מזהה כפול"
+        },
+        "tooltips": {
+            "stableValue": "ערך יציב",
+            "newValue": "ערך חדש"
+        },
+        "actions": {
+            "edit": "עריכה",
+            "update": "עדכון",
+            "openUnmatched": "פתיחת כל הלא תואמים ב-JOSM",
+            "openUnmapped": "פתיחת פריטים שלא מופו ב-JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "שגיאת JOSM",
+                "message": "לא ניתן היה להתחבר ל-JOSM. אנא וודא ש-JOSM פועל ושהשליטה מרחוק (Remote Control) מופעלת בהעדפות."
+            },
+            "mismatch": {
+                "title": "אזהרה חשובה",
+                "message": "חלק מהנתונים מהספיידר עשויים להיות שגויים. אל תעדכן פשוט את {{ tag }} בכל האובייקטים. בדוק את ההיסטוריה כדי לראות מי הוסיף את {{ tag }} ומה המקור הסביר שלהם. אם אינך בטוח אל תבצע שינוי אלא אם כן אתה יכול לבדוק את המקום."
+            },
+            "josmImport": {
+                "message": "פעולה זו תטען ותפתח את הפריטים שלא מופו מ-ATP בתוך JOSM. זה עשוי להיות שימושי כדי להתאים אותם לאלמנטים קיימים. אל תייבא אותם ישירות, אלא השתמש בשילוב נתונים (conflation) ושיקול דעת."
+            },
+            "understand": "אני מבין",
+            "takeMeBack": "חזור אחורה"
+        },
+        "filters": {
+            "allBrands": "כל המותגים",
+            "noBrand": "ללא מותג"
+        },
+        "loading": "טוען פריטים...",
+        "searchTags": "חיפוש תגיות..."
+    },
+    "locales": {
+        "searchPlaceholder": "חיפוש שפות...",
+        "noResults": "לא נמצאו שפות"
+    }
+}

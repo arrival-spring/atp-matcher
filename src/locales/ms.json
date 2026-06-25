@@ -1,0 +1,131 @@
+{
+    "title": "ATP-OSM Sync",
+    "subtitle": "Penyelarasan data antara All The Places dan OpenStreetMap",
+    "nav": {
+        "auto": "Auto",
+        "preview": "Pratonton"
+    },
+    "index": {
+        "summary": "Projek ini membantu menyelaraskan data titik kepentingan dari All The Places ke dalam OpenStreetMap. Ia membandingkan data jenama pihak pertama dengan ciri OSM semasa untuk mencari lokasi yang hilang, tag lapuk dan potensi penambahbaikan.",
+        "githubLink": "Tambah spider, lapor isu dan lihat sumber",
+        "auto": {
+            "title": "Kemas Kini Automatik",
+            "description": "Beberapa kemas kini sedang dibuat secara automatik tetapi beberapa perbezaan memerlukan semakan",
+            "stats": "{{ x }} tempat sedang dikemas kini daripada {{ y }} jenama"
+        },
+        "preview": {
+            "title": "Pratonton",
+            "description": "Belum ada kemas kini yang dibuat secara automatik tetapi ini boleh disemak untuk melihat jika ia sesuai",
+            "stats": "{{ x }} tempat dalam pratonton daripada {{ y }} jenama"
+        }
+    },
+    "footer": {
+        "atpData": "Data ATP:",
+        "osmData": "Data OSM:"
+    },
+    "dashboard": {
+        "dashboard": "Papan Pemuka",
+        "searchPlaceholder": "Cari spider atau jenama...",
+        "countryFilterPlaceholder": "Cari nama atau kod negara...",
+        "showAllCountries": "Semua negara",
+        "table": {
+            "status": "Status",
+            "spiderName": "Nama Spider",
+            "issuesMapped": "Isu / Dipetakan",
+            "mappedTotal": "Dipetakan / Jumlah"
+        },
+        "stability": {
+            "stable": "Stabil",
+            "minorVariations": "Variasi kecil",
+            "majorVariations": "Variasi besar",
+            "missingData": "Data hilang"
+        },
+        "pagination": {
+            "previous": "Sebelumnya",
+            "next": "Seterusnya",
+            "pageOf": "Halaman {{ page }} daripada {{ totalPages }}"
+        }
+    },
+    "spider": {
+        "staleData": "⚠️ Data Lapuk",
+        "staleDataDesc": "Larian ATP terakhir adalah kosong. Menunjukkan data dari {{ date }} sebagai ganti.",
+        "rejected": "Ditolak untuk kemas kini automatik",
+        "rejectedDesc": "Spider ini telah ditolak daripada disertakan dalam kemas kini automatik. Ia mungkin masih berguna atas sebab-sebab lain. Sebab berikut telah diberikan:",
+        "noData": "❌ Tiada Data Tersedia",
+        "noData404": "Larian ATP terakhir untuk spider ini tidak dijumpai (404).",
+        "noDataEmpty": "Semua larian ATP terkini untuk spider ini adalah kosong.",
+        "notBrandSpider": "❌ Bukan Spider Jenama",
+        "notBrandSpiderDesc": "Spider ini tidak mempunyai atribut spider:lineage=S_ATP_BRANDS yang dijangkakan.",
+        "links": {
+            "source": "Sumber Spider"
+        },
+        "tabs": {
+            "summary": "Ringkasan",
+            "unmapped": "Tidak dipetakan",
+            "unmatched": "Tidak sepadan",
+            "duplicateRefs": "Ref Pendua"
+        },
+        "summary": {
+            "overview": "Gambaran Keseluruhan",
+            "tagDetails": "Butiran Tag",
+            "noData": "Tiada data tersedia"
+        },
+        "table": {
+            "ref": "Ref",
+            "tags": "Tag",
+            "atpTags": "Tag ATP",
+            "osmMatches": "Padanan OSM",
+            "spiderValue": "Nilai Spider",
+            "osmValue": "Nilai OSM",
+            "noValue": "tiada nilai",
+            "missingDaysWarning": "{{ days }} hilang",
+            "osmId": "ID OSM"
+        },
+        "status": {
+            "notMapped": "Tidak dipetakan",
+            "addToOsm": "Tambah ke OSM",
+            "updateOsm": "Kemas kini OSM",
+            "editMade": "Edit Dibuat",
+            "mismatch": "Ketidakpadanan",
+            "matching": "Sepadan",
+            "disallowedSourceUri": "URI Sumber Tidak Dibenarkan",
+            "notABrandSpider": "Bukan Spider Jenama",
+            "duplicateRef": "Ref Pendua"
+        },
+        "tooltips": {
+            "stableValue": "Nilai stabil",
+            "newValue": "Nilai baharu"
+        },
+        "actions": {
+            "edit": "edit",
+            "update": "kemas kini",
+            "openUnmatched": "Buka semua yang tidak sepadan dalam JOSM",
+            "openUnmapped": "Buka item tidak dipetakan dalam JOSM"
+        },
+        "modals": {
+            "josmError": {
+                "title": "Ralat JOSM",
+                "message": "Tidak dapat menyambung ke JOSM. Sila pastikan JOSM sedang berjalan dan Kawalan Jauh didayakan dalam pilihan."
+            },
+            "mismatch": {
+                "title": "Amaran Penting",
+                "message": "Beberapa data daripada spider mungkin salah. JANGAN hanya mengemas kini {{ tag }} pada semua objek. Semak sejarah untuk melihat siapa yang menambah {{ tag }} dan sumber kemungkinan mereka. Jika anda tidak pasti maka JANGAN BUAT PERUBAHAN melainkan anda boleh meninjau tempat tersebut."
+            },
+            "josmImport": {
+                "message": "Ini akan memuatkan dan membuka item tidak dipetakan daripada ATP ke dalam JOSM. Ini mungkin berguna untuk memadankannya dengan elemen sedia ada. JANGAN import mereka, tetapi gunakan penyesuaian dan pertimbangan."
+            },
+            "understand": "Saya faham",
+            "takeMeBack": "Kembali"
+        },
+        "filters": {
+            "allBrands": "Semua jenama",
+            "noBrand": "Tiada jenama"
+        },
+        "loading": "Memuatkan item...",
+        "searchTags": "Cari tag..."
+    },
+    "locales": {
+        "searchPlaceholder": "Cari bahasa...",
+        "noResults": "Tiada bahasa dijumpai"
+    }
+}

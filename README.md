@@ -1,6 +1,6 @@
 # ATP-OSM Sync
 
-ATP-OSM Sync is a tool designed to keep OpenStreetMap (OSM) data up to date by matching it with data from [All The Places](https://alltheplaces.xyz) (ATP). It identifies discrepancies in brand data—such as opening hours, websites, and contact information—and facilitates the synchronization of this data with OSM.
+ATP-OSM Sync is a tool designed to keep OpenStreetMap (OSM) data up to date by matching it with data from [All The Places](https://alltheplaces.xyz) (ATP). It identifies discrepancies in brand data—such as opening hours, websites, and contact information—and facilitates the synchronisation of this data with OSM.
 
 ## How It Works
 
@@ -67,6 +67,6 @@ The frontend is built using Preact and Vite.
     npm test
     ```
 
-## License
+## Licence
 
-This project is licensed under the GPL 3.0 only license. See the [`LICENSE`](/LICENSE) file for details.
+This project is licenced under the GPL 3.0 only licence. See the [`LICENCE`](/LICENCE) file for details.
