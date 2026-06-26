@@ -166,8 +166,13 @@ export function formatPhone(value, country) {
     const cacheKey = country ? `${value}|${country}` : value;
     if (PHONE_CACHE.has(cacheKey)) return PHONE_CACHE.get(cacheKey);
 
-    const p = getPhoneObject(value, country);
-    const result = p ? p.formatInternational() : null;
+    const parts = splitSemicolonList(value);
+    const formattedParts = parts
+        .map(p => getPhoneObject(p, country))
+        .filter(p => p !== null)
+        .map(p => p.formatInternational());
+
+    const result = formattedParts.length > 0 ? formattedParts.join('; ') : null;
     PHONE_CACHE.set(cacheKey, result);
     return result;
 }
