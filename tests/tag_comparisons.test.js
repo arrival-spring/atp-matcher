@@ -5,6 +5,7 @@ import {
     areTagsEqual,
     getOverallStatus,
     normaliseWebsite,
+    formatPhone,
 } from '../src/tag_comparisons.js';
 
 describe('Tag Comparison Logic', () => {
@@ -165,6 +166,34 @@ describe('Tag Comparison Logic', () => {
 
         test('should return matching for empty list', () => {
             expect(getOverallStatus([])).toBe('matching');
+        });
+    });
+
+    describe('formatPhone', () => {
+        test('should format a single valid phone number', () => {
+            expect(formatPhone('011 123 4567', 'ZA')).toBe('+27 11 123 4567');
+        });
+
+        test('should return null for a single invalid phone number', () => {
+            expect(formatPhone('invalid', 'ZA')).toBe(null);
+        });
+
+        test('should format multiple valid phone numbers', () => {
+            expect(formatPhone('011 123 4567; 011 765 4321', 'ZA')).toBe('+27 11 123 4567; +27 11 765 4321');
+        });
+
+        test('should filter out invalid phone numbers from a list', () => {
+            expect(formatPhone('011 123 4567; invalid', 'ZA')).toBe('+27 11 123 4567');
+            expect(formatPhone('invalid; 011 765 4321', 'ZA')).toBe('+27 11 765 4321');
+        });
+
+        test('should return null if all phone numbers in a list are invalid', () => {
+            expect(formatPhone('invalid; garbage', 'ZA')).toBe(null);
+        });
+
+        test('should handle empty input', () => {
+            expect(formatPhone('', 'ZA')).toBe(null);
+            expect(formatPhone(null, 'ZA')).toBe(null);
         });
     });
 
